@@ -1,0 +1,7 @@
+layer:  
+  description: Compute graph headers
+
+  add-path:
+    - ../Include/cg/src
+    - ../Include/cg/nodes/cpp
+
