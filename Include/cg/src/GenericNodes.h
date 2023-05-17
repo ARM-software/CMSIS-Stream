@@ -78,7 +78,10 @@ class FIFO<T,length,0,0>: public FIFOBase<T>
 {
     public:
         FIFO(T *buffer,int delay=0):mBuffer(buffer),readPos(0),writePos(delay) {};
-        FIFO(uint8_t *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
+        
+        /* Constructor used for memory sharing optimization.
+           The buffer is a shared memory wrapper */
+        FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
 
         /* Not used in synchronous mode */
         bool willUnderflowWith(int nb) const final {(void)nb;return false;};
@@ -147,7 +150,7 @@ class FIFO<T,length,1,0>: public FIFOBase<T>
 {
     public:
         FIFO(T *buffer,int delay=0):mBuffer(buffer),readPos(0),writePos(delay) {};
-        FIFO(uint8_t *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
+        FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
 
         /* Not used in synchronous mode */
         bool willUnderflowWith(int nb) const final {(void)nb;return false;};
@@ -197,7 +200,7 @@ class FIFO<T,length,0,1>: public FIFOBase<T>
 {
     public:
         FIFO(T *buffer,int delay=0):mBuffer(buffer),readPos(0),writePos(delay),nbSamples(delay) {};
-        FIFO(uint8_t *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay),nbSamples(delay) {};
+        FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay),nbSamples(delay) {};
 
         /* 
 
