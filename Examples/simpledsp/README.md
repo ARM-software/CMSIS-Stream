@@ -1,8 +1,8 @@
 # README
 
-This example is inside the folder `examples/simpledsp` of the Compute graph folder. Before reading this documentation you need to understand the principles explained in the [simple example without CMSIS-DSP](../simple/README.md)
+This example is inside the folder `examples/simpledsp` of the CMSIS-Stream folder. Before reading this documentation you need to understand the principles explained in the [simple example](../simple/README.md)
 
-This example explains how to create a very simple synchronous compute graph with 3 nodes. The difference with the [simple example without CMSIS-DSP](../simple/README.md) is that the `Processing` node has been replaced by a CMSIS-DSP function.
+This example explains how to create a very simple synchronous compute graph with 3 nodes. The difference with the [simple example](../simple/README.md) is that the `Processing` node has been replaced by a CMSIS-DSP function.
 
 ![simpledsp](docassets/simpledsp.png)
 
@@ -44,7 +44,7 @@ Where `T` is a basic CMSIS-DSP type like `float32_t` ...
 
 Functions used with `Unary` are similar but with just one input.
 
-When the type is `T` only (and not a pointer),  the argument cannot be connected to a FIFO. It occurs, for instance, when some arguments are scalars (offset, scaling ...)
+When the type is `T` only (and not a pointer),  the argument cannot be connected to a FIFO. It happens, for instance, when some arguments are scalars (offset, scaling ...)
 
 To handle this case, a new kind of node is available : The `Constant` node. A constant node is defined with:
 
@@ -54,7 +54,9 @@ offsetValue = Constant("OFFSET_VALUE")
 
 The string `"OFFSET_VALUE"` is a C symbol (variable or `#define`).
 
-As you can see in the picture, the node `OFFSET_VALUE`  has no IO. There is no value displayed close to the node to show the amount of samples generated on an output.
+As you can see in the picture below, the node `OFFSET_VALUE`  has no IO. There is no value displayed close to the node to show the amount of samples generated on an output.
+
+![simpledsp](docassets/simpledsp.png)
 
 The edge connecting this constant node the the CMSIS-DSP function is not a FIFO : there is no length displayed on this edge since there is no memory buffer allocated for this edge.
 
@@ -85,7 +87,7 @@ arm_offset_f32(i0,OFFSET_VALUE,o2,7);
 cgStaticError = 0;
 ```
 
-Note that constant nodes can only be used with function nodes like `Binary` and `Unary`. The Python will not (currently) check that a constant node is connected only to function nodes. 
+Constant nodes can only be used with function nodes like `Binary` and `Unary`. The Python will not (currently) check that a constant node is connected only to function nodes. 
 
 There is another function node : `Dsp`.
 
@@ -107,7 +109,7 @@ scale=Binary("arm_scale_f32",floatType,NB)
 
 ## How to build the example
 
-This example requires CMSIS-DSP. Contrary to the  [simple example without CMSIS-DSP](../simple/README.md), there is no simple `Makefile` to build it. You need to build it like all other examples using `cmake` as explained in the [top level documentation for the examples](../README.md).
+This example requires CMSIS-DSP. Contrary to the  [simple example without CMSIS-DSP](../simple/README.md), there is no simple `Makefile` to build it. You need to build it like all other examples using `cmake` as explained in the [top level documentation for the examples](../README.md) because it will build CMSIS-DSP on the host computer.
 
 ## Expected output
 

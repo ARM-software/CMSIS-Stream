@@ -29,4 +29,6 @@ Examples/build/build.bat
 Examples/build/bin_*
 Tests/out/
 Tests/tmp/
+Examples/simple/simple
+
 

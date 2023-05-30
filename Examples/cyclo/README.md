@@ -1,6 +1,6 @@
 # README
 
-This example is inside the folder `examples/cyclo` of the Compute graph folder. Before reading this documentation you need to understand the principles explained in the [simple example without CMSIS-DSP](../simple/README.md)
+This example is inside the folder `examples/cyclo` of the CMSIS-Stream folder. Before reading this documentation you need to understand the principles explained in the [simple example](../simple/README.md)
 
 
 
@@ -14,7 +14,7 @@ The nodes are:
 
 The graph generates an infinite streams of values : 1,2,3,4,5,1,2,3,4,5,1,2,3,4,5 ... For this example, the number of iterations will be limited so that it does not run forever.
 
-The big difference compared to the  [simple example without CMSIS-DSP](../simple/README.md) is the source node:
+The big difference compared to the  [simple example](../simple/README.md) is the source node:
 
 * The source node is no more generating samples per packet of 5
 * The first call to the source node will generate 3 samples

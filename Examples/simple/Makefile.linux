@@ -1,0 +1,12 @@
+# Makefile for gcc compiler on Linux
+CC = g++
+
+INCLUDES = -Igenerated -I../../Include/cg/src -I.
+CFLAGS =  -std=c++11 $(INCLUDES)
+
+all:
+	$(CC) -o simple $(CFLAGS) generated/scheduler.cpp main.cpp
+
+clean:
+	rm -f ./simple
+	

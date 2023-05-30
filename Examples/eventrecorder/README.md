@@ -1,6 +1,6 @@
 # README
 
-This example is inside the folder `examples/eventrecorder` of the Compute graph folder.
+This example is inside the folder `examples/eventrecorder` of the CMSIS-Stream folder.
 
 This example explains how to enable the [Event Recorder](https://www.keil.com/pack/doc/compiler/EventRecorder/html/index.html) for the scheduling of the following graph:
 

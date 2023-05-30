@@ -1,26 +1,41 @@
 # CMSIS-Stream
 
-CMSIS-Stream is a Python package and small set of C++ headers that can be used to implement streaming applications on your embedded device with a low overhead solution.
+CMSIS-Stream is a Python package and small set of C++ headers that can be used on embedded devices to process streams of samples with :
+
+* low memory usage
+* minimal overhead
+* deterministic scheduling
+* modular design
+* graphical representation
+
+CMSIS-Stream makes it easier to build streaming solutions by connecting components into a graph and computing a scheduling of this graph at **build time** with several memory optimizations.
+
+Stream of samples are processed by this graph as illustrated on the following animation:
+
+![SDF_doc](Documentation/assets/SDF_doc.gif)
 
 Python is used to:
 
-* Describe the dataflow graph
+* Describe the graph
 * Generate a static scheduling of this graph that is computed at build time with several memory optimizations. 
-* Generate the code for this scheduler into a simple C++ file (with a C API).
+* Generate the code for this scheduler as a simple C++ file (with a C API).
+  * The scheduler can be run on bare metal devices. There is no dependencies to any RTOS. The scheduler is a sequence of function calls
+
+* Generate a graphical representation of the graph
 
 C++ is only used for strong types and static typing (template). The only part of the C++ library that is used is the memory allocator to create the objects.
 
-The scheduler can be run on bare metal devices. There is no dependencies to any RTOS. The scheduler is a sequence of function calls.
-
 ## Table of contents
 
-1. ### [Introduction](Documentation/Introduction.md)
-
-2. ### How to get started
+1. ### How to get started
 
    1. [Simple graph creation example](Examples/simple/README.md)
 
-   2. [Simple graph creation example with CMSIS-DSP](Examples/simpledsp/README.md)
+2. ### How to write the Python script and the C++ wrappers
+
+   1. [How to describe the graph in Python](Documentation/WritePython.md)
+   2. [How to write the C++ wrappers to use your functions in the graph](Documentation/WriteCPP.md)
+   3. [DSP Nodes for working with CMSIS-DSP](Examples/simpledsp/README.md)
 
 3. ### [Examples](Examples/README.md)
 

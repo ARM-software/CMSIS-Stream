@@ -28,6 +28,7 @@
 #define _SCHEDGEN_H_
 
 #include <vector>
+#include <cstring>
 
 /* 
 Defined in cg_status.h by default but user
