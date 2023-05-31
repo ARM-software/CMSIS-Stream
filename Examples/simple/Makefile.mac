@@ -1,5 +1,6 @@
-# Makefile for clang compiler on Mac
-CC = clang
+# Makefile for Xccode gcc compiler on Mac
+XCodePath = $(shell xcode-select --print-path)
+CC = $(XCodePath)/usr/bin/g++
 
 INCLUDES = -Igenerated -I../../Include/cg/src -I.
 CFLAGS =  -std=c++11 $(INCLUDES)
