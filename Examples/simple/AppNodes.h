@@ -27,12 +27,29 @@
 
 #include <iostream>
 
+/*
+
+C++ template for the Sink node.
+A generic implementation is provided
+for all types IN.
+
+The template has two arguments: 
+- The input datatype IN
+- The number of consumed sample on this input : inputSize
+
+*/
 template<typename IN, int inputSize>
 class Sink: public GenericSink<IN, inputSize>
 {
 public:
+    // The constructor for the sink is only using
+    // the input FIFO (coming from the generated scheduler).
+    // This FIFO is passed to the GenericSink contructor.
+    // Implementation of this Sink constructor is doing nothing
     Sink(FIFOBase<IN> &src):GenericSink<IN,inputSize>(src){};
 
+    // Used in asynchronous mode. In case of underflow on
+    // the input, the execution of this node will be skipped
     int prepareForRunning() final
     {
         if (this->willUnderflow())
@@ -43,6 +60,11 @@ public:
         return(0);
     };
 
+    // Implementation of the node.
+    // The input is printed on stdout.
+    // So this node will build only if the IN
+    // datatype has an implementation of << to
+    // be printed on stdout
     int run() final
     {
         IN *b=this->getReadBuffer();
@@ -56,6 +78,13 @@ public:
 
 };
 
+/*
+
+Source template.
+It is very similar to the Sink but inputs have been
+replaced by outputs.
+
+*/
 template<typename OUT,int outputSize>
 class Source: public GenericSource<OUT,outputSize>
 {
@@ -85,19 +114,53 @@ public:
 
 };
 
-template<typename IN, int inputSize,typename OUT,int outputSize>
+/* 
+
+Definition of the Generic ProcessingNode template
+defining one input and one output.
+The generic template is not implemented.
+Instead, a specialized implementation is provided after.
+
+*/
+template<typename IN, int inputSize,
+         typename OUT,int outputSize>
 class ProcessingNode;
 
 
+/*
+
+Specialized implementation of the template with the constraints:
+IN == OUT
+inputSize == outputSize == inputOutputSize
+
+If the Python is generating a node where those constraints are
+not respected, the C++ will not typecheck and build.
+
+There are a remaining degrees of freedom : 
+The datatype (for input and output) can be chosen : IN
+The number of samples (produced and consumed) 
+can be chosen : inputOutputSize
+
+As consequence, the template specialization still use some
+arguments IN and inputOutputSize.
+
+*/
 template<typename IN, int inputOutputSize>
-class ProcessingNode<IN,inputOutputSize,IN,inputOutputSize>: 
-      public GenericNode<IN,inputOutputSize,IN,inputOutputSize>
+class ProcessingNode<IN,inputOutputSize,
+                     IN,inputOutputSize>: 
+      public GenericNode<IN,inputOutputSize,
+                         IN,inputOutputSize>
 {
 public:
+    /* Constructor needs the input and output FIFOs */
     ProcessingNode(FIFOBase<IN> &src,
                    FIFOBase<IN> &dst):GenericNode<IN,inputOutputSize,
                                                   IN,inputOutputSize>(src,dst){};
 
+    /* In asynchronous mode, node execution will be 
+       skipped in case of underflow on the input 
+       or overflow in the output.
+    */
     int prepareForRunning() final
     {
         if (this->willOverflow() ||
@@ -109,6 +172,10 @@ public:
         return(0);
     };
     
+    /* 
+       Node processing
+       1 is added to the input
+    */
     int run() final{
         printf("ProcessingNode\n");
         IN *a=this->getReadBuffer();
