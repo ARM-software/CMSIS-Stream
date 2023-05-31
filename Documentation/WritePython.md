@@ -32,7 +32,7 @@ Then, with all those configurations and a graph description, we are ready to com
 scheduling = the_graph.computeSchedule(config = conf)
 ```
 
-`the_graph` variable has been imported from another file. `the_graph` is the description of the compute graph.
+`the_graph` variable has been imported from `graph.py`. `the_graph` is the description of the compute graph.
 
 Once the schedule has been computed, we can print some statistics:
 
@@ -60,6 +60,19 @@ That's why we have 88 bytes of memory used. Each sample is 4 byte long (a float)
 
 ![simple](../Examples/simple/docassets/simple.png)
 
+The nodes in this graph are always producing or consuming the same amount of data on an IO each time they are executed:
+
+* 5 samples produced by the `source`
+* 5 samples consumed by the `sink`
+* 7 samples on the `processing` node input
+* 7 samples on the `processing` node output
+
+We say that the graph is **synchronous or static**. It is only in this case that it is possible to compute a schedule at build time. This case is general enough to cover most of the use-cases. But when it is really not possible to use the synchronous mode, CMSIS-Stream is supporting two extensions:
+
+- [Cyclo-static scheduling](Documentation/CycloStatic.md)
+
+- [Dynamic / Asynchronous mode](Documentation/Async.md)
+
 Now that we have computed the scheduling, we are ready to generate the C++ implementation:
 
 ```python
@@ -81,14 +94,14 @@ Those lines are creating a `"simple.dot"` file from the graph **and** the comput
 
 Now that we know how to compute a schedule and generate a C++ implementation, let's see how to describe the graph.
 
-The file `graph.py` is containing the Python code used to describe the graph. The first lines of the script are loading the node definitions and some standard definitions from the CMSIS-Stream Python package:
+The file `graph.py` contains the Python code used to describe the graph. The first lines of the script are loading the node definitions and some standard definitions from the CMSIS-Stream Python package:
 
 ```python
 from cmsis_stream.cg.scheduler import *
 from nodes import * 
 ```
 
-We need the definitions from the CMSIS-Stream Python wrapper to define the datatypes used by the nodes. By default only basic datatypes are provided : float32, int16 ... It is also possible to define a C struct datatype.
+We need the definitions from the CMSIS-Stream Python wrapper to define the datatypes used by the nodes. By default only basic datatypes are provided : `float32`, `int16_t` ... It is also possible to define a C struct datatype.
 
 The example is using `float`:
 
@@ -200,7 +213,7 @@ This function is taking three arguments:
 
 * First argument : the name `"o"` of the output. It will become a property of the object and then can be used like any other Python property 
 * The type `theType` of the output. In our example it is the `floatType` passed in argument of the constructor
-* The number of samples `outLength` produced on this output
+* The number of samples `outLength` produced on this output in synchronous mode
 
 As we can see : the API is defined by the constructor `__init__` So the API is not enforced by the compute graph. The developer of the nodes can choose whatever API is the best for a given use case
 

@@ -61,16 +61,16 @@ def addInput(self,name,theType,theLength):
 ```
 
 * `name` is the name of the input. It will becomes a property of the Python object so it must not conflict with existing properties. If `name` is, for instance, `"i"` then it can be accessed with `node.i` in the code
-* `theType` is the datatype of the IO. It must inherit from `CGStaticType` (see below for more details about defining the types)
-* `theLength` is the amount of **samples** consumed by this IO at each execution of the node
+* `theType` is the datatype of the input. It must inherit from `CGStaticType` (see below for more details about defining the types)
+* `theLength` is the amount of **samples** consumed by this input at each execution of the node in synchronous mode. In asynchronous mode it would correspond to the average case.
 
 ```python
 def addOutput(self,name,theType,theLength):
 ```
 
 * `name` is the name of the output. It will becomes a property of the Python object so it must not conflict with existing properties. If `name` is, for instance, `"o"` then it can be accessed with `node.o` in the code
-* `theType` is the datatype of the IO. It must inherit from `CGStaticType` (see below for more details about defining the types)
-* `theLength` is the amount of **samples** produced by this IO at each execution of the node
+* `theType` is the datatype of the output. It must inherit from `CGStaticType` (see below for more details about defining the types)
+* `theLength` is the amount of **samples** produced by this output at each execution of the node in synchronous mode. In asynchronous mode it would correspond to the average case.
 
 ```python
 @property

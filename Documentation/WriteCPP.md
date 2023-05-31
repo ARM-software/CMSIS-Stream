@@ -74,7 +74,7 @@ public:
     Source(FIFOBase<OUT> &dst):public GenericSource<OUT,outputSize>(dst){};
 ```
 
-Our `Source` has only one IO : the output. It needs the FIFO for this output. The first argument, `dst`, of  the `Source` constructor is the FIFO. This FIFO is coming from the scheduler.
+Our `Source` has only one IO : the output. It needs the FIFO for this output. The first argument, `dst`, of  the `Source` constructor is the FIFO. This FIFO is coming from the generated scheduler. The generated scheduler creates a `Source` object by passing the FIFOs to its constructor.
 
 We also need to initialize the `GenericSource` parent since we are inheriting from it. `GenericSource` constructor is called with the `FIFO` argument `dst`.
 
@@ -126,13 +126,13 @@ template<typename IN, int inputSize,
 class ProcessingNode;
 ```
 
-In this example we have decided to implement only a specific version of the processing node. We want to enforce the constraint that the output datatype must be equal to the input datatype and that the number of sample produced must be equal to the number of sample consumed. If it is not the case, it won't type check and the solution won't build.
+In this example, we have decided to implement only a specific version of the processing node. We want to enforce the constraint that the output datatype must be equal to the input datatype and that the number of sample produced must be equal to the number of sample consumed. If it is not the case, it won't type check and the solution won't build.
 
 Remember from the Python definition that this constraint has not been enforced in the Python description of the processing node.
 
 Here is how we implement a specialized version of the template.
 
-First we define the arguments of the template. It is no more generic. We have to give all the arguments:
+First we define the arguments of the template. It is no more generic and we have to give all the arguments:
 
 ```C++
 class ProcessingNode<IN,inputOutputSize,
@@ -231,6 +231,8 @@ The directory to use for headers are:
 
 * `generated`
 * `../../Include/cg/src`
+  * (For the `GenericNodes.h` header)
+
 * `.` the current directory
 
 The headers required by the software are:

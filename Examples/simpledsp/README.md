@@ -24,7 +24,7 @@ This function is adding an offset to its input array. There is no state to initi
 
 This integration is done with the nodes `Unary` and `Binary` defined in `cmsis_stream.cg.scheduler`.
 
-`arm_offset_f32` can be used by creating a node `Binary` in the Python script:
+`arm_offset_f32` can be used by creating a node `Binary` in the Python script since it is a binary operator (addition):
 
 ```python
 processing = Binary("arm_offset_f32",floatType,7)

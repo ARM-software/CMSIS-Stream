@@ -38,9 +38,9 @@ This will generate the following files:
 
 * `generated/scheduler.cpp`
 * `generated/scheduler.h`
-* `simple.dot` (the graphviz representation of the graph)
+* `simple.dot` (the [graphviz](https://graphviz.org/) representation of the graph)
 
-A graphical representation of the graph is generated in graphviz dot format. If you have graphviz installed, you can generate a `png` file representing the graph with:
+A graphical representation of the graph is generated in [graphviz](https://graphviz.org/) dot format. If you have [graphviz](https://graphviz.org/) installed, you can generate a `png` file representing the graph with:
 
 `dot -Tpng -o simple.png simple.dot`
 

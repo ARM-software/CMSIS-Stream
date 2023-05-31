@@ -36,14 +36,15 @@ C++ is only used for strong types and static typing (template). The only part of
    1. [How to describe the graph in Python](Documentation/WritePython.md)
    2. [How to write the C++ wrappers to use your functions in the graph](Documentation/WriteCPP.md)
    3. [DSP Nodes for working with CMSIS-DSP](Examples/simpledsp/README.md)
+   4. [Details about the generated C++ scheduler](Examples/example1/README.md)
 
 3. ### [Examples](Examples/README.md)
 
-4. ### [Python API for creating graphs and schedulers](Documentation/PythonAPI.md)
+4. ### [Python API for creating a graph and its scheduling](Documentation/PythonAPI.md)
 
-5. ### [C++ default nodes for C++ schedulers](Documentation/CPPNodes.md)
+5. ### [C++ default nodes for C++ wrappers](Documentation/CPPNodes.md)
 
-6. ### [Python default nodes for Python schedulers](Documentation/PythonNodes.md)
+6. ### [Python default nodes for Python wrappers](Documentation/PythonNodes.md)
 
 7. ### [Memory optimizations](Documentation/Memory.md)
 
@@ -55,7 +56,7 @@ C++ is only used for strong types and static typing (template). The only part of
 
 9. ### [Maths principles](Documentation/MATHS.md)
 
-10. ### [FAQ](Documentation/FAQ.md)
+10. ### [FAQs](Documentation/FAQ.md)
 
 
 
