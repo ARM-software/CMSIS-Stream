@@ -231,7 +231,7 @@ The directory to use for headers are:
 
 * `generated`
 * `../../Include/cg/src`
-  * (For the `GenericNodes.h` header)
+  * For the `GenericNodes.h` header if you want to use the one from the CMSIS-Stream distribution. It is also possible to generate this file from the Python using `generateGenericNodes(destination_folder)`
 
 * `.` the current directory
 
@@ -251,7 +251,7 @@ The headers required by the software are:
   
 * `GenericNodes.h` 
 
-  * It is coming from the `../../Include/cg/src` folder.
+  * It is coming from the `../../Include/cg/src` folder or generated from the Python with `generateGenericNodes(destination_folder)`
   * It provides the basic definitions needed by the framework like `GenericNode`, `GenericSink`,`GenericSource`, `FIFO` ...
   
   

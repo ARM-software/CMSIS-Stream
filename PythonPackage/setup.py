@@ -1,5 +1,7 @@
 import re
 import subprocess
+import shutil
+import os.path
 
 from setuptools import setup
 
@@ -20,6 +22,11 @@ def version_from_git_tag():
         return f"{match.group(1)}+git{match.group(10)}.{match.group(11)}"
     return match.group(1)
 
+# Copy GenericNode.h before calling setup
+# so that the right version is included in the templates
+
+shutil.copyfile(os.path.join("..","Include","cg","src","GenericNodes.h"), 
+                os.path.join("cmsis_stream","cg","scheduler","templates","GenericNodes.h"))
 
 setup (name = 'cmsis-stream',
        version = version_from_git_tag(),

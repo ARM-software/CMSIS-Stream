@@ -4,6 +4,8 @@
 
 Those classes are defined in `GenericNodes.h` a header that is always included by the scheduler.
 
+`GenericNodes.h` can be created using the python function `generateGenericNodes(destination_folder)` or you can use the file from the CMSIS-Stream repository.
+
 As consequence, the definition for those classes is always included. When you build, this header must be found by your compiler.
 
 ### FIFO

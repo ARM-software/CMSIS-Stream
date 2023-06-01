@@ -23,6 +23,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ############################################
+from jinja2 import Environment, PackageLoader, select_autoescape
+import os.path
+
 """Configuration of C code generation"""
 class Configuration:
 
@@ -60,6 +63,7 @@ class Configuration:
         #
         # CODE GENERATION OPTIONS
         #
+
 
         # Number of iterations of the schedule. By default it is infinite
         # represented by the value 0
@@ -146,3 +150,14 @@ class Configuration:
         return (self.debugLimit > 0)
     
 
+def generateGenericNodes(folder):
+    env = Environment(
+       loader=PackageLoader("cmsis_stream.cg.scheduler"),
+       autoescape=select_autoescape(),
+       trim_blocks=True
+    )
+
+    ctemplate = env.get_template("GenericNodes.h")
+    path=os.path.join(folder,"GenericNodes.h")
+    with open(path,"w") as f:
+        print(ctemplate.render(),file=f)
