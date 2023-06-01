@@ -1,4 +1,6 @@
 build:
+  solution: example.csolution_ac6.yml
+  project: eventrecorder.cproject.yml
   context: eventrecorder.CommandLine+VHT-Corstone-300
   compiler: AC6
   device: ARM::SSE-300-MPS3
@@ -65,7 +67,7 @@ build:
     - RTE/Device/SSE-300-MPS3
     - RTE/CMSIS
     - RTE/Compiler
-    - RTE/_eventrecorder.CommandLine_VHT-Corstone-300
+    - RTE/_CommandLine_VHT-Corstone-300
     - ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.14.4/ComputeGraph/cg/nodes/cpp
     - ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.14.4/ComputeGraph/cg/src
     - ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.14.4/Include
@@ -80,7 +82,6 @@ build:
     - ${CMSIS_PACK_ROOT}/Keil/ARM_Compiler/1.7.2/Include
   output-type: exe
   output-dirs:
-    gendir: generated
     intdir: tmp/eventrecorder/VHT-Corstone-300/CommandLine
     outdir: out/eventrecorder/VHT-Corstone-300/CommandLine
     rtedir: RTE
@@ -291,5 +292,5 @@ build:
         - file: generated/scheduler.cpp
           category: sourceCpp
   constructed-files:
-    - file: RTE/_eventrecorder.CommandLine_VHT-Corstone-300/RTE_Components.h
+    - file: RTE/_CommandLine_VHT-Corstone-300/RTE_Components.h
       category: header

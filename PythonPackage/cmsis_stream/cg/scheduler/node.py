@@ -489,26 +489,30 @@ class BaseNode:
                 allArgs.append(lit.arg)
         return "".join(joinit(allArgs,","))
     
+    def setArgsWith(self,fifoIDs):
+        res=[]
+        # Template args is used only for code array
+        # scheduler when we create on the fly a new class
+        # for a function.
+        # In this case, the arguments of the template must only be
+        # fifos and not constant.
+        templateargs=[]
+        for x in fifoIDs:
+          # If args is a FIFO we generate a name using fifo ids
+          if isinstance(x,int):
+             res.append("fifo%d" % x)
+             templateargs.append("fifo%d" % x)
+          # If args is a constant node, we just use the constant node name
+          # (Defined in C code)
+          else:
+             res.append(x)
+        self._args=res
+        self._templateargs=templateargs
+
     @args.setter
     def args(self,fifoIDs):
-       res=[]
-       # Template args is used only for code array
-       # scheduler when we create on the fly a new class
-       # for a function.
-       # In this case, the arguments of the template must only be
-       # fifos and not constant.
-       templateargs=[]
-       for x in fifoIDs:
-         # If args is a FIFO we generate a name using fifo ids
-         if isinstance(x,int):
-            res.append("fifo%d" % x)
-            templateargs.append("fifo%d" % x)
-         # If args is a constant node, we just use the constant node name
-         # (Defined in C code)
-         else:
-            res.append(x)
-       self._args=res
-       self._templateargs=templateargs
+       self.setArgsWith(fifoIDs)
+       
 
     # For graphviz generation
 

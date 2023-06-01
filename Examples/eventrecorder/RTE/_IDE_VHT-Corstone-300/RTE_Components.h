@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'eventrecorder.IDE+VHT-Corstone-300' 
+ * Project: 'IDE+VHT-Corstone-300' 
  * Target:  'IDE+VHT-Corstone-300' 
  */
 

@@ -31,5 +31,7 @@ Examples/build/bin_*
 Tests/out/
 Tests/tmp/
 Examples/simple/simple
-
+Examples/build_linux/
+Tests/build/
+Examples/eventrecorder/RTE/_CommandLine_VHT-Corstone-300/
 

@@ -26,7 +26,7 @@
 """Standard nodes available to describe a network in addition to the generic nodes"""
 
 from ..types import *
-from .node import GenericNode,GenericSource,GenericSink
+from .node import GenericNode,GenericSource,GenericSink, joinit
 
 floatType=CType(F32)
 
@@ -134,15 +134,70 @@ class MFCC(GenericNode):
     def typeName(self):
         return "MFCC"
 
-class Duplicate2(GenericNode):
-    def __init__(self,name,theType,inLength,className="Duplicate"):
+# Generic duplicate node with list output to
+# support as many outputs as required.
+# All outputs have same type and data length
+
+def numberToBase(n, b):
+    if n == 0:
+        return [0]
+    digits = []
+    while n:
+        digits.append(int(n % b))
+        n //= b
+    return digits[::-1]
+
+def ioName(nb):
+    return("".join([chr(x+ord('A')) for x in numberToBase(nb,26)]).rjust(6,"A"))
+
+
+# Duplicate node is working with a list of output nodes
+# in the C generated code so that we don't have to provide
+# different templates for different number of outputs.
+# As consequence, the formatting of the arguments in the
+# generated code must be modified.
+# The template only use one arguments covering all the list
+# And finally the arguments naming is following alphabetical
+# order
+class Duplicate(GenericNode):
+    def __init__(self,name,theType,inLength,nb,className="Duplicate"):
         GenericNode.__init__(self,name)
 
         self._className = className
+        self._length = inLength
 
         self.addInput("i",theType,inLength)
-        self.addOutput("oa",theType,inLength)
-        self.addOutput("ob",theType,inLength)
+        for i in range(nb):
+            self.addOutput(ioName(i),theType,inLength)
+
+    @property
+    def args(self):
+        """String of fifo args for object initialization
+            with literal argument and variable arguments"""
+        allArgs=self.listOfargs
+        theInput = allArgs[0]
+        nb = len(allArgs) - 1
+        others = ",{" + "".join(joinit(["&"+x for x in allArgs[1:]],",")) + "}"
+        # Add specific argrs after FIFOs
+        sched = []
+        if self.schedArgs:
+            for lit in self.schedArgs:
+                sched.append(lit.arg)
+        if sched:
+            return (theInput + others + "," + "".join(joinit(sched,",")))
+        else:
+           return (theInput + others)
+
+    @args.setter
+    def args(self,fifoIDs):
+       self.setArgsWith(fifoIDs)
+
+    def ioTemplate(self):
+        """ioTemplate is different for window
+        """
+        theType=self._inputs[self.inputNames[0]].ctype  
+        ios="%s,%d" % (theType,self._length)
+        return(ios)
 
     @property 
     def isDuplicateNode(self):
@@ -150,26 +205,8 @@ class Duplicate2(GenericNode):
 
     @property
     def typeName(self):
-        return ("%s2" % self._className)
+        return ("%s" % self._className)
 
-class Duplicate3(GenericNode):
-    def __init__(self,name,theType,inLength,className="Duplicate"):
-        GenericNode.__init__(self,name)
-
-        self._className = className
-
-        self.addInput("i",theType,inLength)
-        self.addOutput("oa",theType,inLength)
-        self.addOutput("ob",theType,inLength)
-        self.addOutput("oc",theType,inLength)
-
-    @property 
-    def isDuplicateNode(self):
-        return True
-
-    @property
-    def typeName(self):
-        return ("%s3" % self._className)
 
 #############################
 #

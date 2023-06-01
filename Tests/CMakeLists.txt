@@ -1,13 +1,13 @@
 cmake_minimum_required (VERSION 3.14)
 include(CMakePrintHelpers)
 
-project(Simple)
+project(test)
 
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
 
-add_executable(simple main.cpp)
+add_executable(test main_duplicate_sync.cpp duplicate_sync/scheduler.cpp)
 
-sdf(simple create.py simple)
-add_sdf_dir(simple)
-
-target_include_directories(simple PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(simple PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/generated)
+target_include_directories(test PRIVATE duplicate_sync)
+target_include_directories(test PRIVATE .)
+target_include_directories(test PRIVATE ../Include/cg/src)

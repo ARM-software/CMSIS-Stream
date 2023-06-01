@@ -192,36 +192,24 @@ Similar to a `GenericNode` but there is no inputs.
 
 Similar to a `GenericNode` but there is no outputs.
 
-#### Duplicate2
+#### Duplicate
 
-This node is duplicating its input to 2 outputs.
+This node is duplicating its input to any number of outputs.
 
 The template is:
 
 ```C++
-template<typename IN, int inputSize,
-         typename OUT1,int output1Size,
-         typename OUT2,int output2Size>
-class Duplicate2;
+template<typename IO, int inputOutputSize>
+class Duplicate;
 ```
 
-Only one specialization of this template makes sense : the output must have same type and same length as the input. 
+The outputs must have same type and same length as the input. The template is only using one type and one length. They apply to the input and all of the outputs.
+
+The node constructor is special since it is taking a vector of output FIFOs:
 
 ```C++
-template<typename IN, int inputSize>
-class Duplicate2<IN,inputSize,
-                 IN,inputSize,
-                 IN,inputSize> : 
-public GenericNode12<IN,inputSize,
-                     IN,inputSize,
-                     IN,inputSize>
+Duplicate(FIFOBase<IO> &src,std::vector<FIFOBase<IO>> &dstList)
 ```
-
-
-
-#### Duplicate3
-
-Similar to `Duplicate2` but with 3 outputs.
 
 ## Optional nodes
 

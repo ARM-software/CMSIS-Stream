@@ -261,8 +261,8 @@ uint32_t scheduler(int *error)
     /* 
     Create node objects
     */
-    Duplicate3<float,128,float,128,float,128,float,128> dup0(fifo11,fifo12,fifo13,fifo14);
-    Duplicate2<float,128,float,128,float,128> dup1(fifo15,fifo16,fifo17);
+    Duplicate<float,128> dup0(fifo11,{&fifo12,&fifo13,&fifo14});
+    Duplicate<float,128> dup1(fifo15,{&fifo16,&fifo17});
     ProcessingNode12<float,16,float,16,float,16> proc12(fifo13,fifo4,fifo5);
     ProcessingNode13<float,16,float,16,float,16,float,16> proc13(fifo14,fifo6,fifo7,fifo8);
     ProcessingNode21<float,16,float,16,float,16> proc21A(fifo17,fifo4,fifo9);

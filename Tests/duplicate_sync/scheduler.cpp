@@ -11,7 +11,7 @@ The support classes and code is covered by CMSIS-DSP license.
 #include <cstdint>
 #include "custom.h"
 #include "GenericNodes.h"
-#include "AppNodes.h"
+#include "DuplicateAppNodes.h"
 #include "scheduler.h"
 
 #if !defined(CHECKERROR)
@@ -78,9 +78,9 @@ CG_AFTER_INCLUDES
 Description of the scheduling. 
 
 */
-static unsigned int schedule[4]=
+static unsigned int schedule[7]=
 { 
-3,1,0,2,
+6,0,1,2,3,4,5,
 };
 
 CG_BEFORE_FIFO_BUFFERS
@@ -89,34 +89,45 @@ CG_BEFORE_FIFO_BUFFERS
 FIFO buffers
 
 ************/
-#define FIFOSIZE0 5
-#define FIFOSIZE1 5
-#define FIFOSIZE2 5
-#define FIFOSIZE3 5
+#define FIFOSIZE0 192
+#define FIFOSIZE1 192
+#define FIFOSIZE2 192
+#define FIFOSIZE3 192
+#define FIFOSIZE4 192
+#define FIFOSIZE5 192
 
-#define BUFFERSIZE1 5
+#define BUFFERSIZE1 192
 CG_BEFORE_BUFFER
 float buf1[BUFFERSIZE1]={0};
 
-#define BUFFERSIZE2 5
+#define BUFFERSIZE2 192
 CG_BEFORE_BUFFER
 float buf2[BUFFERSIZE2]={0};
 
-#define BUFFERSIZE3 5
+#define BUFFERSIZE3 192
 CG_BEFORE_BUFFER
 float buf3[BUFFERSIZE3]={0};
 
-#define BUFFERSIZE4 5
+#define BUFFERSIZE4 192
 CG_BEFORE_BUFFER
 float buf4[BUFFERSIZE4]={0};
 
+#define BUFFERSIZE5 192
+CG_BEFORE_BUFFER
+float buf5[BUFFERSIZE5]={0};
+
+#define BUFFERSIZE6 192
+CG_BEFORE_BUFFER
+float buf6[BUFFERSIZE6]={0};
+
 
 CG_BEFORE_SCHEDULER_FUNCTION
-uint32_t scheduler(int *error,int someVariable)
+uint32_t scheduler(int *error,float* inputArray,
+                              float* outputArray)
 {
     int cgStaticError=0;
     uint32_t nbSchedule=0;
-    int32_t debugCounter=2;
+    int32_t debugCounter=1;
 
     CG_BEFORE_FIFO_INIT;
     /*
@@ -125,16 +136,21 @@ uint32_t scheduler(int *error,int someVariable)
     FIFO<float,FIFOSIZE0,1,0> fifo0(buf1);
     FIFO<float,FIFOSIZE1,1,0> fifo1(buf2);
     FIFO<float,FIFOSIZE2,1,0> fifo2(buf3);
-    FIFO<float,FIFOSIZE3,0,0> fifo3(buf4,5);
+    FIFO<float,FIFOSIZE3,1,0> fifo3(buf4);
+    FIFO<float,FIFOSIZE4,1,0> fifo4(buf5);
+    FIFO<float,FIFOSIZE5,1,0> fifo5(buf6);
 
     CG_BEFORE_NODE_INIT;
     /* 
     Create node objects
     */
-    Duplicate<float,5> dup0(fifo1,{&fifo2,&fifo3});
-    ProcessingNode<float,5,float,5,float,5> filter(fifo0,fifo3,fifo1);
-    Sink<float,5> sink(fifo2);
-    Source<float,5> source(fifo0);
+    Duplicate<float,192> dup0(fifo0,{&fifo1,&fifo2,&fifo3,&fifo4,&fifo5});
+    ArraySink<float,192> sink0(fifo1,&outputArray[0]);
+    ArraySink<float,192> sink1(fifo2,&outputArray[192]);
+    ArraySink<float,192> sink2(fifo3,&outputArray[384]);
+    ArraySink<float,192> sink3(fifo4,&outputArray[576]);
+    ArraySink<float,192> sink4(fifo5,&outputArray[768]);
+    ArraySource<float,192> src(fifo0,inputArray);
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -142,7 +158,7 @@ uint32_t scheduler(int *error,int someVariable)
     {
         /* Run a schedule iteration */
         CG_BEFORE_ITERATION;
-        for(unsigned long id=0 ; id < 4; id++)
+        for(unsigned long id=0 ; id < 7; id++)
         {
             CG_BEFORE_NODE_EXECUTION;
 
@@ -156,19 +172,37 @@ uint32_t scheduler(int *error,int someVariable)
 
                 case 1:
                 {
-                   cgStaticError = filter.run();
+                   cgStaticError = sink0.run();
                 }
                 break;
 
                 case 2:
                 {
-                   cgStaticError = sink.run();
+                   cgStaticError = sink1.run();
                 }
                 break;
 
                 case 3:
                 {
-                   cgStaticError = source.run();
+                   cgStaticError = sink2.run();
+                }
+                break;
+
+                case 4:
+                {
+                   cgStaticError = sink3.run();
+                }
+                break;
+
+                case 5:
+                {
+                   cgStaticError = sink4.run();
+                }
+                break;
+
+                case 6:
+                {
+                   cgStaticError = src.run();
                 }
                 break;
 

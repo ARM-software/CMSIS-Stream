@@ -78,9 +78,9 @@ CG_AFTER_INCLUDES
 Description of the scheduling. 
 
 */
-static unsigned int schedule[9]=
+static unsigned int schedule[13]=
 { 
-7,8,2,1,4,0,3,5,6,
+11,12,6,1,8,0,7,2,3,4,5,9,10,
 };
 
 CG_BEFORE_FIFO_BUFFERS
@@ -97,6 +97,10 @@ FIFO buffers
 #define FIFOSIZE5 2
 #define FIFOSIZE6 2
 #define FIFOSIZE7 2
+#define FIFOSIZE8 2
+#define FIFOSIZE9 2
+#define FIFOSIZE10 2
+#define FIFOSIZE11 2
 
 #define BUFFERSIZE1 2
 CG_BEFORE_BUFFER
@@ -130,6 +134,22 @@ int16_t buf7[BUFFERSIZE7]={0};
 CG_BEFORE_BUFFER
 int16_t buf8[BUFFERSIZE8]={0};
 
+#define BUFFERSIZE9 2
+CG_BEFORE_BUFFER
+int16_t buf9[BUFFERSIZE9]={0};
+
+#define BUFFERSIZE10 2
+CG_BEFORE_BUFFER
+int16_t buf10[BUFFERSIZE10]={0};
+
+#define BUFFERSIZE11 2
+CG_BEFORE_BUFFER
+int16_t buf11[BUFFERSIZE11]={0};
+
+#define BUFFERSIZE12 2
+CG_BEFORE_BUFFER
+int16_t buf12[BUFFERSIZE12]={0};
+
 
 CG_BEFORE_SCHEDULER_FUNCTION
 uint32_t scheduler(int *error)
@@ -150,14 +170,22 @@ uint32_t scheduler(int *error)
     FIFO<int16_t,FIFOSIZE5,0,1> fifo5(buf6);
     FIFO<int16_t,FIFOSIZE6,0,1> fifo6(buf7);
     FIFO<int16_t,FIFOSIZE7,0,1> fifo7(buf8);
+    FIFO<int16_t,FIFOSIZE8,0,1> fifo8(buf9);
+    FIFO<int16_t,FIFOSIZE9,0,1> fifo9(buf10);
+    FIFO<int16_t,FIFOSIZE10,0,1> fifo10(buf11);
+    FIFO<int16_t,FIFOSIZE11,0,1> fifo11(buf12);
 
     CG_BEFORE_NODE_INIT;
     /* 
     Create node objects
     */
     NullSink<int16_t,1> debug(fifo4);
-    Duplicate2<int16_t,1,int16_t,1,int16_t,1> dup0(fifo2,fifo3,fifo4);
-    Duplicate2<int16_t,1,int16_t,1,int16_t,1> dup1(fifo5,fifo6,fifo7);
+    NullSink<int16_t,1> debug0(fifo8);
+    NullSink<int16_t,1> debug1(fifo9);
+    NullSink<int16_t,1> debug2(fifo10);
+    NullSink<int16_t,1> debug3(fifo11);
+    Duplicate<int16_t,1> dup0(fifo2,{&fifo3,&fifo4});
+    Duplicate<int16_t,1> dup1(fifo5,{&fifo6,&fifo7,&fifo8,&fifo9,&fifo10,&fifo11});
     ProcessingOddEven<int16_t,1,int16_t,1,int16_t,1> proc(fifo3,fifo0,fifo1);
     SinkAsync<int16_t,1> sinka(fifo6);
     SinkAsync<int16_t,1> sinkb(fifo7);
@@ -170,7 +198,7 @@ uint32_t scheduler(int *error)
     {
         /* Run a schedule iteration */
         CG_BEFORE_ITERATION;
-        for(unsigned long id=0 ; id < 9; id++)
+        for(unsigned long id=0 ; id < 13; id++)
         {
             CG_BEFORE_NODE_EXECUTION;
 
@@ -203,41 +231,65 @@ uint32_t scheduler(int *error)
 
                 case 2:
                 {
-                    cgStaticError = dup0.prepareForRunning();
+                    cgStaticError = debug0.prepareForRunning();
                 }
                 break;
 
                 case 3:
                 {
-                    cgStaticError = dup1.prepareForRunning();
+                    cgStaticError = debug1.prepareForRunning();
                 }
                 break;
 
                 case 4:
                 {
-                    cgStaticError = proc.prepareForRunning();
+                    cgStaticError = debug2.prepareForRunning();
                 }
                 break;
 
                 case 5:
                 {
-                    cgStaticError = sinka.prepareForRunning();
+                    cgStaticError = debug3.prepareForRunning();
                 }
                 break;
 
                 case 6:
                 {
-                    cgStaticError = sinkb.prepareForRunning();
+                    cgStaticError = dup0.prepareForRunning();
                 }
                 break;
 
                 case 7:
                 {
-                    cgStaticError = sourceEven.prepareForRunning();
+                    cgStaticError = dup1.prepareForRunning();
                 }
                 break;
 
                 case 8:
+                {
+                    cgStaticError = proc.prepareForRunning();
+                }
+                break;
+
+                case 9:
+                {
+                    cgStaticError = sinka.prepareForRunning();
+                }
+                break;
+
+                case 10:
+                {
+                    cgStaticError = sinkb.prepareForRunning();
+                }
+                break;
+
+                case 11:
+                {
+                    cgStaticError = sourceEven.prepareForRunning();
+                }
+                break;
+
+                case 12:
                 {
                     cgStaticError = sourceOdd.prepareForRunning();
                 }
@@ -280,41 +332,65 @@ uint32_t scheduler(int *error)
 
                 case 2:
                 {
-                   cgStaticError = dup0.run();
+                   cgStaticError = debug0.run();
                 }
                 break;
 
                 case 3:
                 {
-                   cgStaticError = dup1.run();
+                   cgStaticError = debug1.run();
                 }
                 break;
 
                 case 4:
                 {
-                   cgStaticError = proc.run();
+                   cgStaticError = debug2.run();
                 }
                 break;
 
                 case 5:
                 {
-                   cgStaticError = sinka.run();
+                   cgStaticError = debug3.run();
                 }
                 break;
 
                 case 6:
                 {
-                   cgStaticError = sinkb.run();
+                   cgStaticError = dup0.run();
                 }
                 break;
 
                 case 7:
                 {
-                   cgStaticError = sourceEven.run();
+                   cgStaticError = dup1.run();
                 }
                 break;
 
                 case 8:
+                {
+                   cgStaticError = proc.run();
+                }
+                break;
+
+                case 9:
+                {
+                   cgStaticError = sinka.run();
+                }
+                break;
+
+                case 10:
+                {
+                   cgStaticError = sinkb.run();
+                }
+                break;
+
+                case 11:
+                {
+                   cgStaticError = sourceEven.run();
+                }
+                break;
+
+                case 12:
                 {
                    cgStaticError = sourceOdd.run();
                 }

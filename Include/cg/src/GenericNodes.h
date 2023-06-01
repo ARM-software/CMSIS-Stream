@@ -29,7 +29,7 @@
 
 #include <vector>
 #include <cstring>
-
+#include <stdarg.h>
 /* 
 Defined in cg_status.h by default but user
 may want to use a different header to define the 
@@ -424,95 +424,56 @@ private:
 #define REPEAT(N) for(int i=0;i<N;i++)
 
 
-template<typename IN, int inputSize,typename OUT1,int output1Size,typename OUT2,int output2Size>
-class Duplicate2;
-
-template<typename IN, int inputSize>
-class Duplicate2<IN,inputSize,IN,inputSize,IN,inputSize>: public GenericNode12<IN,inputSize,IN,inputSize,IN,inputSize>
+template<typename IO, int inputOutputSize>
+class Duplicate:public NodeBase
 {
 public:
-    Duplicate2(FIFOBase<IN> &src,FIFOBase<IN> &dst1,FIFOBase<IN> &dst2):
-    GenericNode12<IN,inputSize,IN,inputSize,IN,inputSize>(src,dst1,dst2){};
+    Duplicate(FIFOBase<IO> &src,
+              std::initializer_list<FIFOBase<IO>*> dst):mSrc(src),mDstList(dst)
+    {
+    };
 
     int prepareForRunning() final
     {
-        if (this->willUnderflow() || 
-            this->willOverflow1() ||
-            this->willOverflow2())
+        if (this->willUnderflow())
         {
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
+
+        for(unsigned int i=0;i<mDstList.size();i++)
+        {
+           if (this->willOverflow(inputOutputSize,i))
+           {
+              return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           }
+        }
+
 
         return(0);
     };
 
     int run() final {
-        IN *a=this->getReadBuffer();
-        IN *b1=this->getWriteBuffer1();
-        IN *b2=this->getWriteBuffer2();
-        for(int i = 0; i<inputSize; i++)
+        IO *a=this->getReadBuffer();
+        
+        for(unsigned int i=0;i<mDstList.size();i++)
         {
-           b1[i] = a[i];
-           b2[i] = a[i];
+           IO *b=this->getWriteBuffer(inputOutputSize,i);
+           memcpy(b,a,sizeof(IO)*inputOutputSize);
         }
+        
         return(0);
     };
 
-};
+protected:
+    IO * getWriteBuffer(int nb = inputOutputSize,int id=1){return mDstList[id]->getWriteBuffer(nb);};
+    IO * getReadBuffer(int nb = inputOutputSize){return mSrc.getReadBuffer(nb);};
 
-template<typename IN, int inputSize,
-         typename OUT1,int output1Size,
-         typename OUT2,int output2Size,
-         typename OUT3,int output3Size>
-class Duplicate3;
+    bool willOverflow(int nb = inputOutputSize,int id=1){return mDstList[id]->willOverflowWith(nb);};
+    bool willUnderflow(int nb = inputOutputSize){return mSrc.willUnderflowWith(nb);};
 
-template<typename IN, int inputSize>
-class Duplicate3<IN,inputSize,
-                 IN,inputSize,
-                 IN,inputSize,
-                 IN,inputSize>: 
-                 public GenericNode13<IN,inputSize,
-                                      IN,inputSize,
-                                      IN,inputSize,
-                                      IN,inputSize>
-{
-public:
-    Duplicate3(FIFOBase<IN> &src,
-               FIFOBase<IN> &dst1,
-               FIFOBase<IN> &dst2,
-               FIFOBase<IN> &dst3):
-    GenericNode13<IN,inputSize,
-                  IN,inputSize,
-                  IN,inputSize,
-                  IN,inputSize>(src,dst1,dst2,dst3){};
-
-    int prepareForRunning() final
-    {
-        if (this->willUnderflow() || 
-            this->willOverflow1() ||
-            this->willOverflow2() ||
-            this->willOverflow3()
-            )
-        {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
-        }
-
-        return(0);
-    };
-
-    int run() final {
-        IN *a=this->getReadBuffer();
-        IN *b1=this->getWriteBuffer1();
-        IN *b2=this->getWriteBuffer2();
-        IN *b3=this->getWriteBuffer3();
-        for(int i = 0; i<inputSize; i++)
-        {
-           b1[i] = a[i];
-           b2[i] = a[i];
-           b3[i] = a[i];
-        }
-        return(0);
-    };
+private:
+    FIFOBase<IO> &mSrc;
+    std::vector<FIFOBase<IO>*> mDstList;
 
 };
 

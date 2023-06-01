@@ -38,7 +38,7 @@ from .pythoncode import gencode as p_gencode
 
 from .node import *
 from .config import *
-from .standard import Duplicate2,Duplicate3
+from .standard import Duplicate,ioName
 
 from ..types import *
 
@@ -264,13 +264,7 @@ class Graph():
                 # If the FIFO has more elements, we need to
                 # restructure the graph and add Duplicate nodes
                 else:
-                    # Currently the library is only providing
-                    # Duplicate2 and Duplicate3 nodes.
-                    # So an output cannot be connected to more than
-                    # 3 inputs
-                    if (len(fifo)>3):
-                        raise TooManyNodesOnOutput
-
+                    
                     dup = None 
                     # We extract from the IO the nb of produced
                     # samples and the data type
@@ -280,11 +274,7 @@ class Graph():
 
 
                     # We create a duplicate node
-                    if len(fifo)==2:
-                        dup = Duplicate2("dup%d" % dupNb,theType,inputSize,className=self.duplicateNodeClassName)
-
-                    if len(fifo)==3:
-                        dup = Duplicate3("dup%d" % dupNb,theType,inputSize,className=self.duplicateNodeClassName)
+                    dup = Duplicate("dup%d" % dupNb,theType,inputSize,len(fifo),className=self.duplicateNodeClassName)
 
                     #print(dup)
 
@@ -356,14 +346,9 @@ class Graph():
 
                     self.connect(output,dup.i,dupAllowed=False)
 
-                    if len(destinations)==2:
-                       self.connectDup(destinations,dup.oa,0)
-                       self.connectDup(destinations,dup.ob,1)
-                       
-                    if len(destinations)==3:
-                       self.connectDup(destinations,dup.oa,0)
-                       self.connectDup(destinations,dup.ob,1)
-                       self.connectDup(destinations,dup.oc,2)
+                    
+                    for i in range(len(destinations)):
+                       self.connectDup(destinations,dup[ioName(i)],i)
                         
 
                

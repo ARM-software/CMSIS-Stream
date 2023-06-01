@@ -57,6 +57,11 @@ sinkb=SinkAsync("sinkb",dataType,1)
 
 debug=NullSink("debug",dataType,1)
 
+NBDEBUG_SINK = 4
+debugSinks=[]
+for i in range(NBDEBUG_SINK):
+    debugSinks.append(NullSink(f"debug{i}",dataType,1))
+
 g = Graph()
 
 # Option to customize the default class
@@ -78,6 +83,8 @@ g.connect(odd.o,debug.i,fifoScale=3.0)
 g.connect(proc.o,comp.i)
 g.connect(comp.o,sinka.i)
 g.connect(comp.o,sinkb.i)
+for i in range(NBDEBUG_SINK):
+    g.connect(comp.o,debugSinks[i].i)
 
 
 print("Generate graphviz and code")

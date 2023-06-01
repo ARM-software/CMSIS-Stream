@@ -65,3 +65,141 @@ In the generated code, you'll see the `Duplicate` nodes. For instance, in this e
 Duplicate3<complex,5,complex,5,complex,5,complex,5> dup0(fifo2,fifo3,fifo4,fifo5);
 ```
 
+# Expected output
+
+```
+Start
+Source
+Source
+ProcessingNode
+Sink
+3 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+3 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+3 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+3 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Source
+ProcessingNode
+Sink
+10 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+10 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+10 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+10 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Source
+Source
+ProcessingNode
+Sink
+17 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+17 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+17 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+17 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Source
+ProcessingNode
+Sink
+24 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+24 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+24 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+24 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Source
+ProcessingNode
+Sink
+31 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+31 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+31 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+Sink
+31 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+0 + I 0
+```
+

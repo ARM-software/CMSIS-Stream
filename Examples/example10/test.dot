@@ -23,6 +23,34 @@ debug [label=<
   </TR>
 </TABLE>>];
 
+debug0 [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i">debug0<BR/>(NullSink)</TD>
+  </TR>
+</TABLE>>];
+
+debug1 [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i">debug1<BR/>(NullSink)</TD>
+  </TR>
+</TABLE>>];
+
+debug2 [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i">debug2<BR/>(NullSink)</TD>
+  </TR>
+</TABLE>>];
+
+debug3 [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i">debug3<BR/>(NullSink)</TD>
+  </TR>
+</TABLE>>];
+
 dup0 [shape=point,label=dup0]
 
 dup1 [shape=point,label=dup1]
@@ -117,6 +145,30 @@ dup1 -> sinka:i [label="s16(2)"
 
  
 dup1 -> sinkb:i [label="s16(2)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
+</TD></TR></TABLE>>
+]
+
+ 
+dup1 -> debug0:i [label="s16(2)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
+</TD></TR></TABLE>>
+]
+
+ 
+dup1 -> debug1:i [label="s16(2)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
+</TD></TR></TABLE>>
+]
+
+ 
+dup1 -> debug2:i [label="s16(2)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
+</TD></TR></TABLE>>
+]
+
+ 
+dup1 -> debug3:i [label="s16(2)"
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
 </TD></TR></TABLE>>
 ]

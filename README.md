@@ -40,23 +40,25 @@ C++ is only used for strong types and static typing (template). The only part of
 
 3. ### [Examples](Examples/README.md)
 
-4. ### [Python API for creating a graph and its scheduling](Documentation/PythonAPI.md)
+4. ### API Details
 
-5. ### [C++ default nodes for C++ wrappers](Documentation/CPPNodes.md)
+   1. ### [Python API for creating a graph and its scheduling](Documentation/PythonAPI.md)
 
-6. ### [Python default nodes for Python wrappers](Documentation/PythonNodes.md)
+   2. ### [C++ default nodes for C++ wrappers](Documentation/CPPNodes.md)
 
-7. ### [Memory optimizations](Documentation/Memory.md)
+   3. ### [Python default nodes for Python wrappers](Documentation/PythonNodes.md)
 
-8. ### Extensions
+5. ### [Memory optimizations](Documentation/Memory.md)
+
+6. ### Extensions
 
    1. #### [Cyclo-static scheduling](Documentation/CycloStatic.md)
 
    2. #### [Dynamic / Asynchronous mode](Documentation/Async.md)
 
-9. ### [Maths principles](Documentation/MATHS.md)
+7. ### [Maths principles](Documentation/MATHS.md)
 
-10. ### [FAQs](Documentation/FAQ.md)
+8. ### [FAQs](Documentation/FAQ.md)
 
 
 
