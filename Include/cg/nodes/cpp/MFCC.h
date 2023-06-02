@@ -65,7 +65,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
     int run() final
@@ -73,7 +73,7 @@ public:
         float32_t *a=this->getReadBuffer();
         float32_t *b=this->getWriteBuffer();
         arm_mfcc_f32(mfccConfig,a,b,memory.data());
-        return(0);
+        return(CG_SUCCESS);
     };
 
     const arm_mfcc_instance_f32 *mfccConfig;
@@ -108,7 +108,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
     int run() final
@@ -116,7 +116,7 @@ public:
         float16_t *a=this->getReadBuffer();
         float16_t *b=this->getWriteBuffer();
         arm_mfcc_f16(mfccConfig,a,b,memory.data());
-        return(0);
+        return(CG_SUCCESS);
     };
 
     const arm_mfcc_instance_f16 *mfccConfig;
@@ -147,7 +147,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
     int run() final
@@ -155,7 +155,7 @@ public:
         q31_t *a=this->getReadBuffer();
         q31_t *b=this->getWriteBuffer();
         arm_mfcc_q31(mfccConfig,a,b,memory.data());
-        return(0);
+        return(CG_SUCCESS);
     };
 
     const arm_mfcc_instance_q31 *mfccConfig;
@@ -185,7 +185,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
     int run() final
@@ -193,7 +193,7 @@ public:
         q15_t *a=this->getReadBuffer();
         q15_t *b=this->getWriteBuffer();
         arm_mfcc_q15(mfccConfig,a,b,memory.data());
-        return(0);
+        return(CG_SUCCESS);
     };
 
     const arm_mfcc_instance_q15 *mfccConfig;

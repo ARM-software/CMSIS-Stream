@@ -21,7 +21,7 @@
        EventRecord2 (Evt_Node, {{nodes[s].codeID}}, 0);
        {% endif -%}
        CG_BEFORE_NODE_EXECUTION;
-       {{nodes[s].cRun()}}
+       {{nodes[s].cRun(config)}}
        CG_AFTER_NODE_EXECUTION;
        {% if config.eventRecorder -%}
        if (cgStaticError<0)

@@ -40,7 +40,11 @@ static unsigned int schedule[{{schedLen}}]=
                 case {{nodeID}}:
                 {
                     {% if not nodes[nodeID].isPureNode -%}
+                    {%- if not config.heapAllocation -%}
                     cgStaticError = {{nodes[nodeID].nodeName}}.prepareForRunning();
+                    {%- else -%}
+                    cgStaticError = nodes.{{nodes[nodeID].nodeName}}->prepareForRunning();
+                    {%- endif -%}
                     {%- else -%}
                     {{nodes[nodeID].cCheck(config.asyncDefaultSkip)}}
                     {%- endif %}
@@ -76,7 +80,7 @@ static unsigned int schedule[{{schedLen}}]=
                 {% for nodeID in range(nbNodes) -%}
                 case {{nodeID}}:
                 {
-                   {{nodes[nodeID].cRun()}}
+                   {{nodes[nodeID].cRun(config)}}
 
                    {%- if config.dumpFIFO %}
                    {%- for fifoID in sched.outputFIFOs(nodes[nodeID]) %}

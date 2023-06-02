@@ -8,8 +8,10 @@ The support classes and code is covered by CMSIS-DSP license.
 */
 
 
+#include <cstdint>
 #include "custom.h"
 #include "GenericNodes.h"
+#include "cg_status.h"
 #include "AppNodes.h"
 #include "scheduler.h"
 
@@ -93,11 +95,12 @@ FIFO buffers
 
 #define BUFFERSIZE1 11
 CG_BEFORE_BUFFER
-float32_t buf1[BUFFERSIZE1]={0};
+float buf1[BUFFERSIZE1]={0};
 
 #define BUFFERSIZE2 11
 CG_BEFORE_BUFFER
-float32_t buf2[BUFFERSIZE2]={0};
+float buf2[BUFFERSIZE2]={0};
+
 
 
 CG_BEFORE_SCHEDULER_FUNCTION
@@ -111,16 +114,16 @@ uint32_t scheduler(int *error)
     /*
     Create FIFOs objects
     */
-    FIFO<float32_t,FIFOSIZE0,0,0> fifo0(buf1);
-    FIFO<float32_t,FIFOSIZE1,0,0> fifo1(buf2);
+    FIFO<float,FIFOSIZE0,0,0> fifo0(buf1);
+    FIFO<float,FIFOSIZE1,0,0> fifo1(buf2);
 
     CG_BEFORE_NODE_INIT;
     /* 
     Create node objects
     */
-    ProcessingNode<float32_t,7,float32_t,7> processing(fifo0,fifo1);
-    Sink<float32_t,5> sink(fifo1);
-    Source<float32_t,5> source(fifo0);
+    ProcessingNode<float,7,float,7> processing(fifo0,fifo1);
+    Sink<float,5> sink(fifo1);
+    Source<float,5> source(fifo0);
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;

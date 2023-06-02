@@ -11,6 +11,7 @@ The support classes and code is covered by CMSIS-DSP license.
 #include "arm_math.h"
 #include "custom_bench.h"
 #include "GenericNodes.h"
+#include "cg_status.h"
 #include "BenchAppNodes.h"
 #include "scheduler.h"
 
@@ -131,6 +132,7 @@ CG_BEFORE_BUFFER
 float buf8[BUFFERSIZE8]={0};
 
 
+
 CG_BEFORE_SCHEDULER_FUNCTION
 uint32_t scheduler(int *error,float32_t* inputArray,
                               float32_t* outputArray)
@@ -182,8 +184,8 @@ uint32_t scheduler(int *error,float32_t* inputArray,
                 {
                                         
                     bool canRun=true;
-                    canRun &= !fifo1.willUnderflowWith(256);
-                    canRun &= !fifo2.willOverflowWith(256);
+                    canRun &= !(fifo1.willUnderflowWith(256));
+                    canRun &= !(fifo2.willOverflowWith(256));
 
                     if (!canRun)
                     {

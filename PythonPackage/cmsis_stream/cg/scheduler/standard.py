@@ -177,20 +177,16 @@ class Duplicate(GenericNode):
         allArgs=self.listOfargs
         theInput = allArgs[0]
         nb = len(allArgs) - 1
-        others = ",{" + "".join(joinit(["&"+x for x in allArgs[1:]],",")) + "}"
+        others = ",{" + "".join(joinit([x.pointer for x in allArgs[1:]],",")) + "}"
         # Add specific argrs after FIFOs
         sched = []
         if self.schedArgs:
             for lit in self.schedArgs:
                 sched.append(lit.arg)
         if sched:
-            return (theInput + others + "," + "".join(joinit(sched,",")))
+            return (theInput.reference + others + "," + "".join(joinit(sched,",")))
         else:
-           return (theInput + others)
-
-    @args.setter
-    def args(self,fifoIDs):
-       self.setArgsWith(fifoIDs)
+           return (theInput.reference + others)
 
     def ioTemplate(self):
         """ioTemplate is different for window

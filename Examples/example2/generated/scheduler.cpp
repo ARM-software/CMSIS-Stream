@@ -11,6 +11,7 @@ The support classes and code is covered by CMSIS-DSP license.
 #include "arm_math.h"
 #include "custom.h"
 #include "GenericNodes.h"
+#include "cg_status.h"
 #include "AppNodes.h"
 #include "scheduler.h"
 
@@ -141,6 +142,7 @@ float32_t buf8[BUFFERSIZE8]={0};
 #define BUFFERSIZE9 500
 CG_BEFORE_BUFFER
 float32_t buf9[BUFFERSIZE9]={0};
+
 
 
 CG_BEFORE_SCHEDULER_FUNCTION

@@ -25,6 +25,7 @@
 ############################################
 from jinja2 import Environment, PackageLoader, select_autoescape
 import os.path
+import os
 
 """Configuration of C code generation"""
 class Configuration:
@@ -90,10 +91,6 @@ class Configuration:
         # Path to CG  module for Python simu 
         self.pathToCGModule="../../.."
 
-        # When codeArray  is true, instead of using
-        # function calls we parse un array giving
-        # the index of functions to call in another array
-        self.codeArray = True
         # If users do not want to use function pointers,
         # we can generate a switch/case instead
         self.switchCase = True
@@ -115,6 +112,9 @@ class Configuration:
         # Name of generic nodes headers
         self.genericNodeCName = "GenericNodes.h"
 
+        # Name of cg_status header for error codes
+        self.cgStatusCName = "cg_status.h"
+
         # Name of scheduler source and header files
         self.schedulerCFileName = "scheduler"
         self.schedulerPythonFileName = "sched"
@@ -127,7 +127,7 @@ class Configuration:
 
         # Asynchronous scheduling using
         # synchronous as first start
-        # It implies switchCase and codeArray
+        # It implies switchCase
         # It disables memory optimizations
         # Also FIFO cannot be used any more as just
         # buffers.
@@ -143,6 +143,9 @@ class Configuration:
         # Default asynchronous more for pure functions 
         # like CMSIS-DSP
         self.asyncDefaultSkip = True
+
+        self.heapAllocation = False
+
 
        
     @property
@@ -161,3 +164,46 @@ def generateGenericNodes(folder):
     path=os.path.join(folder,"GenericNodes.h")
     with open(path,"w") as f:
         print(ctemplate.render(),file=f)
+
+def generateCGStatus(folder):
+    env = Environment(
+       loader=PackageLoader("cmsis_stream.cg.scheduler"),
+       autoescape=select_autoescape(),
+       trim_blocks=True
+    )
+
+    ctemplate = env.get_template("cg_status.h")
+    path=os.path.join(folder,"cg_status.h")
+    with open(path,"w") as f:
+        print(ctemplate.render(),file=f)
+
+def createEmptyProject(project_name):
+    env = Environment(
+       loader=PackageLoader("cmsis_stream.cg.scheduler"),
+       autoescape=select_autoescape(),
+       trim_blocks=True
+    )
+    try:
+        os.mkdir(project_name)
+    except Exception as e:
+        pass
+
+    all_files={"start_project_appnodes.h":"AppNodes.h"
+              ,"start_project_custom.h":"custom.h"
+              ,"start_project_main.c":"main_host.c"
+              ,"start_project_graph.py":"graph.py"
+              ,"Makefile.linux":"Makefile.linux"
+              ,"Makefile.mac":"Makefile.mac"
+              ,"Makefile.windows":"Makefile.windows"
+              ,"main_board.c":"main.c"
+              ,"simple.csolution_ac6.yml":"simple.csolution_ac6.yml"
+              ,"simple.cproject.yml":"simple.cproject.yml"
+              ,"vht.clayer.yml":"vht.clayer.yml"
+              ,"run.bat":"run_vht.bat"
+              ,"ARMCM55_FP_MVE_config.txt":"ARMCM55_FP_MVE_config.txt"};
+    for src_name in all_files:
+        dst_name = all_files[src_name]
+        ctemplate = env.get_template(f"project/{src_name}")
+        path = os.path.join(project_name,dst_name)
+        with open(path,"w") as f:
+            print(ctemplate.render(),file=f)

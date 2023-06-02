@@ -28,6 +28,8 @@ def version_from_git_tag():
 shutil.copyfile(os.path.join("..","Include","cg","src","GenericNodes.h"), 
                 os.path.join("cmsis_stream","cg","scheduler","templates","GenericNodes.h"))
 
+shutil.copyfile(os.path.join("..","Include","cg","src","cg_status.h"), 
+                os.path.join("cmsis_stream","cg","scheduler","templates","cg_status.h"))
 setup (name = 'cmsis-stream',
        version = version_from_git_tag(),
        packages=["cmsis_stream",
@@ -68,6 +70,11 @@ setup (name = 'cmsis-stream',
         project_urls={  # Optional
            'Bug Reports': 'https://github.com/ARM-software/CMSIS-Stream/issues',
            'Source': 'https://github.com/ARM-software/CMSIS-Stream',
-          }
+          },
+        entry_points={
+        'console_scripts': [
+            'cmsis-stream = cmsis_stream:cmsis_stream',
+        ]
+    }
         )
        

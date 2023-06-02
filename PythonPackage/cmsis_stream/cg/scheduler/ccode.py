@@ -47,15 +47,11 @@ def gencode(sched,directory,config):
 
     # Asychronous implies code array and switchCase
     if config.asynchronous:
-       config.codeArray = True 
        config.switchCase = True
        config.memoryOptimization = False
 
-    if config.codeArray:
-       if config.switchCase:
-          ctemplate = env.get_template("codeSwitch.cpp")
-       else:
-          ctemplate = env.get_template("codeArray.cpp")
+    if config.switchCase:
+       ctemplate = env.get_template("codeSwitch.cpp")
        nb = 0
        for s in sched.schedule:
          schedDescription = schedDescription + ("%d," % sched.nodes[s].codeID)
@@ -78,7 +74,6 @@ def gencode(sched,directory,config):
             nbFifos=nbFifos,
             nbNodes=len(sched.nodes),
             nodes=sched.nodes,
-            pureNodes=sched.pureNodes,
             schedule=sched.schedule,
             schedLen=len(sched.schedule),
             config=config,

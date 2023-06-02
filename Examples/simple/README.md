@@ -2,7 +2,15 @@
 
 This example is inside the folder `examples/simple` of the CMSIS-Stream folder.
 
-This example describes a very simple synchronous compute graph with 3 nodes:
+You can either use this example, or create it with the `cmsis-stream` command line tool:
+
+`cmsis-stream create SimpleProject`
+
+In the folder `SimpleProject` you'll get the `Makefiles to build on host (Linux, Mac, Windows) and the CMSIS build tool solution files to build on Arm Virtual hardware for Corstone-300.
+
+The folder `example/simple` only contains makefile for host and no Corstone support.
+
+The example describes a very simple synchronous compute graph with 3 nodes:
 
 ![simple](docassets/simple.png)
 
@@ -36,8 +44,8 @@ Once the CMSIS-Stream python package has been installed, you can run the script 
 
 This will generate the following files:
 
-* `generated/scheduler.cpp`
-* `generated/scheduler.h`
+* `scheduler.cpp`
+* `scheduler.h`
 * `simple.dot` (the [graphviz](https://graphviz.org/) representation of the graph)
 
 A graphical representation of the graph is generated in [graphviz](https://graphviz.org/) dot format. If you have [graphviz](https://graphviz.org/) installed, you can generate a `png` file representing the graph with:

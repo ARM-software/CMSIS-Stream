@@ -18,6 +18,7 @@ The support classes and code is covered by CMSIS-DSP license.
 {% endif %}
 #include "{{config.customCName}}"
 #include "{{config.genericNodeCName}}"
+#include "{{config.cgStatusCName}}"
 #include "{{config.appNodesCName}}"
 #include "{{config.schedulerCFileName}}.h"
 {% if config.postCustomCName -%}
@@ -57,6 +58,82 @@ CG_BEFORE_BUFFER
 
 {% endfor %}
 
+{% if config.heapAllocation %}
+typedef struct {
+{% for id in range(nbFifos) %}
+{{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}> *fifo{{id}};
+{% endfor %}
+} fifos_t;
+
+typedef struct {
+{% for node in nodes %}
+{% if node.hasState %}
+    {{node.typeName}}<{{node.ioTemplate()}}> *{{node.nodeName}};
+{% endif %}
+{% endfor %}
+} nodes_t;
+
+CG_BEFORE_BUFFER
+static fifos_t fifos={0};
+
+CG_BEFORE_BUFFER
+static nodes_t nodes={0};
+
+int init_{{config.schedName}}()
+{
+    CG_BEFORE_FIFO_INIT;
+{% for id in range(nbFifos) %}
+{% if fifos[id].hasDelay %}
+    fifos.fifo{{id}} = new {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{config.prefix}}buf{{fifos[id].buffer._bufferID}},{{fifos[id].delay}});
+    if (fifos.fifo{{id}}==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+{% else %}
+    fifos.fifo{{id}} = new {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{config.prefix}}buf{{fifos[id].buffer._bufferID}});
+    if (fifos.fifo{{id}}==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+{% endif %}
+{% endfor %}
+
+    CG_BEFORE_NODE_INIT;
+{% for node in nodes %}
+{% if node.hasState %}
+    nodes.{{node.nodeName}} = new {{node.typeName}}<{{node.ioTemplate()}}>({{node.args}});
+    if (nodes.{{node.nodeName}}==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+{% endif %}
+{% endfor %}
+
+    return(CG_SUCCESS);
+
+}
+
+void free_{{config.schedName}}()
+{
+{% for id in range(nbFifos) %}
+    if (fifos.fifo{{id}}!=NULL)
+    {
+       delete fifos.fifo{{id}};
+    }
+{% endfor %}
+
+{% for node in nodes %}
+{% if node.hasState %}
+    if (nodes.{{node.nodeName}}!=NULL)
+    {
+        delete nodes.{{node.nodeName}};
+    }
+{% endif %}
+{% endfor %}
+}
+
+{% endif %}
+
 CG_BEFORE_SCHEDULER_FUNCTION
 uint32_t {{config.schedName}}(int *error{{optionalargs()}})
 {
@@ -66,6 +143,7 @@ uint32_t {{config.schedName}}(int *error{{optionalargs()}})
     int32_t debugCounter={{config.debugLimit}};
 {% endif %}
 
+{% if not config.heapAllocation %}
     CG_BEFORE_FIFO_INIT;
     /*
     Create FIFOs objects
@@ -87,6 +165,7 @@ uint32_t {{config.schedName}}(int *error{{optionalargs()}})
     {{node.typeName}}<{{node.ioTemplate()}}> {{node.nodeName}}({{node.args}});
 {% endif %}
 {% endfor %}
+{% endif %}
 
     /* Run several schedule iterations */
 {% block scheduleLoop %}

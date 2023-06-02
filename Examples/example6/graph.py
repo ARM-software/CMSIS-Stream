@@ -47,7 +47,6 @@ print("Memory usage %d bytes" % sched.memory)
 conf.debugLimit=1
 conf.cOptionalArgs="arm_mfcc_instance_f32 *mfccConfig"
 
-#conf.codeArray=True
 sched.ccode("generated",config=conf)
 
 with open("test.dot","w") as f:

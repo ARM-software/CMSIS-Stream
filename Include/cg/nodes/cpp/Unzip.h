@@ -54,7 +54,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
     
     /*
@@ -70,7 +70,7 @@ public:
            b1[i] =(IN)a[2*i];
            b2[i] =(IN)a[2*i+1];
         }
-        return(0);
+        return(CG_SUCCESS);
     };
 
 };

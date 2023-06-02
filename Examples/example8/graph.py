@@ -92,7 +92,6 @@ print("Memory usage %d bytes" % sched.memory)
 # code generation
 conf.debugLimit=1
 conf.cOptionalArgs="int someVariable"
-#conf.codeArray=True
 conf.memoryOptimization=True
 
 if not GEN_PYTHON:

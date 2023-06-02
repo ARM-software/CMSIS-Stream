@@ -64,7 +64,6 @@ print("Memory usage %d bytes" % sched.memory)
 
 
 #conf.dumpFIFO=True
-#conf.codeArray=True
 sched.ccode("generated",config=conf)
 
 with open("test.dot","w") as f:

@@ -35,6 +35,7 @@ Defined in cg_status.h by default but user
 may want to use a different header to define the 
 error codes of the application
 */
+#define CG_SUCCESS_ID_CODE (0)
 #define CG_SKIP_EXECUTION_ID_CODE (-5)
 #define CG_BUFFER_ERROR_ID_CODE (-6)
 
@@ -449,7 +450,7 @@ public:
         }
 
 
-        return(0);
+        return(CG_SUCCESS_ID_CODE);
     };
 
     int run() final {
@@ -461,7 +462,7 @@ public:
            memcpy(b,a,sizeof(IO)*inputOutputSize);
         }
         
-        return(0);
+        return(CG_SUCCESS_ID_CODE);
     };
 
 protected:

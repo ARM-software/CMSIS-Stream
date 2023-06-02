@@ -16,6 +16,22 @@ It returns a `Schedule` object. This object contains:
 * The buffers for the FIFOs (with sharing when possible if memory optimizations were enabled)
 * A rewritten graph with `Duplicate` nodes inserted
 
+```python
+def generateGenericNodes(folder):
+```
+
+Create the file `GenericNodes.h` in the folder `folder`. You can also use the `GenericNodes.h` from the CMSIS-Stream repository. But, to make it easier to start, it is included in the Python wrapper.
+
+`GenericNodes.h` contains the definitions required for CMSIS-Stream to work (FIFO, Generic nodes, sources and sinks ...)
+
+```python
+def generateCGStatus(folder):
+```
+
+Create the file `cg_status.h` in the folder `folder`. You can also use the `cg_status.h` from the CMSIS-Stream repository. But, to make it easier to start, it is included in the Python wrapper.
+
+`cg_status.h` contains error codes.
+
 ## Options for the scheduling
 
 Those options needs to be used on a configuration objects passed as argument of the scheduling function. For instance:

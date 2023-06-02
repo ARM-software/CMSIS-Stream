@@ -26,6 +26,27 @@ function(sdf TARGET SCRIPT DOTNAME)
     target_sources(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/generated/scheduler.cpp)
 endfunction()
 
+function(sdfroot TARGET SCRIPT DOTNAME)
+    if (DOT)
+    add_custom_command(TARGET ${TARGET} PRE_BUILD 
+        BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.pdf
+        COMMAND ${DOT} -Tpdf -o ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.pdf ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.dot
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.dot
+        VERBATIM
+        )
+    endif()
+
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/scheduler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.dot
+        COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
+        VERBATIM
+        )
+    target_sources(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/scheduler.cpp)
+endfunction()
+
 function(sdfpython TARGET)
     if (DOT)
     add_custom_command(TARGET ${TARGET} PRE_BUILD 

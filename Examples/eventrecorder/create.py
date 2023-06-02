@@ -28,6 +28,12 @@ print("Memory usage %d bytes" % scheduling.memory)
 # Generate the C++ code for the static scheduler
 scheduling.ccode("generated",conf)
 
+# GenericNodes.h is created in the folder "generated"
+generateGenericNodes("generated")
+
+# cg_status.h is created in the folder "generated"
+generateCGStatus("generated")
+
 # Generate a graphviz representation of the graph
 with open("event_recorder.dot","w") as f:
     scheduling.graphviz(f)

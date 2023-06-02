@@ -1,0 +1,13 @@
+# Makefile for Xccode gcc compiler on Mac
+XCodePath = $(shell xcode-select --print-path)
+CC = $(XCodePath)/usr/bin/g++
+
+INCLUDES =  -I.
+CFLAGS =  -std=c++11 $(INCLUDES)
+
+all:
+	$(CC) -o simple $(CFLAGS) ./scheduler.cpp main_host.c
+
+clean:
+	rm -f ./simple
+	

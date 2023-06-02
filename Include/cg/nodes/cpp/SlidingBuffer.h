@@ -47,7 +47,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
     int run() final
@@ -57,7 +57,7 @@ public:
         memcpy((void*)b,(void*)memory.data(),overlap*sizeof(IN));
         memcpy((void*)(b+overlap),(void*)a,(windowSize-overlap)*sizeof(IN));
         memcpy((void*)memory.data(),(void*)(b+windowSize-overlap),overlap*sizeof(IN)) ;
-        return(0);
+        return(CG_SUCCESS);
     };
 protected:
     std::vector<IN> memory;

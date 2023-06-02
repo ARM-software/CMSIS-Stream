@@ -10,8 +10,6 @@ When `debugLimit` is > 0, the number of iterations of the scheduling is limited 
 
 When true, generate some code to dump the FIFO content at **runtime**. Only useful for debug.
 
-In C++ code generation, it is only available when using the mode `codeArray == False`.
-
 When this mode is enabled, the first line of the scheduler file is :
 
 `#define DEBUGSCHED 1`

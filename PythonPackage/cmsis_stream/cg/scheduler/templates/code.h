@@ -32,6 +32,10 @@ extern "C"
 
 {% endif %}
 
+{% if config.heapAllocation %}
+extern int init_{{config.schedName}}();
+extern void free_{{config.schedName}}();
+{% endif %}
 extern uint32_t {{config.schedName}}(int *error{{optionalargs()}});
 
 {% if config.CAPI -%}

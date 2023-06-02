@@ -51,7 +51,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
     int run() final
@@ -64,7 +64,7 @@ public:
         float32_t *b=this->getWriteBuffer();
         memcpy((void*)b,(void*)a,inputSize*sizeof(float32_t));
         arm_cfft_f32(&sifft,b,1,1);
-        return(0);
+        return(CG_SUCCESS);
     };
 
     arm_cfft_instance_f32 sifft;
@@ -95,7 +95,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
     int run() final
@@ -108,7 +108,7 @@ public:
         float16_t *b=this->getWriteBuffer();
         memcpy((void*)b,(void*)a,inputSize*sizeof(float16_t));
         arm_cfft_f16(&sifft,b,1,1);
-        return(0);
+        return(CG_SUCCESS);
     };
 
     arm_cfft_instance_f16 sifft;
@@ -139,7 +139,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
     
     int run() final
@@ -152,7 +152,7 @@ public:
         q15_t *b=this->getWriteBuffer();
         memcpy((void*)b,(void*)a,inputSize*sizeof(q15_t));
         arm_cfft_q15(&sifft,b,1,1);
-        return(0);
+        return(CG_SUCCESS);
     };
 
     arm_cfft_instance_q15 sifft;

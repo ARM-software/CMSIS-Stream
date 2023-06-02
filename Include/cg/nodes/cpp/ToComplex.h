@@ -51,7 +51,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
     int run() final
@@ -63,7 +63,7 @@ public:
             b[2*i]=a[i];
             b[2*i+1]=0;
         }
-        return(0);
+        return(CG_SUCCESS);
     };
 
 

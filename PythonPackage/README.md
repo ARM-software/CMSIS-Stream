@@ -14,6 +14,17 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.2.0:
+
+* The file cg_status.h can now also be created from
+the python package
+
+* A new heapAllocate option has been introduced. When true,
+FIFO and node objects are allocated on the heap and no more
+on the stack. Two new functions are generated in the scheduler to initialize or free those objects
+
+* A new command line tool cmsis-stream is available. It can be used to quickly create a project with : cmsis-stream create TestFolder. The folder will contain makefiles for windows, mac and linux. It will also contain a CMSIS build tool solution file to build for Arm Virtual Hardware CS 300
+
 ## Version 1.1.0:
 
 * The file GenericNodes.h can now be created from the

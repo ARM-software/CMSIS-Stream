@@ -73,7 +73,7 @@ def {{config.schedName}}({{optionalargs()}}):
        nbSchedule = nbSchedule + 1
 
 {% for s in schedule %}
-       {{nodes[s].cRun(False)}}
+       {{nodes[s].cRun(config,False)}}
        if cgStaticError < 0:
           break
 {% if config.dumpFIFO %}

@@ -30,7 +30,7 @@ import os.path
 import numpy as np
 
 from sympy.core.numbers import ilcm
-
+from .args import *
 
 class NoFunctionArrayInPython(Exception):
     pass
@@ -367,25 +367,75 @@ class BaseNode:
 
 
 
-    def allIOs(self):
+    def createArgsWithSchedulerFifoID(self,pureClassID,config,fifoID):
         """Get list of IO objects for inputs and outputs"""
-        ins=[] 
-        outs=[]
+        i=[] 
+        o=[]
+        theArgs=[] 
+        theArgTypes=[]
         # Use orderd io names
         for io in self.inputNames:
             x = self._inputs[io]
-            ins.append(x)
+            i.append(x)
 
         for io in self.outputNames:
             x = self._outputs[io]
-            outs.append(x)
+            o.append(x)
 
         
-        return(ins,outs)
+        for io in i:
+                # An io connected to a constant node has no fifo 
+                if len(io.fifo) > 0:
+                   theArgs.append(fifoID(io.fifo))
+                   theArgTypes.append(io.ctype)
+                else:
+                # Instead the arg is the name of a constant node
+                # instead of being a fifo ID
+                   theArgs.append(io.constantNode.name)
+                   theArgTypes.append(io.constantNode.name)
+        for io in o:
+                theArgs.append(fifoID(io.fifo))
+                theArgTypes.append(io.ctype)
 
+        if not self.hasState:
+           # For pure function, analyze how many
+           # real arguments (FIFO) we have
+           self.analyzeConstantArgs()
 
+        self.setArgsWith(theArgs,config)
+
+        # Used to know how to call the run function of the
+        # node in the CRun functions.
+        if config.heapAllocation:
+            self.nodeVariable=ArgsPtrObj(self.nodeName,owner="nodes")
+        else:
+            self.nodeVariable=ArgsObject(self.nodeName)
+       
+
+        return(pureClassID)
 
     
+    # Compute how many real inputs and outputs we have
+    # Other are constant ndoes
+    def analyzeConstantArgs(self):
+        inputid=0
+        outputid=0
+        
+        # Use ordered io names
+        for io in self.inputNames:
+            x = self._inputs[io]
+            if not x.constantNode:
+               inputid = inputid + 1
+
+        for io in self.outputNames:
+            x = self._outputs[io]
+            if not x.constantNode:
+               outputid = outputid + 1
+               
+
+        self._realInputs = inputid
+        self._realOutputs = outputid
+        
 
     def ioTemplate(self):
         """Template arguments for C
@@ -451,15 +501,15 @@ class BaseNode:
         
         return("".join(joinit(ios,",")))
 
-    def cRun(self,ctemplate=True):
+    def cRun(self,config,ctemplate=True):
         """Run function
 
            Some nodes may customize it
         """
         if ctemplate:
-           return ("cgStaticError = %s.run();" % self.nodeName)
+           return (f"cgStaticError = {self.nodeVariable.access}run();")
         else:
-           return ("cgStaticError = %s.run()" % self.nodeName)
+           return (f"cgStaticError = {self.nodeVariable.access}run()")
 
     def cFunc(self,ctemplate=True):
         """Function call for code array scheduler
@@ -482,14 +532,14 @@ class BaseNode:
     def args(self):
         """String of fifo args for object initialization
             with literal argument and variable arguments"""
-        allArgs=self.listOfargs
+        allArgs=[x.reference for x in self.listOfargs]
         # Add specific argrs after FIFOs
         if self.schedArgs:
             for lit in self.schedArgs:
                 allArgs.append(lit.arg)
         return "".join(joinit(allArgs,","))
     
-    def setArgsWith(self,fifoIDs):
+    def setArgsWith(self,fifoIDs,config):
         res=[]
         # Template args is used only for code array
         # scheduler when we create on the fly a new class
@@ -500,20 +550,20 @@ class BaseNode:
         for x in fifoIDs:
           # If args is a FIFO we generate a name using fifo ids
           if isinstance(x,int):
-             res.append("fifo%d" % x)
-             templateargs.append("fifo%d" % x)
+             if config.heapAllocation:
+                fifoArg = FifoPtrID(x,owner="fifos")
+             else:
+                fifoArg = FifoID(x)
+             res.append(fifoArg)
+             templateargs.append(fifoArg)
           # If args is a constant node, we just use the constant node name
           # (Defined in C code)
           else:
-             res.append(x)
+             res.append(ArgsObject(x))
         self._args=res
         self._templateargs=templateargs
 
-    @args.setter
-    def args(self,fifoIDs):
-       self.setArgsWith(fifoIDs)
-       
-
+    
     # For graphviz generation
 
 
@@ -712,7 +762,6 @@ class GenericFunction(GenericNode):
         if not (funcname in GenericFunction.NODEID):
             GenericFunction.NODEID[funcname]=1 
 
-        self._pureNodeID = GenericFunction.PUREID
         GenericFunction.PUREID = GenericFunction.PUREID + 1
         GenericNode.__init__(self,"%s%d" % (funcname,GenericFunction.NODEID[funcname]))
 
@@ -722,87 +771,6 @@ class GenericFunction(GenericNode):
         self._isPureNode = True
 
         GenericFunction.NODEID[funcname]=GenericFunction.NODEID[funcname]+1
-
-
-    # For class generated on the fly to contain a function call
-    # Analyze which args are constant instead of being FIFOs
-    def analyzeArgs(self):
-        inputid=0 
-        outputid=0
-        # Arguments to use when calling the constructor
-        ios=[]
-        # Template params
-        temptypes=[]
-        specializedtemptypes=[]
-        # template args
-        tempargs=[]
-        # Template params for the generic node
-        tempgen=[]
-        # Datatypes for the constructor
-        constructortypes=[]
-        # Args for the generic constructor
-        genericconstructorargs=[]
-
-        typenameID = 1
-        # Use ordered io names
-        for io in self.inputNames:
-            x = self._inputs[io]
-            if not x.constantNode:
-               inputid = inputid + 1
-               temptypes.append("typename T%d, int input%dSize" % (typenameID,inputid))
-               specializedtemptypes.append("int input%dSize" % (inputid))
-               tempargs.append("%s,input%dSize" % (x.ctype,inputid))
-               tempgen.append("%s,input%dSize" % (x.ctype,inputid))
-               constructortypes.append("FIFOBase<%s> &src%d" % (x.ctype,inputid))
-               genericconstructorargs.append("src%d" % inputid)
-               # For cyclo static scheduling, nbSamples may be a list
-               if isinstance(x.nbSamples,int):
-                  ios.append("%s,%d" % (x.ctype,x.nbSamples))
-               else:
-                  m = np.max(x.nbSamples)
-                  ios.append("%s,%d" % (x.ctype,m))
-               typenameID = typenameID + 1
-
-        for io in self.outputNames:
-            x = self._outputs[io]
-            if not x.constantNode:
-               outputid = outputid + 1
-               temptypes.append("typename T%d,int output%dSize" % (typenameID,outputid))
-               specializedtemptypes.append("int output%dSize" % (outputid))
-               tempargs.append("%s,output%dSize" % (x.ctype,outputid))
-               tempgen.append("%s,output%dSize" % (x.ctype,outputid))
-               constructortypes.append("FIFOBase<%s> &dst%d" % (x.ctype,outputid))
-               genericconstructorargs.append("dst%d" % outputid)
-               if isinstance(x.nbSamples,int):
-                  ios.append("%s,%d" % (x.ctype,x.nbSamples))
-               else:
-                  m = np.max(x.nbSamples)
-                  ios.append("%s,%d" % (x.ctype,m))
-               typenameID = typenameID + 1
-
-        self._realInputs = inputid
-        self._realOutputs = outputid
-        # Arguments to use when calling the constructor
-        self._constructorTypes = "".join(joinit(ios,","))
-        # Argument 
-        self._constructorArguments = "".join(joinit(self._templateargs,",")) 
-        # Template parameters to use when defining the template
-        self._templateParameters = "".join(joinit(temptypes,","))
-        # Template parameters to use when defining the template
-        self._specializedTemplateParameters = "".join(joinit(specializedtemptypes,","))
-        # Template parameters to use when defining the template
-        self._templateArguments = "".join(joinit(tempargs,","))
-        # Template parameters to use when defining the template
-        self._templateParametersForGeneric = "".join(joinit(tempgen,","))
-        # Datatypes for the constructors 
-        self._datatypeForConstructor = "".join(joinit(constructortypes,","))
-        # Args for the generic constructor
-        self._genericConstructorArgs = "".join(joinit(genericconstructorargs,","))
-
-    @property
-    def pureNodeID(self):
-        return self._pureNodeID
-    
 
     @property
     def realInputs(self):
@@ -960,21 +928,10 @@ class GenericFunction(GenericNode):
         
 
     # To clean
-    def cRun(self,ctemplate=True,codeArray=False):
+    def cRun(self,config,ctemplate=True):
        params = self._prepareForCodeGen(ctemplate)
 
        if ctemplate:
-           if codeArray:
-              result=Dsp.CNODETEMPLATE.render(func=self._nodeName,
-               theType = params["theType"],
-               nb = params["nb"],
-               ptrs = params["ptrs"],
-               args = params["args"],
-               inputs=params["inputs"], 
-               outputs=params["outputs"],
-               node=self
-               )
-           else:
               result=Dsp.CTEMPLATE.render(func=self._nodeName,
                theType = params["theType"],
                nb = params["nb"],
@@ -998,10 +955,7 @@ class GenericFunction(GenericNode):
             )
        return(result)
 
-    def codeArrayRun(self):
-        return(self.cRun(codeArray=True))
-
-
+    
 class Unary(GenericFunction):
     def __init__(self,funcname,theType,length):
         GenericFunction.__init__(self,funcname,theType,length)

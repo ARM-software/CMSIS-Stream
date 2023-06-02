@@ -12,7 +12,7 @@ conf.debugLimit=1
 # Disable inclusion of CMSIS-DSP headers so that we don't have
 # to recompile CMSIS-DSP for such a simple example
 conf.CMSISDSP = False
-
+conf.asynchronous = False
 # Compute a static scheduling of the graph 
 # The size of FIFO is also computed
 scheduling = the_graph.computeSchedule(config=conf)
@@ -23,15 +23,19 @@ print("Schedule length = %d" % scheduling.scheduleLength)
 print("Memory usage %d bytes" % scheduling.memory)
 
 # Generate the C++ code for the static scheduler
-scheduling.ccode("generated",conf)
+scheduling.ccode(".",conf)
 
-# The generated code is including GenericNodes.h
-# This file can either be used from the CMSIS-Stream repository
-# or it can be generated from the Python package so that it
-# is easier to start using CMSIS-Stream
+# The generated code is including GenericNodes.h and 
+# cg_status.h
+# Those files can either be used from the CMSIS-Stream 
+# repository or they can be generated from the Python 
+# package so that it is easier to start using CMSIS-Stream
 
 # GenericNodes.h is created in the folder "generated"
-#generateGenericNodes("generated")
+generateGenericNodes(".")
+
+# cg_status.h is created in the folder "generated"
+generateCGStatus(".")
 
 # Generate a graphviz representation of the graph
 with open("simple.dot","w") as f:

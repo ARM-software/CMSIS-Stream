@@ -11,7 +11,6 @@ conf=Configuration()
 conf.debugLimit=1
 # Enable inclusion of CMSIS-DSP headers
 conf.CMSISDSP = True
-
 # Compute a static scheduling of the graph 
 # The size of FIFO is also computed
 scheduling = the_graph.computeSchedule(config=conf)

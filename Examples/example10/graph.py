@@ -94,11 +94,12 @@ conf.debugLimit=10
 conf.cOptionalArgs=""
 conf.CMSISDSP = False 
 
-conf.codeArray = True
+conf.heapAllocation = True
+
 conf.switchCase = True
 
 # Asynchronous mode enable. It implies
-# switchCase and codeArray true
+# switchCase  true
 conf.asynchronous = True 
 
 # Increase size of synchronous FIFOs by 100%
@@ -124,7 +125,6 @@ print("Memory usage %d bytes" % sched.memory)
 #conf.prefix="global"
 #conf.dumpFIFO = True
 #conf.CMSISDSP = False
-#conf.codeArray = False
 #conf.switchCase = False
 
 # For pure functions (like CMSIS-DSP) which are not

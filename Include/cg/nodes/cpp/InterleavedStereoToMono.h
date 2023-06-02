@@ -47,7 +47,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
     int run() final
@@ -58,7 +58,7 @@ public:
         {
            b[i] = (a[2*i]>>1) + (a[2*i+1]>>1);
         }
-        return(0);
+        return(CG_SUCCESS);
     };
 
 };
@@ -79,7 +79,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
     int run() final
@@ -90,7 +90,7 @@ public:
         {
            b[i] = (a[2*i]>>1) + (a[2*i+1]>>1);
         }
-        return(0);
+        return(CG_SUCCESS);
     };
 
 };
@@ -111,7 +111,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
     
     int run() final
@@ -122,7 +122,7 @@ public:
         {
            b[i] = 0.5f * (a[2*i] + a[2*i+1]);
         }
-        return(0);
+        return(CG_SUCCESS);
     };
 
 };

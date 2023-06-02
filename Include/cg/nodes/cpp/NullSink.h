@@ -41,7 +41,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
     int run() final
@@ -50,7 +50,7 @@ public:
 
         
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
 };

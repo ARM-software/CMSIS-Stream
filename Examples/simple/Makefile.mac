@@ -2,11 +2,11 @@
 XCodePath = $(shell xcode-select --print-path)
 CC = $(XCodePath)/usr/bin/g++
 
-INCLUDES = -Igenerated -I../../Include/cg/src -I.
+INCLUDES = -I.
 CFLAGS =  -std=c++11 $(INCLUDES)
 
 all:
-	$(CC) -o simple $(CFLAGS) generated/scheduler.cpp main.cpp
+	$(CC) -o simple $(CFLAGS) ./scheduler.cpp main.cpp
 
 clean:
 	rm -f ./simple
