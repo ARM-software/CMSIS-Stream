@@ -65,7 +65,8 @@ setup (name = 'cmsis-stream',
         'networkx>=3.0',
         'jinja2>= 3.1.2, <4.0',
         'sympy>=1.7.1',
-        'MarkupSafe>=2.1.2, <3.0'
+        'MarkupSafe>=2.1.2, <3.0',
+        'numpy'
         ],
         project_urls={  # Optional
            'Bug Reports': 'https://github.com/ARM-software/CMSIS-Stream/issues',
