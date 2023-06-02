@@ -14,6 +14,12 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.2.1:
+
+* Correct an issue in 1.2.0. Some templates needed
+by the new command line tool had not been included in the
+package.
+
 ## Version 1.2.0:
 
 * The file cg_status.h can now also be created from
