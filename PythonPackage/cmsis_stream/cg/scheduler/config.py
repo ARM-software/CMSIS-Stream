@@ -203,7 +203,7 @@ def createEmptyProject(project_name):
               ,"ARMCM55_FP_MVE_config.txt":"ARMCM55_FP_MVE_config.txt"};
     for src_name in all_files:
         dst_name = all_files[src_name]
-        ctemplate = env.get_template(f"project/{src_name}")
+        ctemplate = env.get_template(src_name)
         path = os.path.join(project_name,dst_name)
         with open(path,"w") as f:
             print(ctemplate.render(),file=f)

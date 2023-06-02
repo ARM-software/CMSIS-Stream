@@ -1,5 +1,4 @@
 include README.md
 include cmsis_stream/cg/scheduler/templates/*
-include cmsis_stream/cg/scheduler/templates/project/*
 
 
