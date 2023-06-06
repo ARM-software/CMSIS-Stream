@@ -179,7 +179,7 @@ def generateCGStatus(folder):
 
 def createEmptyProject(project_name):
     env = Environment(
-       loader=PackageLoader("cmsis_stream.cg.scheduler"),
+       loader=PackageLoader("cmsis_stream.cg.scheduler","example"),
        autoescape=select_autoescape(),
        trim_blocks=True
     )
@@ -196,7 +196,7 @@ def createEmptyProject(project_name):
               ,"Makefile.mac":"Makefile.mac"
               ,"Makefile.windows":"Makefile.windows"
               ,"main_board.c":"main.c"
-              ,"simple.csolution_ac6.yml":"simple.csolution_ac6.yml"
+              ,"simple_ac6.csolution.yml":"simple_ac6.csolution.yml"
               ,"simple.cproject.yml":"simple.cproject.yml"
               ,"vht.clayer.yml":"vht.clayer.yml"
               ,"run.bat":"run_vht.bat"

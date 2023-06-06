@@ -38,7 +38,7 @@ from .pythoncode import gencode as p_gencode
 
 from .node import *
 from .config import *
-from .standard import Duplicate,ioName
+from .standard import Duplicate
 
 from ..types import *
 
@@ -348,7 +348,8 @@ class Graph():
 
                     
                     for i in range(len(destinations)):
-                       self.connectDup(destinations,dup[ioName(i)],i)
+                       name = dup.outputNameFromIndex(i)
+                       self.connectDup(destinations,dup[name],i)
                         
 
                

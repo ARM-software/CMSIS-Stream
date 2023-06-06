@@ -14,6 +14,12 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.3.0:
+
+* New nodes `GenericToMany`, `GenericFromMany`, `GenericManyToMany`
+* `Duplicate` node implementation now using `GenericToMany`
+* Possibility to change the name of IOs in `Binary`, `Unary` and `Dsp` nodes
+
 ## Version 1.2.1:
 
 * Correct an issue in 1.2.0. Some templates needed

@@ -1,5 +1,5 @@
 # Include definitions from the Python package
-from cmsis_stream.cg.scheduler import GenericNode,GenericSink,GenericSource
+from cmsis_stream.cg.scheduler import *
 
 ### Define new types of Nodes 
 
@@ -75,3 +75,35 @@ class Source(GenericSource):
         """The name of the C++ class implementing this node"""
         return "Source"
 
+class ProcessingNodeA(GenericManyToManyNode):
+    def __init__(self,name,theType,inLength,outLength):
+        GenericManyToManyNode.__init__(self,name)
+        self.addManyInput(theType,inLength,3)
+        self.addManyOutput(theType,outLength,2)
+
+
+    @property
+    def typeName(self):
+        return "ProcessingNodeA"
+
+class ProcessingNodeB(GenericToManyNode):
+    def __init__(self,name,theType,inLength,outLength):
+        GenericToManyNode.__init__(self,name)
+        self.addInput("i",theType,inLength)
+        self.addManyOutput(theType,outLength,2)
+
+
+    @property
+    def typeName(self):
+        return "ProcessingNodeB"
+
+class ProcessingNodeC(GenericFromManyNode):
+    def __init__(self,name,theType,inLength,outLength):
+        GenericFromManyNode.__init__(self,name)
+        self.addManyInput(theType,inLength,3)
+        self.addOutput("o",theType,outLength)
+
+
+    @property
+    def typeName(self):
+        return "ProcessingNodeC"

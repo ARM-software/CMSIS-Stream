@@ -146,7 +146,7 @@ uint32_t scheduler(int *error,float* inputArray,
     /* 
     Create node objects
     */
-    Duplicate<float,192> dup0(fifo0,{&fifo1,&fifo2,&fifo3,&fifo4,&fifo5});
+    Duplicate<float,192,float,192> dup0(fifo0,{&fifo1,&fifo2,&fifo3,&fifo4,&fifo5});
     ArraySink<float,192> sink0(fifo1,&outputArray[0]);
     ArraySink<float,192> sink1(fifo2,&outputArray[192]);
     ArraySink<float,192> sink2(fifo3,&outputArray[384]);

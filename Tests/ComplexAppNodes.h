@@ -269,5 +269,124 @@ public:
 
 };
 
+template<typename IN, int inputSize,
+         typename OUT, int outputSize>
+class ProcessingNodeA:
+public GenericManyToManyNode<IN,inputSize,
+                             OUT,outputSize>
+{
+public:
+    ProcessingNodeA(std::initializer_list<FIFOBase<IN>*> src,
+                   std::initializer_list<FIFOBase<OUT>*> dst):
+    GenericManyToManyNode<IN,inputSize,
+                          OUT,outputSize>(src,dst){};
+
+    int prepareForRunning() final
+    {
+        for(unsigned int i=0;i<this->getNbInputs();i++)
+        {
+           if (this->willUnderflow(i))
+           {
+              return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           }
+        }
+
+
+        for(unsigned int i=0;i<this->getNbOutputs();i++)
+        {
+           if (this->willOverflow(i))
+           {
+              return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           }
+        }
+
+
+        return(CG_SUCCESS_ID_CODE);
+    };
+    
+    int run() final{
+        
+        return(CG_SUCCESS_ID_CODE);
+    };
+
+};
+
+template<typename IN, int inputSize,
+         typename OUT, int outputSize>
+class ProcessingNodeB:
+public GenericToManyNode<IN,inputSize,
+                         OUT,outputSize>
+{
+public:
+    ProcessingNodeB(FIFOBase<IN> &src,
+                    std::initializer_list<FIFOBase<OUT>*> dst):
+    GenericToManyNode<IN,inputSize,
+                      OUT,outputSize>(src,dst){};
+
+    int prepareForRunning() final
+    {
+         if (this->willUnderflow())
+        {
+           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+        }
+
+        for(unsigned int i=0;i<this->getNbOutputs();i++)
+        {
+           if (this->willOverflow(i))
+           {
+              return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           }
+        }
+
+
+        return(CG_SUCCESS_ID_CODE);
+    };
+    
+    int run() final{
+        
+        return(CG_SUCCESS_ID_CODE);
+    };
+
+};
+
+template<typename IN, int inputSize,
+         typename OUT, int outputSize>
+class ProcessingNodeC:
+public GenericFromManyNode<IN,inputSize,
+                           OUT,outputSize>
+{
+public:
+    ProcessingNodeC(std::initializer_list<FIFOBase<IN>*> src,
+                    FIFOBase<OUT> &dst):
+    GenericFromManyNode<IN,inputSize,
+                        OUT,outputSize>(src,dst){};
+
+    int prepareForRunning() final
+    {
+       
+
+        for(unsigned int i=0;i<this->getNbInputs();i++)
+        {
+           if (this->willUnderflow(i))
+           {
+              return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           }
+        }
+
+        if (this->willOverflow())
+        {
+           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+        }
+
+
+        return(CG_SUCCESS_ID_CODE);
+    };
+    
+    int run() final{
+        
+        return(CG_SUCCESS_ID_CODE);
+    };
+
+};
 
 #endif

@@ -9,9 +9,50 @@ digraph structs {
     fontname="times"
 
 
+dstaA [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i">dstaA<BR/>(Sink)</TD>
+  </TR>
+</TABLE>>];
+
+dstaB [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i">dstaB<BR/>(Sink)</TD>
+  </TR>
+</TABLE>>];
+
+dstaC [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i">dstaC<BR/>(Sink)</TD>
+  </TR>
+</TABLE>>];
+
+dstbA [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i">dstbA<BR/>(Sink)</TD>
+  </TR>
+</TABLE>>];
+
+dstbB [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i">dstbB<BR/>(Sink)</TD>
+  </TR>
+</TABLE>>];
+
 dup0 [shape=point,label=dup0]
 
 dup1 [shape=point,label=dup1]
+
+dup2 [shape=point,label=dup2]
+
+dup3 [shape=point,label=dup3]
+
+dup4 [shape=point,label=dup4]
 
 
 proc12 [label=<
@@ -116,6 +157,62 @@ procE [label=<
   </TR>
 </TABLE>>];
 
+
+proc_f_m [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD PORT="ia"><FONT POINT-SIZE="9.0">ia</FONT></TD>
+    <TD ALIGN="CENTER" ROWSPAN="3">proc_f_m<BR/>(ProcessingNodeC)</TD>
+    <TD PORT="o"><FONT POINT-SIZE="9.0">o</FONT></TD>
+  </TR>
+<TR>
+<TD PORT="ib"><FONT POINT-SIZE="9.0">ib</FONT></TD>
+
+ 
+<TD></TD></TR><TR>
+<TD PORT="ic"><FONT POINT-SIZE="9.0">ic</FONT></TD>
+
+ 
+<TD></TD></TR>
+
+</TABLE>>];
+
+
+proc_m_to_m [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD PORT="ia"><FONT POINT-SIZE="9.0">ia</FONT></TD>
+    <TD ALIGN="CENTER" ROWSPAN="3">proc_m_to_m<BR/>(ProcessingNodeA)</TD>
+    <TD PORT="oa"><FONT POINT-SIZE="9.0">oa</FONT></TD>
+  </TR>
+<TR>
+<TD PORT="ib"><FONT POINT-SIZE="9.0">ib</FONT></TD>
+
+<TD PORT="ob"><FONT POINT-SIZE="9.0">ob</FONT></TD>
+</TR><TR>
+<TD PORT="ic"><FONT POINT-SIZE="9.0">ic</FONT></TD>
+
+ 
+<TD></TD></TR>
+
+</TABLE>>];
+
+
+proc_to_m [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD PORT="i"><FONT POINT-SIZE="9.0">i</FONT></TD>
+    <TD ALIGN="CENTER" ROWSPAN="2">proc_to_m<BR/>(ProcessingNodeB)</TD>
+    <TD PORT="oa"><FONT POINT-SIZE="9.0">oa</FONT></TD>
+  </TR>
+<TR>
+ 
+<TD></TD>
+<TD PORT="ob"><FONT POINT-SIZE="9.0">ob</FONT></TD>
+</TR>
+
+</TABLE>>];
+
 sink [label=<
 <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
@@ -158,6 +255,20 @@ source [label=<
   </TR>
 </TABLE>>];
 
+src0 [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i">src0<BR/>(Source)</TD>
+  </TR>
+</TABLE>>];
+
+src1 [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i">src1<BR/>(Source)</TD>
+  </TR>
+</TABLE>>];
+
 
 
 source:i -> procA:i [label="f32(128)"
@@ -178,16 +289,10 @@ procB:i -> procC:i [label="f32(128)"
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >128</FONT>
 </TD></TR></TABLE>>]
 
-procE:i -> sink:i [label="f32(352)"
-,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >100</FONT>
-</TD></TR></TABLE>>
-,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >256</FONT>
-</TD></TR></TABLE>>]
-
-proc12:oa -> proc21A:ib [label="f32(16)"
+procE:i -> sink:i [label="f32(128)"
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
 </TD></TR></TABLE>>
-,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >128</FONT>
 </TD></TR></TABLE>>]
 
 proc12:ob -> proc21B:ia [label="f32(16)"
@@ -224,6 +329,36 @@ proc21B:o -> sinkE:i [label="f32(16)"
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
 </TD></TR></TABLE>>
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
+</TD></TR></TABLE>>]
+
+proc_m_to_m:oa -> dstaA:i [label="f32(32)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >32</FONT>
+</TD></TR></TABLE>>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >32</FONT>
+</TD></TR></TABLE>>]
+
+proc_m_to_m:ob -> dstbA:i [label="f32(32)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >32</FONT>
+</TD></TR></TABLE>>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >32</FONT>
+</TD></TR></TABLE>>]
+
+proc_to_m:oa -> dstaB:i [label="f32(32)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >32</FONT>
+</TD></TR></TABLE>>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >32</FONT>
+</TD></TR></TABLE>>]
+
+proc_to_m:ob -> dstbB:i [label="f32(32)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >32</FONT>
+</TD></TR></TABLE>>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >32</FONT>
+</TD></TR></TABLE>>]
+
+proc_f_m:o -> dstaC:i [label="f32(32)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >32</FONT>
+</TD></TR></TABLE>>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >32</FONT>
 </TD></TR></TABLE>>]
 
 procC:i ->  
@@ -264,6 +399,72 @@ dup1 -> procE:i [label="f32(128)"
 
  
 dup1 -> proc21A:ia [label="f32(128)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
+</TD></TR></TABLE>>
+]
+
+proc12:oa ->  
+dup2 [label="f32(16)"
+
+,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
+</TD></TR></TABLE>>]
+
+ 
+dup2 -> proc21A:ib [label="f32(16)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
+</TD></TR></TABLE>>
+]
+
+ 
+dup2 -> proc_m_to_m:ia [label="f32(16)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
+</TD></TR></TABLE>>
+]
+
+ 
+dup2 -> proc_f_m:ia [label="f32(16)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
+</TD></TR></TABLE>>
+]
+
+ 
+dup2 -> proc_to_m:i [label="f32(16)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
+</TD></TR></TABLE>>
+]
+
+src0:i ->  
+dup3 [label="f32(16)"
+
+,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
+</TD></TR></TABLE>>]
+
+ 
+dup3 -> proc_m_to_m:ib [label="f32(16)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
+</TD></TR></TABLE>>
+]
+
+ 
+dup3 -> proc_f_m:ib [label="f32(16)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
+</TD></TR></TABLE>>
+]
+
+src1:i ->  
+dup4 [label="f32(16)"
+
+,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
+</TD></TR></TABLE>>]
+
+ 
+dup4 -> proc_m_to_m:ic [label="f32(16)"
+,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
+</TD></TR></TABLE>>
+]
+
+ 
+dup4 -> proc_f_m:ic [label="f32(16)"
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >16</FONT>
 </TD></TR></TABLE>>
 ]

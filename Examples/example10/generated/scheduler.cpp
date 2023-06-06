@@ -173,8 +173,8 @@ typedef struct {
     NullSink<int16_t,1> *debug1;
     NullSink<int16_t,1> *debug2;
     NullSink<int16_t,1> *debug3;
-    Duplicate<int16_t,1> *dup0;
-    Duplicate<int16_t,1> *dup1;
+    Duplicate<int16_t,1,int16_t,1> *dup0;
+    Duplicate<int16_t,1,int16_t,1> *dup1;
     ProcessingOddEven<int16_t,1,int16_t,1,int16_t,1> *proc;
     SinkAsync<int16_t,1> *sinka;
     SinkAsync<int16_t,1> *sinkb;
@@ -278,12 +278,12 @@ int init_scheduler()
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    nodes.dup0 = new Duplicate<int16_t,1>(*(fifos.fifo2),{fifos.fifo3,fifos.fifo4});
+    nodes.dup0 = new Duplicate<int16_t,1,int16_t,1>(*(fifos.fifo2),{fifos.fifo3,fifos.fifo4});
     if (nodes.dup0==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    nodes.dup1 = new Duplicate<int16_t,1>(*(fifos.fifo5),{fifos.fifo6,fifos.fifo7,fifos.fifo8,fifos.fifo9,fifos.fifo10,fifos.fifo11});
+    nodes.dup1 = new Duplicate<int16_t,1,int16_t,1>(*(fifos.fifo5),{fifos.fifo6,fifos.fifo7,fifos.fifo8,fifos.fifo9,fifos.fifo10,fifos.fifo11});
     if (nodes.dup1==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);

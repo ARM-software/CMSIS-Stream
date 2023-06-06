@@ -21,7 +21,7 @@ src=Source("source",floatType,5)
 # the node is executed in the C code
 # "processing" is the name of the C variable that will identify
 # this node
-processing=Binary("arm_offset_f32",floatType,7)
+processing=Binary("arm_offset_f32",floatType,7,input_names=["a","b"])
 offsetValue=Constant("OFFSET_VALUE")
 # Instantiate a Sink node with a float datatype and consuming
 # 5 samples each time the node is executed in the C code
@@ -33,8 +33,8 @@ sink=Sink("sink",floatType,5)
 the_graph = Graph()
 
 # Connect the source to the processing node
-the_graph.connect(src.o,processing.ia)
-the_graph.connect(offsetValue,processing.ib)
+the_graph.connect(src.o,processing.a)
+the_graph.connect(offsetValue,processing.b)
 # Connect the processing node to the sink
 the_graph.connect(processing.o,sink.i)
 

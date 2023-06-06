@@ -437,17 +437,12 @@ class BaseNode:
         self._realOutputs = outputid
         
 
-    def ioTemplate(self):
-        """Template arguments for C
-           input type, input size ...
-           output type, output size ...
-
-           Some nodes may customize it
-        """
+    def getCTemplateArgumentsFor(self,orderedNames,ioDesc):
         ios=[] 
         # Use ordered io names
-        for io in self.inputNames:
-            x = self._inputs[io]
+        for io in orderedNames:
+            # Get IO description for this name
+            x = ioDesc[io]
             # For cyclo static scheduling, we may have a list
             # of samples
             if isinstance(x.nbSamples,int):
@@ -458,15 +453,18 @@ class BaseNode:
                 # max value
                 m = np.max(x.nbSamples)
                 ios.append("%s,%d" % (x.ctype,m))
+        return(ios)
 
-        for io in self.outputNames:
-            x = self._outputs[io]
-            if isinstance(x.nbSamples,int):
-               ios.append("%s,%d" % (x.ctype,x.nbSamples))
-            else:
-                m = np.max(x.nbSamples)
-                ios.append("%s,%d" % (x.ctype,m))
+    def ioTemplate(self):
+        """Template arguments for C
+           input type, input size ...
+           output type, output size ...
 
+           Some nodes may customize it
+        """
+        ios=[] 
+        ios += self.getCTemplateArgumentsFor(self.inputNames,self._inputs)
+        ios += self.getCTemplateArgumentsFor(self.outputNames,self._outputs)
         
         return("".join(joinit(ios,",")))
 
@@ -549,6 +547,8 @@ class BaseNode:
         templateargs=[]
         for x in fifoIDs:
           # If args is a FIFO we generate a name using fifo ids
+          # They have already been ordered (in calling function)
+          # using alphabetical order of input and output names
           if isinstance(x,int):
              if config.heapAllocation:
                 fifoArg = FifoPtrID(x,owner="fifos")
@@ -668,6 +668,223 @@ class GenericNode(BaseNode):
     def addOutput(self,name,theType,theLength):
         self._outputs[name]=Output(self,name,theType,theLength)
 
+class GenericToManyNode(BaseNode):
+    """A source in the dataflow graph""" 
+
+    def __init__(self,name):
+        BaseNode.__init__(self,name)
+        # Pure node is for instance a 
+        # CMSIS-DSP function.
+        # It is not packaged into an object
+        # and the code is generated directly
+        self._isPureNode = False
+    
+    @property
+    def isPureNode(self):
+        return self._isPureNode
+    
+    @property
+    def typeName(self):
+        return "void"
+
+    # Should be in alphabetical order so that the
+    # index used here is the index in the C code
+    def outputNameFromIndex(self,i):
+        return f"o{chr(ord('a')+i)}"
+
+    def addInput(self,name,theType,theLength):
+        self._inputs[name]=Input(self,name,theType,theLength)
+
+    def addManyOutput(self,theType,theLength,nb):
+        self._outputLength = theLength
+        self._outputType = theType
+        for i in range(nb):
+            name = self.outputNameFromIndex(i)
+            self._outputs[name]=Output(self,name,theType,theLength)
+
+    @property
+    def args(self):
+        """String of fifo args for object initialization
+            with literal argument and variable arguments"""
+        allArgs=self.listOfargs
+        theInputs = allArgs[:len(self._inputs)]
+        theOutputs = allArgs[len(self._inputs):]
+        
+        ioInputs = [x.reference for x in theInputs]
+        ioOutputs = ["{" + "".join(joinit([x.pointer for x in theOutputs],",")) + "}"]
+        # Add specific argrs after FIFOs
+        sched = []
+        if self.schedArgs:
+            for lit in self.schedArgs:
+                sched.append(lit.arg)
+        return "".join(joinit(ioInputs+ioOutputs+sched,","))
+
+    def ioTemplate(self):
+        """ioTemplate is different for window
+        """
+        ios=[] 
+        ios += self.getCTemplateArgumentsFor(self.inputNames,self._inputs)
+       
+        # Use the max in case of cyclo static
+        # scheduling on the output
+        if isinstance(self._outputLength,int):
+            nbOut = self._outputLength 
+        else:
+            nbOut = np.max(self._outputLength )
+        ios.append("%s,%d" % (self._outputType.ctype,nbOut))
+        return("".join(joinit(ios,",")))
+
+
+class GenericFromManyNode(BaseNode):
+    """A source in the dataflow graph""" 
+
+    def __init__(self,name):
+        BaseNode.__init__(self,name)
+        # Pure node is for instance a 
+        # CMSIS-DSP function.
+        # It is not packaged into an object
+        # and the code is generated directly
+        self._isPureNode = False
+    
+    @property
+    def isPureNode(self):
+        return self._isPureNode
+    
+    @property
+    def typeName(self):
+        return "void"
+
+    # Should be in alphabetical order so that the
+    # index used here is the index in the C code
+    def inputNameFromIndex(self,i):
+        return f"i{chr(ord('a')+i)}"
+
+    def addOutput(self,name,theType,theLength):
+        self._outputs[name]=Output(self,name,theType,theLength)
+
+    def addManyInput(self,theType,theLength,nb):
+        self._inputLength = theLength
+        self._inputType = theType
+        for i in range(nb):
+            name = self.inputNameFromIndex(i)
+            self._inputs[name]=Input(self,name,theType,theLength)
+
+    @property
+    def args(self):
+        """String of fifo args for object initialization
+            with literal argument and variable arguments"""
+        allArgs=self.listOfargs
+        theInputs = allArgs[:len(self._inputs)]
+        theOutputs = allArgs[len(self._inputs):]
+        
+        ioInputs = ["{" + "".join(joinit([x.pointer for x in theInputs],",")) + "}"]
+        ioOutputs = [x.reference for x in theOutputs]
+        # Add specific argrs after FIFOs
+        sched = []
+        if self.schedArgs:
+            for lit in self.schedArgs:
+                sched.append(lit.arg)
+        return "".join(joinit(ioInputs+ioOutputs+sched,","))
+
+    def ioTemplate(self):
+        """ioTemplate is different for window
+        """
+        ios=[] 
+       
+        # Use the max in case of cyclo static
+        # scheduling on the output
+        if isinstance(self._inputLength,int):
+            nbOut = self._inputLength 
+        else:
+            nbOut = np.max(self._inputLength )
+        ios.append("%s,%d" % (self._inputType.ctype,nbOut))
+        
+        ios += self.getCTemplateArgumentsFor(self.outputNames,self._outputs)
+
+
+        return("".join(joinit(ios,",")))
+
+class GenericManyToManyNode(BaseNode):
+    """A source in the dataflow graph""" 
+
+    def __init__(self,name):
+        BaseNode.__init__(self,name)
+        # Pure node is for instance a 
+        # CMSIS-DSP function.
+        # It is not packaged into an object
+        # and the code is generated directly
+        self._isPureNode = False
+    
+    @property
+    def isPureNode(self):
+        return self._isPureNode
+    
+    @property
+    def typeName(self):
+        return "void"
+
+    # Should be in alphabetical order so that the
+    # index used here is the index in the C code
+    def inputNameFromIndex(self,i):
+        return f"i{chr(ord('a')+i)}"
+
+    def outputNameFromIndex(self,i):
+        return f"o{chr(ord('a')+i)}"
+
+    def addManyOutput(self,theType,theLength,nb):
+        self._outputLength = theLength
+        self._outputType = theType
+        for i in range(nb):
+            name = self.outputNameFromIndex(i)
+            self._outputs[name]=Output(self,name,theType,theLength)
+
+    def addManyInput(self,theType,theLength,nb):
+        self._inputLength = theLength
+        self._inputType = theType
+        for i in range(nb):
+            name = self.inputNameFromIndex(i)
+            self._inputs[name]=Input(self,name,theType,theLength)
+
+    @property
+    def args(self):
+        """String of fifo args for object initialization
+            with literal argument and variable arguments"""
+        allArgs=self.listOfargs
+        theInputs = allArgs[:len(self._inputs)]
+        theOutputs = allArgs[len(self._inputs):]
+        
+        ioInputs = ["{" + "".join(joinit([x.pointer for x in theInputs],",")) + "}"]
+        ioOutputs = ["{" + "".join(joinit([x.pointer for x in theOutputs],",")) + "}"]
+        # Add specific argrs after FIFOs
+        sched = []
+        if self.schedArgs:
+            for lit in self.schedArgs:
+                sched.append(lit.arg)
+        return "".join(joinit(ioInputs+ioOutputs+sched,","))
+
+    def ioTemplate(self):
+        """ioTemplate is different for window
+        """
+        ios=[] 
+       
+        # Use the max in case of cyclo static
+        # scheduling on the output
+        if isinstance(self._inputLength,int):
+            nbOut = self._inputLength 
+        else:
+            nbOut = np.max(self._inputLength )
+        ios.append("%s,%d" % (self._inputType.ctype,nbOut))
+        
+
+        if isinstance(self._outputLength,int):
+            nbOut = self._outputLength 
+        else:
+            nbOut = np.max(self._outputLength )
+        ios.append("%s,%d" % (self._outputType.ctype,nbOut))
+        
+
+        return("".join(joinit(ios,",")))
+       
 class SlidingBuffer(GenericNode):
 
     def __init__(self,name,theType,length,overlap):
@@ -957,21 +1174,21 @@ class GenericFunction(GenericNode):
 
     
 class Unary(GenericFunction):
-    def __init__(self,funcname,theType,length):
+    def __init__(self,funcname,theType,length,input_name="i",output_name="o"):
         GenericFunction.__init__(self,funcname,theType,length)
 
-        self.addInput("i",theType,length)
-        self.addOutput("o",theType,length)
+        self.addInput(input_name,theType,length)
+        self.addOutput(output_name,theType,length)
 
 
 class Binary(GenericFunction):
-    def __init__(self,funcname,theType,length):
+    def __init__(self,funcname,theType,length,input_names=["ia","ib"],output_name="o"):
         GenericFunction.__init__(self,funcname,theType,length)
 
-        self.addInput("ia",theType,length)
-        self.addInput("ib",theType,length)
+        self.addInput(input_names[0],theType,length)
+        self.addInput(input_names[1],theType,length)
         
-        self.addOutput("o",theType,length)
+        self.addOutput(output_name,theType,length)
 
 
     
@@ -982,7 +1199,7 @@ BINARYOP=["scale","add","and","mult","not","or","sub","xor","cmplx_mult_cmplx","
 
 class Dsp(GenericFunction):
 
-    def __init__(self,name,theType,length):
+    def __init__(self,name,theType,length,input_name="i",input_names=["ia","ib"],output_name="o"):
         # Some different graph functions correspond to the same
         # DSP function like IFFT
         # So we rename the cmsis function to call the same function
@@ -992,14 +1209,14 @@ class Dsp(GenericFunction):
         self._binary=True
         
         if name in BINARYOP:
-            self.addInput("ia",theType,length)
-            self.addInput("ib",theType,length)
+            self.addInput(input_names[0],theType,length)
+            self.addInput(input_names[1],theType,length)
             self._binary=True
         else:
-           self.addInput("i",theType,length)
+           self.addInput(input_name,theType,length)
            self._binary=False
         
-        self.addOutput("o",theType,length)
+        self.addOutput(output_name,theType,length)
 
     
 

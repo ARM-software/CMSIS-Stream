@@ -73,14 +73,14 @@ class ProcessingNode(GenericNode):
 ### Define nodes
 floatType=CType(F32)
 src=Source("source",floatType,128)
-srcb=Source("sourceb",floatType,16)
-srcc=Source("sourcec",floatType,16)
+#srcb=Source("sourceb",floatType,16)
+#srcc=Source("sourcec",floatType,16)
 
 pa=ProcessingNode("procA",floatType,128,128)
 pb=ProcessingNode("procB",floatType,128,128)
 pc=ProcessingNode("procC",floatType,128,128)
 pd=ProcessingNode("procD",floatType,128,128)
-pe=ProcessingNode("procE",floatType,128,256)
+pe=ProcessingNode("procE",floatType,128,128)
 
 p12=ProcessingNode12("proc12",floatType,16,16)
 p13=ProcessingNode13("proc13",floatType,16,16)
@@ -88,7 +88,7 @@ p21A=ProcessingNode21("proc21A",floatType,16,16)
 p21B=ProcessingNode21("proc21B",floatType,16,16)
 
 #dsp=Dsp("add",floatType,NB)
-sink=Sink("sink",floatType,100)
+sink=Sink("sink",floatType,16)
 sinkb=Sink("sinkB",floatType,16)
 sinkc=Sink("sinkC",floatType,16)
 sinkd=Sink("sinkD",floatType,16)
@@ -117,4 +117,37 @@ the_graph.connect(p13.oc,sinkc.i)
 the_graph.connect(p21A.o,sinkd.i)
 the_graph.connect(p21B.o,sinke.i)
 
+# Check many to many nodes
+dstaA= Sink("dstaA",floatType,32)
+dstbA= Sink("dstbA",floatType,32)
 
+dstaB= Sink("dstaB",floatType,32)
+dstbB= Sink("dstbB",floatType,32)
+
+dstaC= Sink("dstaC",floatType,32)
+dstbC= Sink("dstbC",floatType,32)
+
+processingA=ProcessingNodeA("proc_m_to_m",floatType,16,32)
+processingB=ProcessingNodeB("proc_to_m",floatType,16,32)
+processingC=ProcessingNodeC("proc_f_m",floatType,16,32)
+
+the_graph.connect(processingA[processingA.outputNameFromIndex(0)],dstaA.i)
+the_graph.connect(processingA[processingA.outputNameFromIndex(1)],dstbA.i)
+
+the_graph.connect(processingB[processingA.outputNameFromIndex(0)],dstaB.i)
+the_graph.connect(processingB[processingA.outputNameFromIndex(1)],dstbB.i)
+
+
+the_graph.connect(processingC.o,dstaC.i)
+
+sl=[p12.oa]
+for i in range(2):
+    s = Source(f"src{i}",floatType,16)
+    sl.append(s.o)
+    
+for i,s in enumerate(sl):
+    name = processingA.inputNameFromIndex(i)
+    the_graph.connect(s,processingA[name])
+    the_graph.connect(s,processingC[name])
+    
+the_graph.connect(p12.oa,processingB.i)

@@ -145,7 +145,7 @@ uint32_t scheduler(int *error,int someVariable)
     /* 
     Create node objects
     */
-    Duplicate<complex,5> dup0(fifo2,{&fifo3,&fifo4,&fifo5});
+    Duplicate<complex,5,complex,5> dup0(fifo2,{&fifo3,&fifo4,&fifo5});
     ProcessingNode<complex,7,complex,5,complex,5> filter(fifo0,fifo2,fifo1,4,"Test",someVariable);
     Sink<complex,5> sa(fifo3);
     Sink<complex,5> sb(fifo4);

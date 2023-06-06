@@ -194,6 +194,44 @@ Similar to a `GenericNode` but there is no inputs.
 
 Similar to a `GenericNode` but there is no outputs.
 
+#### GenericToManyNode
+
+Similar to `GenericNode` but the output is a list of outputs of same nature. The template only has one argument for this list:
+
+```C++
+template<typename IN, int inputSize,
+         typename OUT, int outputSize>
+class GenericToManyNode:public NodeBase
+```
+
+The class is providing a method to know the number of outputs:
+
+```C++
+size_t getNbOutputs() const;
+```
+
+And functions to get output buffers or check possible output buffer overflow. Since the number of output is not know a priori, those functions are taking an output index to identify the output:
+
+```C++
+bool willOverflow(int id=0,int nb = outputSize) const;
+```
+
+```C++
+OUT * getWriteBuffer(int id=0,int nb = outputSize);
+```
+
+Python is supporting the creation of `ToMany` classes with several inputs. This template is only providing one input. If you need more than one input and that the inputs are heterogeneous (different datatype and/or length), you'll need to create a template following the model of `GenericNode21` and `GenericToManyNode`
+
+#### GenericFromManyNode
+
+Similar to `GenericToManyNode` but with a list of inputs instead of a list of outputs.
+
+This template is only supporting one output. Python is supporting more than one output. If you need more than one heterogeneous output, you'll need to create a customized template.
+
+#### GenericManyToManyNode
+
+With a list of inputs and a list of outputs.
+
 #### Duplicate
 
 This node is duplicating its input to any number of outputs.
@@ -201,17 +239,21 @@ This node is duplicating its input to any number of outputs.
 The template is:
 
 ```C++
-template<typename IO, int inputOutputSize>
+template<typename IN, int inputSize,
+         typename OUT, int outputSize>
 class Duplicate;
 ```
 
-The outputs must have same type and same length as the input. The template is only using one type and one length. They apply to the input and all of the outputs.
+The outputs must have same type and same length as the input. The template is specialized to only use one type and one length. They apply to the input and all of the outputs. 
 
 The node constructor is special since it is taking a vector of output FIFOs:
 
 ```C++
-Duplicate(FIFOBase<IO> &src,std::vector<FIFOBase<IO>> &dstList)
+Duplicate(FIFOBase<IO> &src,
+          std::initializer_list<FIFOBase<IO>*> dst)
 ```
+
+The class is inheriting from `GenericToManyNode`
 
 ## Optional nodes
 

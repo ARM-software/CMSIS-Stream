@@ -133,7 +133,7 @@ uint32_t scheduler(int *error,int someVariable)
     /* 
     Create node objects
     */
-    Duplicate<float,5> dup0(fifo1,{&fifo2,&fifo3});
+    Duplicate<float,5,float,5> dup0(fifo1,{&fifo2,&fifo3});
     ProcessingNode<float,5,float,5,float,5> filter(fifo0,fifo3,fifo1);
     Sink<float,5> sink(fifo2);
     Source<float,5> source(fifo0);
