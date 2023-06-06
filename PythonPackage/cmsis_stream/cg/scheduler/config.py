@@ -200,7 +200,8 @@ def createEmptyProject(project_name):
               ,"simple.cproject.yml":"simple.cproject.yml"
               ,"vht.clayer.yml":"vht.clayer.yml"
               ,"run.bat":"run_vht.bat"
-              ,"ARMCM55_FP_MVE_config.txt":"ARMCM55_FP_MVE_config.txt"};
+              ,"ARMCM55_FP_MVE_config.txt":"ARMCM55_FP_MVE_config.txt"
+              ,"README.md":"README.md"};
     for src_name in all_files:
         dst_name = all_files[src_name]
         ctemplate = env.get_template(src_name)

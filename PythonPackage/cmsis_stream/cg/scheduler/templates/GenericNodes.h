@@ -297,15 +297,86 @@ public:
      GenericNode(FIFOBase<IN> &src,FIFOBase<OUT> &dst):mSrc(src),mDst(dst){};
 
 protected:
-     OUT * getWriteBuffer(int nb = outputSize){return mDst.getWriteBuffer(nb);};
-     IN * getReadBuffer(int nb = inputSize){return mSrc.getReadBuffer(nb);};
+     OUT * getWriteBuffer(int nb = outputSize) {return mDst.getWriteBuffer(nb);};
+     IN * getReadBuffer(int nb = inputSize) {return mSrc.getReadBuffer(nb);};
 
-     bool willOverflow(int nb = outputSize){return mDst.willOverflowWith(nb);};
-     bool willUnderflow(int nb = inputSize){return mSrc.willUnderflowWith(nb);};
+     bool willOverflow(int nb = outputSize) const {return mDst.willOverflowWith(nb);};
+     bool willUnderflow(int nb = inputSize) const {return mSrc.willUnderflowWith(nb);};
 
 private:
     FIFOBase<IN> &mSrc;
     FIFOBase<OUT> &mDst;
+};
+
+template<typename IN, int inputSize,
+         typename OUT, int outputSize>
+class GenericToManyNode:public NodeBase
+{
+public:
+     GenericToManyNode(FIFOBase<IN> &src,
+                       std::initializer_list<FIFOBase<OUT>*> dst):mSrc(src),mDstList(dst){};
+
+
+protected:
+     size_t getNbOutputs() const {return(mDstList.size());};
+
+     IN * getReadBuffer(int nb = inputSize) {return mSrc.getReadBuffer(nb);};
+     OUT * getWriteBuffer(int id=0,int nb = outputSize) {return mDstList[id]->getWriteBuffer(nb);};
+
+     bool willUnderflow(int nb = inputSize) const {return mSrc.willUnderflowWith(nb);};
+     bool willOverflow(int id=0,int nb = outputSize) const {return mDstList[id]->willOverflowWith(nb);};
+
+private:
+    FIFOBase<IN> &mSrc;
+    const std::vector<FIFOBase<OUT>*> mDstList;
+};
+
+template<typename IN, int inputSize,
+         typename OUT, int outputSize>
+class GenericFromManyNode:public NodeBase
+{
+public:
+     GenericFromManyNode(std::initializer_list<FIFOBase<IN>*> src,
+                         FIFOBase<OUT> &dst):mSrcList(src),mDst(dst){};
+
+
+protected:
+     size_t getNbInputs() const {return(mSrcList.size());};
+
+     IN  *getReadBuffer(int id=0,int nb = inputSize) {return mSrcList[id]->getReadBuffer(nb);};
+     OUT *getWriteBuffer(int nb = outputSize) {return mDst.getWriteBuffer(nb);};
+
+     bool willUnderflow(int id=0,int nb = inputSize) const {return mSrcList[id]->willUnderflowWith(nb);};
+     bool willOverflow(int nb = outputSize) const {return mDst.willOverflowWith(nb);};
+
+private:
+    const std::vector<FIFOBase<IN>*> mSrcList;
+    FIFOBase<OUT> &mDst;
+
+};
+
+template<typename IN, int inputSize,
+         typename OUT, int outputSize>
+class GenericManyToManyNode:public NodeBase
+{
+public:
+     GenericManyToManyNode(std::initializer_list<FIFOBase<IN>*> src,
+                           std::initializer_list<FIFOBase<OUT>*> dst):mSrcList(src),mDstList(dst){};
+
+    
+protected:
+     size_t getNbInputs() const {return(mSrcList.size());};
+     size_t getNbOutputs() const {return(mDstList.size());};
+
+     IN  *getReadBuffer(int id=0,int nb = inputSize) {return mSrcList[id]->getReadBuffer(nb);};
+     OUT *getWriteBuffer(int id=0,int nb = outputSize) {return mDstList[id]->getWriteBuffer(nb);};
+
+     bool willUnderflow(int id=0,int nb = inputSize) const {return mSrcList[id]->willUnderflowWith(nb);};
+     bool willOverflow(int id=0,int nb = outputSize) const {return mDstList[id]->willOverflowWith(nb);};
+
+private:
+    const std::vector<FIFOBase<IN>*> mSrcList;
+    const std::vector<FIFOBase<OUT>*> mDstList;
 };
 
 template<typename IN, int inputSize,typename OUT1, int output1Size,typename OUT2, int output2Size>
@@ -316,14 +387,14 @@ public:
      mDst1(dst1),mDst2(dst2){};
 
 protected:
-     OUT1 * getWriteBuffer1(int nb=output1Size){return mDst1.getWriteBuffer(nb);};
-     OUT2 * getWriteBuffer2(int nb=output2Size){return mDst2.getWriteBuffer(nb);};
-     IN * getReadBuffer(int nb=inputSize){return mSrc.getReadBuffer(nb);};
+     OUT1 * getWriteBuffer1(int nb=output1Size) {return mDst1.getWriteBuffer(nb);};
+     OUT2 * getWriteBuffer2(int nb=output2Size) {return mDst2.getWriteBuffer(nb);};
+     IN * getReadBuffer(int nb=inputSize) {return mSrc.getReadBuffer(nb);};
 
-     bool willOverflow1(int nb = output1Size){return mDst1.willOverflowWith(nb);};
-     bool willOverflow2(int nb = output2Size){return mDst2.willOverflowWith(nb);};
+     bool willOverflow1(int nb = output1Size) const {return mDst1.willOverflowWith(nb);};
+     bool willOverflow2(int nb = output2Size) const {return mDst2.willOverflowWith(nb);};
 
-     bool willUnderflow(int nb = inputSize){return mSrc.willUnderflowWith(nb);};
+     bool willUnderflow(int nb = inputSize) const {return mSrc.willUnderflowWith(nb);};
 
 private:
     FIFOBase<IN> &mSrc;
@@ -346,17 +417,17 @@ public:
      mDst1(dst1),mDst2(dst2),mDst3(dst3){};
 
 protected:
-     OUT1 * getWriteBuffer1(int nb=output1Size){return mDst1.getWriteBuffer(nb);};
-     OUT2 * getWriteBuffer2(int nb=output2Size){return mDst2.getWriteBuffer(nb);};
-     OUT3 * getWriteBuffer3(int nb=output3Size){return mDst3.getWriteBuffer(nb);};
+     OUT1 * getWriteBuffer1(int nb=output1Size) {return mDst1.getWriteBuffer(nb);};
+     OUT2 * getWriteBuffer2(int nb=output2Size) {return mDst2.getWriteBuffer(nb);};
+     OUT3 * getWriteBuffer3(int nb=output3Size) {return mDst3.getWriteBuffer(nb);};
 
-     IN * getReadBuffer(int nb=inputSize){return mSrc.getReadBuffer(nb);};
+     IN * getReadBuffer(int nb=inputSize) {return mSrc.getReadBuffer(nb);};
 
-     bool willOverflow1(int nb = output1Size){return mDst1.willOverflowWith(nb);};
-     bool willOverflow2(int nb = output2Size){return mDst2.willOverflowWith(nb);};
-     bool willOverflow3(int nb = output3Size){return mDst3.willOverflowWith(nb);};
+     bool willOverflow1(int nb = output1Size) const {return mDst1.willOverflowWith(nb);};
+     bool willOverflow2(int nb = output2Size) const {return mDst2.willOverflowWith(nb);};
+     bool willOverflow3(int nb = output3Size) const {return mDst3.willOverflowWith(nb);};
 
-     bool willUnderflow(int nb = inputSize){return mSrc.willUnderflowWith(nb);};
+     bool willUnderflow(int nb = inputSize) const {return mSrc.willUnderflowWith(nb);};
 
 private:
     FIFOBase<IN> &mSrc;
@@ -375,13 +446,13 @@ public:
      mDst(dst){};
 
 protected:
-     OUT * getWriteBuffer(int nb=outputSize){return mDst.getWriteBuffer(nb);};
-     IN1 * getReadBuffer1(int nb=input1Size){return mSrc1.getReadBuffer(nb);};
-     IN2 * getReadBuffer2(int nb=input2Size){return mSrc2.getReadBuffer(nb);};
+     OUT * getWriteBuffer(int nb=outputSize) {return mDst.getWriteBuffer(nb);};
+     IN1 * getReadBuffer1(int nb=input1Size) {return mSrc1.getReadBuffer(nb);};
+     IN2 * getReadBuffer2(int nb=input2Size) {return mSrc2.getReadBuffer(nb);};
 
-     bool willOverflow(int nb = outputSize){return mDst.willOverflowWith(nb);};
-     bool willUnderflow1(int nb = input1Size){return mSrc1.willUnderflowWith(nb);};
-     bool willUnderflow2(int nb = input2Size){return mSrc2.willUnderflowWith(nb);};
+     bool willOverflow(int nb = outputSize) const {return mDst.willOverflowWith(nb);};
+     bool willUnderflow1(int nb = input1Size) const {return mSrc1.willUnderflowWith(nb);};
+     bool willUnderflow2(int nb = input2Size) const {return mSrc2.willUnderflowWith(nb);};
 
 private:
     FIFOBase<IN1> &mSrc1;
@@ -398,9 +469,9 @@ public:
      GenericSource(FIFOBase<OUT> &dst):mDst(dst){};
 
 protected:
-     OUT * getWriteBuffer(int nb=outputSize){return mDst.getWriteBuffer(nb);};
+     OUT * getWriteBuffer(int nb=outputSize) {return mDst.getWriteBuffer(nb);};
 
-     bool willOverflow(int nb = outputSize){return mDst.willOverflowWith(nb);};
+     bool willOverflow(int nb = outputSize) const {return mDst.willOverflowWith(nb);};
 
 private:
     FIFOBase<OUT> &mDst;
@@ -413,9 +484,9 @@ public:
      GenericSink(FIFOBase<IN> &src):mSrc(src){};
 
 protected:
-     IN * getReadBuffer(int nb=inputSize){return mSrc.getReadBuffer(nb);};
+     IN * getReadBuffer(int nb=inputSize) {return mSrc.getReadBuffer(nb);};
 
-     bool willUnderflow(int nb = inputSize){return mSrc.willUnderflowWith(nb);};
+     bool willUnderflow(int nb = inputSize) const {return mSrc.willUnderflowWith(nb);};
 
 private:
     FIFOBase<IN> &mSrc;
@@ -425,12 +496,20 @@ private:
 #define REPEAT(N) for(int i=0;i<N;i++)
 
 
+template<typename IN, int inputSize,
+         typename OUT, int outputSize>
+class Duplicate;
+
 template<typename IO, int inputOutputSize>
-class Duplicate:public NodeBase
+class Duplicate<IO, inputOutputSize,
+                IO, inputOutputSize>:
+public GenericToManyNode<IO, inputOutputSize,
+                         IO, inputOutputSize>
 {
 public:
     Duplicate(FIFOBase<IO> &src,
-              std::initializer_list<FIFOBase<IO>*> dst):mSrc(src),mDstList(dst)
+              std::initializer_list<FIFOBase<IO>*> dst):
+    GenericToManyNode<IO, inputOutputSize,IO, inputOutputSize>(src,dst)
     {
     };
 
@@ -441,9 +520,9 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        for(unsigned int i=0;i<mDstList.size();i++)
+        for(unsigned int i=0;i<this->getNbOutputs();i++)
         {
-           if (this->willOverflow(inputOutputSize,i))
+           if (this->willOverflow(i))
            {
               return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
            }
@@ -456,25 +535,14 @@ public:
     int run() final {
         IO *a=this->getReadBuffer();
         
-        for(unsigned int i=0;i<mDstList.size();i++)
+        for(unsigned int i=0;i<this->getNbOutputs();i++)
         {
-           IO *b=this->getWriteBuffer(inputOutputSize,i);
+           IO *b=this->getWriteBuffer(i);
            memcpy(b,a,sizeof(IO)*inputOutputSize);
         }
         
         return(CG_SUCCESS_ID_CODE);
     };
-
-protected:
-    IO * getWriteBuffer(int nb = inputOutputSize,int id=1){return mDstList[id]->getWriteBuffer(nb);};
-    IO * getReadBuffer(int nb = inputOutputSize){return mSrc.getReadBuffer(nb);};
-
-    bool willOverflow(int nb = inputOutputSize,int id=1){return mDstList[id]->willOverflowWith(nb);};
-    bool willUnderflow(int nb = inputOutputSize){return mSrc.willUnderflowWith(nb);};
-
-private:
-    FIFOBase<IO> &mSrc;
-    std::vector<FIFOBase<IO>*> mDstList;
 
 };
 
