@@ -32,7 +32,7 @@ import math
 from sympy import Matrix
 from sympy.core.numbers import ilcm,igcd
 
-from .graphviz import gengraph
+from .graphviz import gengraph,gen_precompute_graph
 from .ccode import gencode as c_gencode
 from .pythoncode import gencode as p_gencode
 
@@ -188,6 +188,10 @@ class Graph():
         # Duplicate3 ...
         self.duplicateNodeClassName = "Duplicate"
 
+
+    def graphviz(self,f,config=Configuration()):
+        """Write graphviz into file f""" 
+        gen_precompute_graph(self,f,config)
 
     def computeTopologicalSortOfNodes(self):
         remaining = self._sortedNodes.copy()

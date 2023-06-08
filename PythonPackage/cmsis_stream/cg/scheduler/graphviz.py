@@ -27,6 +27,29 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 import pathlib
 import os.path
 
+def gen_precompute_graph(g,f,config):
+    env = Environment(
+       loader=PackageLoader("cmsis_stream.cg.scheduler"),
+       autoescape=select_autoescape(),
+       trim_blocks=True
+    )
+
+    constObjs = list(set([x[0] for x in g.constantEdges]))
+    template = env.get_template("precompute_dot_template.dot")
+
+    nbFifos = len(g.edges)
+
+    print(template.render(graph=g,
+      nodes=g.nodes,
+      edges=g.edges,
+      fifos=g.edges,
+      nbFifos=nbFifos,
+      constEdges=g.constantEdges,
+      nbConstEdges=len(g.constantEdges),
+      constObjs=constObjs,
+      config=config
+      ),file=f)
+
 def gengraph(sched,f,config):
 
     env = Environment(

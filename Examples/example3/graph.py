@@ -56,6 +56,9 @@ conf.CMSISDSP = True
 
 #conf.dumpSchedule = True 
 
+with open("pre_schedule_test.dot","w") as f:
+    g.graphviz(f)
+    
 sched = g.computeSchedule(conf)
 #print(sched.schedule)
 print("Schedule length = %d" % sched.scheduleLength)

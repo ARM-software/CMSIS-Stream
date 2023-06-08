@@ -15,6 +15,10 @@ conf.CMSISDSP = False
 conf.asynchronous = False
 # Compute a static scheduling of the graph 
 # The size of FIFO is also computed
+
+with open("pre_schedule_simple.dot","w") as f:
+    the_graph.graphviz(f)
+
 scheduling = the_graph.computeSchedule(config=conf)
 
 # Print some statistics about the compute schedule

@@ -13,6 +13,9 @@ conf.debugLimit=1
 # to recompile CMSIS-DSP for such a simple example
 conf.CMSISDSP = False
 
+with open("pre_schedule_cyclo.dot","w") as f:
+    the_graph.graphviz(f)
+
 # Compute a static scheduling of the graph 
 # The size of FIFO is also computed
 scheduling = the_graph.computeSchedule(config=conf)

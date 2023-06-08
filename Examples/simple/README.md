@@ -2,13 +2,13 @@
 
 This example is inside the folder `examples/simple` of the CMSIS-Stream folder.
 
-You can either use this example, or create it with the `cmsis-stream` command line tool:
+You can either use the example below, or create it with the `cmsis-stream` command line tool:
 
 `cmsis-stream create SimpleProject`
 
-In the folder `SimpleProject` you'll get the `Makefiles to build on host (Linux, Mac, Windows) and the CMSIS build tool solution files to build on Arm Virtual hardware for Corstone-300.
+In the folder `SimpleProject` you'll get the `Makefiles` to build on host (Linux, Mac, Windows) and the CMSIS build tool solution files to build on Arm Virtual Hardware for [Corstone-300](https://www.arm.com/products/silicon-ip-subsystems/corstone-300). Corstone-300 is a reference package optimized for Arm Cortex-M55 based devices and developed to help SoC designers build secure systems faster.
 
-The folder `example/simple` only contains makefile for host and no Corstone support.
+The folder `example/simple` (contrary to the one created with the `cmsis-stream` command) only contains makefile for host and no Corstone support.
 
 The example describes a very simple synchronous compute graph with 3 nodes:
 
@@ -19,6 +19,11 @@ The nodes are:
 * A source generating 5 floating point values (0,1,2,3,4) each time it is run
 * A processing node adding 1 to those values and working by packet of 7 values
 * A sink printing its input values (1,2,3,4,5)
+
+The labels on each edge represent :
+
+* The datatype of the FIFO samples (here `f32`)
+* The size of the FIFO in number of samples (here `11`)
 
 The graph generates an infinite streams of values : 1,2,3,4,5,1,2,3,4,5,1,2,3,4,5 ... For this example, the number of iterations will be limited so that it does not run forever.
 

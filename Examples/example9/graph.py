@@ -59,6 +59,10 @@ conf.cOptionalArgs="int someVariable"
 #conf.prefix="sched1"
 
 #conf.dumpSchedule = True 
+
+with open("pre_schedule_test.dot","w") as f:
+    g.graphviz(f)
+    
 sched = g.computeSchedule(config=conf)
 #print(sched.schedule)
 print("Schedule length = %d" % sched.scheduleLength)

@@ -16,6 +16,9 @@ conf.CMSISDSP = False
 # Enable generation of event recorder calls in the C++
 conf.eventRecorder = True
 
+with open("pre_schedule_event_recorder.dot","w") as f:
+    the_graph.graphviz(f)
+
 # Compute a static scheduling of the graph 
 # The size of FIFO is also computed
 scheduling = the_graph.computeSchedule(config=conf)
