@@ -34,4 +34,5 @@ Examples/simple/simple
 Examples/build_linux/
 Tests/build/
 Examples/eventrecorder/RTE/_CommandLine_VHT-Corstone-300/
-
+Examples/graphvizexample/dots/
+Examples/graphvizexample/features/

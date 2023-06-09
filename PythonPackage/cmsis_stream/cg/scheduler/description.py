@@ -32,7 +32,7 @@ import math
 from sympy import Matrix
 from sympy.core.numbers import ilcm,igcd
 
-from .graphviz import gengraph,gen_precompute_graph
+from .graphviz import gengraph,gen_precompute_graph,Style
 from .ccode import gencode as c_gencode
 from .pythoncode import gencode as p_gencode
 
@@ -189,9 +189,9 @@ class Graph():
         self.duplicateNodeClassName = "Duplicate"
 
 
-    def graphviz(self,f,config=Configuration()):
+    def graphviz(self,f,config=Configuration(),style=Style.default_style()):
         """Write graphviz into file f""" 
-        gen_precompute_graph(self,f,config)
+        gen_precompute_graph(self,f,config,style=style)
 
     def computeTopologicalSortOfNodes(self):
         remaining = self._sortedNodes.copy()
@@ -1113,9 +1113,9 @@ class Schedule:
         """Write graphviz into file f""" 
         p_gencode(self,directory,config)
 
-    def graphviz(self,f,config=Configuration()):
+    def graphviz(self,f,config=Configuration(),style=Style.default_style()):
         """Write graphviz into file f""" 
-        gengraph(self,f,config)
+        gengraph(self,f,config,style=style)
     
     
     

@@ -573,10 +573,19 @@ class BaseNode:
         """Name for graph vizualization"""
         return ("%s<BR/>(%s)" % (self.nodeName,self.typeName))
 
+    def inputPortFromID(self,i):
+        r = sorted(list(self._inputs.keys()))
+        k = r[i]
+        return self._inputs[k]
+    
+    def outputPortFromID(self,i):
+        r = sorted(list(self._outputs.keys()))
+        k = r[i]
+        return self._outputs[k]
+
     @property
     def inputNames(self):
         return sorted(list(self._inputs.keys()))
-
 
     @property
     def outputNames(self):
@@ -621,6 +630,11 @@ class GenericSink(BaseNode):
 
     def __init__(self,name):
         BaseNode.__init__(self,name)
+        self._isPureNode = False
+    
+    @property
+    def isPureNode(self):
+        return self._isPureNode
 
     @property
     def typeName(self):
@@ -635,6 +649,11 @@ class GenericSource(BaseNode):
 
     def __init__(self,name):
         BaseNode.__init__(self,name)
+        self._isPureNode = False
+    
+    @property
+    def isPureNode(self):
+        return self._isPureNode
 
     @property
     def typeName(self):

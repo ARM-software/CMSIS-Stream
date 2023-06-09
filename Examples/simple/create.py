@@ -41,6 +41,7 @@ generateGenericNodes(".")
 # cg_status.h is created in the folder "generated"
 generateCGStatus(".")
 
+
 # Generate a graphviz representation of the graph
 with open("simple.dot","w") as f:
     scheduling.graphviz(f)

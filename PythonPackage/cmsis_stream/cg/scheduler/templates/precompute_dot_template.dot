@@ -7,7 +7,7 @@
 
 {% macro edgelabel(ioport,name) -%}
 {% if not ioport.owner.isDuplicateNode %}
-,{{name}}=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >{{ioport.nbSamples}}</FONT>
+,{{name}}=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="{{style.port_sample_color(ioport.nbSamples)}}" POINT-SIZE="{{style.port_sample_font_size(ioport.nbSamples)}}" >{{ioport.nbSamples}}</FONT>
 </TD></TR></TABLE>>{% endif %}
 {%- endmacro %}
 
@@ -20,32 +20,33 @@
 {% macro delayBox(edge) -%}
 {% if graph.hasDelay(fifos[edge]) %}
 {{delayBoxID(edge)}} [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="{{style.delay_boundary_color(graph.getDelay(fifos[edge]))}}" bgcolor="{{style.delay_color(graph.getDelay(fifos[edge]))}}" BORDER="0" CELLBORDER="{{style.delay_border(graph.getDelay(fifos[edge]))}}" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">{{graph.getDelay(fifos[edge])}}</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="{{style.delay_label_color(graph.getDelay(fifos[edge]))}}" POINT-SIZE="{{style.delay_label_size(graph.getDelay(fifos[edge]))}}">{{graph.getDelay(fifos[edge])}}</FONT></TD>
   </TR>
 </TABLE>>];
 {% endif %}
 {%- endmacro %}
 
 digraph structs {
-    node [shape=plaintext]
+    bgcolor = "{{style['graph_background']}}"
+    node [shape=plaintext,color="{{style['node_boundary_color']}}",fontcolor="{{style['node_label_color']}}",fontname="{{style['graph_font']}}"]
 {% if config.horizontal %}
     rankdir=LR
 {% endif %}
-    edge [arrowsize=0.5]
-    fontname="times"
+    edge [arrowsize="{{style['arrow_size']}}",color="{{style['edge_color']}}",fontcolor="{{style['edge_label_color']}}",fontname="{{style['graph_font']}}"]
+
 
 {% for item in nodes %}
 
 {% if item.isDuplicateNode %}
-{{item.nodeID}} [shape=point,label={{item.nodeName}}]
+{{item.nodeID}} [shape=point,label="{{item.nodeName}}"]
 {% else %}
 {% if not item.hasManyIOs %}
 {{item.nodeID}} [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="{{style.node_boundary_color(item)}}" bgcolor="{{style.node_color(item)}}" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">{{item.graphvizName}}</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="{{style.node_label_color(item)}}" POINT-SIZE="{{style.node_label_size(item)}}">{{ style.node_label(item) }}</FONT></TD>
   </TR>
 </TABLE>>];
 {% else %}
@@ -53,25 +54,25 @@ digraph structs {
 {% if not config.horizontal %}
 
 {{item.nodeID}} [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="{{style.node_boundary_color(item)}}" bgcolor="{{style.node_color(item)}}" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
     {% for id in range(0,item.maxNbIOs) -%}
     {% if item.inputNames[id] -%}
     {% set input %}{{item.inputNames[id]}}{% endset %}
-    <TD PORT="{{input}}"><FONT POINT-SIZE="9.0">{{input}}</FONT></TD>
+    <TD PORT="{{input}}"><FONT POINT-SIZE="{{style.port_font_size(item,id,input=True)}}" COLOR="{{style.port_font_color(item,id,input=True)}}">{{input}}</FONT></TD>
     {% else %}
     <TD></TD>
     {%- endif %}
     {%- endfor %}
   </TR>
   <TR>
-    <TD ALIGN="CENTER" COLSPAN="{{item.maxNbIOs}}">{{ item.graphvizName }}</TD>
+    <TD ALIGN="CENTER" COLSPAN="{{item.maxNbIOs}}"><FONT COLOR="{{style.node_label_color(item)}}" POINT-SIZE="{{style.node_label_size(item)}}">{{ style.node_label(item) }}</FONT></TD>
   </TR>
   <TR>
     {% for id in range(0,item.maxNbIOs) -%}
     {% if item.outputNames[id] -%}
     {% set output %}{{item.outputNames[id]}}{% endset %}
-    <TD PORT="{{output}}"><FONT POINT-SIZE="9.0">{{output}}</FONT></TD>
+    <TD PORT="{{output}}"><FONT POINT-SIZE="{{style.port_font_size(item,id)}}" COLOR="{{style.port_font_color(item,id)}}">{{output}}</FONT></TD>
     {% else %}
     <TD></TD>
     {%- endif %}
@@ -80,16 +81,16 @@ digraph structs {
 </TABLE>>];
 {% else %}
 {{item.nodeID}} [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="{{style.node_boundary_color(item)}}" bgcolor="{{style.node_color(item)}}" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
 {% if item.inputNames[0] is defined %}
-    <TD PORT="{{item.inputNames[0]}}"><FONT POINT-SIZE="9.0">{{item.inputNames[0]}}</FONT></TD>
+    <TD PORT="{{item.inputNames[0]}}"><FONT POINT-SIZE="{{style.port_font_size(item,0,input=True)}}" COLOR="{{style.port_font_color(item,0,input=True)}}">{{item.inputNames[0]}}</FONT></TD>
 {% else %}
     <TD></TD>
 {% endif %}
-    <TD ALIGN="CENTER" ROWSPAN="{{item.maxNbIOs}}">{{ item.graphvizName }}</TD>
+    <TD ALIGN="CENTER" ROWSPAN="{{item.maxNbIOs}}"><FONT COLOR="{{style.node_label_color(item)}}" POINT-SIZE="{{style.node_label_size(item)}}">{{ style.node_label(item) }}</FONT></TD>
 {% if item.outputNames[0] is defined %}
-    <TD PORT="{{item.outputNames[0]}}"><FONT POINT-SIZE="9.0">{{item.outputNames[0]}}</FONT></TD>
+    <TD PORT="{{item.outputNames[0]}}"><FONT POINT-SIZE="{{style.port_font_size(item,0)}}" COLOR="{{style.port_font_color(item,0)}}">{{item.outputNames[0]}}</FONT></TD>
 {% else %}
     <TD></TD>
 {% endif %}
@@ -98,14 +99,14 @@ digraph structs {
 <TR>
 {% if item.inputNames[id] -%}
 {% set input %}{{item.inputNames[id]}}{% endset %}
-<TD PORT="{{input}}"><FONT POINT-SIZE="9.0">{{input}}</FONT></TD>
+<TD PORT="{{input}}"><FONT POINT-SIZE="{{style.port_font_size(item,id,input=True)}}" COLOR="{{style.port_font_color(item,id,input=True)}}">{{input}}</FONT></TD>
 {% else %} 
 <TD></TD>
 {%- endif %}
 
 {% if item.outputNames[id] -%}
 {% set output %}{{item.outputNames[id]}}{% endset %}
-<TD PORT="{{output}}"><FONT POINT-SIZE="9.0">{{output}}</FONT></TD>
+<TD PORT="{{output}}"><FONT POINT-SIZE="{{style.port_font_size(item,id)}}" COLOR="{{style.port_font_color(item,id)}}">{{output}}</FONT></TD>
 {% else %} 
 <TD></TD>
 {%- endif %}
@@ -124,23 +125,23 @@ digraph structs {
 {{delayBox(id)}}
 {% if graph.hasDelay(fifos[id]) %}
 
-{{io(fifos[id][0].owner,fifos[id][0])}} -> {{delayBoxID(id)}}:i [label=""{{edgelabel(fifos[id][0],"taillabel")}}]
+{{io(fifos[id][0].owner,fifos[id][0])}} -> {{delayBoxID(id)}}:i [style="{{style.delay_edge_style(fifos[id][0],graph.getDelay(fifos[id]))}}",color="{{style.delay_edge_color(fifos[id][0],graph.getDelay(fifos[id]))}}",label=""{{edgelabel(fifos[id][0],"taillabel")}}]
 
 {% if config.displayFIFOBuf %}
-{{delayBoxID(id)}}:i -> {{io(fifos[id][1].owner,fifos[id][1])}} [label="buf{{fifos[id].bufferID}}"
+{{delayBoxID(id)}}:i -> {{io(fifos[id][1].owner,fifos[id][1])}} [style="{{style.edge_style(fifos[id])}}",color="{{style.edge_color(fifos[id])}}",fontsize="{{style.edge_label_size(fifos[id])}}",fontcolor="{{style.edge_label_color(fifos[id])}}",label="buf{{fifos[id].bufferID}}"
 {{edgelabel(fifos[id][0],"headlabel")}}]
 {% else %}
-{{delayBoxID(id)}}:i -> {{io(fifos[id][1].owner,fifos[id][1])}} [label=""
+{{delayBoxID(id)}}:i -> {{io(fifos[id][1].owner,fifos[id][1])}} [style="{{style.edge_style(fifos[id])}}",color="{{style.edge_color(fifos[id])}}",label=""
 {{edgelabel(fifos[id][1],"headlabel")}}]
 {% endif %}
 
 {% else %}
 {% if config.displayFIFOBuf %}
-{{io(fifos[id][0].owner,fifos[id][0])}} -> {{io(fifos[id][1].owner,fifos[id][1])}} [label="buf{{fifos[id].bufferID}}"
+{{io(fifos[id][0].owner,fifos[id][0])}} -> {{io(fifos[id][1].owner,fifos[id][1])}} [style="{{style.edge_style(fifos[id])}}",color="{{style.edge_color(fifos[id])}}",fontsize="{{style.edge_label_size(fifos[id])}}",fontcolor="{{style.edge_label_color(fifos[id])}}",label="buf{{fifos[id].bufferID}}"
 {{edgelabel(fifos[id][1],"headlabel")}}
 {{edgelabel(fifos[id][0],"taillabel")}}]
 {% else %}
-{{io(fifos[id][0].owner,fifos[id][0])}} -> {{io(fifos[id][1].owner,fifos[id][1])}} [label=""
+{{io(fifos[id][0].owner,fifos[id][0])}} -> {{io(fifos[id][1].owner,fifos[id][1])}} [style="{{style.edge_style(fifos[id])}}",color="{{style.edge_color(fifos[id])}}",label=""
 {{edgelabel(fifos[id][1],"headlabel")}}
 {{edgelabel(fifos[id][0],"taillabel")}}]
 {% endif %}
@@ -149,14 +150,14 @@ digraph structs {
 
 {% for c in constObjs %}
 {{c.name}} [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="{{style.const_boundary_color(c.name)}}" bgcolor="{{style.const_color(c.name)}}" BORDER="0" CELLBORDER="{{style.const_border(c.name)}}" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">{{c.name}}</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="{{style.const_label_color(c.name)}}" POINT-SIZE="{{style.const_label_size(c.name)}}">{{c.name}}</FONT></TD>
   </TR>
 </TABLE>>];
 {% endfor %}
 
 {% for edgeID in range(nbConstEdges) %}
-{{constEdges[edgeID][0].name}}:i -> {{constdst(edgeID)}}
+{{constEdges[edgeID][0].name}}:i -> {{constdst(edgeID)}} [style="{{style.const_edge_style(constEdges[edgeID][0].name,constEdges[edgeID][1].owner)}}",color="{{style.const_edge_color(constEdges[edgeID][0].name,constEdges[edgeID][1].owner)}}"]
 {% endfor %}
 }

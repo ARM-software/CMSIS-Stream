@@ -3,22 +3,22 @@
 
 
 digraph structs {
-    node [shape=plaintext]
+    bgcolor = "white"
+    node [shape=plaintext,color="black",fontcolor="black",fontname="Times-Roman"]
     rankdir=LR
-    edge [arrowsize=0.5]
-    fontname="times"
+    edge [arrowsize="0.5",color="black",fontcolor="black",fontname="Times-Roman"]
 
 
 
 arm_offset_f321 [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD PORT="a"><FONT POINT-SIZE="9.0">a</FONT></TD>
-    <TD ALIGN="CENTER" ROWSPAN="2">arm_offset_f32<BR/>(Function)</TD>
-    <TD PORT="o"><FONT POINT-SIZE="9.0">o</FONT></TD>
+    <TD PORT="a"><FONT POINT-SIZE="12.0" COLOR="black">a</FONT></TD>
+    <TD ALIGN="CENTER" ROWSPAN="2"><FONT COLOR="black" POINT-SIZE="14.0">arm_offset_f32<BR/>(Function)</FONT></TD>
+    <TD PORT="o"><FONT POINT-SIZE="12.0" COLOR="black">o</FONT></TD>
   </TR>
 <TR>
-<TD PORT="b"><FONT POINT-SIZE="9.0">b</FONT></TD>
+<TD PORT="b"><FONT POINT-SIZE="12.0" COLOR="black">b</FONT></TD>
 
  
 <TD></TD></TR>
@@ -26,40 +26,40 @@ arm_offset_f321 [label=<
 </TABLE>>];
 
 sink [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">sink<BR/>(Sink)</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">sink<BR/>(Sink)</FONT></TD>
   </TR>
 </TABLE>>];
 
 source [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">source<BR/>(Source)</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">source<BR/>(Source)</FONT></TD>
   </TR>
 </TABLE>>];
 
 
 
-source:i -> arm_offset_f321:a [label="f32(11)"
-,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
+source:i -> arm_offset_f321:a [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(11)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
 </TD></TR></TABLE>>
-,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
 </TD></TR></TABLE>>]
 
-arm_offset_f321:o -> sink:i [label="f32(11)"
-,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
+arm_offset_f321:o -> sink:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(11)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
 </TD></TR></TABLE>>
-,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
 </TD></TR></TABLE>>]
 
 OFFSET_VALUE [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">OFFSET_VALUE</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">OFFSET_VALUE</FONT></TD>
   </TR>
 </TABLE>>];
 
 OFFSET_VALUE:i -> arm_offset_f321:b
-
+ [style="solid",color="black"]
 }
