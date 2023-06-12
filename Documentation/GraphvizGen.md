@@ -2,7 +2,13 @@
 
 # Graphviz generation
 
+A graphical representation of the graph can be generated in the [graphivz](https://graphviz.org/) format `.dot`. The file `.dot` can be processed by the [graphviz](https://graphviz.org/) `dot` tool to generate `png`, `svg`, `pdf` files ...
+
+The graph can be generated before scheduling. It is useful to debug but will miss some information (like FIFO lengths). The graph can be generated after schedule with all the information.
+
 ## Graph generation after scheduling
+
+The below method can be used to generate the `.dot` file representing the graph.
 
 ```python
 def graphviz(self,f,config=Configuration())
@@ -24,6 +30,10 @@ def graphviz(self,f,config=Configuration())
 ```
 
 This is a method of the **graph** object.
+
+## Graph styling
+
+It is possible to customize the graph style (colors, font ...). There [are lots of customization options](Styling.md).
 
 ## Pre and post scheduling graph
 

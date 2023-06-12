@@ -2,6 +2,12 @@ from cmsis_stream.cg.scheduler import *
 import subprocess
 import re
 
+# This file is to generate a graph for any setting
+# that can be changed in the style of a graph.
+# It is for testing purpose.
+# If you just need top experiment with styling, please
+# look at graph.py
+
 AUDIO_INTERRUPT_LENGTH = 160
 MFCCFEATURESSIZE=10
 NBOUTMFCC=50

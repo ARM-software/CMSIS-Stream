@@ -1,5 +1,7 @@
 from cmsis_stream.cg.scheduler import *
 
+# Creation of a graph for testing styling.
+# Look below for the style definition
 
 AUDIO_INTERRUPT_LENGTH = 160
 MFCCFEATURESSIZE=10
@@ -99,6 +101,13 @@ conf.CMSISDSP = True
 #conf.memoryOptimization=True
 #conf.dumpSchedule = True 
 
+############################
+#
+# Definition of a new style
+#
+
+# Global style settings
+
 style = {
      "graph_background"      : "gray"
     ,"graph_font"            : "courier"
@@ -116,6 +125,7 @@ style = {
 
 }
 
+# New style object to customize some nodes, edges, ports.
 class MyStyle(Style):
     ############################
     #
@@ -123,6 +133,8 @@ class MyStyle(Style):
     #
 
     def node_color(self,node):
+        # pure node is a pure function with no state
+        # like some CMSIS-DSP ones
         if node.isPureNode:
            return("burlywood1")
         else:
