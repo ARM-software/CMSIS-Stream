@@ -978,8 +978,6 @@ class GenericFunction(GenericNode):
     # the same function must be identified as a
     # separate node
     NODEID={}
-    PUREID=1
-
 
     ENV = Environment(
        loader=PackageLoader("cmsis_stream.cg.scheduler"),
@@ -990,7 +988,6 @@ class GenericFunction(GenericNode):
     
     CTEMPLATE = ENV.get_template("cmsis.cpp")
     CCHECKTEMPLATE = ENV.get_template("cmsisCheck.cpp")
-    CNODETEMPLATE = ENV.get_template("cmsisNode.cpp")
 
     PYTEMPLATE = ENV.get_template("cmsis.py")
 
@@ -998,7 +995,6 @@ class GenericFunction(GenericNode):
         if not (funcname in GenericFunction.NODEID):
             GenericFunction.NODEID[funcname]=1 
 
-        GenericFunction.PUREID = GenericFunction.PUREID + 1
         GenericNode.__init__(self,"%s%d" % (funcname,GenericFunction.NODEID[funcname]))
 
         self._hasState = False

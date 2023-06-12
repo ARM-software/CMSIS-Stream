@@ -14,6 +14,11 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.4.0:
+
+* Possibility to customize the style of the graph pictures (colors, fonts ...)
+* Graph picture can now also be generated before schedule computation (useful to debug an incorrect graph before trying to compute a schedule)
+
 ## Version 1.3.0:
 
 * New nodes `GenericToMany`, `GenericFromMany`, `GenericManyToMany`
