@@ -34,6 +34,7 @@ static unsigned int schedule[{{schedLen}}]=
 
             {% if config.asynchronous -%}
             cgStaticError = 0;
+            CG_ASYNC_BEFORE_NODE_CHECK;
             switch(schedule[id])
             {
                 {% for nodeID in range(nbNodes) -%}
@@ -58,9 +59,12 @@ static unsigned int schedule[{{schedLen}}]=
                 break;
             }
 
+            CG_ASYNC_AFTER_NODE_CHECK;
+
             if (cgStaticError == CG_SKIP_EXECUTION_ID_CODE)
             { 
               cgStaticError = 0;
+              CG_NODE_NOT_EXECUTED;
               continue;
             }
 
