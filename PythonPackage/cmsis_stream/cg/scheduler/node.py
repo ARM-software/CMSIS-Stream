@@ -965,6 +965,12 @@ class OverlapAdd(GenericNode):
 
 
 
+class ArgLength():
+    def __init__(self,n,sample_unit=True):
+        self.name = n 
+        self.sample_unit = sample_unit
+
+
 # Pure compute functions
 # It is supporting unary function (src,dst,blockize)
 # and binary functions (sraa,srcb, dst, blocksize)
@@ -991,16 +997,17 @@ class GenericFunction(GenericNode):
 
     PYTEMPLATE = ENV.get_template("cmsis.py")
 
-    def __init__(self,funcname,theType,length):
+    def __init__(self,funcname,argsDesc):
         if not (funcname in GenericFunction.NODEID):
             GenericFunction.NODEID[funcname]=1 
 
         GenericNode.__init__(self,"%s%d" % (funcname,GenericFunction.NODEID[funcname]))
 
         self._hasState = False
-        self._length = length 
+        #self._length = length 
         self._nodeName = funcname
         self._isPureNode = True
+        self._argsDesc = argsDesc
 
         GenericFunction.NODEID[funcname]=GenericFunction.NODEID[funcname]+1
 
@@ -1046,16 +1053,6 @@ class GenericFunction(GenericNode):
     def genericConstructorArgs(self):
         return self._genericConstructorArgs
     
-    
-    
-    
-    @property 
-    def nodeKind(self):
-        if (self._realInputs + self._realOutputs) == 2:
-           return "GenericNode"
-        else:
-           return "GenericNode21"
-
 
     @property
     def hasState(self):
@@ -1072,17 +1069,7 @@ class GenericFunction(GenericNode):
     # They are both used for the run part
     # and the prepareForRunning part
     def _prepareForCodeGen(self,ctemplate=True):
-       if ctemplate:
-         theType=self._inputs[self.inputNames[0]].ctype
-       else:
-         theType=self._inputs[self.inputNames[0]].nptype
-       # For cyclo static scheduling, nbSamples may be a list
-       # and in this case we are using the max value
-       nbSamples = self._inputs[self.inputNames[0]].nbSamples
-       if isinstance(nbSamples,int):
-          theLen = self._inputs[self.inputNames[0]].nbSamples
-       else:
-          theLen = np.max(nbSamples)
+       
        theId = 0
        # List of buffer and corresponding fifo to initialize buffers
        inputs=[]
@@ -1091,7 +1078,6 @@ class GenericFunction(GenericNode):
        ptrs=[]
 
        # Argument names (buffer or constant node)
-       args=[]
        inargs=[]
        outargs=[]
 
@@ -1100,44 +1086,104 @@ class GenericFunction(GenericNode):
        outArgsStr=""
        inputId=1
        outputId=1
+       fifoToBuf = {}
        for io in self.inputNames:
             ioObj = self._inputs[io] 
             if ioObj.constantNode:
                # Argument is name of constant Node
-               args.append(ioObj.constantNode.name)
                inargs.append(ioObj.constantNode.name)
+               fifoToBuf[io] = ioObj.constantNode.name
             else:
+               if ctemplate:
+                    the_type = ioObj.ctype
+               else:
+                    the_type = ioObj.nptype
                # Argument is a buffer created from FIFO
                buf = "i%d" % theId
-               ptrs.append(buf)
-               args.append(buf)
+               ptrs.append((the_type,buf))
                inargs.append(buf)
-               if self.realInputs == 1:
-                  readFuncName="getReadBuffer"
-               else:
-                  readFuncName="getReadBuffer%d"%inputId
+               fifoToBuf[io] = buf
+               
                # Buffer and fifo
-               inputs.append((buf,self.listOfargs[theId],readFuncName))
+               nb = ioObj.nbSamples
+               inputs.append((buf,self.listOfargs[theId],nb))
                inputId = inputId + 1
             theId = theId + 1
        for io in self.outputNames:
+            ioObj = self._outputs[io] 
+            if ctemplate:
+                the_type = ioObj.ctype
+            else:
+                the_type = ioObj.nptype
             buf = "o%d" % theId
-            ptrs.append(buf)
-            args.append(buf)
+            ptrs.append((the_type,buf))
             outargs.append(buf)
-            writeFuncName="getWriteBuffer"
-
-            outputs.append((buf,self.listOfargs[theId],writeFuncName))
+            fifoToBuf[io] = buf
+            nb = ioObj.nbSamples
+            outputs.append((buf,self.listOfargs[theId],nb))
             outputId = outputId + 1
             theId = theId + 1
+
+       sched = []
+       if self.schedArgs:
+            for lit in self.schedArgs:
+                sched.append(lit.arg)
+
+       args=[]
+       # inargs and outargs are used for Python version
+       # of a pure function
+       inargs=[] 
+       outargs=[]
+       for a in self._argsDesc:
+           # Name of an IO
+           if isinstance(a,str):
+              args.append(fifoToBuf[a])
+              if a in self._inputs:
+                 inargs.append(fifoToBuf[a])
+              else:
+                 outargs.append(fifoToBuf[a])
+           # ID of a special argument (literal or C
+           # variable)
+           elif isinstance(a,int):
+              args.append(sched[a])
+              inargs.append(sched[a])
+           # FIFO lengths
+           else:
+              # Length description for an IO
+              # For Python, length is derived from
+              # the array so it is not passed as
+              # argument and those arguments
+              # are ignored for the generated Python API
+              nb = None 
+              the_type = None
+              isInput = False
+              # Get the type and the number of samples
+              # for the IO
+              if a.name in self._inputs:
+                 isInput = True
+                 nb = self._inputs[a.name].nbSamples
+                 if ctemplate:
+                    the_type = self._inputs[a.name].ctype
+                 else:
+                    the_type = self._inputs[a.name].nptype
+              if a.name in self._outputs:
+                 nb = self._outputs[a.name].nbSamples
+                 if ctemplate:
+                    the_type = self._outputs[a.name].ctype
+                 else:
+                    the_type = self._outputs[a.name].nptype
+              
+              if a.sample_unit:
+                 args.append(f"{nb}")
+              else:
+                 args.append(f"sizeof({the_type})*{nb}")
+                 
 
        argsStr="".join(joinit(args,","))
        inArgsStr="".join(joinit(inargs,","))
        outArgsStr="".join(joinit(outargs,","))
 
-       return ({"theType" : theType,
-               "nb" : theLen,
-               "ptrs" : ptrs,
+       return ({"ptrs" : ptrs,
                "args" : argsStr,
                "inArgsStr" : inArgsStr,
                "outArgsStr" :outArgsStr,
@@ -1146,9 +1192,7 @@ class GenericFunction(GenericNode):
 
     def cCheck(self,asyncDefaultSkip=True):
         params = self._prepareForCodeGen(True)
-        result=Dsp.CCHECKTEMPLATE.render(func=self._nodeName,
-           theType = params["theType"],
-           nb = params["nb"],
+        result=GenericFunction.CCHECKTEMPLATE.render(func=self._nodeName,
            ptrs = params["ptrs"],
            args = params["args"],
            inputs=params["inputs"], 
@@ -1164,9 +1208,7 @@ class GenericFunction(GenericNode):
        params = self._prepareForCodeGen(ctemplate)
 
        if ctemplate:
-              result=Dsp.CTEMPLATE.render(func=self._nodeName,
-               theType = params["theType"],
-               nb = params["nb"],
+              result=GenericFunction.CTEMPLATE.render(func=self._nodeName,
                ptrs = params["ptrs"],
                args = params["args"],
                inputs=params["inputs"], 
@@ -1174,9 +1216,7 @@ class GenericFunction(GenericNode):
                node=self
                )
        else:
-           result=Dsp.PYTEMPLATE.render(func=self._nodeName,
-            theType = params["theType"],
-            nb = params["nb"],
+           result=GenericFunction.PYTEMPLATE.render(func=self._nodeName,
             ptrs = params["ptrs"],
             args = params["args"],
             inArgs= params["inArgsStr"], 
@@ -1190,7 +1230,12 @@ class GenericFunction(GenericNode):
     
 class Unary(GenericFunction):
     def __init__(self,funcname,theType,length,input_name="i",output_name="o"):
-        GenericFunction.__init__(self,funcname,theType,length)
+        GenericFunction.__init__(self,funcname,
+            [input_name
+            ,output_name
+            ,ArgLength(output_name)])
+
+
 
         self.addInput(input_name,theType,length)
         self.addOutput(output_name,theType,length)
@@ -1198,44 +1243,13 @@ class Unary(GenericFunction):
 
 class Binary(GenericFunction):
     def __init__(self,funcname,theType,length,input_names=["ia","ib"],output_name="o"):
-        GenericFunction.__init__(self,funcname,theType,length)
+        GenericFunction.__init__(self,funcname,
+            [input_names[0]
+            ,input_names[1]
+            ,output_name
+            ,ArgLength(output_name)])
 
         self.addInput(input_names[0],theType,length)
         self.addInput(input_names[1],theType,length)
         
         self.addOutput(output_name,theType,length)
-
-
-    
-
-
-BINARYOP=["scale","add","and","mult","not","or","sub","xor","cmplx_mult_cmplx","cmplx_mult_real"
-]
-
-class Dsp(GenericFunction):
-
-    def __init__(self,name,theType,length,input_name="i",input_names=["ia","ib"],output_name="o"):
-        # Some different graph functions correspond to the same
-        # DSP function like IFFT
-        # So we rename the cmsis function to call the same function
-        
-        cmsisname = "arm_%s_%s" % (name,theType.dspExtension)
-        GenericFunction.__init__(self, cmsisname,theType,length)
-        self._binary=True
-        
-        if name in BINARYOP:
-            self.addInput(input_names[0],theType,length)
-            self.addInput(input_names[1],theType,length)
-            self._binary=True
-        else:
-           self.addInput(input_name,theType,length)
-           self._binary=False
-        
-        self.addOutput(output_name,theType,length)
-
-    
-
-    @property
-    def typeName(self):
-        return "CMSIS-DSP"
-  

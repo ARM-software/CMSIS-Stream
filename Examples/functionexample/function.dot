@@ -1,0 +1,82 @@
+
+
+
+
+digraph structs {
+    bgcolor = "white"
+    node [shape=plaintext,color="black",fontcolor="black",fontname="Times-Roman"]
+    rankdir=LR
+    edge [arrowsize="0.5",color="black",fontcolor="black",fontname="Times-Roman"]
+
+
+
+myfunc1 [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD PORT="ia"><FONT POINT-SIZE="12.0" COLOR="black">ia</FONT></TD>
+    <TD ALIGN="CENTER" ROWSPAN="3"><FONT COLOR="black" POINT-SIZE="14.0">myfunc<BR/>(Function)</FONT></TD>
+    <TD PORT="o"><FONT POINT-SIZE="12.0" COLOR="black">o</FONT></TD>
+  </TR>
+<TR>
+<TD PORT="ib"><FONT POINT-SIZE="12.0" COLOR="black">ib</FONT></TD>
+
+ 
+<TD></TD></TR><TR>
+<TD PORT="ic"><FONT POINT-SIZE="12.0" COLOR="black">ic</FONT></TD>
+
+ 
+<TD></TD></TR>
+
+</TABLE>>];
+
+sink [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">sink<BR/>(Sink)</FONT></TD>
+  </TR>
+</TABLE>>];
+
+sourceA [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">sourceA<BR/>(Source)</FONT></TD>
+  </TR>
+</TABLE>>];
+
+sourceB [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">sourceB<BR/>(Source)</FONT></TD>
+  </TR>
+</TABLE>>];
+
+
+
+sourceA:i -> myfunc1:ia [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(7)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
+</TD></TR></TABLE>>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
+</TD></TR></TABLE>>]
+
+sourceB:i -> myfunc1:ib [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(7)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
+</TD></TR></TABLE>>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
+</TD></TR></TABLE>>]
+
+myfunc1:o -> sink:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<q15(5)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
+</TD></TR></TABLE>>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
+</TD></TR></TABLE>>]
+
+SomeConst [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">SomeConst</FONT></TD>
+  </TR>
+</TABLE>>];
+
+SomeConst:i -> myfunc1:ic
+ [style="solid",color="black"]
+}

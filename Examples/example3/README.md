@@ -41,7 +41,7 @@ extern const float32_t HANN[256];
 
 ## CMSIS-DSP FFT
 
-The FFT node cannot be created using a `Dsp` node in Python because FFT is requiring specific initializations. So, a Python class and C++ class must be created. They are provided by default in the ffamework butg let's look at how they are implemented:
+The FFT node cannot be created using a `Unary` node in Python because FFT is requiring specific initializations. So, a Python class and C++ class must be created. They are provided by default in the ffamework butg let's look at how they are implemented:
 
 ```python
 class CFFT(GenericNode):

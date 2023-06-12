@@ -18,6 +18,8 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 * Possibility to customize the style of the graph pictures (colors, fonts ...)
 * Graph picture can now also be generated before schedule computation (useful to debug an incorrect graph before trying to compute a schedule)
+* Possibility to use more **pure** C functions in the graph. The `GenericFunction` node can now easily be used to plug more kind of C functions without having to write a C++ wrapper
+* `Dsp` node has been removed. Instead use the `Unary`, `Binary` or the more flexible `GenericFunction` node
 
 ## Version 1.3.0:
 

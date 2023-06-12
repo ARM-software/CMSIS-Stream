@@ -1,10 +1,10 @@
                     
                     bool canRun=true;
 {% for ptr in inputs %}
-                    canRun &= !({{ptr[1].access}}willUnderflowWith({{nb}}));
+                    canRun &= !({{ptr[1].access}}willUnderflowWith({{ptr[2]}}));
 {% endfor %}
 {% for ptr in outputs %}
-                    canRun &= !({{ptr[1].access}}willOverflowWith({{nb}}));
+                    canRun &= !({{ptr[1].access}}willOverflowWith({{ptr[2]}}));
 {% endfor %}
 
                     if (!canRun)

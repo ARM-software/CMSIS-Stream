@@ -58,10 +58,10 @@ half=Constant("HALF")
 src=StereoSource("src",AUDIO_INTERRUPT_LENGTH)
 toMono=Unzip("toMono",floatType, AUDIO_INTERRUPT_LENGTH)
 
-sa=Dsp("scale",floatType,AUDIO_INTERRUPT_LENGTH)
-sb=Dsp("scale",floatType,AUDIO_INTERRUPT_LENGTH)
+sa=Binary("arm_scale_f32",floatType,AUDIO_INTERRUPT_LENGTH)
+sb=Binary("arm_scale_f32",floatType,AUDIO_INTERRUPT_LENGTH)
 
-add=Dsp("add",floatType,AUDIO_INTERRUPT_LENGTH)
+add=Binary("arm_add_f32",floatType,AUDIO_INTERRUPT_LENGTH)
 
 audioWindow=SlidingBuffer("audioWin",floatType,640,320)
 mfcc=MFCC("mfcc",640)

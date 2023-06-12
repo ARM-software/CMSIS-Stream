@@ -17,7 +17,7 @@ src.addLiteralArg("input_example3.txt")
 
 sliding=SlidingBuffer("audioWin",floatType,WINSIZE,OVERLAP)
 overlap=OverlapAdd("audioOverlap",floatType,WINSIZE,OVERLAP)
-window=Dsp("mult",floatType,WINSIZE)
+window=Binary("arm_mult_f32",floatType,WINSIZE)
 
 toCmplx=ToComplex("toCmplx",floatType,WINSIZE)
 toReal=ToReal("toReal",floatType,WINSIZE)

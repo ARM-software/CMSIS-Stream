@@ -48,10 +48,8 @@ Some CMSIS-DSP functions are automatically made available to the framework : mai
 To create a CMSIS-DSP node, just use:
 
 ```python
-sa=Dsp("scale",floatType,blockSize)
+sa=Binary("arm_scale_f32",floatType,blockSize)
 ```
-
-The corresponding CMSIS-DSP function will be named: `arm_scale_f32`
 
 The code generated in `scheduler.cpp` will not require any C++ class, It will look like:
 

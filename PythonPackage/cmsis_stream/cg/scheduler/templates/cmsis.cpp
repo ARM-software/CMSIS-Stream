@@ -2,14 +2,14 @@
                   {
 
 {% for ptr in ptrs %}
-                   {{theType}}* {{ptr}};
+                   {{ptr[0]}}* {{ptr[1]}};
 {% endfor %}
 {% for ptr in inputs %}
-                   {{ptr[0]}}={{ptr[1].access}}getReadBuffer({{nb}});
+                   {{ptr[0]}}={{ptr[1].access}}getReadBuffer({{ptr[2]}});
 {% endfor %}
 {% for ptr in outputs %}
-                   {{ptr[0]}}={{ptr[1].access}}getWriteBuffer({{nb}});
+                   {{ptr[0]}}={{ptr[1].access}}getWriteBuffer({{ptr[2]}});
 {% endfor %}
-                   {{func}}({{args}},{{nb}});
+                   {{func}}({{args}});
                    cgStaticError = 0;
                   }
