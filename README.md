@@ -25,6 +25,10 @@ Python is used to:
 
 C++ is only used for strong types and static typing (template). The only part of the C++ library that is used is the memory allocator to create the objects.
 
+## License Terms
+
+CMSIS-Stream is licensed under [Apache License 2.0](LICENSE).
+
 ## Table of contents
 
 1. ### How to get started
