@@ -30,8 +30,8 @@ The support classes and code is covered by CMSIS-DSP license.
 
 CG_AFTER_INCLUDES
 
-{% macro optionalargs() -%}
-{% if config.cOptionalArgs %},{{config.cOptionalArgs}}{% endif %}
+{% macro optionalargs(first) -%}
+{% if config.cOptionalArgs %}{% if not first %},{% endif %}{{config.cOptionalArgs}}{% endif %}
 {% endmacro -%}
 
 {% macro async() -%}
@@ -79,7 +79,7 @@ static fifos_t fifos={0};
 CG_BEFORE_BUFFER
 static nodes_t nodes={0};
 
-int init_{{config.schedName}}()
+int init_{{config.schedName}}({{optionalargs(True)}})
 {
     CG_BEFORE_FIFO_INIT;
 {% for id in range(nbFifos) %}
@@ -113,7 +113,7 @@ int init_{{config.schedName}}()
 
 }
 
-void free_{{config.schedName}}()
+void free_{{config.schedName}}({{optionalargs(True)}})
 {
 {% for id in range(nbFifos) %}
     if (fifos.fifo{{id}}!=NULL)
@@ -135,7 +135,7 @@ void free_{{config.schedName}}()
 {% endif %}
 
 CG_BEFORE_SCHEDULER_FUNCTION
-uint32_t {{config.schedName}}(int *error{{optionalargs()}})
+uint32_t {{config.schedName}}(int *error{{optionalargs(False)}})
 {
     int cgStaticError=0;
     uint32_t nbSchedule=0;
