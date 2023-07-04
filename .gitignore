@@ -37,3 +37,4 @@ Examples/eventrecorder/RTE/_CommandLine_VHT-Corstone-300/
 Examples/graphvizexample/dots/
 Examples/graphvizexample/features/
 Examples/eventrecorder/*.cbuild-idx.yml
+*.cbuild-idx.yml
