@@ -12,13 +12,13 @@ project:
   components:
     - component: ARM::CMSIS:RTOS2:Keil RTX5&Source@5.5.4 
     - component: Keil::Compiler&ARM Compiler:Event Recorder&Semihosting@1.5.1
-      for-type: 
+      for-context: 
           - .CommandLine
     - component: Keil::Compiler&ARM Compiler:Event Recorder&DAP@1.5.1
-      for-type: 
+      for-context: 
           - .IDE
     - component: Keil::Compiler&ARM Compiler:I/O:STDOUT&EVR
-      for-type: 
+      for-context: 
           - .IDE
   
   layers:
