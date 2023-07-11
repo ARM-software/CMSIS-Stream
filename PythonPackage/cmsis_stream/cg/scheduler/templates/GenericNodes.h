@@ -39,9 +39,9 @@ error codes of the application
 #define CG_SKIP_EXECUTION_ID_CODE (-5)
 #define CG_BUFFER_ERROR_ID_CODE (-6)
 
-/* Node ID is =1 when nodes are not identified for the external
+/* Node ID is -1 when nodes are not identified for the external
 world */
-#define UNIDENTIFIED_NODE -1
+#define UNIDENTIFIED_NODE (-1)
 
 // FIFOS 
 
