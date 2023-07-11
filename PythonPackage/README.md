@@ -14,6 +14,11 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.5.1:
+
+* Wrong `GenericNodes.h` was included in version 1.5.0
+* 1.5.0 is no more available for download and has been replaced by 1.5.1 correction
+
 ## Version 1.5.0:
 
 * Corrections to the heap mode
