@@ -30,6 +30,19 @@ import os.path
 import pathlib
 from .config import *
 
+def mkNodeIdentifications(config,sched):
+   idents=[]
+   nb = 0
+   for n in sched.nodes:
+      if n.identified:
+         name = f"{config.prefix.upper()}{n.nodeName.upper()}_ID"
+         n.identificationName = name
+         idents.append((name,nb))
+         nb = nb + 1
+
+   return(idents)
+
+
 def gencode(sched,directory,config):
 
 
@@ -50,6 +63,12 @@ def gencode(sched,directory,config):
        config.switchCase = True
        config.memoryOptimization = False
 
+    identifiedNodes = []
+    if config.nodeIdentification:
+       config.heapAllocation = True
+       r = mkNodeIdentifications(config,sched)
+       identifiedNodes = r
+
     if config.switchCase:
        ctemplate = env.get_template("codeSwitch.cpp")
        nb = 0
@@ -68,7 +87,11 @@ def gencode(sched,directory,config):
     hfile=os.path.join(directory,"%s.h" % config.schedulerCFileName)
 
     nbFifos = len(sched._graph._allFIFOs)
-    
+
+    schedSwitchDataType = "uint16_t"
+    if len(sched.schedule) <=255:
+       schedSwitchDataType = "uint8_t"
+
     with open(cfile,"w") as f:
          print(ctemplate.render(fifos=sched._graph._allFIFOs,
             nbFifos=nbFifos,
@@ -76,9 +99,11 @@ def gencode(sched,directory,config):
             nodes=sched.nodes,
             schedule=sched.schedule,
             schedLen=len(sched.schedule),
+            schedSwitchDataType=schedSwitchDataType,
             config=config,
             sched=sched,
-            schedDescription=schedDescription
+            schedDescription=schedDescription,
+            identifiedNodes=identifiedNodes
             ),file=f)
 
     with open(hfile,"w") as f:
@@ -87,5 +112,8 @@ def gencode(sched,directory,config):
             nodes=sched.nodes,
             schedule=sched.schedule,
             config=config,
-            sched=sched
+            sched=sched,
+            identifiedNodes=identifiedNodes
             ),file=f)
+
+   

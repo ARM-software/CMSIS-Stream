@@ -14,6 +14,11 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.5.0:
+
+* Corrections to the heap mode
+* Added possibility to identify and access nodes from the outside of the scheduler (it implies the heap mode). See documentation for more information
+
 ## Version 1.4.0:
 
 * Possibility to customize the style of the graph pictures (colors, fonts ...)

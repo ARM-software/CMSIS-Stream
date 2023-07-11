@@ -41,6 +41,19 @@ CG_AFTER_INCLUDES
 {% block schedArray %}
 {% endblock %}
 
+{% if config.nodeIdentification %}
+/***********
+
+Node identification
+
+************/
+{% if config.CAPI -%}
+static void * identifiedNodes[{{config.prefix | upper}}NB_IDENTIFIED_NODES]={0};
+{% else %}
+static NodeBase * identifiedNodes[{{config.prefix | upper}}NB_IDENTIFIED_NODES]={0};
+{% endif %}
+{% endif %}
+
 CG_BEFORE_FIFO_BUFFERS
 /***********
 
@@ -79,6 +92,25 @@ static fifos_t fifos={0};
 CG_BEFORE_BUFFER
 static nodes_t nodes={0};
 
+{% if config.nodeIdentification %}
+{% if config.CAPI -%}
+void *get_{{config.schedName}}_node(int32_t nodeID)
+{% else %}
+NodeBase *get_node_{{config.schedName}}(int32_t nodeID)
+{% endif %}
+{
+    if (nodeID >= {{config.prefix | upper}}NB_IDENTIFIED_NODES)
+    {
+        return(NULL);
+    }
+    if (nodeID < 0)
+    {
+        return(NULL);
+    }
+    return(identifiedNodes[nodeID]);
+}
+{% endif %}
+
 int init_{{config.schedName}}({{optionalargs(True)}})
 {
     CG_BEFORE_FIFO_INIT;
@@ -106,6 +138,16 @@ int init_{{config.schedName}}({{optionalargs(True)}})
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
+{% if config.nodeIdentification -%}
+{% if node.identified -%}
+{% if config.CAPI %}
+    identifiedNodes[{{node.identificationName}}]=(void*)nodes.{{node.nodeName}};
+{% else %}
+    identifiedNodes[{{node.identificationName}}]=nodes.{{node.nodeName}};
+{% endif %}
+    nodes.{{node.nodeName}}->setID({{node.identificationName}});
+{% endif %}
+{% endif %}
 {% endif %}
 {% endfor %}
 

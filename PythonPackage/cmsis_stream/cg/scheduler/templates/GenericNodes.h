@@ -39,6 +39,10 @@ error codes of the application
 #define CG_SKIP_EXECUTION_ID_CODE (-5)
 #define CG_BUFFER_ERROR_ID_CODE (-6)
 
+/* Node ID is =1 when nodes are not identified for the external
+world */
+#define UNIDENTIFIED_NODE -1
+
 // FIFOS 
 
 #ifdef DEBUGSCHED
@@ -288,6 +292,10 @@ class NodeBase
 public:
     virtual int run()=0;
     virtual int prepareForRunning()=0;
+    void setID(int id){mNodeID = id;};
+    int nodeID(){return(mNodeID);};
+protected:
+    int mNodeID = UNIDENTIFIED_NODE;
 };
 
 template<typename IN, int inputSize,typename OUT, int outputSize>

@@ -98,6 +98,12 @@ The object constructor is also defining the name used to identity this node in t
 
 You can use each function as much as you want to create several inputs and / or several outputs for a node.
 
+The `Generic` node constructors are accepting another named argument : `identified` and by default it is `True`. This value is used when the code generation is using the `nodeIdentification` mode.
+
+This value can also be changed on the node after creation.
+
+When this value is `True`, the node will be accessible from outside the scheduler using the provided scheduler API in the `C` generated header.
+
 See the [simple](../Examples/simple/README.md) example for more explanation about how to define a new node.
 
 ### 2.1 Methods

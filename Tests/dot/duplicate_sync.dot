@@ -3,91 +3,91 @@
 
 
 digraph structs {
-    node [shape=plaintext]
+    bgcolor = "white"
+    node [shape=plaintext,color="black",fontcolor="black",fontname="Times-Roman"]
     rankdir=LR
-    edge [arrowsize=0.5]
-    fontname="times"
+    edge [arrowsize="0.5",color="black",fontcolor="black",fontname="Times-Roman"]
 
 
-dup0 [shape=point,label=dup0]
+dup0 [shape=point,label="dup0"]
 
 sink0 [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">sink0<BR/>(ArraySink)</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">sink0<BR/>(ArraySink)</FONT></TD>
   </TR>
 </TABLE>>];
 
 sink1 [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">sink1<BR/>(ArraySink)</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">sink1<BR/>(ArraySink)</FONT></TD>
   </TR>
 </TABLE>>];
 
 sink2 [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">sink2<BR/>(ArraySink)</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">sink2<BR/>(ArraySink)</FONT></TD>
   </TR>
 </TABLE>>];
 
 sink3 [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">sink3<BR/>(ArraySink)</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">sink3<BR/>(ArraySink)</FONT></TD>
   </TR>
 </TABLE>>];
 
 sink4 [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">sink4<BR/>(ArraySink)</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">sink4<BR/>(ArraySink)</FONT></TD>
   </TR>
 </TABLE>>];
 
 src [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">src<BR/>(ArraySource)</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">src<BR/>(ArraySource)</FONT></TD>
   </TR>
 </TABLE>>];
 
 
 
 src:i ->  
-dup0 [label="f32(192)"
+dup0 [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(192)>
 
-,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >192</FONT>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >192</FONT>
 </TD></TR></TABLE>>]
 
  
-dup0 -> sink0:i [label="f32(192)"
-,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >192</FONT>
+dup0 -> sink0:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(192)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >192</FONT>
 </TD></TR></TABLE>>
 ]
 
  
-dup0 -> sink1:i [label="f32(192)"
-,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >192</FONT>
+dup0 -> sink1:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(192)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >192</FONT>
 </TD></TR></TABLE>>
 ]
 
  
-dup0 -> sink2:i [label="f32(192)"
-,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >192</FONT>
+dup0 -> sink2:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(192)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >192</FONT>
 </TD></TR></TABLE>>
 ]
 
  
-dup0 -> sink3:i [label="f32(192)"
-,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >192</FONT>
+dup0 -> sink3:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(192)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >192</FONT>
 </TD></TR></TABLE>>
 ]
 
  
-dup0 -> sink4:i [label="f32(192)"
-,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >192</FONT>
+dup0 -> sink4:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(192)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >192</FONT>
 </TD></TR></TABLE>>
 ]
 

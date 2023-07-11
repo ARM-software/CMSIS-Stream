@@ -71,6 +71,8 @@ The support classes and code is covered by CMSIS-DSP license.
 #define CG_AFTER_NODE_EXECUTION
 #endif
 
+
+
 CG_AFTER_INCLUDES
 
 
@@ -79,10 +81,11 @@ CG_AFTER_INCLUDES
 Description of the scheduling. 
 
 */
-static unsigned int schedule[25]=
+static uint8_t schedule[25]=
 { 
 6,2,0,7,3,4,8,1,6,2,0,7,3,4,8,1,5,2,0,7,3,4,8,1,5,
 };
+
 
 CG_BEFORE_FIFO_BUFFERS
 /***********

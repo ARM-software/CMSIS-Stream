@@ -10,8 +10,8 @@ The support classes and code is covered by CMSIS-DSP license.
 #ifndef _{{config.schedulerCFileName |replace(".h","")|upper()}}_H_ 
 #define _{{config.schedulerCFileName |replace(".h","")|upper()}}_H_
 
-{% macro optionalargs() -%}
-{% if config.cOptionalArgs %},{{config.cOptionalArgs}}{% endif %}
+{% macro optionalargs(first) -%}
+{% if config.cOptionalArgs %}{% if not first %},{% endif %}{{config.cOptionalArgs}}{% endif %}
 {% endmacro -%}
 
 {% if config.CAPI -%}
@@ -32,11 +32,24 @@ extern "C"
 
 {% endif %}
 
-{% if config.heapAllocation %}
-extern int init_{{config.schedName}}();
-extern void free_{{config.schedName}}();
+{% if config.nodeIdentification %}
+#define {{config.prefix | upper}}NB_IDENTIFIED_NODES {{identifiedNodes|length}}
+{% for node in identifiedNodes %}
+#define {{node[0]}} {{node[1]}}
+{% endfor %}
+
+{% if config.CAPI -%}
+extern void *get_{{config.schedName}}_node(int32_t nodeID);
+{% else %}
+extern NodeBase *get_node_{{config.schedName}}(int32_t nodeID);
 {% endif %}
-extern uint32_t {{config.schedName}}(int *error{{optionalargs()}});
+{% endif %}
+
+{% if config.heapAllocation %}
+extern int init_{{config.schedName}}({{optionalargs(True)}});
+extern void free_{{config.schedName}}({{optionalargs(True)}});
+{% endif %}
+extern uint32_t {{config.schedName}}(int *error{{optionalargs(False)}});
 
 {% if config.CAPI -%}
 #ifdef   __cplusplus

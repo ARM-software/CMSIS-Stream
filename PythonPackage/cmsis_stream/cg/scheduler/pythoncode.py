@@ -40,6 +40,8 @@ def gencode(sched,directory,config):
 
     cfile=os.path.join(directory,"%s.py" % config.schedulerPythonFileName)
 
+    if config.identification:
+       config.heapAllocation = True
 
     with open(cfile,"w") as f:
          nbFifos = len(sched._graph._allFIFOs)

@@ -146,6 +146,14 @@ class Configuration:
 
         self.heapAllocation = False
 
+        # When true, create a new C++ header only
+        # with an array allowing to access the identified
+        # nodes (identified is a node creation option true by default)
+        # Macros are also generated to give indexes into this array
+        # It implies heapAllocation true because nodes
+        # must be available before the scheduler is started.
+        self.nodeIdentification = False
+
 
        
     @property

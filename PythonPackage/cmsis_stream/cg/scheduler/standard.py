@@ -159,7 +159,7 @@ def numberToBase(n, b):
 # order
 class Duplicate(GenericToManyNode):
     def __init__(self,name,theType,inLength,nb,className="Duplicate"):
-        GenericToManyNode.__init__(self,name)
+        GenericToManyNode.__init__(self,name,identified=False)
 
         self._className = className
 

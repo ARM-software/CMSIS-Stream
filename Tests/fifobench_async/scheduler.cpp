@@ -71,6 +71,23 @@ The support classes and code is covered by CMSIS-DSP license.
 #define CG_AFTER_NODE_EXECUTION
 #endif
 
+#if !defined(CG_AFTER_NODE_EXECUTION)
+#define CG_AFTER_NODE_EXECUTION
+#endif
+
+#if !defined(CG_NODE_NOT_EXECUTED)
+#define CG_NODE_NOT_EXECUTED
+#endif
+
+#if !defined(CG_ASYNC_BEFORE_NODE_CHECK)
+#define CG_ASYNC_BEFORE_NODE_CHECK
+#endif
+
+#if !defined(CG_ASYNC_AFTER_NODE_CHECK)
+#define CG_ASYNC_AFTER_NODE_CHECK
+#endif
+
+
 CG_AFTER_INCLUDES
 
 
@@ -79,10 +96,11 @@ CG_AFTER_INCLUDES
 Description of the scheduling. 
 
 */
-static unsigned int schedule[25]=
+static uint8_t schedule[25]=
 { 
 6,2,0,7,3,4,8,1,6,2,0,7,3,4,8,1,5,2,0,7,3,4,8,1,5,
 };
+
 
 CG_BEFORE_FIFO_BUFFERS
 /***********
@@ -178,6 +196,7 @@ uint32_t scheduler(int *error,float32_t* inputArray,
             CG_BEFORE_NODE_EXECUTION;
 
             cgStaticError = 0;
+            CG_ASYNC_BEFORE_NODE_CHECK;
             switch(schedule[id])
             {
                 case 0:
@@ -250,9 +269,12 @@ uint32_t scheduler(int *error,float32_t* inputArray,
                 break;
             }
 
+            CG_ASYNC_AFTER_NODE_CHECK;
+
             if (cgStaticError == CG_SKIP_EXECUTION_ID_CODE)
             { 
               cgStaticError = 0;
+              CG_NODE_NOT_EXECUTED;
               continue;
             }
 

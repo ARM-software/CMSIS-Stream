@@ -228,7 +228,7 @@ class BaseNode:
     """Root class for all Nodes of a dataflow graph.
        To define a new kind of node, inherit from this class"""
 
-    def __init__(self,name):
+    def __init__(self,name,identified=True):
         """Create a new kind of Node.
 
         name :: The name of the node which is used as
@@ -257,6 +257,8 @@ class BaseNode:
         # sinks of the truncated graph
         self.nbOutputsForTopologicalSort = 0
 
+        self._identified = identified
+
     def __getattr__(self,name):
         """Present inputs / outputs as attributes"""
         if name in self._inputs:
@@ -273,6 +275,14 @@ class BaseNode:
            return(self._outputs[name])
         raise IndexError 
 
+    @property
+    def identified(self):
+        return self._identified
+
+    @identified.setter
+    def identified(self, value):
+        self._identified = value
+    
     # For cyclo static scheduling we need to compute
     # the cycle period for this node based upon the
     # period of the IOs 
@@ -628,8 +638,8 @@ class BaseNode:
 class GenericSink(BaseNode):
     """A sink in the dataflow graph""" 
 
-    def __init__(self,name):
-        BaseNode.__init__(self,name)
+    def __init__(self,name,identified=True):
+        BaseNode.__init__(self,name,identified=identified)
         self._isPureNode = False
     
     @property
@@ -647,8 +657,8 @@ class GenericSink(BaseNode):
 class GenericSource(BaseNode):
     """A source in the dataflow graph""" 
 
-    def __init__(self,name):
-        BaseNode.__init__(self,name)
+    def __init__(self,name,identified=True):
+        BaseNode.__init__(self,name,identified=identified)
         self._isPureNode = False
     
     @property
@@ -665,8 +675,8 @@ class GenericSource(BaseNode):
 class GenericNode(BaseNode):
     """A source in the dataflow graph""" 
 
-    def __init__(self,name):
-        BaseNode.__init__(self,name)
+    def __init__(self,name,identified=True):
+        BaseNode.__init__(self,name,identified=identified)
         # Pure node is for instance a 
         # CMSIS-DSP function.
         # It is not packaged into an object
@@ -690,8 +700,8 @@ class GenericNode(BaseNode):
 class GenericToManyNode(BaseNode):
     """A source in the dataflow graph""" 
 
-    def __init__(self,name):
-        BaseNode.__init__(self,name)
+    def __init__(self,name,identified=True):
+        BaseNode.__init__(self,name,identified=identified)
         # Pure node is for instance a 
         # CMSIS-DSP function.
         # It is not packaged into an object
@@ -757,8 +767,8 @@ class GenericToManyNode(BaseNode):
 class GenericFromManyNode(BaseNode):
     """A source in the dataflow graph""" 
 
-    def __init__(self,name):
-        BaseNode.__init__(self,name)
+    def __init__(self,name,identified=True):
+        BaseNode.__init__(self,name,identified=identified)
         # Pure node is for instance a 
         # CMSIS-DSP function.
         # It is not packaged into an object
@@ -826,8 +836,8 @@ class GenericFromManyNode(BaseNode):
 class GenericManyToManyNode(BaseNode):
     """A source in the dataflow graph""" 
 
-    def __init__(self,name):
-        BaseNode.__init__(self,name)
+    def __init__(self,name,identified=True):
+        BaseNode.__init__(self,name,identified=identified)
         # Pure node is for instance a 
         # CMSIS-DSP function.
         # It is not packaged into an object
@@ -1001,7 +1011,7 @@ class GenericFunction(GenericNode):
         if not (funcname in GenericFunction.NODEID):
             GenericFunction.NODEID[funcname]=1 
 
-        GenericNode.__init__(self,"%s%d" % (funcname,GenericFunction.NODEID[funcname]))
+        GenericNode.__init__(self,"%s%d" % (funcname,GenericFunction.NODEID[funcname]),identified=False)
 
         self._hasState = False
         #self._length = length 
@@ -1010,6 +1020,10 @@ class GenericFunction(GenericNode):
         self._argsDesc = argsDesc
 
         GenericFunction.NODEID[funcname]=GenericFunction.NODEID[funcname]+1
+
+    @BaseNode.identified.setter
+    def identified(self, value):
+        self._identified = False
 
     @property
     def realInputs(self):

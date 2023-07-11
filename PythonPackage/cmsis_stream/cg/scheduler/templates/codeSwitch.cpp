@@ -6,7 +6,7 @@
 Description of the scheduling. 
 
 */
-static unsigned int schedule[{{schedLen}}]=
+static {{schedSwitchDataType}} schedule[{{schedLen}}]=
 { 
 {{schedDescription}}
 };
