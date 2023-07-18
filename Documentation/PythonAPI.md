@@ -8,13 +8,15 @@ When you describe a graph and generate a scheduler there are 4 mandatory steps a
 * Generating the C++ and/or Python scheduler implementation
 * Optional : Generating a graphviz `.dot` file with the graphical representation of the graph
 
-1. ## [Description of the nodes](Generic.md)
+1. ## [Description of new nodes](Generic.md)
 
 2. ## [Adding nodes to the graph](Graph.md)
 
-3. ## [Schedule computation](SchedOptions.md)
+3. ## [Schedule computation and generation](SchedOptions.md)
 
-4. ## Code generation
+4. ## [SDS Nodes](PythonSDS.md)
+
+5. ## Generation
 
    1. #### [C++ Code generation](CCodeGen.md)
 
@@ -22,7 +24,7 @@ When you describe a graph and generate a scheduler there are 4 mandatory steps a
 
    3. #### [Graphviz representation](GraphvizGen.md)
 
-   4. #### [Common options](CodegenOptions.md)
+   4. #### [Common options for all generators](CodegenOptions.md)
 
 
 

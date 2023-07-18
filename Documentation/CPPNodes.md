@@ -1,5 +1,39 @@
 # CPP Nodes and classes
 
+- [CPP Nodes and classes](#cpp-nodes-and-classes)
+  - [Mandatory classes](#mandatory-classes)
+    - [FIFO](#fifo)
+      - [FIFO for synchronous mode](#fifo-for-synchronous-mode)
+      - [Buffer for synchronous mode](#buffer-for-synchronous-mode)
+      - [FIFO for asynchronous mode](#fifo-for-asynchronous-mode)
+    - [Nodes](#nodes)
+      - [GenericNode](#genericnode)
+      - [GenericNode12](#genericnode12)
+      - [GenericNode13](#genericnode13)
+      - [GenericNode21](#genericnode21)
+      - [GenericSource](#genericsource)
+      - [GenericSink](#genericsink)
+      - [GenericToManyNode](#generictomanynode)
+      - [GenericFromManyNode](#genericfrommanynode)
+      - [GenericManyToManyNode](#genericmanytomanynode)
+      - [Duplicate](#duplicate)
+  - [Optional nodes](#optional-nodes)
+    - [CFFT / CIFFT](#cfft--cifft)
+    - [InterleavedStereoToMono](#interleavedstereotomono)
+    - [MFCC](#mfcc)
+    - [NullSink](#nullsink)
+    - [OverlapAndAdd](#overlapandadd)
+    - [SlidingBuffer](#slidingbuffer)
+    - [ToComplex](#tocomplex)
+    - [ToReal](#toreal)
+    - [Unzip](#unzip)
+    - [Zip](#zip)
+    - [Host](#host)
+      - [FileSink](#filesink)
+      - [FileSource](#filesource)
+  - [SDS Nodes](#sds-nodes)
+
+
 ## Mandatory classes
 
 Those classes are defined in `GenericNodes.h` a header that is always included by the scheduler.
@@ -18,16 +52,23 @@ class FIFOBase{
 public:
     virtual T* getWriteBuffer(int nb)=0;
     virtual T* getReadBuffer(int nb)=0;
+    /*
+
+    Below functions are only useful in asynchronous mode.
+    Synchronous implementation can provide an empty
+    implementation.
+
+    */
     virtual bool willUnderflowWith(int nb) const = 0;
     virtual bool willOverflowWith(int nb) const = 0;
     virtual int nbSamplesInFIFO() const = 0;
-
+    virtual int nbOfFreeSamplesInFIFO() const = 0;
 };
 ```
 
-The functions `willUnderflowWith`, `willOverflowWith` and `nbSamplesInFIFO` are only used in asynchronous mode.
+The functions `willUnderflowWith`, `willOverflowWith`,`nbSamplesInFIFO` and `nbOfFreeSamplesInFIFO` are only used in asynchronous mode.
 
-If you implement a FIFO for synchronous mode you only need to implement `getWriteBuffer` and `getReadBuffer`.
+If you implement a FIFO for synchronous mode you only need to implement `getWriteBuffer` and `getReadBuffer` and provide empty implementations for the other methods.
 
 FIFO must be templates with a type defined as:
 
@@ -90,6 +131,7 @@ This implementation is a bit more heavy and is providing implementations of foll
 bool willUnderflowWith(int nb) const;
 bool willOverflowWith(int nb) const;
 int nbSamplesInFIFO() const;
+int nbOfFreeSamplesInFIFO() const;
 ```
 
 ### Nodes
@@ -102,8 +144,14 @@ class NodeBase
 public:
     virtual int run()=0;
     virtual int prepareForRunning()=0;
+    void setID(int id);
+    int nodeID() const;
 };
 ```
+
+`setID` and 1`nodeID` are used for node identification. It is optional and must be enabled in the Python code generation. When enabled, after creation of the object, the node ID is set by the scheduler initialization code.
+
+Nodes with an ID can be accessed from outside of the scheduler.
 
 `GenericNode`, `GenericSource` and `GenericSink` are providing accesses to the FIFOs for each IO. The goal of those wrappers is to define the IOs (number of IO, their type and length) and hide the API to the FIFOs.
 
@@ -485,3 +533,6 @@ The constructor has an additional argument : the name/path of the input file:
 FileSource(FIFOBase<float32_t> &dst,std::string name)
 ```
 
+## SDS Nodes
+
+The CPP [SDS nodes](CPPSDS.md) are covered in a separate section

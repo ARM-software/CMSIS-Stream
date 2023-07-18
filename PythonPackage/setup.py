@@ -35,6 +35,7 @@ setup (name = 'cmsis-stream',
        packages=["cmsis_stream",
                  "cmsis_stream.cg",
                  "cmsis_stream.cg.nodes",
+                 "cmsis_stream.cg.nodes.sds",
                  "cmsis_stream.cg.nodes.host",
                  "cmsis_stream.cg.scheduler",
                  "cmsis_stream.cg.scheduler.templates",
@@ -67,7 +68,8 @@ setup (name = 'cmsis-stream',
         'jinja2>= 3.1.2, <4.0',
         'sympy>=1.7.1',
         'MarkupSafe>=2.1.2, <3.0',
-        'numpy'
+        'numpy',
+        'PyYAML>=6.0'
         ],
         project_urls={  # Optional
            'Bug Reports': 'https://github.com/ARM-software/CMSIS-Stream/issues',

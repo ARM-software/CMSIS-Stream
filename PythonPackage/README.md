@@ -10,9 +10,14 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 * Define new compute nodes
 * Connect them into a dataflow graph to process streams
-* Generate a C scheduler to run the graph on your target
+* Generate at build time a static C scheduler to run the graph on your target (no need of an RTOS)
 
 # Change history
+
+## Version 1.6.0:
+
+* SDS sensor and recorder nodes to interact with the [Arm SDS Framework](https://github.com/ARM-software/SDS-Framework/tree/main) to record stream of samples and replay them in Arm Virtual Hardware
+* YAML import / export of a graph and its code generation settings
 
 ## Version 1.5.1:
 

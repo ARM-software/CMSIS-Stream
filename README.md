@@ -17,7 +17,7 @@ Stream of samples are processed by this graph as illustrated on the following an
 Python is used to:
 
 * Describe the graph
-* Generate a static scheduling of this graph that is computed at build time with several memory optimizations. 
+* Generate a **static scheduling** of this graph that is computed **at build time** with several memory optimizations. 
 * Generate the code for this scheduler as a simple C++ file (with a C API).
   * The scheduler can be run on bare metal devices. There is no dependencies to any RTOS. The scheduler is a sequence of function calls
 

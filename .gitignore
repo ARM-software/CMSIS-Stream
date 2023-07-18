@@ -38,3 +38,4 @@ Examples/graphvizexample/dots/
 Examples/graphvizexample/features/
 Examples/eventrecorder/*.cbuild-idx.yml
 *.cbuild-idx.yml
+.clangd
