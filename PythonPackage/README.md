@@ -14,6 +14,10 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.6.1:
+
+* Correction to 1.6.0 : Missing YAML module 
+
 ## Version 1.6.0:
 
 * SDS sensor and recorder nodes to interact with the [Arm SDS Framework](https://github.com/ARM-software/SDS-Framework/tree/main) to record stream of samples and replay them in Arm Virtual Hardware
