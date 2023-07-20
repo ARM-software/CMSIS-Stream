@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------
- * Project:      CMSIS-Stream Library
+ * Project:      CMSIS DSP Library
  * Title:        cg_status.h
  * Description:  Error code for the Compute Graph
  *

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------
- * Project:      CMSIS-Stream Library
+ * Project:      CMSIS DSP Library
  * Title:        GenericNodes.h
  * Description:  C++ support templates for the compute graph with static scheduler
  *
