@@ -40,7 +40,7 @@ def gencode(sched,directory,config):
 
     cfile=os.path.join(directory,"%s.py" % config.schedulerPythonFileName)
 
-    if config.identification:
+    if config.nodeIdentification:
        config.heapAllocation = True
 
     with open(cfile,"w") as f:

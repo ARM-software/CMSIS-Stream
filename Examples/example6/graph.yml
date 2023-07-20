@@ -1,0 +1,82 @@
+version: 1.0.0
+graph:
+  nodes:
+  - node: src
+    identified: true
+    kind: FileSource
+    outputs:
+    - output: o
+      samples: 192
+      type: float
+    args:
+    - literal: input_example6.txt
+  - node: audioWin
+    identified: true
+    kind: SlidingBuffer
+    inputs:
+    - input: i
+      samples: 128
+      type: float
+    outputs:
+    - output: o
+      samples: 256
+      type: float
+  - node: mfcc
+    identified: true
+    kind: MFCC
+    inputs:
+    - input: i
+      samples: 256
+      type: float
+    outputs:
+    - output: o
+      samples: 13
+      type: float
+    args:
+    - variable: mfccConfig
+  - node: mfccWin
+    identified: true
+    kind: SlidingBuffer
+    inputs:
+    - input: i
+      samples: 13
+      type: float
+    outputs:
+    - output: o
+      samples: 26
+      type: float
+  - node: sink
+    identified: true
+    kind: FileSink
+    inputs:
+    - input: i
+      samples: 13
+      type: float
+    args:
+    - literal: output_example6.txt
+  edges:
+  - src:
+      node: src
+      output: o
+    dst:
+      node: audioWin
+      input: i
+  - src:
+      node: audioWin
+      output: o
+    dst:
+      node: mfcc
+      input: i
+  - src:
+      node: mfcc
+      output: o
+    dst:
+      node: mfccWin
+      input: i
+  - src:
+      node: mfccWin
+      output: o
+    dst:
+      node: sink
+      input: i
+

@@ -1,0 +1,164 @@
+version: 1.0.0
+graph:
+  structures:
+    complex:
+      cname: complex
+      bytes: 8
+  nodes:
+  - node: source
+    identified: true
+    kind: Source
+    outputs:
+    - output: o
+      samples: 1
+      type: float
+  - node: fromSource
+    identified: true
+    kind: FromSource
+    inputs:
+    - input: i
+      samples: 1
+      type: float
+    outputs:
+      samples: 5
+      type: float
+      names:
+      - oa
+      - ob
+      - oc
+      - od
+      - oe
+  - node: processing
+    identified: true
+    kind: ProcessingNode
+    inputs:
+      samples: 7
+      type: float
+      names:
+      - ia
+      - ib
+      - ic
+      - id
+      - ie
+    outputs:
+      samples: 5
+      type: complex
+      names:
+      - oa
+      - ob
+      - oc
+      - od
+      - oe
+      - of
+      - og
+  - node: toSink
+    identified: true
+    kind: ToSink
+    inputs:
+      samples: 5
+      type: complex
+      names:
+      - ia
+      - ib
+      - ic
+      - id
+      - ie
+      - if
+      - ig
+    outputs:
+    - output: o
+      samples: 1
+      type: complex
+  - node: sink
+    identified: true
+    kind: Sink
+    inputs:
+    - input: i
+      samples: 1
+      type: complex
+  edges:
+  - src:
+      node: source
+      output: o
+    dst:
+      node: fromSource
+      input: i
+  - src:
+      node: fromSource
+      output: oa
+    dst:
+      node: processing
+      input: ia
+  - src:
+      node: fromSource
+      output: ob
+    dst:
+      node: processing
+      input: ib
+  - src:
+      node: fromSource
+      output: oc
+    dst:
+      node: processing
+      input: ic
+  - src:
+      node: fromSource
+      output: od
+    dst:
+      node: processing
+      input: id
+  - src:
+      node: fromSource
+      output: oe
+    dst:
+      node: processing
+      input: ie
+  - src:
+      node: processing
+      output: oa
+    dst:
+      node: toSink
+      input: ia
+  - src:
+      node: processing
+      output: ob
+    dst:
+      node: toSink
+      input: ib
+  - src:
+      node: processing
+      output: oc
+    dst:
+      node: toSink
+      input: ic
+  - src:
+      node: processing
+      output: od
+    dst:
+      node: toSink
+      input: id
+  - src:
+      node: processing
+      output: oe
+    dst:
+      node: toSink
+      input: ie
+  - src:
+      node: processing
+      output: of
+    dst:
+      node: toSink
+      input: if
+  - src:
+      node: processing
+      output: og
+    dst:
+      node: toSink
+      input: ig
+  - src:
+      node: toSink
+      output: o
+    dst:
+      node: sink
+      input: i
+

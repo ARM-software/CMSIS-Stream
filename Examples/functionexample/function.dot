@@ -14,15 +14,11 @@ myfunc1 [label=<
 <TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
     <TD PORT="ia"><FONT POINT-SIZE="12.0" COLOR="black">ia</FONT></TD>
-    <TD ALIGN="CENTER" ROWSPAN="3"><FONT COLOR="black" POINT-SIZE="14.0">myfunc<BR/>(Function)</FONT></TD>
+    <TD ALIGN="CENTER" ROWSPAN="2"><FONT COLOR="black" POINT-SIZE="14.0">myfunc<BR/>(Function)</FONT></TD>
     <TD PORT="o"><FONT POINT-SIZE="12.0" COLOR="black">o</FONT></TD>
   </TR>
 <TR>
 <TD PORT="ib"><FONT POINT-SIZE="12.0" COLOR="black">ib</FONT></TD>
-
- 
-<TD></TD></TR><TR>
-<TD PORT="ic"><FONT POINT-SIZE="12.0" COLOR="black">ic</FONT></TD>
 
  
 <TD></TD></TR>
@@ -70,13 +66,5 @@ myfunc1:o -> sink:i [style="solid",color="black",fontsize="12.0",fontcolor="blac
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
 </TD></TR></TABLE>>]
 
-SomeConst [label=<
-<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
-  <TR>
-    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">SomeConst</FONT></TD>
-  </TR>
-</TABLE>>];
 
-SomeConst:i -> myfunc1:ic
- [style="solid",color="black"]
 }

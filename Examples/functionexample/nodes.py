@@ -82,13 +82,20 @@ class MyFunction(GenericFunction):
             # C API description because it will be connected
             # to a constant node and the FIFO won't
             # really exist in the generated code
-            someInt = "ic"
-            someStr = 1
+            someInt = "ic" # Connected to a constant node
+                           # So not passed as an argument.
+                           # The argument is created by the
+                           # connection to a constant node
+            someStr = 1 # First additional argument of Python API
         else:
             # Otherwise someInt is the second additional
             # argument
-            someInt = 1
-            someStr = 2
+            someInt = 1 # First additional argument of Python API
+                        # (It is passed explicitely and not
+                        # through connection with a constant node)
+            someStr = 2 # Second additional argument of Python API
+        # How to map the Python interface (FIFO and additional arguments)
+        # to the C function call
         GenericFunction.__init__(self,"myfunc",
             ["ia"
             ,ArgLength("ia")
@@ -108,6 +115,8 @@ class MyFunction(GenericFunction):
             # argument. This port will be connected
             # to a constant node in the graph
             self.addInput("ic",CType(SINT32),length_b)
+            # If false (see below) we instead create an int
+            # additional argument
         self.addOutput("o",CType(Q15),length_c)
 
         self.addVariableArg("testVar")

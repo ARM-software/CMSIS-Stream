@@ -81,10 +81,11 @@ CG_AFTER_INCLUDES
 Description of the scheduling. 
 
 */
-static unsigned int schedule[19]=
+static uint8_t schedule[19]=
 { 
 2,2,0,1,2,0,1,2,2,0,1,1,2,0,1,2,0,1,1,
 };
+
 
 CG_BEFORE_FIFO_BUFFERS
 /***********

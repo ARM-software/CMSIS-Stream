@@ -1,6 +1,7 @@
 import numpy as np 
 
 from cmsis_stream.cg.scheduler import *
+from cmsis_stream.cg.yaml import *
 
 
 class Processing(GenericNode):
@@ -34,6 +35,9 @@ print("Generate graphviz and code")
 
 conf=Configuration()
 conf.CMSISDSP = True
+
+export_graph(g,"graph.yml")
+export_config(conf,"config.yml")
 
 with open("pre_schedule_test.dot","w") as f:
     g.graphviz(f)

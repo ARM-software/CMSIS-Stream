@@ -81,10 +81,11 @@ CG_AFTER_INCLUDES
 Description of the scheduling. 
 
 */
-static unsigned int schedule[37]=
+static uint8_t schedule[37]=
 { 
 6,6,1,5,0,2,3,4,6,1,5,0,2,3,4,6,6,1,5,0,2,3,4,6,1,5,0,2,3,4,6,1,5,0,2,3,4,
 };
+
 
 CG_BEFORE_FIFO_BUFFERS
 /***********
@@ -99,29 +100,29 @@ FIFO buffers
 #define FIFOSIZE4 5
 #define FIFOSIZE5 5
 
-#define BUFFERSIZE1 11
+#define BUFFERSIZE0 40
 CG_BEFORE_BUFFER
-complex buf1[BUFFERSIZE1]={0};
+uint8_t buf0[BUFFERSIZE0]={0};
 
-#define BUFFERSIZE2 5
+#define BUFFERSIZE1 40
 CG_BEFORE_BUFFER
-complex buf2[BUFFERSIZE2]={0};
+uint8_t buf1[BUFFERSIZE1]={0};
 
-#define BUFFERSIZE3 5
+#define BUFFERSIZE2 40
 CG_BEFORE_BUFFER
-complex buf3[BUFFERSIZE3]={0};
+uint8_t buf2[BUFFERSIZE2]={0};
 
-#define BUFFERSIZE4 5
+#define BUFFERSIZE3 40
 CG_BEFORE_BUFFER
-complex buf4[BUFFERSIZE4]={0};
+uint8_t buf3[BUFFERSIZE3]={0};
 
-#define BUFFERSIZE5 5
+#define BUFFERSIZE4 40
+CG_BEFORE_BUFFER
+uint8_t buf4[BUFFERSIZE4]={0};
+
+#define BUFFERSIZE5 11
 CG_BEFORE_BUFFER
 complex buf5[BUFFERSIZE5]={0};
-
-#define BUFFERSIZE6 5
-CG_BEFORE_BUFFER
-complex buf6[BUFFERSIZE6]={0};
 
 
 
@@ -136,12 +137,12 @@ uint32_t scheduler(int *error,int someVariable)
     /*
     Create FIFOs objects
     */
-    FIFO<complex,FIFOSIZE0,0,0> fifo0(buf1);
-    FIFO<complex,FIFOSIZE1,1,0> fifo1(buf2);
-    FIFO<complex,FIFOSIZE2,1,0> fifo2(buf3);
-    FIFO<complex,FIFOSIZE3,1,0> fifo3(buf4);
-    FIFO<complex,FIFOSIZE4,1,0> fifo4(buf5);
-    FIFO<complex,FIFOSIZE5,1,0> fifo5(buf6);
+    FIFO<complex,FIFOSIZE0,0,0> fifo0(buf5);
+    FIFO<complex,FIFOSIZE1,1,0> fifo1(buf0);
+    FIFO<complex,FIFOSIZE2,1,0> fifo2(buf1);
+    FIFO<complex,FIFOSIZE3,1,0> fifo3(buf2);
+    FIFO<complex,FIFOSIZE4,1,0> fifo4(buf3);
+    FIFO<complex,FIFOSIZE5,1,0> fifo5(buf4);
 
     CG_BEFORE_NODE_INIT;
     /* 

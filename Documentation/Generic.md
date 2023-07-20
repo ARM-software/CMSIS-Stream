@@ -6,37 +6,24 @@ There are several generic classes provided by the framework to be used to create
 
 There are also classes provided to define the datatype of the samples processed by the nodes.
 
-* ## [Overview](#1-overview)
-
-  * ### [Basic generic nodes](#1.1-basic-generic-nodes)
-
-  * ### [Complex generic nodes](#1.2-complex-generic-nodes)
-
-    * #### [Many-to-many cases](#1.2.1-many-to-many-cases)
-
-    * #### [Function nodes](#1.2.2-function-nodes)
-
-* ## [Details about basic generic nodes](#2-details-about-basic-generic-nodes)
-
-  * ### [Methods](#2.1-methods)
-
-  * ### [Datatypes](#2.2-datatypes)
-
-    * #### [CTypes](#2.2.1-ctype)
-
-    * #### [CStructType](#2.2.2-cstructtype)
-
-    * #### [PythonClassType](#2.2.3-pythonclasstype)
-
-* ## [Details about many-to-many nodes](#3-details-about-many-to-many-nodes)
-
-  * ### [GenericToManyNode](#3.1-generictomanynode)
-
-  * ### [GenericFromManyNode](#3.2-genericfrommanynode)
-
-  * ### [GenericManyToManyNode](#3.3-genericmanytomanynode)
-
-* ## [Function and constant nodes](#4-function-and-constant-nodes)
+- [Description of the nodes](#description-of-the-nodes)
+  - [1 Overview](#1-overview)
+    - [1.1 Basic generic nodes](#11-basic-generic-nodes)
+    - [1.2 Complex generic nodes](#12-complex-generic-nodes)
+      - [1.2.1 Many-to-many cases:](#121-many-to-many-cases)
+      - [1.2.2 Function nodes](#122-function-nodes)
+  - [2 Details about basic generic nodes](#2-details-about-basic-generic-nodes)
+    - [2.1 Methods](#21-methods)
+    - [2.2 Datatypes](#22-datatypes)
+      - [2.2.1 CType](#221-ctype)
+      - [2.2.2 CStructType](#222-cstructtype)
+      - [2.2.3 PythonClassType](#223-pythonclasstype)
+  - [3 Details about many-to-many nodes](#3-details-about-many-to-many-nodes)
+    - [3.1 GenericToManyNode](#31-generictomanynode)
+    - [3.2 GenericFromManyNode](#32-genericfrommanynode)
+    - [3.3 GenericManyToManyNode](#33-genericmanytomanynode)
+  - [4 Function and constant nodes](#4-function-and-constant-nodes)
+    - [`GenericFunction`](#genericfunction)
 
 ## 1 Overview
 
@@ -227,6 +214,10 @@ Let's assume `p` is a node with many outputs. To connect the second output, one 
 ```python
 g.connect(p[p.outputNameFromIndex(1)],node.i)
 ```
+
+The method `outputNameFromIndex` can be customized by a node. It should always return names that are in alphabetical order so that the index used in this method is also the index to use in the C code.
+
+By default the names generated are `oa`, `ob`, ... It means you should not use more than 26 outputs with this naming ...
 
 ### 3.2 GenericFromManyNode
 

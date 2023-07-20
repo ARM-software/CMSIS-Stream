@@ -3,6 +3,8 @@ from nodes import *
 # Include definition of the graph
 from graph import * 
 
+from cmsis_stream.cg.yaml import *
+
 # Create a configuration object
 conf=Configuration()
 # The number of schedule iteration is limited to 1
@@ -13,6 +15,10 @@ conf.debugLimit=1
 # to recompile CMSIS-DSP for such a simple example
 conf.CMSISDSP = False
 conf.asynchronous = False
+
+export_graph(the_graph,"graph.yml")
+export_config(conf,"config.yml")
+
 # Compute a static scheduling of the graph 
 # The size of FIFO is also computed
 

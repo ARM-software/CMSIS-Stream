@@ -39,6 +39,10 @@ error codes of the application
 #define CG_SKIP_EXECUTION_ID_CODE (-5)
 #define CG_BUFFER_ERROR_ID_CODE (-6)
 
+/* Node ID is -1 when nodes are not identified for the external
+world */
+#define UNIDENTIFIED_NODE (-1)
+
 // FIFOS 
 
 #ifdef DEBUGSCHED
@@ -65,9 +69,17 @@ class FIFOBase{
 public:
     virtual T* getWriteBuffer(int nb)=0;
     virtual T* getReadBuffer(int nb)=0;
+    /*
+
+    Below functions are only useful in asynchronous mode.
+    Synchronous implementation can provide an empty
+    implementation.
+
+    */
     virtual bool willUnderflowWith(int nb) const = 0;
     virtual bool willOverflowWith(int nb) const = 0;
     virtual int nbSamplesInFIFO() const = 0;
+    virtual int nbOfFreeSamplesInFIFO() const = 0;
 
 };
 
@@ -85,10 +97,17 @@ class FIFO<T,length,0,0>: public FIFOBase<T>
            The buffer is a shared memory wrapper */
         FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
 
-        /* Not used in synchronous mode */
-        bool willUnderflowWith(int nb) const final {(void)nb;return false;};
-        bool willOverflowWith(int nb) const final {(void)nb;return false;};
-        int nbSamplesInFIFO() const final {return 0;};
+        bool willUnderflowWith(int nb) const final
+        {
+            return((writePos - readPos - nb)<0);
+        }
+
+        bool willOverflowWith(int nb) const final
+        {
+            return((writePos - readPos + nb)>length);
+        }
+        int nbSamplesInFIFO() const final {return (writePos - readPos);};
+        int nbOfFreeSamplesInFIFO() const final {return (length - writePos + readPos);};
 
         T * getWriteBuffer(int nb) final
         {
@@ -142,7 +161,7 @@ class FIFO<T,length,0,0>: public FIFOBase<T>
         #endif
 
     protected:
-        T *mBuffer;
+        T * const mBuffer;
         int readPos,writePos;
 };
 
@@ -151,15 +170,25 @@ template<typename T, int length>
 class FIFO<T,length,1,0>: public FIFOBase<T> 
 {
     public:
-        FIFO(T *buffer,int delay=0):mBuffer(buffer),readPos(0),writePos(delay) {};
-        FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
+        /* No delay argument for this version of the FIFO.
+           This version will not be generated when there is a delay
+        */
+        FIFO(T *buffer):mBuffer(buffer) {};
+        FIFO(void *buffer):mBuffer((T*)buffer) {};
 
-        /* Not used in synchronous mode */
+        /* 
+           Not used in synchronous mode 
+           and this version of the FIFO is
+           never used in asynchronous mode 
+           so empty functions are provided.
+        */
         bool willUnderflowWith(int nb) const final {(void)nb;return false;};
         bool willOverflowWith(int nb) const final {(void)nb;return false;};
-        int nbSamplesInFIFO() const final {return 0;};
+        int nbSamplesInFIFO() const final {return(0);};
+        int nbOfFreeSamplesInFIFO() const final {return( 0);};
 
-        T * getWriteBuffer(int nb) final
+
+        T* getWriteBuffer(int nb) final
         {
             (void)nb;
             return(mBuffer);
@@ -192,8 +221,7 @@ class FIFO<T,length,1,0>: public FIFOBase<T>
         #endif
 
     protected:
-        T *mBuffer;
-        int readPos,writePos;
+        T * const mBuffer;
 };
 
 /* Real FIFO, Asynchronous */
@@ -201,8 +229,8 @@ template<typename T, int length>
 class FIFO<T,length,0,1>: public FIFOBase<T> 
 {
     public:
-        FIFO(T *buffer,int delay=0):mBuffer(buffer),readPos(0),writePos(delay),nbSamples(delay) {};
-        FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay),nbSamples(delay) {};
+        FIFO(T *buffer,int delay=0):mBuffer(buffer),readPos(0),writePos(delay) {};
+        FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
 
         /* 
 
@@ -223,7 +251,6 @@ class FIFO<T,length,0,1>: public FIFOBase<T>
             
             ret = mBuffer + writePos;
             writePos += nb; 
-            nbSamples += nb;
             return(ret);
         };
 
@@ -238,28 +265,29 @@ class FIFO<T,length,0,1>: public FIFOBase<T>
            
             T *ret = mBuffer + readPos;
             readPos += nb;
-            nbSamples -= nb;
             return(ret);
         }
 
         bool willUnderflowWith(int nb) const final
         {
-            return((nbSamples - nb)<0);
+            return((writePos - readPos - nb)<0);
         }
 
         bool willOverflowWith(int nb) const final
         {
-            return((nbSamples + nb)>length);
+            return((writePos - readPos + nb)>length);
         }
 
-        int nbSamplesInFIFO() const final {return nbSamples;};
+        int nbSamplesInFIFO() const final {return (writePos - readPos);};
+        int nbOfFreeSamplesInFIFO() const final {return (length - writePos + readPos);};
+
 
         #ifdef DEBUGSCHED
         void dump()
         {
             int nb=0;
             std::cout << std::endl;
-            std::cout << "FIFO nb samples = " << nbSamples << std::endl;
+            std::cout << "FIFO nb samples = " << (writePos - readPos) << std::endl;
             for(int i=0; i < length ; i++)
             {
                 std::cout << (typename Debug<T>::type)mBuffer[i] << " ";
@@ -276,9 +304,8 @@ class FIFO<T,length,0,1>: public FIFOBase<T>
         #endif
 
     protected:
-        T *mBuffer;
+        T * const mBuffer;
         int readPos,writePos;
-        int nbSamples;
 };
 
 // GENERIC NODES 
@@ -288,6 +315,10 @@ class NodeBase
 public:
     virtual int run()=0;
     virtual int prepareForRunning()=0;
+    void setID(int id){mNodeID = id;};
+    int nodeID() const {return(mNodeID);};
+protected:
+    int mNodeID = UNIDENTIFIED_NODE;
 };
 
 template<typename IN, int inputSize,typename OUT, int outputSize>

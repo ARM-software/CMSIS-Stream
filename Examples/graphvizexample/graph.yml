@@ -1,0 +1,174 @@
+version: 1.0.0
+graph:
+  nodes:
+  - node: HALF
+  - node: arm_scale_f321
+    identified: false
+    binary: arm_scale_f32
+    inputs:
+    - input: ia
+      samples: 160
+      type: float32_t
+    - input: ib
+      samples: 160
+      type: float32_t
+    outputs:
+    - output: o
+      samples: 160
+      type: float32_t
+  - node: arm_scale_f322
+    identified: false
+    binary: arm_scale_f32
+    inputs:
+    - input: ia
+      samples: 160
+      type: float32_t
+    - input: ib
+      samples: 160
+      type: float32_t
+    outputs:
+    - output: o
+      samples: 160
+      type: float32_t
+  - node: src
+    identified: true
+    kind: StereoSource
+    outputs:
+    - output: o
+      samples: 320
+      type: float32_t
+  - node: toMono
+    identified: true
+    kind: Unzip
+    inputs:
+    - input: i
+      samples: 320
+      type: float32_t
+    outputs:
+    - output: o1
+      samples: 160
+      type: float32_t
+    - output: o2
+      samples: 160
+      type: float32_t
+  - node: arm_add_f321
+    identified: false
+    binary: arm_add_f32
+    inputs:
+    - input: ia
+      samples: 160
+      type: float32_t
+    - input: ib
+      samples: 160
+      type: float32_t
+    outputs:
+    - output: o
+      samples: 160
+      type: float32_t
+  - node: audioWin
+    identified: true
+    kind: SlidingBuffer
+    inputs:
+    - input: i
+      samples: 320
+      type: float32_t
+    outputs:
+    - output: o
+      samples: 640
+      type: float32_t
+  - node: mfcc
+    identified: true
+    kind: MFCC
+    inputs:
+    - input: i
+      samples: 640
+      type: float32_t
+    outputs:
+    - output: o
+      samples: 10
+      type: float32_t
+  - node: mfccWind
+    identified: true
+    kind: SlidingBuffer
+    inputs:
+    - input: i
+      samples: 250
+      type: float32_t
+    outputs:
+    - output: o
+      samples: 500
+      type: float32_t
+  - node: TFLite
+    identified: true
+    kind: TFLite
+    inputs:
+    - input: i
+      samples: 500
+      type: float32_t
+  edges:
+  - src:
+      node: HALF
+    dst:
+      node: arm_scale_f321
+      input: ib
+  - src:
+      node: HALF
+    dst:
+      node: arm_scale_f322
+      input: ib
+  - src:
+      node: src
+      output: o
+    dst:
+      node: toMono
+      input: i
+    delay: 10
+  - src:
+      node: toMono
+      output: o1
+    dst:
+      node: arm_scale_f321
+      input: ia
+  - src:
+      node: toMono
+      output: o2
+    dst:
+      node: arm_scale_f322
+      input: ia
+  - src:
+      node: arm_scale_f321
+      output: o
+    dst:
+      node: arm_add_f321
+      input: ia
+  - src:
+      node: arm_scale_f322
+      output: o
+    dst:
+      node: arm_add_f321
+      input: ib
+  - src:
+      node: arm_add_f321
+      output: o
+    dst:
+      node: audioWin
+      input: i
+  - src:
+      node: audioWin
+      output: o
+    dst:
+      node: mfcc
+      input: i
+  - src:
+      node: mfcc
+      output: o
+    dst:
+      node: mfccWind
+      input: i
+  - src:
+      node: mfccWind
+      output: o
+    dst:
+      node: TFLite
+      input: i
+

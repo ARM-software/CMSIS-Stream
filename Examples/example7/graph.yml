@@ -1,0 +1,46 @@
+version: 1.0.0
+graph:
+  nodes:
+  - node: src
+    identified: true
+    kind: VHTSource
+    outputs:
+    - output: o
+      samples: 128
+      type: q15_t
+    args:
+    - literal: 0
+  - node: proc
+    identified: true
+    kind: Processing
+    inputs:
+    - input: i
+      samples: 128
+      type: q15_t
+    outputs:
+    - output: o
+      samples: 128
+      type: q15_t
+  - node: sink
+    identified: true
+    kind: VHTSink
+    inputs:
+    - input: i
+      samples: 128
+      type: q15_t
+    args:
+    - literal: 0
+  edges:
+  - src:
+      node: src
+      output: o
+    dst:
+      node: proc
+      input: i
+  - src:
+      node: proc
+      output: o
+    dst:
+      node: sink
+      input: i
+

@@ -81,10 +81,11 @@ CG_AFTER_INCLUDES
 Description of the scheduling. 
 
 */
-static unsigned int schedule[4]=
+static uint8_t schedule[4]=
 { 
 2,3,0,1,
 };
+
 
 CG_BEFORE_FIFO_BUFFERS
 /***********
@@ -152,11 +153,11 @@ uint32_t scheduler(int *error)
 
                    float* i0;
                    float* i1;
-                   q15_t* o3;
+                   q15_t* o2;
                    i0=fifo0.getReadBuffer(7);
                    i1=fifo1.getReadBuffer(7);
-                   o3=fifo2.getWriteBuffer(5);
-                   myfunc(i0,7,testVar,i1,sizeof(float)*7,o3,5,SomeConst,"5");
+                   o2=fifo2.getWriteBuffer(5);
+                   myfunc(i0,7,testVar,i1,sizeof(float)*7,o2,5,4,"5");
                    cgStaticError = 0;
                   }
                 }

@@ -1,4 +1,5 @@
 from cmsis_stream.cg.scheduler import *
+from cmsis_stream.cg.yaml import *
 
 ### Define new types of Nodes 
 
@@ -46,13 +47,14 @@ g = Graph()
 g.connect(src.o,processing.i)
 g.connect(processing.o,sink.i)
 
-
 print("Generate graphviz and code")
 
 conf=Configuration()
 conf.debugLimit=1
 conf.cOptionalArgs=["int someVariable"
                    ]
+export_graph(g,"graph.yml")
+export_config(conf,"config.yml")
 
 with open("pre_schedule_test.dot","w") as f:
     g.graphviz(f)

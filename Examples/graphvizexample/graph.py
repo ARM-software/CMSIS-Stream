@@ -1,4 +1,5 @@
 from cmsis_stream.cg.scheduler import *
+from cmsis_stream.cg.yaml import *
 
 # Creation of a graph for testing styling.
 # Look below for the style definition
@@ -101,6 +102,9 @@ conf.CMSISDSP = True
 #conf.memoryOptimization=True
 #conf.dumpSchedule = True 
 
+export_graph(g,"graph.yml")
+export_config(conf,"config.yml")
+
 ############################
 #
 # Definition of a new style
@@ -166,7 +170,7 @@ class MyStyle(Style):
     def delay_color(self,delay_value):
         return("bisque")
 
-    def delay_edge_color(self,nb_samples):
+    def delay_edge_color(self,srcPort,nb_samples):
         if nb_samples==10:
            return("limegreen")
         return(super().delay_edge_color(nb_samples))
@@ -188,7 +192,7 @@ class MyStyle(Style):
     def const_color(self,const_name):
         return("darkseagreen")
 
-    def const_edge_color(self,name):
+    def const_edge_color(self,name,dstPort):
         if name == "HALF":
            return("cyan")
         return(super().const_edge_color(name))
@@ -269,7 +273,7 @@ class MyStyle(Style):
         else:
            return(super().edge_style(edge))
 
-    def edge_label(self,typeName,length):
+    def edge_label(self,fifo,typeName,length):
         return f"{typeName}<BR/>({length})"
 
 

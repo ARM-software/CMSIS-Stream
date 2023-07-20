@@ -1,6 +1,7 @@
 import numpy as np 
 
 from cmsis_stream.cg.scheduler import *
+from cmsis_stream.cg.yaml import *
 
 
 FS=16000
@@ -55,6 +56,9 @@ conf.CMSISDSP = True
 #conf.memoryOptimization=True
 
 #conf.dumpSchedule = True 
+
+export_graph(g,"graph.yml")
+export_config(conf,"config.yml")
 
 with open("pre_schedule_test.dot","w") as f:
     g.graphviz(f)

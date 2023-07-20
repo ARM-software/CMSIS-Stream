@@ -1,0 +1,158 @@
+version: 1.0.0
+graph:
+  nodes:
+  - node: HANN
+  - node: arm_mult_f321
+    identified: false
+    binary: arm_mult_f32
+    inputs:
+    - input: ia
+      samples: 256
+      type: float
+    - input: ib
+      samples: 256
+      type: float
+    outputs:
+    - output: o
+      samples: 256
+      type: float
+  - node: src
+    identified: true
+    kind: FileSource
+    outputs:
+    - output: o
+      samples: 192
+      type: float
+    args:
+    - literal: input_example3.txt
+  - node: audioWin
+    identified: true
+    kind: SlidingBuffer
+    inputs:
+    - input: i
+      samples: 128
+      type: float
+    outputs:
+    - output: o
+      samples: 256
+      type: float
+  - node: toCmplx
+    identified: true
+    kind: ToComplex
+    inputs:
+    - input: i
+      samples: 256
+      type: float
+    outputs:
+    - output: o
+      samples: 512
+      type: float
+  - node: cfft
+    identified: true
+    kind: CFFT
+    inputs:
+    - input: i
+      samples: 512
+      type: float
+    outputs:
+    - output: o
+      samples: 512
+      type: float
+  - node: icfft
+    identified: true
+    kind: ICFFT
+    inputs:
+    - input: i
+      samples: 512
+      type: float
+    outputs:
+    - output: o
+      samples: 512
+      type: float
+  - node: toReal
+    identified: true
+    kind: ToReal
+    inputs:
+    - input: i
+      samples: 512
+      type: float
+    outputs:
+    - output: o
+      samples: 256
+      type: float
+  - node: audioOverlap
+    identified: true
+    kind: OverlapAdd
+    inputs:
+    - input: i
+      samples: 256
+      type: float
+    outputs:
+    - output: o
+      samples: 128
+      type: float
+  - node: sink
+    identified: true
+    kind: FileSink
+    inputs:
+    - input: i
+      samples: 192
+      type: float
+    args:
+    - literal: output_example3.txt
+    - variable: dispbuf
+  edges:
+  - src:
+      node: HANN
+    dst:
+      node: arm_mult_f321
+      input: ib
+  - src:
+      node: src
+      output: o
+    dst:
+      node: audioWin
+      input: i
+  - src:
+      node: audioWin
+      output: o
+    dst:
+      node: arm_mult_f321
+      input: ia
+  - src:
+      node: arm_mult_f321
+      output: o
+    dst:
+      node: toCmplx
+      input: i
+  - src:
+      node: toCmplx
+      output: o
+    dst:
+      node: cfft
+      input: i
+  - src:
+      node: cfft
+      output: o
+    dst:
+      node: icfft
+      input: i
+  - src:
+      node: icfft
+      output: o
+    dst:
+      node: toReal
+      input: i
+  - src:
+      node: toReal
+      output: o
+    dst:
+      node: audioOverlap
+      input: i
+  - src:
+      node: audioOverlap
+      output: o
+    dst:
+      node: sink
+      input: i
+

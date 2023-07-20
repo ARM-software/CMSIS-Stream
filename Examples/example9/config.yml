@@ -1,0 +1,6 @@
+version: 1.0.0
+code-generation-options:
+  debug-limit: 2
+c-code-generation-options:
+  c-optional-args: int someVariable
+

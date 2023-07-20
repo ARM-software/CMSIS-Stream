@@ -3,45 +3,45 @@
 
 
 digraph structs {
-    node [shape=plaintext]
+    bgcolor = "white"
+    node [shape=plaintext,color="black",fontcolor="black",fontname="Times-Roman"]
     rankdir=LR
-    edge [arrowsize=0.5]
-    fontname="times"
+    edge [arrowsize="0.5",color="black",fontcolor="black",fontname="Times-Roman"]
 
 
 processing [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">processing<BR/>(ProcessingNode)</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">processing<BR/>(ProcessingNode)</FONT></TD>
   </TR>
 </TABLE>>];
 
 sink [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">sink<BR/>(Sink)</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">sink<BR/>(Sink)</FONT></TD>
   </TR>
 </TABLE>>];
 
 source [label=<
-<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    <TD ALIGN="CENTER" PORT="i">source<BR/>(Source)</TD>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">source<BR/>(Source)</FONT></TD>
   </TR>
 </TABLE>>];
 
 
 
-source:i -> processing:i [label="f32(11)"
-,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
+source:i -> processing:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(11)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
 </TD></TR></TABLE>>
-,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
 </TD></TR></TABLE>>]
 
-processing:i -> sink:i [label="f32(11)"
-,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
+processing:i -> sink:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(11)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
 </TD></TR></TABLE>>
-,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
 </TD></TR></TABLE>>]
 
 

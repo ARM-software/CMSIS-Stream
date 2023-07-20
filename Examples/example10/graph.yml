@@ -1,0 +1,154 @@
+version: 1.0.0
+graph:
+  nodes:
+  - node: sourceOdd
+    identified: true
+    kind: SourceOdd
+    outputs:
+    - output: o
+      samples: 1
+      type: int16_t
+  - node: proc
+    identified: true
+    kind: ProcessingOddEven
+    inputs:
+    - input: ia
+      samples: 1
+      type: int16_t
+    - input: ib
+      samples: 1
+      type: int16_t
+    outputs:
+    - output: o
+      samples: 1
+      type: int16_t
+  - node: sourceEven
+    identified: true
+    kind: SourceEven
+    outputs:
+    - output: o
+      samples: 1
+      type: int16_t
+  - node: debug
+    identified: true
+    kind: NullSink
+    inputs:
+    - input: i
+      samples: 1
+      type: int16_t
+  - node: compute1
+    identified: false
+    unary: compute
+    inputs:
+    - input: i
+      samples: 1
+      type: int16_t
+    outputs:
+    - output: o
+      samples: 1
+      type: int16_t
+  - node: sinka
+    identified: true
+    kind: SinkAsync
+    inputs:
+    - input: i
+      samples: 1
+      type: int16_t
+  - node: sinkb
+    identified: true
+    kind: SinkAsync
+    inputs:
+    - input: i
+      samples: 1
+      type: int16_t
+  - node: debug0
+    identified: true
+    kind: NullSink
+    inputs:
+    - input: i
+      samples: 1
+      type: int16_t
+  - node: debug1
+    identified: true
+    kind: NullSink
+    inputs:
+    - input: i
+      samples: 1
+      type: int16_t
+  - node: debug2
+    identified: true
+    kind: NullSink
+    inputs:
+    - input: i
+      samples: 1
+      type: int16_t
+  - node: debug3
+    identified: true
+    kind: NullSink
+    inputs:
+    - input: i
+      samples: 1
+      type: int16_t
+  edges:
+  - src:
+      node: sourceOdd
+      output: o
+    dst:
+      node: proc
+      input: ia
+  - src:
+      node: sourceEven
+      output: o
+    dst:
+      node: proc
+      input: ib
+  - src:
+      node: sourceOdd
+      output: o
+    dst:
+      node: debug
+      input: i
+    scale: 3.0
+  - src:
+      node: proc
+      output: o
+    dst:
+      node: compute1
+      input: i
+  - src:
+      node: compute1
+      output: o
+    dst:
+      node: sinka
+      input: i
+  - src:
+      node: compute1
+      output: o
+    dst:
+      node: sinkb
+      input: i
+  - src:
+      node: compute1
+      output: o
+    dst:
+      node: debug0
+      input: i
+  - src:
+      node: compute1
+      output: o
+    dst:
+      node: debug1
+      input: i
+  - src:
+      node: compute1
+      output: o
+    dst:
+      node: debug2
+      input: i
+  - src:
+      node: compute1
+      output: o
+    dst:
+      node: debug3
+      input: i
+

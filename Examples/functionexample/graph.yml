@@ -1,0 +1,79 @@
+version: 1.0.0
+graph:
+  nodes:
+  - node: sourceA
+    identified: true
+    kind: Source
+    outputs:
+    - output: o
+      samples: 7
+      type: float32_t
+  - node: myfunc1
+    identified: false
+    c-function:
+      name: myfunc
+      args:
+      - io: ia
+      - io-length:
+          name: ia
+          sample-unit: true
+      - args: 0
+      - io: ib
+      - io-length:
+          name: ib
+          sample-unit: false
+      - io: o
+      - io-length:
+          name: o
+          sample-unit: true
+      - args: 1
+      - args: 2
+    inputs:
+    - input: ia
+      samples: 7
+      type: float
+    - input: ib
+      samples: 7
+      type: float
+    outputs:
+    - output: o
+      samples: 5
+      type: q15_t
+    args:
+    - variable: testVar
+    - literal: 4
+    - literal: '5'
+  - node: sourceB
+    identified: true
+    kind: Source
+    outputs:
+    - output: o
+      samples: 7
+      type: float32_t
+  - node: sink
+    identified: true
+    kind: Sink
+    inputs:
+    - input: i
+      samples: 5
+      type: q15_t
+  edges:
+  - src:
+      node: sourceA
+      output: o
+    dst:
+      node: myfunc1
+      input: ia
+  - src:
+      node: sourceB
+      output: o
+    dst:
+      node: myfunc1
+      input: ib
+  - src:
+      node: myfunc1
+      output: o
+    dst:
+      node: sink
+      input: i
+

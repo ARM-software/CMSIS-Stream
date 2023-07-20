@@ -1,0 +1,6 @@
+version: 1.0.0
+code-generation-options:
+  debug-limit: 12
+python-code-generation-options:
+  py-optional-args: mfccConfig,dispbuf
+

@@ -1,0 +1,92 @@
+version: 1.0.0
+graph:
+  structures:
+    complex:
+      cname: complex
+      bytes: 8
+  nodes:
+  - node: source
+    identified: true
+    kind: Source
+    outputs:
+    - output: o
+      samples: 5
+      type: complex
+  - node: filter
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 7
+      type: complex
+    outputs:
+    - output: oa
+      samples: 5
+      type: complex
+    - output: ob
+      samples: 5
+      type: complex
+    args:
+    - literal: 4
+    - literal: Test
+    - variable: someVariable
+  - node: sa
+    identified: true
+    kind: Sink
+    inputs:
+    - input: i
+      samples: 5
+      type: complex
+  - node: sb
+    identified: true
+    kind: Sink
+    inputs:
+    - input: i
+      samples: 5
+      type: complex
+  - node: sc
+    identified: true
+    kind: Sink
+    inputs:
+    - input: i
+      samples: 5
+      type: complex
+  - node: sd
+    identified: true
+    kind: Sink
+    inputs:
+    - input: i
+      samples: 5
+      type: complex
+  edges:
+  - src:
+      node: source
+      output: o
+    dst:
+      node: filter
+      input: i
+  - src:
+      node: filter
+      output: oa
+    dst:
+      node: sa
+      input: i
+  - src:
+      node: filter
+      output: oa
+    dst:
+      node: sb
+      input: i
+  - src:
+      node: filter
+      output: oa
+    dst:
+      node: sc
+      input: i
+  - src:
+      node: filter
+      output: ob
+    dst:
+      node: sd
+      input: i
+

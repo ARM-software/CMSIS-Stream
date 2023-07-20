@@ -1,4 +1,5 @@
 from cmsis_stream.cg.scheduler import *
+from cmsis_stream.cg.yaml import *
 
 ### Define new types of Nodes 
 
@@ -59,6 +60,9 @@ conf.cOptionalArgs="int someVariable"
 #conf.prefix="sched1"
 
 #conf.dumpSchedule = True 
+
+export_graph(g,"graph.yml")
+export_config(conf,"config.yml")
 
 with open("pre_schedule_test.dot","w") as f:
     g.graphviz(f)

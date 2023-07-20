@@ -96,10 +96,11 @@ CG_AFTER_INCLUDES
 Description of the scheduling. 
 
 */
-static unsigned int schedule[13]=
+static uint8_t schedule[13]=
 { 
 11,12,6,1,8,0,7,2,3,4,5,9,10,
 };
+
 
 CG_BEFORE_FIFO_BUFFERS
 /***********
@@ -204,6 +205,7 @@ static fifos_t fifos={0};
 
 CG_BEFORE_BUFFER
 static nodes_t nodes={0};
+
 
 int init_scheduler()
 {

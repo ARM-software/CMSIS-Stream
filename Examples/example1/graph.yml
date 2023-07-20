@@ -1,0 +1,46 @@
+version: 1.0.0
+graph:
+  nodes:
+  - node: source
+    identified: true
+    kind: Source
+    outputs:
+    - output: o
+      samples: 5
+      type: float
+  - node: processing
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 7
+      type: float
+    outputs:
+    - output: o
+      samples: 5
+      type: float
+    args:
+    - literal: 4
+    - literal: testString
+    - variable: someVariable
+  - node: sink
+    identified: true
+    kind: Sink
+    inputs:
+    - input: i
+      samples: 5
+      type: float
+  edges:
+  - src:
+      node: source
+      output: o
+    dst:
+      node: processing
+      input: i
+  - src:
+      node: processing
+      output: o
+    dst:
+      node: sink
+      input: i
+

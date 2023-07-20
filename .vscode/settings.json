@@ -1,0 +1,6 @@
+{
+    "cmake.configureOnOpen": false,
+    "python.analysis.extraPaths": [
+        "./PythonPackage"
+    ]
+}
