@@ -69,6 +69,7 @@ class FIFOBase{
 public:
     virtual T* getWriteBuffer(int nb)=0;
     virtual T* getReadBuffer(int nb)=0;
+    virtual ~FIFOBase() {};
     /*
 
     Below functions are only useful in asynchronous mode.
@@ -315,6 +316,7 @@ class NodeBase
 public:
     virtual int run()=0;
     virtual int prepareForRunning()=0;
+    virtual ~NodeBase() {};
     void setID(int id){mNodeID = id;};
     int nodeID() const {return(mNodeID);};
 protected:
