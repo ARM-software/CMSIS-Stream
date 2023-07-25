@@ -96,7 +96,7 @@ static nodes_t nodes={0};
 {% if config.CAPI -%}
 void *get_{{config.schedName}}_node(int32_t nodeID)
 {% else %}
-NodeBase *get_node_{{config.schedName}}(int32_t nodeID)
+NodeBase *get_{{config.schedName}}_node(int32_t nodeID)
 {% endif %}
 {
     if (nodeID >= {{config.prefix | upper}}NB_IDENTIFIED_NODES)

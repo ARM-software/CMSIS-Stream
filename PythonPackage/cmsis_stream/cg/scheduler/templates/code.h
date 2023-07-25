@@ -41,7 +41,7 @@ extern "C"
 {% if config.CAPI -%}
 extern void *get_{{config.schedName}}_node(int32_t nodeID);
 {% else %}
-extern NodeBase *get_node_{{config.schedName}}(int32_t nodeID);
+extern NodeBase *get_{{config.schedName}}_node(int32_t nodeID);
 {% endif %}
 {% endif %}
 
