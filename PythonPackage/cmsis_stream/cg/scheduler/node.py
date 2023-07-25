@@ -213,6 +213,11 @@ class ArgLiteral(SchedArg):
      def arg(self):
         if isinstance(self._name,str):
              return("\"%s\"" % self._name) 
+        elif isinstance(self._name,bool):
+             if self._name:
+                return("true")
+             else:
+                return("false")
         else:
              return(str(self._name))
 
