@@ -14,6 +14,12 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.7.0:
+
+* Improvements to GenericNodes.h when building with gcc
+* `addLiteral` can now also use `bool` values from Python
+* Naming of the function to get a node was not consistent between the C and CPP APIs
+
 ## Version 1.6.1:
 
 * Correction to 1.6.0 : Missing YAML module 
