@@ -14,6 +14,11 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.8.0:
+
+* Introduction of a new asynchronous mode : `fullyAsynchronous`
+* Previous asynchronous mode is deprecated and will be removed in a future version
+
 ## Version 1.7.0:
 
 * Improvements to GenericNodes.h when building with gcc
