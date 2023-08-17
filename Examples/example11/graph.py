@@ -37,6 +37,7 @@ class ProcessingOddEven(GenericNode):
         GenericNode.__init__(self,name)
         self.addInput("ia",theType,inLength)
         self.addInput("ib",theType,inLength)
+        self.addInput("ic",theType,outLength)
         self.addOutput("o",theType,outLength)
 
     @property
@@ -73,12 +74,19 @@ g = Graph()
 g.defaultFIFOClass = "FIFO"
 g.duplicateNodeClassName = "Duplicate"
 
-g.connect(odd.o,proc.ia,fifoAsyncLength=2)
-g.connect(even.o,proc.ib,fifoAsyncLength=2)
-
-g.connect(odd.o,debug.i,fifoAsyncLength=3)
+g.connect(odd.o,proc.ia,fifoAsyncLength=1)
+g.connect(even.o,proc.ib,fifoAsyncLength=1)
+# Just for checking duplicate nodes
+# with scaling factor are working.
+# In practice, all edge of a duplicate nodes
+# should have same FIFO size
+g.connect(odd.o,debug.i,fifoAsyncLength=2)
 
 g.connect(proc.o,comp.i,fifoAsyncLength=2)
+
+g.connect(comp.o,proc.ic,fifoAsyncLength=2,weak=True)
+
+
 g.connect(comp.o,sinka.i,fifoAsyncLength=2)
 g.connect(comp.o,sinkb.i,fifoAsyncLength=2)
 for i in range(NBDEBUG_SINK):
@@ -92,8 +100,9 @@ conf.debugLimit=10
 conf.cOptionalArgs=""
 conf.CMSISDSP = False 
 
-conf.heapAllocation = True
+conf.heapAllocation = False
 
+#conf.switchCase = False
 
 # Asynchronous mode enable. It implies
 # switchCase  true

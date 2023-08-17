@@ -58,10 +58,13 @@ def gencode(sched,directory,config):
        spc = " " * 30
        config.cOptionalArgs = f",\n{spc}".join(config.cOptionalArgs)
 
-    # Asychronous implies code array and switchCase
-    if config.asynchronous:
-       config.switchCase = True
+    # Asynchronous implies code array and switchCase
+    if config.asynchronous or config.fullyAsynchronous:
        config.memoryOptimization = False
+       # Switch case forced otherwise we cannot
+       # do a pre-check for FIFO overflow or 
+       # underflow in async mode
+       config.switchCase = True
 
     identifiedNodes = []
     if config.nodeIdentification:

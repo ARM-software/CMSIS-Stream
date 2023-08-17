@@ -35,7 +35,7 @@ CG_AFTER_INCLUDES
 {% endmacro -%}
 
 {% macro async() -%}
-{% if config.asynchronous %}1{% else %}0{% endif %}
+{% if config.asynchronous or config.fullyAsynchronous%}1{% else %}0{% endif %}
 {% endmacro %}
 
 {% block schedArray %}
@@ -204,7 +204,7 @@ uint32_t {{config.schedName}}(int *error{{optionalargs(False)}})
     */
 {% for node in nodes %}
 {% if node.hasState %}
-    {{node.typeName}}<{{node.ioTemplate()}}> {{node.nodeName}}({{node.args}});
+    {{node.typeName}}<{{node.ioTemplate()}}> {{node.nodeName}}({{node.args}}); /* Node ID = {{node.codeID}} */
 {% endif %}
 {% endfor %}
 {% endif %}

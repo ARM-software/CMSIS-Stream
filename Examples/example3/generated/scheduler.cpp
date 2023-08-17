@@ -64,11 +64,11 @@ The support classes and code are covered by CMSIS-Stream license.
 #endif
 
 #if !defined(CG_BEFORE_NODE_EXECUTION)
-#define CG_BEFORE_NODE_EXECUTION
+#define CG_BEFORE_NODE_EXECUTION(ID)
 #endif
 
 #if !defined(CG_AFTER_NODE_EXECUTION)
-#define CG_AFTER_NODE_EXECUTION
+#define CG_AFTER_NODE_EXECUTION(ID)
 #endif
 
 
@@ -160,14 +160,14 @@ uint32_t scheduler(int *error)
     /* 
     Create node objects
     */
-    OverlapAdd<float32_t,256,128> audioOverlap(fifo6,fifo7);
-    SlidingBuffer<float32_t,256,128> audioWin(fifo0,fifo1);
-    CFFT<float32_t,512,float32_t,512> cfft(fifo3,fifo4);
-    ICFFT<float32_t,512,float32_t,512> icfft(fifo4,fifo5);
-    FileSink<float,192> sink(fifo7,"output_example3.txt");
-    FileSource<float,192> src(fifo0,"input_example3.txt");
-    ToComplex<float32_t,256,float32_t,512> toCmplx(fifo2,fifo3);
-    ToReal<float32_t,512,float32_t,256> toReal(fifo5,fifo6);
+    OverlapAdd<float32_t,256,128> audioOverlap(fifo6,fifo7); /* Node ID = 1 */
+    SlidingBuffer<float32_t,256,128> audioWin(fifo0,fifo1); /* Node ID = 2 */
+    CFFT<float32_t,512,float32_t,512> cfft(fifo3,fifo4); /* Node ID = 3 */
+    ICFFT<float32_t,512,float32_t,512> icfft(fifo4,fifo5); /* Node ID = 4 */
+    FileSink<float,192> sink(fifo7,"output_example3.txt"); /* Node ID = 5 */
+    FileSource<float,192> src(fifo0,"input_example3.txt"); /* Node ID = 6 */
+    ToComplex<float32_t,256,float32_t,512> toCmplx(fifo2,fifo3); /* Node ID = 7 */
+    ToReal<float32_t,512,float32_t,256> toReal(fifo5,fifo6); /* Node ID = 8 */
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -177,7 +177,7 @@ uint32_t scheduler(int *error)
         CG_BEFORE_ITERATION;
         for(unsigned long id=0 ; id < 25; id++)
         {
-            CG_BEFORE_NODE_EXECUTION;
+            CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
             switch(schedule[id])
             {
@@ -247,7 +247,7 @@ uint32_t scheduler(int *error)
                 default:
                 break;
             }
-            CG_AFTER_NODE_EXECUTION;
+            CG_AFTER_NODE_EXECUTION(schedule[id]);
             CHECKERROR;
         }
        debugCounter--;

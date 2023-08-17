@@ -426,12 +426,14 @@ It is the name of a C variable.
 
 It contains the following:
 
-| Keyword        |              | Content                                                      |
-| -------------- | ------------ | ------------------------------------------------------------ |
-| [`src:`](#src) | **Required** | Source port for the edge                                     |
-| [`dst:`](#dst) | **Required** | Destination port for the edge                                |
-| `class:`       | Optional     | Name of the C++ class template implementing this FIFO. The template arguments must be the same than in original FIFO template. The C++ class must inherit from `FIFOBase` |
-| `scale:`       | Optional     | Used in asynchronous scheduling only. It is a float used to scale the synchronous FIFO size to have more margin in asynchronous mode. |
+| Keyword            |              | Content                                                      |
+| ------------------ | ------------ | ------------------------------------------------------------ |
+| [`src:`](#src)     | **Required** | Source port for the edge                                     |
+| [`dst:`](#dst)     | **Required** | Destination port for the edge                                |
+| `class:`           | Optional     | Name of the C++ class template implementing this FIFO. The template arguments must be the same than in original FIFO template. The C++ class must inherit from `FIFOBase` |
+| `scale:`           | Optional     | Used in asynchronous scheduling only. It is a float used to scale the synchronous FIFO size to have more margin in asynchronous mode. **deprecated** since the `asynchronous` mode is deprecated and replaced by a `fullyAsynchronous` |
+| `fifoAsyncLength:` | Optional     | Used in `fullyAsynchronous` mode to specify the length of the FIFO in sample units |
+| `weak:`            | Optional     | Used in `fullyAsynchronous` to break loops for the topological ordering of the graph that is used to compute the schedule. |
 
 **Examples:**
 
@@ -650,8 +652,9 @@ The table below explains the top-level elements of the yml configuration descrip
 | [`asynchronous:`](https://github.com/ARM-software/CMSIS-DSP/blob/main/ComputeGraph/documentation/CCodeGen.md#asynchronous-default--false) | True when asynchronous mode is enabled                       |
 | [`fifo-increase:`](https://github.com/ARM-software/CMSIS-DSP/blob/main/ComputeGraph/documentation/CCodeGen.md#fifoincrease-default-0) | In asynchronous mode, increase all FIFO sizes globally       |
 | [`async-default-skip:`](https://github.com/ARM-software/CMSIS-DSP/blob/main/ComputeGraph/documentation/CCodeGen.md#asyncdefaultskip-default-true) | Behavior of `Duplicate` nodes in asynchronous mode           |
-| [`heap-allocation`](https://github.com/ARM-software/CMSIS-DSP/blob/main/ComputeGraph/documentation/CCodeGen.md#heapallocation-default-false) | Enable the heap allocation mode. When enabled, FIFOs and nodes are allocated on the heap.           |
-| [`node-identification`](https://github.com/ARM-software/CMSIS-DSP/blob/main/ComputeGraph/documentation/CCodeGen.md#nodeidentification-default-false) | When enabled, a new API is generated. This new API enables to identify and access nodes from the outside of the scheduler.           |
+| [`heap-allocation`](https://github.com/ARM-software/CMSIS-DSP/blob/main/ComputeGraph/documentation/CCodeGen.md#heapallocation-default-false) | Enable the heap allocation mode. When enabled, FIFOs and nodes are allocated on the heap. |
+| [`node-identification`](https://github.com/ARM-software/CMSIS-DSP/blob/main/ComputeGraph/documentation/CCodeGen.md#nodeidentification-default-false) | When enabled, a new API is generated. This new API enables to identify and access nodes from the outside of the scheduler. |
+| fully-asynchronous:(https://github.com/ARM-software/CMSIS-DSP/blob/main/ComputeGraph/documentation/CCodeGen.md#fullyasynchronous-default-false) | True when the `fullyAsynchronous` mode is enabled.           |
 
 ### `python-code-generation-options:`
 

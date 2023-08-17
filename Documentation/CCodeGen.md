@@ -81,11 +81,15 @@ When this property is false, `cstdint` is included instead of `arm_math.h` to pr
 
 ### asynchronous (default = False)
 
+This mode is deprecated. Instead use the `fullyAsynchronous` mode.
+
+### fullyAsynchronous (default = False)
+
 When true, the scheduling is for a dynamic / asynchronous flow. A node may not always produce or consume the same amount of data. As consequence, a scheduling can fail. Each node needs to implement a `prepareForRunning` function to identify and recover from FIFO underflows and overflows.
 
-A synchronous schedule is used as start and should describe the average case.
+A synchronous schedule is **not used** as start so the FIFO lengths cannot be computed during the scheduling.  You need to specify the lengths of the FIFOs using the option `fifoAsyncLength` of the `connect` methods. This length is expressed in samples.
 
-This implies `switchCase`. This disables `memoryOptimizations`.
+The option `fullyAsynchonous` implies `switchCase`. This disables `memoryOptimizations`.
 
 Synchronous FIFOs that are just buffers will be considered as FIFOs in asynchronous mode.
 

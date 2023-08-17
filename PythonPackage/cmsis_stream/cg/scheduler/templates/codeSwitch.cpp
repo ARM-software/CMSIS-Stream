@@ -30,11 +30,11 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
             {% if config.eventRecorder -%}
             EventRecord2 (Evt_Node, schedule[id], 0);
             {% endif -%}
-            CG_BEFORE_NODE_EXECUTION;
+            CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
-            {% if config.asynchronous -%}
+            {% if config.asynchronous or config.fullyAsynchronous -%}
             cgStaticError = 0;
-            CG_ASYNC_BEFORE_NODE_CHECK;
+            CG_ASYNC_BEFORE_NODE_CHECK(schedule[id]);
             switch(schedule[id])
             {
                 {% for nodeID in range(nbNodes) -%}
@@ -59,12 +59,12 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
                 break;
             }
 
-            CG_ASYNC_AFTER_NODE_CHECK;
+            CG_ASYNC_AFTER_NODE_CHECK(schedule[id]);
 
             if (cgStaticError == CG_SKIP_EXECUTION_ID_CODE)
             { 
               cgStaticError = 0;
-              CG_NODE_NOT_EXECUTED;
+              CG_NODE_NOT_EXECUTED(schedule[id]);
               continue;
             }
 
@@ -101,7 +101,7 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
                 default:
                 break;
             }
-            CG_AFTER_NODE_EXECUTION;
+            CG_AFTER_NODE_EXECUTION(schedule[id]);
             {% if config.eventRecorder -%}
             if (cgStaticError<0)
             {

@@ -1,5 +1,6 @@
 .DS_Store
 __pycache__
+examples/build/*.bat
 examples/build/CMakeCache.txt
 examples/build/CMakeFiles/
 examples/build/Makefile

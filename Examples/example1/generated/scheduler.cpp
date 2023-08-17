@@ -64,11 +64,11 @@ The support classes and code are covered by CMSIS-Stream license.
 #endif
 
 #if !defined(CG_BEFORE_NODE_EXECUTION)
-#define CG_BEFORE_NODE_EXECUTION
+#define CG_BEFORE_NODE_EXECUTION(ID)
 #endif
 
 #if !defined(CG_AFTER_NODE_EXECUTION)
-#define CG_AFTER_NODE_EXECUTION
+#define CG_AFTER_NODE_EXECUTION(ID)
 #endif
 
 
@@ -124,9 +124,9 @@ uint32_t scheduler(int *error,int someVariable)
     /* 
     Create node objects
     */
-    ProcessingNode<float,7,float,5> processing(fifo0,fifo1,4,"testString",someVariable);
-    Sink<float,5> sink(fifo1);
-    Source<float,5> source(fifo0);
+    ProcessingNode<float,7,float,5> processing(fifo0,fifo1,4,"testString",someVariable); /* Node ID = 0 */
+    Sink<float,5> sink(fifo1); /* Node ID = 1 */
+    Source<float,5> source(fifo0); /* Node ID = 2 */
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -136,7 +136,7 @@ uint32_t scheduler(int *error,int someVariable)
         CG_BEFORE_ITERATION;
         for(unsigned long id=0 ; id < 17; id++)
         {
-            CG_BEFORE_NODE_EXECUTION;
+            CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
             switch(schedule[id])
             {
@@ -161,7 +161,7 @@ uint32_t scheduler(int *error,int someVariable)
                 default:
                 break;
             }
-            CG_AFTER_NODE_EXECUTION;
+            CG_AFTER_NODE_EXECUTION(schedule[id]);
             CHECKERROR;
         }
        debugCounter--;

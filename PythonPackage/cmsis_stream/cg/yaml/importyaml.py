@@ -299,33 +299,49 @@ def import_graph(filename):
     
                     fifoClass = None 
                     fifoScale = 1.0 
+                    fifoAsyncLength = None 
+                    fifoWeak = False
     
                     if 'class' in e: 
                         fifoClass = e['class']
     
                     if 'scale' in e:
                         fifoScale = e['scale']
+
+                    if 'async-length' in e:
+                        fifoAsyncLength = e['async-length']
+
+                    if 'weak-edge' in e:
+                        fifoWeak = e['weak-edge']
     
                     if o is None:
                        if delay is not None:
                           the_graph.connectWithDelay(src,dst[i],
                             delay,
                             fifoScale=fifoScale,
-                            fifoClass=fifoClass)
+                            fifoClass=fifoClass,
+                            fifoAsyncLength=fifoAsyncLength,
+                            weak=fifoWeak)
                        else:
                           the_graph.connect(src,dst[i],
                             fifoScale=fifoScale,
-                            fifoClass=fifoClass)
+                            fifoClass=fifoClass,
+                            fifoAsyncLength=fifoAsyncLength,
+                            weak=fifoWeak)
                     else:
                        if delay is not None:
                           the_graph.connectWithDelay(src[o],dst[i],
                             delay,
                             fifoScale=fifoScale,
-                            fifoClass=fifoClass)
+                            fifoClass=fifoClass,
+                            fifoAsyncLength=fifoAsyncLength,
+                            weak=fifoWeak)
                        else:
                           the_graph.connect(src[o],dst[i],
                             fifoScale=fifoScale,
-                            fifoClass=fifoClass)
+                            fifoClass=fifoClass,
+                            fifoAsyncLength=fifoAsyncLength,
+                            weak=fifoWeak)
         return(the_graph)
 
 def import_config(filename):
@@ -412,6 +428,12 @@ def import_config(filename):
 
             if 'node-identification' in cco:
                 conf.nodeIdentification = cco['node-identification']
+
+            if 'fully-asynchronous' in cco:
+                conf.fullyAsynchronous = cco['fully-asynchronous']
+
+            if 'asynchronous' in cco:
+                conf.asynchronous = cco['asynchronous']
     
         if 'python-code-generation-options' in r:
             pco = r['python-code-generation-options']

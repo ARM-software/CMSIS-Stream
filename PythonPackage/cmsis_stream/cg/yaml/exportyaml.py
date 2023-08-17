@@ -33,12 +33,14 @@ class _YAMLConstantEdge():
 
 
 class _YAMLEdge():
-    def __init__(self,src,dst,fifoClass,fifoScale,fifoDelay,constantEdge):
+    def __init__(self,src,dst,fifoClass,fifoScale,fifoDelay,fifoAsyncLength,fifoWeak,constantEdge):
         self._src = src
         self._dst = dst
         self._fifoClass = fifoClass 
         self._fifoScale = fifoScale
         self._fifoDelay = fifoDelay
+        self._fifoAsyncLength = fifoAsyncLength
+        self._fifoWeak = fifoWeak
         self._constantEdge = constantEdge
 
     @property
@@ -61,6 +63,15 @@ class _YAMLEdge():
     @property
     def fifoDelay(self):
         return self._fifoDelay
+
+    @property
+    def fifoAsyncLength(self):
+        return self._fifoAsyncLength
+    
+    @property
+    def fifoWeak(self):
+        return self._fifoWeak
+    
 
     @property
     def constantEdge(self):
@@ -87,6 +98,10 @@ class _YAMLEdge():
                yaml_desc["scale"] = self.fifoScale
         if self.fifoDelay:
             yaml_desc["delay"] = self.fifoDelay
+        if self.fifoAsyncLength:
+            yaml_desc["async-length"] = self.fifoAsyncLength
+        if self.fifoWeak:
+            yaml_desc["weak-edge"] = self.fifoWeak
         return(yaml_desc)
     
 def _create_YAML_type(t,structured_datatypes):
@@ -267,6 +282,8 @@ def export_graph(graph,filename):
         fifoClass = None
         fifoScale = None 
         fifoDelay = None
+        fifoAsyncLength = None 
+        fifoWeak = False
         constantEdge = False
 
         srcNode = src.owner 
@@ -279,11 +296,19 @@ def export_graph(graph,filename):
             fifoScale = graph._FIFOScale[edge]
         if edge in graph._delays:
             fifoDelay = graph._delays[edge]
+
+
+        if edge in graph._FIFOAsyncLength:
+            fifoAsyncLength = graph._FIFOAsyncLength[edge]
+
+        if edge in graph._FIFOWeak:
+            fifoWeak = graph._FIFOWeak[edge]
+
         if edge in graph._constantEdges:
             constantEdge = graph._constantEdges[edge]
 
         if not edge in allEdges:
-            allEdges[edge] = _YAMLEdge(src,dst,fifoClass,fifoScale,fifoDelay,constantEdge)
+            allEdges[edge] = _YAMLEdge(src,dst,fifoClass,fifoScale,fifoDelay,fifoAsyncLength,fifoWeak,constantEdge)
 
         if not srcNode in allNodes:
             allNodes[srcNode] = _YAMLNode(srcNode,structured_datatypes)
@@ -422,6 +447,12 @@ def export_config(config,filename):
 
     if config.nodeIdentification   != default.nodeIdentification        :
         c_code_gen["node-identification"] = config.nodeIdentification  
+
+    if config.fullyAsynchronous   != default.fullyAsynchronous        :
+        c_code_gen["fully-asynchronous"] = config.fullyAsynchronous  
+
+    if config.asynchronous   != default.asynchronous        :
+        c_code_gen["asynchronous"] = config.asynchronous 
 
     if c_code_gen:
         yaml["c-code-generation-options"] = c_code_gen 

@@ -64,11 +64,11 @@ The support classes and code are covered by CMSIS-Stream license.
 #endif
 
 #if !defined(CG_BEFORE_NODE_EXECUTION)
-#define CG_BEFORE_NODE_EXECUTION
+#define CG_BEFORE_NODE_EXECUTION(ID)
 #endif
 
 #if !defined(CG_AFTER_NODE_EXECUTION)
-#define CG_AFTER_NODE_EXECUTION
+#define CG_AFTER_NODE_EXECUTION(ID)
 #endif
 
 
@@ -136,11 +136,11 @@ uint32_t scheduler(int *error,arm_mfcc_instance_f32 *mfccConfig)
     /* 
     Create node objects
     */
-    SlidingBuffer<float,256,128> audioWin(fifo0,fifo1);
-    MFCC<float,256,float,13> mfcc(fifo1,fifo2,mfccConfig);
-    SlidingBuffer<float,26,13> mfccWin(fifo2,fifo3);
-    FileSink<float,13> sink(fifo3,"output_example6.txt");
-    FileSource<float,192> src(fifo0,"input_example6.txt");
+    SlidingBuffer<float,256,128> audioWin(fifo0,fifo1); /* Node ID = 0 */
+    MFCC<float,256,float,13> mfcc(fifo1,fifo2,mfccConfig); /* Node ID = 1 */
+    SlidingBuffer<float,26,13> mfccWin(fifo2,fifo3); /* Node ID = 2 */
+    FileSink<float,13> sink(fifo3,"output_example6.txt"); /* Node ID = 3 */
+    FileSource<float,192> src(fifo0,"input_example6.txt"); /* Node ID = 4 */
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -150,7 +150,7 @@ uint32_t scheduler(int *error,arm_mfcc_instance_f32 *mfccConfig)
         CG_BEFORE_ITERATION;
         for(unsigned long id=0 ; id < 17; id++)
         {
-            CG_BEFORE_NODE_EXECUTION;
+            CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
             switch(schedule[id])
             {
@@ -187,7 +187,7 @@ uint32_t scheduler(int *error,arm_mfcc_instance_f32 *mfccConfig)
                 default:
                 break;
             }
-            CG_AFTER_NODE_EXECUTION;
+            CG_AFTER_NODE_EXECUTION(schedule[id]);
             CHECKERROR;
         }
        debugCounter--;

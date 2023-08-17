@@ -60,11 +60,15 @@ proc [label=<
 <TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
     <TD PORT="ia"><FONT POINT-SIZE="12.0" COLOR="black">ia</FONT></TD>
-    <TD ALIGN="CENTER" ROWSPAN="2"><FONT COLOR="black" POINT-SIZE="14.0">proc<BR/>(ProcessingOddEven)</FONT></TD>
+    <TD ALIGN="CENTER" ROWSPAN="3"><FONT COLOR="black" POINT-SIZE="14.0">proc<BR/>(ProcessingOddEven)</FONT></TD>
     <TD PORT="o"><FONT POINT-SIZE="12.0" COLOR="black">o</FONT></TD>
   </TR>
 <TR>
 <TD PORT="ib"><FONT POINT-SIZE="12.0" COLOR="black">ib</FONT></TD>
+
+ 
+<TD></TD></TR><TR>
+<TD PORT="ic"><FONT POINT-SIZE="12.0" COLOR="black">ic</FONT></TD>
 
  
 <TD></TD></TR>
@@ -101,7 +105,7 @@ sourceOdd [label=<
 
 
 
-sourceEven:i -> proc:ib [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
+sourceEven:i -> proc:ib [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(1)>
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
 </TD></TR></TABLE>>
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
@@ -114,19 +118,19 @@ proc:o -> compute1:i [style="solid",color="black",fontsize="12.0",fontcolor="bla
 </TD></TR></TABLE>>]
 
 sourceOdd:i ->  
-dup0 [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(3)>
+dup0 [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
 
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
 </TD></TR></TABLE>>]
 
  
-dup0 -> proc:ia [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
+dup0 -> proc:ia [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(1)>
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
 </TD></TR></TABLE>>
 ]
 
  
-dup0 -> debug:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(3)>
+dup0 -> debug:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
 </TD></TR></TABLE>>
 ]
@@ -136,6 +140,12 @@ dup1 [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2
 
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
 </TD></TR></TABLE>>]
+
+ 
+dup1 -> proc:ic [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
+</TD></TR></TABLE>>
+]
 
  
 dup1 -> sinka:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>

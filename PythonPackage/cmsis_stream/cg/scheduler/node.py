@@ -260,7 +260,13 @@ class BaseNode:
         self.sortedNodeID = 0
         # Updated during toplogical sorts to find the current
         # sinks of the truncated graph
+        # Topological sort from sink is used in synchronous mode
         self.nbOutputsForTopologicalSort = 0
+
+        # Updated during toplogical sorts to find the current
+        # sinks of the truncated graph
+        # Topological sort from source is used in fully asynchronous mode
+        self.nbInputsForTopologicalSort = 0
 
         self._identified = identified
 

@@ -63,6 +63,23 @@ class CannotDelayConstantError(Exception):
 class TooManyNodesOnOutput(Exception):
     pass
 
+
+class DupDestination:
+    def __init__(self,
+                 node,
+                 delay,
+                 fifoClass,
+                 fifoScale,
+                 fifoAsyncLength,
+                 fifoWeak):
+        self.node = node
+        self.delay = delay 
+        self.fifoClass = fifoClass 
+        self.fifoScale = fifoScale 
+        self.fifoAsyncLength = fifoAsyncLength 
+        self.fifoWeak = fifoWeak 
+
+
 class FifoBuffer:
     """Buffer used by a FIFO"""
     def __init__(self,bufferID,theType,length):
@@ -72,7 +89,7 @@ class FifoBuffer:
 
 class FIFODesc:
     """A FIFO connecting two nodes"""
-    def __init__(self,fifoid,fifoClass,fifoScale):
+    def __init__(self,fifoid,fifoClass,fifoScale,fifoAsyncLength=0,weak=False):
         # The FIFO is in fact just an array
         self.isArray=False 
         # FIFO length
@@ -92,6 +109,9 @@ class FIFODesc:
         self.delay=0
         self.fifoClass = fifoClass
         self.fifoScale = fifoScale
+        # Used for fully asynchronous mode
+        self.fifoAsyncLength = fifoAsyncLength
+        self.weak=weak
 
         # Used for liveliness analysis
         # To share buffers between FIFO in memory optimization
@@ -175,6 +195,10 @@ class Graph():
         # In async mode, scaling factor for a given
         # FIFO to override the global scaling factor
         self._FIFOScale = {}
+        # In fully asynchronous the fifo length
+        # and weak state
+        self._FIFOAsyncLength = {}
+        self._FIFOWeak = {}
         # Topological sorting of nodes
         # computed during topology matrix
         # and used for some scheduling
@@ -193,7 +217,41 @@ class Graph():
         """Write graphviz into file f""" 
         gen_precompute_graph(self,f,config,style=style)
 
-    def computeTopologicalSortOfNodes(self):
+    def computeSourceTopologicalSortOfNodes(self):
+        remaining = self._sortedNodes.copy()
+
+        while len(remaining)>0:
+            toremove = []
+            for n in remaining:
+                if n.nbInputsForTopologicalSort == 0:
+                    toremove.append(n)
+
+            if (len(toremove)==0):
+                # There are some loops so topological sort is
+                # not possible 
+                self._topologicalSort = [] 
+                return
+
+
+            self._topologicalSort.append(toremove)
+            for x in toremove:
+                remaining.remove(x)
+
+            # Update input count for predecessors of the
+            # removed nodes 
+            for x in toremove:
+                for i in x._outputs:
+                    theFifo = x._outputs[i].fifo
+                    #  Fifo empty means connection to a
+                    # constant node so should be ignoredf
+                    # for topological sort
+                    if len(theFifo)>0:
+                       theOutputNodeInput = theFifo[1]
+                       theOutputNode = theOutputNodeInput.owner
+                       theOutputNode.nbInputsForTopologicalSort = theOutputNode.nbInputsForTopologicalSort - 1
+        #print(self._topologicalSort)
+
+    def computeSinkTopologicalSortOfNodes(self):
         remaining = self._sortedNodes.copy()
 
         while len(remaining)>0:
@@ -229,22 +287,26 @@ class Graph():
 
 
     def connectDup(self,destination,outputIO,theId):
-        if (destination[theId][1]!=0):
-            self.connectWithDelay(outputIO,destination[theId][0],
-                                           destination[theId][1],
+        if (destination[theId].delay!=0):
+            self.connectWithDelay(outputIO,destination[theId].node,
+                                           destination[theId].delay,
                                            dupAllowed=False,
-                                           fifoClass=destination[theId][2],
-                                           fifoScale=destination[theId][3])
+                                           fifoClass=destination[theId].fifoClass,
+                                           fifoScale=destination[theId].fifoScale,
+                                           fifoAsyncLength=destination[theId].fifoAsyncLength,
+                                           weak=destination[theId].fifoWeak)
         else:
-            self.connect(outputIO,destination[theId][0],
+            self.connect(outputIO,destination[theId].node,
                                   dupAllowed=False,
-                                  fifoClass=destination[theId][2],
-                                  fifoScale=destination[theId][3]
+                                  fifoClass=destination[theId].fifoClass,
+                                  fifoScale=destination[theId].fifoScale,
+                                  fifoAsyncLength=destination[theId].fifoAsyncLength,
+                                  weak=destination[theId].fifoWeak
                                   )
 
 
 
-    def insertDuplicates(self):
+    def insertDuplicates(self,config):
         # Insert dup nodes (Duplicate2 and Duplicate3) to
         # ensure that an output is connected to only one input
         dupNb = 0
@@ -306,18 +368,33 @@ class Graph():
 
                         fifoClass = self.defaultFIFOClass
                         fifoScale = 1.0
+                        fifoAsyncLength = 0
+                        fifoWeak = False
                         if (nodea,nodeb) in self._FIFOClasses:
                             fifoClass = self._FIFOClasses[(nodea,nodeb)]
 
                         if (nodea,nodeb) in self._FIFOScale:
                             fifoScale = self._FIFOScale[(nodea,nodeb)]
 
+                        if (nodea,nodeb) in self._FIFOAsyncLength:
+                            fifoAsyncLength = self._FIFOAsyncLength[(nodea,nodeb)]
+
+                        if (nodea,nodeb) in self._FIFOWeak:
+                            fifoWeak = self._FIFOWeak[(nodea,nodeb)]
+
                         if (nodea,nodeb) in self._delays:
                            delay = self._delays[(nodea,nodeb)]
                         else:
                            delay = 0
 
-                        destinations.append((nodeb,delay,fifoClass,fifoScale))
+                        destination=DupDestination(nodeb,
+                            delay,
+                            fifoClass,
+                            fifoScale,
+                            fifoAsyncLength,
+                            fifoWeak)
+
+                        destinations.append(destination)
 
                         nodea.fifo=None 
                         nodeb.fifo=None
@@ -338,17 +415,33 @@ class Graph():
                             del self._FIFOClasses[(nodea,nodeb)]
                         if (nodea,nodeb) in self._FIFOScale:
                             del self._FIFOScale[(nodea,nodeb)]
+
+                        if (nodea,nodeb) in self._FIFOAsyncLength:
+                            del self._FIFOAsyncLength[(nodea,nodeb)]
+                        if (nodea,nodeb) in self._FIFOWeak:
+                            del self._FIFOWeak[(nodea,nodeb)]
+
                         if (nodea,nodeb) in self._delays:
                            del self._delays[(nodea,nodeb)]
 
                         
                     
-                    # Now for each fifo destination we need 
+                    # Now for each fifo destination b_i we need 
                     # create a new
-                    # connection dup -> b
+                    # connection dup -> b_i
                     # And we create a new connection a -> dup
 
-                    self.connect(output,dup.i,dupAllowed=False)
+                    # a -> dup
+                    if config.asynchronous:
+                        maxScale = np.max(np.array([dest.fifoScale for dest in destinations]))
+                        self.connect(output,dup.i,dupAllowed=False,
+                        fifoScale = maxScale)
+                    elif config.fullyAsynchronous:
+                        maxAsyncLength = np.max(np.array([dest.fifoAsyncLength for dest in destinations]))
+                        self.connect(output,dup.i,dupAllowed=False,
+                        fifoAsyncLength = maxAsyncLength)
+                    else:
+                       self.connect(output,dup.i,dupAllowed=False)
 
                     
                     for i in range(len(destinations)):
@@ -358,7 +451,12 @@ class Graph():
 
                
 
-    def connect(self,nodea,nodeb,dupAllowed=True,fifoClass=None,fifoScale = 1.0):
+    def connect(self,nodea,nodeb,
+        dupAllowed=True,
+        fifoClass=None,
+        fifoScale = 1.0,
+        fifoAsyncLength=0,
+        weak=False):
         if fifoClass is None:
             fifoClass = self.defaultFIFOClass
         # When connecting to a constant node we do nothing
@@ -380,8 +478,13 @@ class Graph():
                    nodea.fifo=(nodea,nodeb)
                    nodeb.fifo=(nodea,nodeb)
                 self._edges[(nodea,nodeb)]=True
+
                 self._FIFOClasses[(nodea,nodeb)] = fifoClass
                 self._FIFOScale[(nodea,nodeb)] = fifoScale
+                self._FIFOAsyncLength[(nodea,nodeb)] = fifoAsyncLength
+                self._FIFOWeak[(nodea,nodeb)] = weak
+
+
                 if not (nodea.owner in self._nodes):
                    self._nodes[nodea.owner]=True
                 if not (nodeb.owner in self._nodes):
@@ -389,14 +492,24 @@ class Graph():
             else:
                 raise IncompatibleIO
 
-    def connectWithDelay(self,nodea,nodeb,delay,dupAllowed=True,fifoClass=None,fifoScale=1.0):
+    def connectWithDelay(self,nodea,nodeb,delay,
+        dupAllowed=True,
+        fifoClass=None,
+        fifoScale=1.0,
+        fifoAsyncLength=0,
+        weak=False):
         if fifoClass is None:
             fifoClass = self.defaultFIFOClass
         # We cannot connect with delay to a constant node
         if (isinstance(nodea,Constant)):
             raise CannotDelayConstantError
         else:
-            self.connect(nodea,nodeb,dupAllowed=dupAllowed,fifoClass=fifoClass,fifoScale = fifoScale)
+            self.connect(nodea,nodeb,
+                dupAllowed=dupAllowed,
+                fifoClass=fifoClass,
+                fifoScale = fifoScale,
+                fifoAsyncLength=fifoAsyncLength,
+                weak=weak)
             self._delays[(nodea,nodeb)] = delay
     
     def __str__(self):
@@ -427,6 +540,12 @@ class Graph():
                  else:
                     scale = (1.0 + 1.0*config.FIFOIncrease/100)
                fifo.length = int(math.ceil(fifoLengths[fifo.fifoID] * scale))
+            elif config.fullyAsynchronous:
+                if edge in self._FIFOAsyncLength:
+                  fifoAsyncLength = self._FIFOAsyncLength[edge]
+                  fifo.length = fifoAsyncLength
+                if edge in self._FIFOWeak:
+                  fifo.weak = self._FIFOWeak[edge]
             else:
                fifo.length = fifoLengths[fifo.fifoID]
             src,dst = edge
@@ -440,7 +559,7 @@ class Graph():
             # potentially be shared with other FIFOs workign as arrays
             if src.nbSamples == dst.nbSamples:
                 if fifo.delay==0:
-                   if not config.asynchronous:
+                   if not config.asynchronous and not config.fullyAsynchronous:
                       fifo.isArray = True 
             fifo.theType = src.theType
             #fifo.dump()
@@ -456,7 +575,7 @@ class Graph():
         # because the execution is no more periodic.
         # So anything deduced from a synchronous period
         # can't be used.
-        if config.memoryOptimization and not config.asynchronous:
+        if config.memoryOptimization and not config.asynchronous and not config.fullyAsynchronous:
             G = nx.Graph()
 
             for fifo in allFIFOs: 
@@ -553,7 +672,7 @@ class Graph():
         bufferID = bufferID + 1
         for fifo in allFIFOs:
             # Use shared buffer if memory optimization
-            if fifo.isArray and (config.memoryOptimization and not config.asynchronous):
+            if fifo.isArray and (config.memoryOptimization and not config.asynchronous and not config.fullyAsynchronous):
                 fifo.buffer=allBuffers[fifo.sharedNB] 
                 fifo.bufferID=fifo.sharedNB
             # Create a new buffer for a real FIFO
@@ -625,6 +744,21 @@ class Graph():
         for node in self._sortedNodes:
             node.sortedNodeID = nID
             node.nbOutputsForTopologicalSort = node.nbOutputs
+
+            node.nbInputsForTopologicalSort = node.nbInputs
+            # Remove weak input edges
+            # (Used to break loops for topological order)
+            nbWeak = 0
+            for i in node._inputs:
+                edge = node._inputs[i].fifo
+                # If it is  a connection to a constant node 
+                # or a weak edge it will be ignored for the 
+                # topological sort so we don't count it
+                if len(edge)==0 or self._FIFOWeak[edge]:
+                       nbWeak = nbWeak + 1
+            
+            node.nbInputsForTopologicalSort = node.nbInputsForTopologicalSort - nbWeak 
+
             nID = nID + 1
 
         for edge in self._sortedEdges: 
@@ -836,18 +970,59 @@ class Graph():
             evolutionTime = evolutionTime + 1
         return(schedule)
 
-    def computeSchedule(self,config=Configuration()):
+    def _computeFullyAsynchronousSchedule(self,config):
         # First we must rewrite the graph and insert duplication
         # nodes when an ouput is connected to several inputs.
         # After this transform, each output should be connected to
         # only one output.
-        self.insertDuplicates()
+        self.insertDuplicates(config)
+
+        networkMatrix = self.topologyMatrix()
+
+        t = np.array(networkMatrix)
+        #print(t)
+        #print(n)
+
+        # Define the list of FIFOs objects
+        nbFIFOS = t.shape[0]
+        allFIFOs = [] 
+        for i in range(nbFIFOS):
+            allFIFOs.append(FIFODesc(i,self.defaultFIFOClass,1.0))
+
+       
+
+        self.computeSourceTopologicalSortOfNodes()
+
+        schedule=[]
+        for layer in self._topologicalSort:
+            for node in layer:
+                schedule.append(node.sortedNodeID)
+
+        # In fully asynchronous the fifoLength array and maxTime are
+        # not used
+        allBuffers=self.initializeFIFODescriptions(config,allFIFOs,[],0)
+        self._allFIFOs = allFIFOs 
+        self._allBuffers = allBuffers
+
+        return(Schedule(self,self._sortedNodes,self._sortedEdges,schedule,config))
+
+
+
+
+    def computeSchedule(self,config=Configuration()):
+        if config.fullyAsynchronous:
+            return(self._computeFullyAsynchronousSchedule(config))
+        # First we must rewrite the graph and insert duplication
+        # nodes when an ouput is connected to several inputs.
+        # After this transform, each output should be connected to
+        # only one output.
+        self.insertDuplicates(config)
 
         networkMatrix = self.topologyMatrix()
         #print(networkMatrix)
 
         if config.sinkPriority:
-           self.computeTopologicalSortOfNodes()
+           self.computeSinkTopologicalSortOfNodes()
 
         mustDoSinkPrioritization = config.sinkPriority and len(self._topologicalSort)>0
         if config.sinkPriority and not mustDoSinkPrioritization:

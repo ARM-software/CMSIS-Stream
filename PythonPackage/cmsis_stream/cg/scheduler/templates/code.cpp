@@ -20,9 +20,9 @@
        {% if config.eventRecorder -%}
        EventRecord2 (Evt_Node, {{nodes[s].codeID}}, 0);
        {% endif -%}
-       CG_BEFORE_NODE_EXECUTION;
+       CG_BEFORE_NODE_EXECUTION({{nodes[s].codeID}});
        {{nodes[s].cRun(config)}}
-       CG_AFTER_NODE_EXECUTION;
+       CG_AFTER_NODE_EXECUTION({{nodes[s].codeID}});
        {% if config.eventRecorder -%}
        if (cgStaticError<0)
        {

@@ -1,9 +1,9 @@
 /*
 
-Generated with CMSIS-DSP Compute Graph Scripts.
-The generated code is not covered by CMSIS-DSP license.
+Generated with CMSIS-Stream python scripts.
+The generated code is not covered by CMSIS-Stream license.
 
-The support classes and code is covered by CMSIS-DSP license.
+The support classes and code are covered by CMSIS-Stream license.
 
 */
 
@@ -64,11 +64,11 @@ The support classes and code is covered by CMSIS-DSP license.
 #endif
 
 #if !defined(CG_BEFORE_NODE_EXECUTION)
-#define CG_BEFORE_NODE_EXECUTION
+#define CG_BEFORE_NODE_EXECUTION(ID)
 #endif
 
 #if !defined(CG_AFTER_NODE_EXECUTION)
-#define CG_AFTER_NODE_EXECUTION
+#define CG_AFTER_NODE_EXECUTION(ID)
 #endif
 
 
@@ -124,9 +124,9 @@ uint32_t scheduler(int *error)
     /* 
     Create node objects
     */
-    ProcessingNode<float,7,float,7> processing(fifo0,fifo1);
-    Sink<float,5> sink(fifo1);
-    Source<float,3> source(fifo0);
+    ProcessingNode<float,7,float,7> processing(fifo0,fifo1); /* Node ID = 0 */
+    Sink<float,5> sink(fifo1); /* Node ID = 1 */
+    Source<float,3> source(fifo0); /* Node ID = 2 */
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -136,7 +136,7 @@ uint32_t scheduler(int *error)
         CG_BEFORE_ITERATION;
         for(unsigned long id=0 ; id < 26; id++)
         {
-            CG_BEFORE_NODE_EXECUTION;
+            CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
             switch(schedule[id])
             {
@@ -161,7 +161,7 @@ uint32_t scheduler(int *error)
                 default:
                 break;
             }
-            CG_AFTER_NODE_EXECUTION;
+            CG_AFTER_NODE_EXECUTION(schedule[id]);
             CHECKERROR;
         }
        debugCounter--;

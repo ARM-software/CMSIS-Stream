@@ -18,6 +18,9 @@ graph:
     - input: ib
       samples: 1
       type: int16_t
+    - input: ic
+      samples: 1
+      type: int16_t
     outputs:
     - output: o
       samples: 1
@@ -96,21 +99,21 @@ graph:
     dst:
       node: proc
       input: ia
-    async-length: 2
+    async-length: 1
   - src:
       node: sourceEven
       output: o
     dst:
       node: proc
       input: ib
-    async-length: 2
+    async-length: 1
   - src:
       node: sourceOdd
       output: o
     dst:
       node: debug
       input: i
-    async-length: 3
+    async-length: 2
   - src:
       node: proc
       output: o
@@ -118,6 +121,14 @@ graph:
       node: compute1
       input: i
     async-length: 2
+  - src:
+      node: compute1
+      output: o
+    dst:
+      node: proc
+      input: ic
+    async-length: 2
+    weak-edge: true
   - src:
       node: compute1
       output: o

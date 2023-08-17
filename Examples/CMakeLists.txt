@@ -118,6 +118,8 @@ add_subdirectory(example6 bin_example6)
 add_subdirectory(example8 bin_example8)
 add_subdirectory(example9 bin_example9)
 add_subdirectory(example10 bin_example10)
+add_subdirectory(example11 bin_example11)
+
 add_subdirectory(simple bin_simple)
 add_subdirectory(simpledsp bin_simpledsp)
 add_subdirectory(cyclo bin_cyclo)

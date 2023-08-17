@@ -23,9 +23,9 @@ With dynamic flow, a node must implement the function `prepareForRunning` and de
 
 Any other returned value will stop the execution.
 
-The dynamic mode (also named asynchronous), is enabled with option : `asynchronous` of the configuration object used with the scheduling functions.
+The dynamic mode (also named asynchronous), is enabled with option : `fullyAsynchronous` of the configuration object used with the scheduling functions. (The old mode `asynchronous` is deprecated).
 
-The system will still compute a synchronous scheduling and FIFO sizes as if the flow was static. We can see the static flow as an average of the dynamic flow. In dynamic mode, the FIFOs may need to be bigger than the ones computed in static mode.  The static estimation is giving a first idea of what the size of the FIFOs should be. The size can be increased by specifying a percent increase with option `FIFOIncrease`.
+The system will **not** compute a synchronous scheduling and FIFO sizes as if the flow was static. So the FIFOs size must be provided by using the argument `fifoAsyncLength` of the `connect` functions. The size is expressed in samples.
 
 For pure compute functions (like CMSIS-DSP ones), which are not packaged into a C++ class, there is no way to customize the decision logic in case of a problem with FIFO. There is a global option : `asyncDefaultSkip`. 
 
@@ -37,6 +37,10 @@ When `true`, a pure function that cannot run will just skip the execution. With 
 * Don't use the automatic duplication feature and introduce your duplicate nodes in the compute graph
 
 When you don't want to generate or consume data in a node, just don't call the functions `getReadBuffer` or `getWriteBuffer` for your IOs.
+
+The scheduling of those asynchronous graphs is based upon a topological ordering of the graph starting from the sources. Connections to constant nodes are ignored for this scheduling.
+
+In case of loop in the graph, you can specify a connection as weak using the `weak` option of the `connect` functions and the edge will be ignored for computing the topological ordering.
 
 ## prepareForRunning
 
@@ -79,67 +83,3 @@ It is also possible to use the functions `willOverflow`, `willUnderflow` in the 
 **WARNING**: You are responsible for checking if a FIFO is going to underflow or overflow **before** using `getReadBuffer` or `getWriteBuffer`.
 
 If the `getReadBuffer` and `getWriteBuffer` are causing an underflow or overflow of the FIFO, you'll have memory corruptions and the compute graph will no more work.
-
-## Graph constraints
-
-The dynamic mode is using a synchronous graph as average / ideal case. But it is important to understand that we are no more in static / synchronous mode and some static graph may be too complex for the dynamic mode. Let's take the following graph as example:
-
-![async_topological2](assets/async_topological2.png)
-
-The generated schedule is:
-
-```
-src
-src
-src
-src
-src
-filter
-sink
-sink
-sink
-sink
-sink
-```
-
-If we use a strategy of skipping the execution of a node in case of overflow / underflow, what will happen is:
-
-* Schedule iteration  1
-  * First `src` node execution is successful since there is a sample
-  * All other execution attempts will be skipped 
-* Schedule iteration  2
-  * First `src` node execution is successful since there is a sample
-  * All other execution attempt will be skipped 
-* ...
-* Schedule iteration  5:
-  * First `src` node execution is successful since there is a sample
-  * 4 other `src` node executions are skipped
-  * The `filter` execution can finally take place since enough data has been generated
-
-
-
-In summary , it is totally useless in asynchronous mode to attempt to run the same node several times in the same scheduling iteration except if we are sure there will always be enough data. In previous example, we see that only the first attempt at running `src` is doing something. Other attempts are always skipped.
-
-
-
-Instead, one could try the following graph:
-
-![async_topological1](assets/async_topological1.png)
-
-With this graph, each node execution will be attempted only once during an execution.
-
-But the `filter` needs 5 samples, so we need to increase the size of the FIFOs from `1` to `5` or the `filter` node will never be executed. 
-
-It is possible with the option `FIFOIncrease` but it is better to make it explicit with the following graph:
-
-![async_topological3](assets/async_topological3.png)
-
-In this case, the FIFO is big enough. `src` node will be executed each time there is a sample. `filter` will execute only when 5 samples have been accumulated in the FIFO. Each node execution is only attempted once during a schedule.
-
-
-
-As consequence, the recommendation in dynamic / asynchronous mode is to:
-
-* Ensure that the amount of data produced and consumed on each FIFO end is the same (so that each node execution is attempted only once during a schedule)
-* Use the maximum amount of samples required on both ends of the FIFO
-  * Here `sink` is generating  at most `1` sample, `filter` needs 5. So we use `5` on both ends of the FIFO

@@ -133,6 +133,16 @@ class Configuration:
         # buffers.
         self.asynchronous = False
 
+        # Asynchronous scheduling without reference to the
+        # synchronous case
+        # FIFO length must be provided
+        # IO lengths ignored
+        # Weak FIFO can be specified to remove loops for
+        # topological order schedule
+        # switchCase and disable memory optimizations
+        self.fullyAsynchronous = False 
+
+
         # Increase in percent of the FIFOs.
         # Used in asynchronous mode
         # where the FIFOs may need to be bigger

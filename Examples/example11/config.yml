@@ -2,6 +2,5 @@ version: 1.0.0
 code-generation-options:
   debug-limit: 10
 c-code-generation-options:
-  heap-allocation: true
   fully-asynchronous: true
 

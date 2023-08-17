@@ -64,11 +64,11 @@ The support classes and code are covered by CMSIS-Stream license.
 #endif
 
 #if !defined(CG_BEFORE_NODE_EXECUTION)
-#define CG_BEFORE_NODE_EXECUTION
+#define CG_BEFORE_NODE_EXECUTION(ID)
 #endif
 
 #if !defined(CG_AFTER_NODE_EXECUTION)
-#define CG_AFTER_NODE_EXECUTION
+#define CG_AFTER_NODE_EXECUTION(ID)
 #endif
 
 
@@ -148,13 +148,13 @@ uint32_t scheduler(int *error,int someVariable)
     /* 
     Create node objects
     */
-    Duplicate<complex,5,complex,5> dup0(fifo2,{&fifo3,&fifo4,&fifo5});
-    ProcessingNode<complex,7,complex,5,complex,5> filter(fifo0,fifo2,fifo1,4,"Test",someVariable);
-    Sink<complex,5> sa(fifo3);
-    Sink<complex,5> sb(fifo4);
-    Sink<complex,5> sc(fifo5);
-    Sink<complex,5> sd(fifo1);
-    Source<complex,5> source(fifo0);
+    Duplicate<complex,5,complex,5> dup0(fifo2,{&fifo3,&fifo4,&fifo5}); /* Node ID = 0 */
+    ProcessingNode<complex,7,complex,5,complex,5> filter(fifo0,fifo2,fifo1,4,"Test",someVariable); /* Node ID = 1 */
+    Sink<complex,5> sa(fifo3); /* Node ID = 2 */
+    Sink<complex,5> sb(fifo4); /* Node ID = 3 */
+    Sink<complex,5> sc(fifo5); /* Node ID = 4 */
+    Sink<complex,5> sd(fifo1); /* Node ID = 5 */
+    Source<complex,5> source(fifo0); /* Node ID = 6 */
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -164,7 +164,7 @@ uint32_t scheduler(int *error,int someVariable)
         CG_BEFORE_ITERATION;
         for(unsigned long id=0 ; id < 37; id++)
         {
-            CG_BEFORE_NODE_EXECUTION;
+            CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
             switch(schedule[id])
             {
@@ -213,7 +213,7 @@ uint32_t scheduler(int *error,int someVariable)
                 default:
                 break;
             }
-            CG_AFTER_NODE_EXECUTION;
+            CG_AFTER_NODE_EXECUTION(schedule[id]);
             CHECKERROR;
         }
        debugCounter--;

@@ -47,27 +47,24 @@
 #endif
 
 #if !defined(CG_BEFORE_NODE_EXECUTION)
-#define CG_BEFORE_NODE_EXECUTION
+#define CG_BEFORE_NODE_EXECUTION(ID)
 #endif
 
 #if !defined(CG_AFTER_NODE_EXECUTION)
-#define CG_AFTER_NODE_EXECUTION
+#define CG_AFTER_NODE_EXECUTION(ID)
 #endif
 
-{% if config.asynchronous -%}
-#if !defined(CG_AFTER_NODE_EXECUTION)
-#define CG_AFTER_NODE_EXECUTION
-#endif
+{% if config.asynchronous or config.fullyAsynchronous -%}
 
 #if !defined(CG_NODE_NOT_EXECUTED)
-#define CG_NODE_NOT_EXECUTED
+#define CG_NODE_NOT_EXECUTED(ID)
 #endif
 
 #if !defined(CG_ASYNC_BEFORE_NODE_CHECK)
-#define CG_ASYNC_BEFORE_NODE_CHECK
+#define CG_ASYNC_BEFORE_NODE_CHECK(ID)
 #endif
 
 #if !defined(CG_ASYNC_AFTER_NODE_CHECK)
-#define CG_ASYNC_AFTER_NODE_CHECK
+#define CG_ASYNC_AFTER_NODE_CHECK(ID)
 #endif
 {% endif %}

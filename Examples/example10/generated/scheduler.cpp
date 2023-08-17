@@ -64,27 +64,23 @@ The support classes and code are covered by CMSIS-Stream license.
 #endif
 
 #if !defined(CG_BEFORE_NODE_EXECUTION)
-#define CG_BEFORE_NODE_EXECUTION
+#define CG_BEFORE_NODE_EXECUTION(ID)
 #endif
 
 #if !defined(CG_AFTER_NODE_EXECUTION)
-#define CG_AFTER_NODE_EXECUTION
-#endif
-
-#if !defined(CG_AFTER_NODE_EXECUTION)
-#define CG_AFTER_NODE_EXECUTION
+#define CG_AFTER_NODE_EXECUTION(ID)
 #endif
 
 #if !defined(CG_NODE_NOT_EXECUTED)
-#define CG_NODE_NOT_EXECUTED
+#define CG_NODE_NOT_EXECUTED(ID)
 #endif
 
 #if !defined(CG_ASYNC_BEFORE_NODE_CHECK)
-#define CG_ASYNC_BEFORE_NODE_CHECK
+#define CG_ASYNC_BEFORE_NODE_CHECK(ID)
 #endif
 
 #if !defined(CG_ASYNC_AFTER_NODE_CHECK)
-#define CG_ASYNC_AFTER_NODE_CHECK
+#define CG_ASYNC_AFTER_NODE_CHECK(ID)
 #endif
 
 
@@ -110,7 +106,7 @@ FIFO buffers
 ************/
 #define FIFOSIZE0 2
 #define FIFOSIZE1 2
-#define FIFOSIZE2 2
+#define FIFOSIZE2 3
 #define FIFOSIZE3 2
 #define FIFOSIZE4 3
 #define FIFOSIZE5 2
@@ -129,7 +125,7 @@ int16_t buf1[BUFFERSIZE1]={0};
 CG_BEFORE_BUFFER
 int16_t buf2[BUFFERSIZE2]={0};
 
-#define BUFFERSIZE3 2
+#define BUFFERSIZE3 3
 CG_BEFORE_BUFFER
 int16_t buf3[BUFFERSIZE3]={0};
 
@@ -455,10 +451,10 @@ uint32_t scheduler(int *error)
         CG_BEFORE_ITERATION;
         for(unsigned long id=0 ; id < 13; id++)
         {
-            CG_BEFORE_NODE_EXECUTION;
+            CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
             cgStaticError = 0;
-            CG_ASYNC_BEFORE_NODE_CHECK;
+            CG_ASYNC_BEFORE_NODE_CHECK(schedule[id]);
             switch(schedule[id])
             {
                 case 0:
@@ -555,12 +551,12 @@ uint32_t scheduler(int *error)
                 break;
             }
 
-            CG_ASYNC_AFTER_NODE_CHECK;
+            CG_ASYNC_AFTER_NODE_CHECK(schedule[id]);
 
             if (cgStaticError == CG_SKIP_EXECUTION_ID_CODE)
             { 
               cgStaticError = 0;
-              CG_NODE_NOT_EXECUTED;
+              CG_NODE_NOT_EXECUTED(schedule[id]);
               continue;
             }
 
@@ -658,7 +654,7 @@ uint32_t scheduler(int *error)
                 default:
                 break;
             }
-            CG_AFTER_NODE_EXECUTION;
+            CG_AFTER_NODE_EXECUTION(schedule[id]);
             CHECKERROR;
         }
        debugCounter--;
