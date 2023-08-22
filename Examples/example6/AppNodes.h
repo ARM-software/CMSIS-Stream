@@ -32,6 +32,8 @@ using namespace std;
 #include <cstdio>
 #include "arm_math.h"
 
+using namespace arm_cmsis_stream;
+
 #include "host/FileSink.h"
 #include "host/FileSource.h"
 #include "MFCC.h"

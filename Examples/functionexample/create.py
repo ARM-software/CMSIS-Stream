@@ -17,7 +17,7 @@ conf.CMSISDSP = True
 export_graph(the_graph,"graph.yml")
 export_config(conf,"config.yml")
 
-with open("pre_schedule_simpledsp.dot","w") as f:
+with open("pre_schedule_function.dot","w") as f:
     the_graph.graphviz(f)
 
 # Compute a static scheduling of the graph 

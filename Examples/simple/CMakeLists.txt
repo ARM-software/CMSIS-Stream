@@ -4,9 +4,10 @@ include(CMakePrintHelpers)
 project(Simple)
 
 
-add_executable(simple main.cpp)
+add_executable(simple scheduler.cpp main.cpp)
 
-sdfroot(simple create.py simple)
+dotdependency(simple simple create.py)
+cppdependency(simple scheduler.cpp create.py)
 add_sdf_dir(simple)
 
 target_include_directories(simple PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

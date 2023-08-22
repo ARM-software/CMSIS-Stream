@@ -4,9 +4,10 @@ include(CMakePrintHelpers)
 project(Example9)
 
 
-add_executable(example9 main.cpp)
+add_executable(example9 generated/scheduler.cpp main.cpp)
 
-sdf(example9 graph.py test)
+dotdependency(example9 test graph.py)
+cppdependency(example9 generated/scheduler.cpp graph.py)
 add_sdf_dir(example9)
 
 target_include_directories(example9 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

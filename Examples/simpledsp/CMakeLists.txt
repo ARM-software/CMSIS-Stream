@@ -4,9 +4,10 @@ include(CMakePrintHelpers)
 project(simpledsp)
 
 
-add_executable(simpledsp main.cpp)
+add_executable(simpledsp generated/scheduler.cpp main.cpp)
 
-sdf(simpledsp create.py simpledsp)
+dotdependency(simpledsp simpledsp create.py)
+cppdependency(simpledsp generated/scheduler.cpp create.py)
 add_sdf_dir(simpledsp)
 
 target_include_directories(simpledsp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

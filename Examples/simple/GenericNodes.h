@@ -43,6 +43,7 @@ error codes of the application
 world */
 #define UNIDENTIFIED_NODE (-1)
 
+namespace arm_cmsis_stream {
 // FIFOS 
 
 #ifdef DEBUGSCHED
@@ -69,6 +70,7 @@ class FIFOBase{
 public:
     virtual T* getWriteBuffer(int nb)=0;
     virtual T* getReadBuffer(int nb)=0;
+    virtual ~FIFOBase() {};
     /*
 
     Below functions are only useful in asynchronous mode.
@@ -315,6 +317,7 @@ class NodeBase
 public:
     virtual int run()=0;
     virtual int prepareForRunning()=0;
+    virtual ~NodeBase() {};
     void setID(int id){mNodeID = id;};
     int nodeID() const {return(mNodeID);};
 protected:
@@ -491,6 +494,40 @@ private:
     FIFOBase<OUT> &mDst;
 };
 
+template<typename IN1, int input1Size,
+         typename IN2, int input2Size,
+         typename IN3, int input3Size,
+         typename OUT, int outputSize>
+class GenericNode31:public NodeBase
+{
+public:
+     GenericNode31(FIFOBase<IN1> &src1,
+                   FIFOBase<IN2> &src2,
+                   FIFOBase<IN3> &src3,
+                   FIFOBase<OUT> &dst):mSrc1(src1),
+     mSrc2(src2),
+     mSrc3(src3),
+     mDst(dst){};
+
+protected:
+     OUT * getWriteBuffer(int nb=outputSize) {return mDst.getWriteBuffer(nb);};
+     IN1 * getReadBuffer1(int nb=input1Size) {return mSrc1.getReadBuffer(nb);};
+     IN2 * getReadBuffer2(int nb=input2Size) {return mSrc2.getReadBuffer(nb);};
+     IN3 * getReadBuffer3(int nb=input3Size) {return mSrc3.getReadBuffer(nb);};
+
+     bool willOverflow(int nb = outputSize) const {return mDst.willOverflowWith(nb);};
+     bool willUnderflow1(int nb = input1Size) const {return mSrc1.willUnderflowWith(nb);};
+     bool willUnderflow2(int nb = input2Size) const {return mSrc2.willUnderflowWith(nb);};
+     bool willUnderflow3(int nb = input3Size) const {return mSrc3.willUnderflowWith(nb);};
+
+private:
+    FIFOBase<IN1> &mSrc1;
+    FIFOBase<IN2> &mSrc2;
+    FIFOBase<IN3> &mSrc3;
+
+    FIFOBase<OUT> &mDst;
+};
+
 
 
 template<typename OUT, int outputSize>
@@ -578,6 +615,7 @@ public:
 };
 
 
-       
+} // End namespace
+  
 
 #endif

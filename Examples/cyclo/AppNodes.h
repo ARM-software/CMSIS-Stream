@@ -27,6 +27,8 @@
 
 #include <iostream>
 
+using namespace arm_cmsis_stream;
+
 template<typename IN, int inputSize>
 class Sink: public GenericSink<IN, inputSize>
 {

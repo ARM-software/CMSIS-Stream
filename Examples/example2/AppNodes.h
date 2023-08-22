@@ -28,6 +28,8 @@
 
 #include <iostream>
 
+using namespace arm_cmsis_stream;
+
 #include "Unzip.h"
 #include "SlidingBuffer.h"
 

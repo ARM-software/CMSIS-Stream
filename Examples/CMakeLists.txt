@@ -5,8 +5,15 @@ set(Python_FIND_REGISTRY "LAST")
 
 find_package (Python COMPONENTS Interpreter)
 
-function(sdf TARGET SCRIPT DOTNAME)
-    if (DOT)
+function(dotdependency TARGET DOTNAME SCRIPT)
+    set(pre_schedule ON)
+    set (extra_args ${ARGN})
+    list(LENGTH extra_args extra_count)
+    if (${extra_count} GREATER 0)
+        list(GET extra_args 0 pre_schedule)
+    endif()
+    
+if (DOT)
     add_custom_command(TARGET ${TARGET} PRE_BUILD 
         BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.pdf
         COMMAND ${DOT} -Tpdf -o ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.pdf ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.dot
@@ -15,6 +22,14 @@ function(sdf TARGET SCRIPT DOTNAME)
         VERBATIM
         )
 
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.dot
+        COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
+        VERBATIM
+        )
+
+    if (${pre_schedule})
     add_custom_command(TARGET ${TARGET} PRE_BUILD 
         BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.pdf
         COMMAND ${DOT} -Tpdf -o ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.pdf ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.dot
@@ -22,73 +37,33 @@ function(sdf TARGET SCRIPT DOTNAME)
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.dot
         VERBATIM
         )
-    endif()
 
-    add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/generated/scheduler.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.dot
-        ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.dot
+    
+
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.dot
         COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         VERBATIM
         )
-    target_sources(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/generated/scheduler.cpp)
+endif()
+endif()
 endfunction()
 
-function(sdfroot TARGET SCRIPT DOTNAME)
-    if (DOT)
-    add_custom_command(TARGET ${TARGET} PRE_BUILD 
-        BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.pdf
-        COMMAND ${DOT} -Tpdf -o ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.pdf ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.dot
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.dot
-        VERBATIM
-        )
-    add_custom_command(TARGET ${TARGET} PRE_BUILD 
-        BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.pdf
-        COMMAND ${DOT} -Tpdf -o ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.pdf ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.dot
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.dot
-        VERBATIM
-        )
-    endif()
-
-    add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/scheduler.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.dot
-        ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.dot
+function(cppdependency TARGET SRC SCRIPT)
+ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${SRC}
         COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         VERBATIM
-        )
-    target_sources(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/scheduler.cpp)
+        ) 
 endfunction()
 
-function(sdfpython TARGET)
-    if (DOT)
-    add_custom_command(TARGET ${TARGET} PRE_BUILD 
-        BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/test.pdf
-        COMMAND ${DOT} -Tpdf -o ${CMAKE_CURRENT_SOURCE_DIR}/test.pdf ${CMAKE_CURRENT_SOURCE_DIR}/test.dot
+function(pythondependency TARGET SRC SCRIPT)
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${SRC}
+        COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/test.dot
-        VERBATIM
-        )
-
-    add_custom_command(TARGET ${TARGET} PRE_BUILD 
-        BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_test.pdf
-        COMMAND ${DOT} -Tpdf -o ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_test.pdf ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_test.dot
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_test.dot
-        VERBATIM
-        )
-    endif()
-
-    add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/sched.py
-        ${CMAKE_CURRENT_SOURCE_DIR}/test.dot
-        ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_test.dot
-        COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/graph.py
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/graph.py
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         VERBATIM
         )
 endfunction()
@@ -123,8 +98,10 @@ add_subdirectory(example11 bin_example11)
 add_subdirectory(simple bin_simple)
 add_subdirectory(simpledsp bin_simpledsp)
 add_subdirectory(cyclo bin_cyclo)
+add_subdirectory(functionexample bin_functionexample)
 
 # Python examples
-add_subdirectory(example4 bin_example4)
-add_subdirectory(example5 bin_example5)
-add_subdirectory(example7 bin_example7)
+add_subdirectory(example4_python bin_example4_python)
+add_subdirectory(example5_python bin_example5_python)
+add_subdirectory(example7_python bin_example7_python)
+add_subdirectory(graphvizexample bin_graphvizexample)

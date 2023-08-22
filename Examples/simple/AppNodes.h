@@ -27,6 +27,8 @@
 
 #include <iostream>
 
+using namespace arm_cmsis_stream;
+
 /*
 
 C++ template for the Sink node.

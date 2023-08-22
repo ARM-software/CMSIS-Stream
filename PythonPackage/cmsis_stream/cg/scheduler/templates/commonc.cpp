@@ -38,6 +38,8 @@ CG_AFTER_INCLUDES
 {% if config.asynchronous or config.fullyAsynchronous%}1{% else %}0{% endif %}
 {% endmacro %}
 
+using namespace arm_cmsis_stream;
+
 {% block schedArray %}
 {% endblock %}
 

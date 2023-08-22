@@ -4,9 +4,10 @@ include(CMakePrintHelpers)
 project(cyclo)
 
 
-add_executable(cyclo main.cpp)
+add_executable(cyclo generated/scheduler.cpp main.cpp)
 
-sdf(cyclo create.py cyclo)
+dotdependency(cyclo cyclo create.py)
+cppdependency(cyclo generated/scheduler.cpp create.py)
 add_sdf_dir(cyclo)
 
 target_include_directories(cyclo PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

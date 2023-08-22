@@ -76,6 +76,8 @@ The support classes and code are covered by CMSIS-Stream license.
 CG_AFTER_INCLUDES
 
 
+using namespace arm_cmsis_stream;
+
 /*
 
 Description of the scheduling. 

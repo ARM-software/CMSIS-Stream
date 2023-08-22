@@ -43,6 +43,7 @@ error codes of the application
 world */
 #define UNIDENTIFIED_NODE (-1)
 
+namespace arm_cmsis_stream {
 // FIFOS 
 
 #ifdef DEBUGSCHED
@@ -614,6 +615,7 @@ public:
 };
 
 
-       
+} // End namespace
+  
 
 #endif

@@ -28,6 +28,8 @@
 #include <iostream>
 #include <cstdio>
 
+using namespace arm_cmsis_stream;
+
 #include "NullSink.h"
 
 static int count=0;
