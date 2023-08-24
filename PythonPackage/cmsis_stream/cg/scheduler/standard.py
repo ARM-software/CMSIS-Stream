@@ -27,6 +27,7 @@
 
 from ..types import *
 from .node import GenericNode,GenericToManyNode,GenericSource,GenericSink, joinit
+from copy import deepcopy
 
 floatType=CType(F32)
 
@@ -163,8 +164,10 @@ class Duplicate(GenericToManyNode):
 
         self._className = className
 
+        outputType = theType.share()
+
         self.addInput("i",theType,inLength)
-        self.addManyOutput(theType,inLength,nb)
+        self.addManyOutput(outputType,inLength,nb)
 
     # Naming of output from index
     # They are in alphabetical order

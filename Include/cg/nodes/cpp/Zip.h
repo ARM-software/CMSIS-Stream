@@ -26,6 +26,7 @@
 #ifndef _ZIP_H_
 #define _ZIP_H_ 
 
+namespace arm_cmsis_stream {
 
 template<typename IN1, int inputSize1,typename IN2,int inputSize2,typename OUT,int outputSize>
 class Zip;
@@ -65,4 +66,5 @@ public:
 
 };
 
+} // end namespace
 #endif

@@ -26,6 +26,8 @@
 #ifndef _FILESOURCE_H_
 #define _FILESOURCE_H_
 
+namespace arm_cmsis_stream {
+
 template<typename OUT,int outputSize> class FileSource;
 
 /* 
@@ -93,5 +95,7 @@ public:
     ifstream input;
 
 };
+
+} // end namespace 
 
 #endif

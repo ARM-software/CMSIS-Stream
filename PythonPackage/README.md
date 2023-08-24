@@ -14,6 +14,11 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.9.0:
+
+* Introduced a C++ namespace for the nodes
+* Introduced some support for static reference counting (in type system). It is to help with use of buffers in a graph and detect at build time some problems. See `example12` and documentation about [buffers](../Documentation/Buffer.md)
+
 ## Version 1.8.0:
 
 * Introduction of a new asynchronous mode : `fullyAsynchronous`

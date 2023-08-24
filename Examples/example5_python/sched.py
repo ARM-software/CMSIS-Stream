@@ -1,8 +1,8 @@
 #
-# Generated with CMSIS-DSP Compute Graph Scripts.
-# The generated code is not covered by CMSIS-DSP license.
+# Generated with CMSIS-Stream python scripts.
+# The generated code is not covered by CMSIS-Stream license.
 # 
-# The support classes and code is covered by CMSIS-DSP license.
+# The support classes and code are covered by CMSIS-Stream license.
 #
 
 import sys
@@ -73,7 +73,7 @@ def scheduler(mfccConfig,dispbuf):
     mfcc = MFCC(1024,13,fifo2,fifo3,mfccConfig)
     mfccWin = SlidingBuffer(754,377,fifo3,fifo4)
     sink = NumpySink(754,fifo4,dispbuf)
-    src = WavSource(384,fifo0,True,"test_stereo.wav")
+    src = WavSource(384,fifo0,true,"test_stereo.wav")
     toMono = InterleavedStereoToMono(384,192,fifo0,fifo1)
 
     while((cgStaticError==0) and (debugCounter > 0)):

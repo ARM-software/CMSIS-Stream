@@ -27,6 +27,7 @@
 #ifndef _STEREOTOMONO_H_
 #define _STEREOTOMONO_H_ 
 
+namespace arm_cmsis_stream {
 
 template<typename IN, int inputSize,typename OUT,int outputSize>
 class InterleavedStereoToMono;
@@ -126,5 +127,7 @@ public:
     };
 
 };
+
+} // end namespace
 
 #endif

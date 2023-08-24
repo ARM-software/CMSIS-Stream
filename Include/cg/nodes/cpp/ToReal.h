@@ -26,6 +26,7 @@
 #ifndef _TOREAL_H_ 
 #define _TOREAL_H_
 
+namespace arm_cmsis_stream {
 /*
 
 Convert a stream of complex a 0 b 0 c 0 ...
@@ -67,4 +68,5 @@ public:
 
 };
 
+} // end namespace
 #endif

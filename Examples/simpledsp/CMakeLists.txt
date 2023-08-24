@@ -6,7 +6,7 @@ project(simpledsp)
 
 add_executable(simpledsp generated/scheduler.cpp main.cpp)
 
-dotdependency(simpledsp simpledsp create.py)
+dotdependency(simpledsp simpledsp ON create.py)
 cppdependency(simpledsp generated/scheduler.cpp create.py)
 add_sdf_dir(simpledsp)
 

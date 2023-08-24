@@ -1,9 +1,16 @@
-version: 1.0.0
+version: 1.1.0
 graph:
-  structures:
+  custom-types:
     complex:
       cname: complex
       bytes: 8
+    buffer:
+      cname: buffer
+      bytes: 4
+    Shared<buffer,false>:
+      cname: Shared
+      internal: buffer
+      shared: false
   nodes:
   - node: source
     identified: true
@@ -76,6 +83,23 @@ graph:
     - input: i
       samples: 1
       type: complex
+  - node: sharedSink
+    identified: true
+    kind: SharedSink
+    inputs:
+    - input: ia
+      samples: 1
+      type: complex
+    - input: ib
+      samples: 1
+      type: Shared<buffer,false>
+  - node: sharedSource
+    identified: true
+    kind: Source
+    outputs:
+    - output: o
+      samples: 1
+      type: Shared<buffer,false>
   edges:
   - src:
       node: source
@@ -161,4 +185,16 @@ graph:
     dst:
       node: sink
       input: i
+  - src:
+      node: toSink
+      output: o
+    dst:
+      node: sharedSink
+      input: ia
+  - src:
+      node: sharedSource
+      output: o
+    dst:
+      node: sharedSink
+      input: ib
 

@@ -1,7 +1,7 @@
 # Include definition of the nodes
 from nodes import * 
 # Include definition of the graph
-from graph import * 
+from graph import *
 
 from cmsis_stream.cg.yaml import *
 

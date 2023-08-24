@@ -65,6 +65,12 @@ using Debug = struct debugtype<T>;
 
 #endif
 
+/***************
+ * 
+ * FIFOs
+ * 
+ **************/
+
 template<typename T>
 class FIFOBase{
 public:
@@ -93,25 +99,33 @@ template<typename T, int length>
 class FIFO<T,length,0,0>: public FIFOBase<T> 
 {
     public:
-        FIFO(T *buffer,int delay=0):mBuffer(buffer),readPos(0),writePos(delay) {};
+        explicit FIFO(T *buffer,int delay=0):mBuffer(buffer),readPos(0),writePos(delay) {};
         
         /* Constructor used for memory sharing optimization.
            The buffer is a shared memory wrapper */
-        FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
+        explicit FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
 
-        bool willUnderflowWith(int nb) const final
+        /* 
+        FIFO are fixed and not made to be copied or moved.
+        */
+        FIFO(const FIFO&) = delete;
+        FIFO(FIFO&&) = delete;
+        FIFO& operator=(const FIFO&) = delete;
+        FIFO& operator=(FIFO&&) = delete;
+
+        bool willUnderflowWith(int nb) const final 
         {
             return((writePos - readPos - nb)<0);
         }
 
-        bool willOverflowWith(int nb) const final
+        bool willOverflowWith(int nb) const final 
         {
             return((writePos - readPos + nb)>length);
         }
-        int nbSamplesInFIFO() const final {return (writePos - readPos);};
-        int nbOfFreeSamplesInFIFO() const final {return (length - writePos + readPos);};
+        int nbSamplesInFIFO() const final   {return (writePos - readPos);};
+        int nbOfFreeSamplesInFIFO() const final  {return (length - writePos + readPos);};
 
-        T * getWriteBuffer(int nb) final
+        T * getWriteBuffer(int nb) final 
         {
             
             T *ret;
@@ -134,7 +148,7 @@ class FIFO<T,length,0,0>: public FIFOBase<T>
             return(ret);
         };
 
-        T* getReadBuffer(int nb) final
+        T* getReadBuffer(int nb) final 
         {
             
             T *ret = mBuffer + readPos;
@@ -175,8 +189,16 @@ class FIFO<T,length,1,0>: public FIFOBase<T>
         /* No delay argument for this version of the FIFO.
            This version will not be generated when there is a delay
         */
-        FIFO(T *buffer):mBuffer(buffer) {};
-        FIFO(void *buffer):mBuffer((T*)buffer) {};
+        explicit FIFO(T *buffer):mBuffer(buffer) {};
+        explicit FIFO(void *buffer):mBuffer((T*)buffer) {};
+
+        /* 
+        FIFO are fixed and not made to be copied or moved.
+        */
+        FIFO(const FIFO&) = delete;
+        FIFO(FIFO&&) = delete;
+        FIFO& operator=(const FIFO&) = delete;
+        FIFO& operator=(FIFO&&) = delete;
 
         /* 
            Not used in synchronous mode 
@@ -184,19 +206,19 @@ class FIFO<T,length,1,0>: public FIFOBase<T>
            never used in asynchronous mode 
            so empty functions are provided.
         */
-        bool willUnderflowWith(int nb) const final {(void)nb;return false;};
-        bool willOverflowWith(int nb) const final {(void)nb;return false;};
-        int nbSamplesInFIFO() const final {return(0);};
-        int nbOfFreeSamplesInFIFO() const final {return( 0);};
+        bool willUnderflowWith(int nb) const final   {(void)nb;return false;};
+        bool willOverflowWith(int nb) const final   {(void)nb;return false;};
+        int nbSamplesInFIFO() const final   {return(0);};
+        int nbOfFreeSamplesInFIFO() const final  {return( 0);};
 
 
-        T* getWriteBuffer(int nb) final
+        T* getWriteBuffer(int nb) final  
         {
             (void)nb;
             return(mBuffer);
         };
 
-        T* getReadBuffer(int nb) final
+        T* getReadBuffer(int nb) final 
         {
             (void)nb;
             return(mBuffer);
@@ -231,8 +253,16 @@ template<typename T, int length>
 class FIFO<T,length,0,1>: public FIFOBase<T> 
 {
     public:
-        FIFO(T *buffer,int delay=0):mBuffer(buffer),readPos(0),writePos(delay) {};
-        FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
+        explicit FIFO(T *buffer,int delay=0):mBuffer(buffer),readPos(0),writePos(delay) {};
+        explicit FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
+
+        /* 
+        FIFO are fixed and not made to be copied or moved.
+        */
+        FIFO(const FIFO&) = delete;
+        FIFO(FIFO&&) = delete;
+        FIFO& operator=(const FIFO&) = delete;
+        FIFO& operator=(FIFO&&) = delete;
 
         /* 
 
@@ -240,7 +270,7 @@ class FIFO<T,length,0,1>: public FIFOBase<T>
         before using this function 
         
         */
-        T * getWriteBuffer(int nb) final
+        T * getWriteBuffer(int nb) final 
         {
             
             T *ret;
@@ -262,7 +292,7 @@ class FIFO<T,length,0,1>: public FIFOBase<T>
         before using this function 
         
         */
-        T* getReadBuffer(int nb) final
+        T* getReadBuffer(int nb) final 
         {
            
             T *ret = mBuffer + readPos;
@@ -270,18 +300,18 @@ class FIFO<T,length,0,1>: public FIFOBase<T>
             return(ret);
         }
 
-        bool willUnderflowWith(int nb) const final
+        bool willUnderflowWith(int nb) const final  
         {
             return((writePos - readPos - nb)<0);
         }
 
-        bool willOverflowWith(int nb) const final
+        bool willOverflowWith(int nb) const final  
         {
             return((writePos - readPos + nb)>length);
         }
 
-        int nbSamplesInFIFO() const final {return (writePos - readPos);};
-        int nbOfFreeSamplesInFIFO() const final {return (length - writePos + readPos);};
+        int nbSamplesInFIFO() const final   {return (writePos - readPos);};
+        int nbOfFreeSamplesInFIFO() const final   {return (length - writePos + readPos);};
 
 
         #ifdef DEBUGSCHED
@@ -310,7 +340,11 @@ class FIFO<T,length,0,1>: public FIFOBase<T>
         int readPos,writePos;
 };
 
-// GENERIC NODES 
+/***************
+ * 
+ * GENERIC NODES
+ * 
+ **************/
 
 class NodeBase
 {
@@ -318,9 +352,20 @@ public:
     virtual int run()=0;
     virtual int prepareForRunning()=0;
     virtual ~NodeBase() {};
-    void setID(int id){mNodeID = id;};
-    int nodeID() const {return(mNodeID);};
-protected:
+
+    NodeBase(){};
+
+    /* 
+    Nodes are fixed and not made to be copied or moved.
+    */
+    NodeBase(const NodeBase&) = delete;
+    NodeBase(NodeBase&&) = delete;
+    NodeBase& operator=(const NodeBase&) = delete;
+    NodeBase& operator=(NodeBase&&) = delete;
+
+    void setID(int id)   {mNodeID = id;};
+    int nodeID() const   {return(mNodeID);};
+private:
     int mNodeID = UNIDENTIFIED_NODE;
 };
 
@@ -328,7 +373,7 @@ template<typename IN, int inputSize,typename OUT, int outputSize>
 class GenericNode:public NodeBase
 {
 public:
-     GenericNode(FIFOBase<IN> &src,FIFOBase<OUT> &dst):mSrc(src),mDst(dst){};
+     explicit GenericNode(FIFOBase<IN> &src,FIFOBase<OUT> &dst):mSrc(src),mDst(dst){};
 
 protected:
      OUT * getWriteBuffer(int nb = outputSize) {return mDst.getWriteBuffer(nb);};
@@ -347,7 +392,7 @@ template<typename IN, int inputSize,
 class GenericToManyNode:public NodeBase
 {
 public:
-     GenericToManyNode(FIFOBase<IN> &src,
+     explicit GenericToManyNode(FIFOBase<IN> &src,
                        std::initializer_list<FIFOBase<OUT>*> dst):mSrc(src),mDstList(dst){};
 
 
@@ -370,7 +415,7 @@ template<typename IN, int inputSize,
 class GenericFromManyNode:public NodeBase
 {
 public:
-     GenericFromManyNode(std::initializer_list<FIFOBase<IN>*> src,
+     explicit GenericFromManyNode(std::initializer_list<FIFOBase<IN>*> src,
                          FIFOBase<OUT> &dst):mSrcList(src),mDst(dst){};
 
 
@@ -394,7 +439,7 @@ template<typename IN, int inputSize,
 class GenericManyToManyNode:public NodeBase
 {
 public:
-     GenericManyToManyNode(std::initializer_list<FIFOBase<IN>*> src,
+     explicit GenericManyToManyNode(std::initializer_list<FIFOBase<IN>*> src,
                            std::initializer_list<FIFOBase<OUT>*> dst):mSrcList(src),mDstList(dst){};
 
     
@@ -417,7 +462,7 @@ template<typename IN, int inputSize,typename OUT1, int output1Size,typename OUT2
 class GenericNode12:public NodeBase
 {
 public:
-     GenericNode12(FIFOBase<IN> &src,FIFOBase<OUT1> &dst1,FIFOBase<OUT2> &dst2):mSrc(src),
+     explicit GenericNode12(FIFOBase<IN> &src,FIFOBase<OUT1> &dst1,FIFOBase<OUT2> &dst2):mSrc(src),
      mDst1(dst1),mDst2(dst2){};
 
 protected:
@@ -443,7 +488,7 @@ template<typename IN,   int inputSize,
 class GenericNode13:public NodeBase
 {
 public:
-     GenericNode13(FIFOBase<IN> &src,
+     explicit GenericNode13(FIFOBase<IN> &src,
                    FIFOBase<OUT1> &dst1,
                    FIFOBase<OUT2> &dst2,
                    FIFOBase<OUT3> &dst3
@@ -475,7 +520,7 @@ template<typename IN1, int input1Size,typename IN2, int input2Size,typename OUT,
 class GenericNode21:public NodeBase
 {
 public:
-     GenericNode21(FIFOBase<IN1> &src1,FIFOBase<IN2> &src2,FIFOBase<OUT> &dst):mSrc1(src1),
+     explicit GenericNode21(FIFOBase<IN1> &src1,FIFOBase<IN2> &src2,FIFOBase<OUT> &dst):mSrc1(src1),
      mSrc2(src2),
      mDst(dst){};
 
@@ -501,7 +546,7 @@ template<typename IN1, int input1Size,
 class GenericNode31:public NodeBase
 {
 public:
-     GenericNode31(FIFOBase<IN1> &src1,
+     explicit GenericNode31(FIFOBase<IN1> &src1,
                    FIFOBase<IN2> &src2,
                    FIFOBase<IN3> &src3,
                    FIFOBase<OUT> &dst):mSrc1(src1),
@@ -534,7 +579,7 @@ template<typename OUT, int outputSize>
 class GenericSource:public NodeBase
 {
 public:
-     GenericSource(FIFOBase<OUT> &dst):mDst(dst){};
+     explicit GenericSource(FIFOBase<OUT> &dst):mDst(dst){};
 
 protected:
      OUT * getWriteBuffer(int nb=outputSize) {return mDst.getWriteBuffer(nb);};
@@ -549,7 +594,7 @@ template<typename IN,int inputSize>
 class GenericSink:public NodeBase
 {
 public:
-     GenericSink(FIFOBase<IN> &src):mSrc(src){};
+     explicit GenericSink(FIFOBase<IN> &src):mSrc(src){};
 
 protected:
      IN * getReadBuffer(int nb=inputSize) {return mSrc.getReadBuffer(nb);};
@@ -564,9 +609,126 @@ private:
 #define REPEAT(N) for(int i=0;i<N;i++)
 
 
+/***************
+ * 
+ * BUFFER MANAGEMENT SUPPORT
+ * 
+ * Classes to help manage buffers in a graph
+ * 
+ **************/
+template<typename T, bool shared=true>
+struct Shared {
+
+  explicit Shared(T* t) : val_(t) {}
+  Shared(int) : val_(nullptr) {}
+  
+
+  /*
+
+  When shared we can only get a pointer to
+  const data
+
+  */
+  const T* get() const { return val_; }
+
+  Shared<T,true> share()
+  {
+      return(*this);
+  };
+
+ 
+private:
+  
+  T* val_;
+};
+
+template<typename T>
+struct Shared<T,false> {
+  explicit Shared(T* t) : val_(t) {}
+  Shared(int) : val_(nullptr) {}
+
+  /*
+
+  When unique we can get a pointer to
+  non const data
+
+  */
+  T* get() { return val_; }
+  const T* get() const { return val_; }
+
+  operator T*() { return val_; }
+
+
+  Shared<T,true> share()
+  {
+      Shared<T,true> res(val_);
+
+      return(res);
+  };
+
+
+private:
+  T* val_;
+
+
+};
+
+
 template<typename IN, int inputSize,
          typename OUT, int outputSize>
 class Duplicate;
+
+template<typename IO, 
+         bool inputShareStatus,
+         int ioSize>
+class Duplicate<Shared<IO,inputShareStatus>, ioSize,
+                Shared<IO,true>, ioSize>:
+public GenericToManyNode<Shared<IO,inputShareStatus>, ioSize,
+                         Shared<IO,true>, ioSize>
+{
+public:
+    explicit Duplicate(FIFOBase<Shared<IO,inputShareStatus>> &src,
+              std::initializer_list<FIFOBase<Shared<IO,true>>*> dst):
+    GenericToManyNode<Shared<IO,inputShareStatus> , ioSize,
+                      Shared<IO,true>, ioSize>(src,dst)
+    {
+    };
+
+    int prepareForRunning() final
+    {
+        if (this->willUnderflow())
+        {
+           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+        }
+
+        for(unsigned int i=0;i<this->getNbOutputs();i++)
+        {
+           if (this->willOverflow(i))
+           {
+              return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           }
+        }
+
+
+        return(CG_SUCCESS_ID_CODE);
+    };
+
+    int run() final {
+        Shared<IO,inputShareStatus> *a=this->getReadBuffer();
+        
+        for(unsigned int i=0;i<this->getNbOutputs();i++)
+        {
+           Shared<IO,true> *b=this->getWriteBuffer(i);
+           for(int k=0;k<ioSize;k++)
+           {
+              b[k] = a[k].share();
+           }
+        }
+        
+        return(CG_SUCCESS_ID_CODE);
+    };
+
+};
 
 template<typename IO, int inputOutputSize>
 class Duplicate<IO, inputOutputSize,
@@ -575,7 +737,7 @@ public GenericToManyNode<IO, inputOutputSize,
                          IO, inputOutputSize>
 {
 public:
-    Duplicate(FIFOBase<IO> &src,
+    explicit Duplicate(FIFOBase<IO> &src,
               std::initializer_list<FIFOBase<IO>*> dst):
     GenericToManyNode<IO, inputOutputSize,IO, inputOutputSize>(src,dst)
     {

@@ -27,6 +27,7 @@
 #ifndef _SLIDINGBUFFER_H_
 #define _SLIDINGBUFFER_H_ 
 
+namespace arm_cmsis_stream {
 
 template<typename IN,int windowSize, int overlap>
 class SlidingBuffer: public GenericNode<IN,windowSize-overlap,IN,windowSize>
@@ -64,4 +65,5 @@ protected:
 
 };
 
+} // end namespace 
 #endif

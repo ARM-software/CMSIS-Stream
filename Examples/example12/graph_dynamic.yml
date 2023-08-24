@@ -1,0 +1,109 @@
+version: 1.0.0
+graph:
+  structures:
+    std::shared_ptr<buffer>:
+      cname: std::shared_ptr<buffer>
+      bytes: 8
+  nodes:
+  - node: buf1
+    identified: true
+    kind: BufferSource
+    outputs:
+    - output: o
+      samples: 1
+      type: std::shared_ptr<buffer>
+  - node: processing
+    identified: true
+    kind: Processing
+    inputs:
+    - input: b
+      samples: 1
+      type: std::shared_ptr<buffer>
+    - input: i
+      samples: 1
+      type: std::shared_ptr<buffer>
+    outputs:
+    - output: o
+      samples: 1
+      type: std::shared_ptr<buffer>
+  - node: buf2
+    identified: true
+    kind: BufferSource
+    outputs:
+    - output: o
+      samples: 1
+      type: std::shared_ptr<buffer>
+  - node: bufCopy
+    identified: true
+    kind: BufferCopy
+    inputs:
+    - input: i
+      samples: 1
+      type: std::shared_ptr<buffer>
+    outputs:
+    - output: o
+      samples: 1
+      type: std::shared_ptr<buffer>
+  - node: inplace
+    identified: true
+    kind: InPlace
+    inputs:
+    - input: i
+      samples: 1
+      type: std::shared_ptr<buffer>
+    outputs:
+    - output: o
+      samples: 1
+      type: std::shared_ptr<buffer>
+  - node: sinkA
+    identified: true
+    kind: BufferSink
+    inputs:
+    - input: i
+      samples: 1
+      type: std::shared_ptr<buffer>
+  - node: sinkB
+    identified: true
+    kind: BufferSink
+    inputs:
+    - input: i
+      samples: 1
+      type: std::shared_ptr<buffer>
+  edges:
+  - src:
+      node: buf1
+      output: o
+    dst:
+      node: processing
+      input: i
+  - src:
+      node: buf2
+      output: o
+    dst:
+      node: processing
+      input: b
+  - src:
+      node: buf1
+      output: o
+    dst:
+      node: bufCopy
+      input: i
+  - src:
+      node: bufCopy
+      output: o
+    dst:
+      node: inplace
+      input: i
+  - src:
+      node: processing
+      output: o
+    dst:
+      node: sinkA
+      input: i
+  - src:
+      node: inplace
+      output: o
+    dst:
+      node: sinkB
+      input: i
+

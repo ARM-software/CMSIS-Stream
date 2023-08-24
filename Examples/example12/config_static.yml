@@ -1,0 +1,9 @@
+version: 1.1.0
+code-generation-options:
+  debug-limit: 1
+  scheduler-name: static_scheduler
+  fifo-prefix: static_
+c-code-generation-options:
+  c-optional-args: []
+  scheduler-c-file-name: static_scheduler
+

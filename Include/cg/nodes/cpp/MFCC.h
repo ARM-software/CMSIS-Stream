@@ -28,6 +28,8 @@
 
 #include <vector>
 
+namespace arm_cmsis_stream {
+
 template<typename IN, int inputSize,typename OUT,int outputSize>
 class MFCC;
 
@@ -200,5 +202,6 @@ public:
     std::vector<q31_t> memory;
 };
 
+} // end namespace 
 
 #endif

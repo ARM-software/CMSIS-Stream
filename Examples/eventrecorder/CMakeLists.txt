@@ -6,7 +6,7 @@ project(EventRecorder)
 
 add_executable(eventrecorder generated/scheduler.cpp main.cpp)
 
-dotdependency(eventrecorder event_recorder create.py)
+dotdependency(eventrecorder event_recorder ON create.py)
 cppdependency(eventrecorder generated/scheduler.cpp create.py)
 add_sdf_dir(eventrecorder)
 

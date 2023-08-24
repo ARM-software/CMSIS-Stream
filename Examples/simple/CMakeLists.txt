@@ -6,7 +6,7 @@ project(Simple)
 
 add_executable(simple scheduler.cpp main.cpp)
 
-dotdependency(simple simple create.py)
+dotdependency(simple simple ON create.py)
 cppdependency(simple scheduler.cpp create.py)
 add_sdf_dir(simple)
 

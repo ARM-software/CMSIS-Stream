@@ -279,7 +279,10 @@ class Style:
     # Label on the edge
     # (By default datatype and number of samples)
     def edge_label(self,fifo,typeName,length):
-        return f"{typeName}({length})"
+        if length > 1:
+           return f"{typeName}({length})"
+        else:
+           return f"{typeName}"
 
     ############################
     #

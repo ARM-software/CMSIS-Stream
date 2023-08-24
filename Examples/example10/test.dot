@@ -102,75 +102,61 @@ sourceOdd [label=<
 
 
 sourceEven:i -> proc:ib [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>
-,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>]
+
+]
 
 proc:o -> compute1:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>
-,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>]
+
+]
 
 sourceOdd:i ->  
 dup0 [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(3)>
 
-,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>]
+]
 
  
 dup0 -> proc:ia [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>
+
 ]
 
  
 dup0 -> debug:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(3)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>
+
 ]
 
 compute1:i ->  
 dup1 [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
 
-,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>]
+]
 
  
 dup1 -> sinka:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>
+
 ]
 
  
 dup1 -> sinkb:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>
+
 ]
 
  
 dup1 -> debug0:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>
+
 ]
 
  
 dup1 -> debug1:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>
+
 ]
 
  
 dup1 -> debug2:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>
+
 ]
 
  
 dup1 -> debug3:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<s16(2)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>
+
 ]
 
 

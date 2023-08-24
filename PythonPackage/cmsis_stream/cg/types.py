@@ -25,6 +25,8 @@
 ############################################
 """Description of the basic types recognized by the tool"""
 
+from html import escape
+
 F64    = 1
 F32    = 2
 F16    = 3
@@ -41,6 +43,9 @@ SINT8  = 12
 class CGStaticType:
     """Descrition of a type used to fill a FIFO"""
 
+    def __init__(self):
+      self._shared = False
+
     def __eq__(self, other):
         """Check if this type is equal to another type.
            Two types are equal if they have same class.
@@ -56,6 +61,18 @@ class CGStaticType:
     @property
     def fillValue(self):
         return(0)
+
+    @property
+    def shared(self):
+       return self._shared
+
+    def share(self):
+      return(self)
+
+    def unique(self):
+       return(self)
+
+    
        
 
 class CStructType(CGStaticType):
@@ -65,6 +82,7 @@ class CStructType(CGStaticType):
       Name must be a valid C and Python identifier
    """
    def __init__(self,name,size_in_bytes):
+        CGStaticType.__init__(self)
         self._name=name 
         self._size_in_bytes=size_in_bytes
 
@@ -89,13 +107,69 @@ class CStructType(CGStaticType):
 
    @property
    def graphViztype(self):
-      return(self._name)
+      return(escape(self._name))
+
+class CCustomType(CStructType):
+   pass
+
+class SharedType(CGStaticType):
+   def __init__(self,refType):
+      CGStaticType.__init__(self)
+      self._refType = refType
+      self._shared = False
+
+   def __eq__(self, other):
+      samePythonClass = CGStaticType.__eq__(self,other) 
+      if samePythonClass:
+         sameUnderlyingType = self._refType == other._refType 
+         # Compatibility of shared status is enforced by the C++
+         # templates
+         return(samePythonClass and sameUnderlyingType)
+      else:
+         return(False)
+
+   def _shareBool(self):
+      if self.shared:
+         return("true")
+      else:
+         return("false")
+
+   @property
+   def fillValue(self):
+        return("None") 
+
+   @property
+   def bytes(self):
+       return(self._refType.bytes)
+
+   @property
+   def ctype(self):
+      return(f"Shared<{self._refType.ctype},{self._shareBool()}>")
+
+   @property
+   def nptype(self):
+      return("object")
+
+   @property
+   def graphViztype(self):
+      return(escape(f"Shared<{self._refType.ctype},{self._shareBool()}>"))
+
+   def share(self):
+       r = SharedType(self._refType)
+       r._shared = True 
+       return(r)
+
+   def unique(self):
+       r = SharedType(self._refType)
+       return(r)
+      
 
 class PythonClassType(CGStaticType):
    """A Python class
 
    """
    def __init__(self,python_name):
+        CGStaticType.__init__(self)
         self._python_name=python_name 
 
    def __eq__(self, other):
@@ -119,11 +193,12 @@ class PythonClassType(CGStaticType):
 
    @property
    def graphViztype(self):
-      return(self._python_name)
+      return(escape(self._python_name))
 
 class CType(CGStaticType):
     """A C Scalar element"""
     def __init__(self,typeid,cmsis_dsp=False):
+        CGStaticType.__init__(self)
         self._cmsisdsp = cmsis_dsp
         self._id=typeid 
 

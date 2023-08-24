@@ -6,7 +6,7 @@
 {%- endmacro %}
 
 {% macro edgelabel(ioport,name) -%}
-{% if not ioport.owner.isDuplicateNode %}
+{% if not ioport.owner.isDuplicateNode and ioport.hasMoreThanOneSample %}
 ,{{name}}=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="{{style.port_sample_color(ioport.nbSamples)}}" POINT-SIZE="{{style.port_sample_font_size(ioport.nbSamples)}}" >{{ioport.nbSamples}}</FONT>
 </TD></TR></TABLE>>{% endif %}
 {%- endmacro %}

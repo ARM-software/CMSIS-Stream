@@ -3,7 +3,6 @@
 ## Table of contents
 
 * [Alignment](#alignment)
-* [Memory sharing](#memory-sharing-example)
 * [Latencies](#latencies)
 * [Performances](#performances)
 * [Sources and Sinks](#sources-and-sinks)
@@ -36,114 +35,6 @@ If you need a stronger alignment, you'll need to chose `NR` and `NW` in the righ
 For instance, if you need an alignment on a multiple of `16` bytes with a buffer containing `q31_t`, then `NW` and `NR` need to be multiple of `4`.
 
 If you can't choose freely the values of `NR` and `NW` then you may need to do a copy inside your component to align the buffer (of course only if the overhead due to the lack of alignment is bigger than doing a copy.)
-
-## Memory sharing example
-
-When the `memoryOptimization` is enabled, the memory may be reused for different FIFOs to minimize the memory usage. But the scheduling algorithm is not trying to optimize this. So depending on how the graph was scheduled, the level of sharing may be different.
-
-If you need to share as much as possible memory (to minimize memory usage or the amount of memory copied), you can do it if you respect a fundamental constraint : the values in the FIFOs must have value semantic and not reference semantic. 
-
-If you share memory, you are using reference semantic and it should be hidden from the graph : one could use a copy-on-write strategy with a reference count inside the shared buffers. The reference count could also be computed statically using C++ templates if the graph has no loops:
-
-
-
-One could define an audio buffer data type :
-
-```c++
-template<int nbSamples,
-         int refCount>
-struct SharedAudioBuf
-{
- float32_t *buf;
- static int getNbSamples() {return nbSamples;};
-};
-
-template<int nbSamples,
-         int refCount>
-using SharedBuf = struct SharedAudioBuf<nbSamples,refCount>;
-
-```
-
-The template tracks the number of samples and the reference count statically. `refCount` is not a value of the struct. It is a template argument : a number at type level.
-
-The FIFOs are no more containing the audio samples but only a pointer to a shared buffers of samples.
-
-In this example, instead of having a length of 128 `float` samples, a FIFO would have a length of one `SharedBuf<128,r>` samples.
-
-An example of compute graph could be:
-
-![shared_buffer](assets/shared_buffer.png)
-
-A copy of the struct `SharedBuf<NB,REF>` is copying a pointer to a buffer and not the buffer. It is reference semantic and the buffer should not be modified if the ref count is > 1.
-
-In the above graph, there is a processing node doing in-place modification of the buffer and it could have a template specialization defined as:
-
-```c++
-template<typename IN, int inputSize,
-         typename OUT,int outputSize>
-class ProcessingNode;
-
-
-template<int NB>
-class ProcessingNode<SharedBuf<NB,1>,1,
-                     SharedBuf<NB,1>,1>: 
-public GenericNode<SharedBuf<NB,1>,1,
-                   SharedBuf<NB,1>,1>
-```
-
-The meaning is:
-
-* The input and output FIFOs have a length of 1 sample
-* The sample has a type `SharedBuf<NB,1>` for both input and output
-* The reference count is statically known to be 1 so it is safe to do in place modifications of the buffer and the output buffer is a pointer to the input one
-
-In case of duplication, the template specialization could look like:
-
-```C++
-template<typename IN, int inputSize,
-         typename OUT1,int outputSize1,
-         typename OUT2,int outputSize2>
-class DupNode;
-
-template<int NB, int REF>
-class DupNode<SharedBuf<NB,REF>,1,
-              SharedBuf<NB,REF+1>,1,
-              SharedBuf<NB,REF+1>,1>: 
-public GenericNode12<SharedBuf<NB,REF>,1,
-                     SharedBuf<NB,REF+1>,1,
-                     SharedBuf<NB,REF+1>,1>
-```
-
-If the input buffer has a reference count `REF`, the two output buffers will have a reference count of `REF+1`. The node is introducing some sharing. We statically know and compute the new reference count which will prevent other nodes in the graph from doing in place modifications of the buffer.
-
-If another node needs to modify the content of this buffer, it should allocate a new buffer. Such a node could have the following template specializations:
-
-```C++
-template<typename IN, int inputSize,
-         typename OUT,int outputSize>
-class ProcessingNode;
-
-template<int NB>
-class ProcessingNode<SharedBuf<NB,1>,1,
-                     SharedBuf<NB,1>,1>: 
-public GenericNode<SharedBuf<NB,1>,1,
-                   SharedBuf<NB,1>,1>
-
-template<int NB>
-class ProcessingNode<SharedBuf<NB,REF>,1,
-                     SharedBuf<NB,1>,1>: 
-public GenericNode<SharedBuf<NB,REF>,1,
-                   SharedBuf<NB,1>,1>
-```
-
-The first specialization is working with a reference count of 1 and doing in place modification.
-
-The second implementation is working with a reference count > 1 (and is selected if the first specialization cannot be used). In this second implementation, a new output buffer should be allocated. This new buffer would have a reference count of 1.
-
-The memory allocation can use a custom made memory allocator and so be acceptable in case of real-time:
-
-* The amount of memory to allocate during one iteration of the scheduling is constant and can be known at compile time. It depends on the level of sharing in the compute graph
-* After each iteration of the schedule, this allocated memory can be released
 
 ## Latencies
 

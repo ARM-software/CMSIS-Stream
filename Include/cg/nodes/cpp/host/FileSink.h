@@ -26,6 +26,8 @@
 #ifndef _FILESINK_H_
 #define _FILESINK_H_
 
+namespace arm_cmsis_stream {
+
 /* Write a list of samples to a file in text form */
 template<typename IN, int inputSize>
 class FileSink: public GenericSink<IN, inputSize>
@@ -58,5 +60,7 @@ public:
 
     ofstream output;
 };
+
+} // namespace 
 
 #endif

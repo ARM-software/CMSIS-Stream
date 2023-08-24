@@ -4,8 +4,8 @@ include(CMakePrintHelpers)
 project(Yaml)
 
 
-add_custom_target(yaml ALL)
+add_custom_target(yaml ALL DEPENDS test.dot scheduler.cpp)
 
-dotdependency(yaml test graph.py)
+dotdependency(yaml test ON graph.py)
 cppdependency(yaml scheduler.cpp graph.py)
 

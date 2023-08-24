@@ -26,6 +26,7 @@
 #ifndef _UNZIP_H_
 #define _UNZIP_H_ 
 
+namespace arm_cmsis_stream {
 /*
 
 Unzip a stream a1 a2 b1 b2 c1 c2 ...
@@ -75,4 +76,5 @@ public:
 
 };
 
+} // end namespace
 #endif

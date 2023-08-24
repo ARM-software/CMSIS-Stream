@@ -1,0 +1,106 @@
+
+
+
+
+digraph structs {
+    bgcolor = "white"
+    node [shape=plaintext,color="black",fontcolor="black",fontname="Times-Roman"]
+    rankdir=LR
+    edge [arrowsize="0.5",color="black",fontcolor="black",fontname="Times-Roman"]
+
+
+buf1 [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">buf1<BR/>(BufferSource)</FONT></TD>
+  </TR>
+</TABLE>>];
+
+buf2 [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">buf2<BR/>(BufferSource)</FONT></TD>
+  </TR>
+</TABLE>>];
+
+bufCopy [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">bufCopy<BR/>(BufferCopy)</FONT></TD>
+  </TR>
+</TABLE>>];
+
+dup0 [shape=point,label="dup0"]
+
+inplace [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">inplace<BR/>(InPlace)</FONT></TD>
+  </TR>
+</TABLE>>];
+
+
+processing [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD PORT="b"><FONT POINT-SIZE="12.0" COLOR="black">b</FONT></TD>
+    <TD ALIGN="CENTER" ROWSPAN="2"><FONT COLOR="black" POINT-SIZE="14.0">processing<BR/>(Processing)</FONT></TD>
+    <TD PORT="o"><FONT POINT-SIZE="12.0" COLOR="black">o</FONT></TD>
+  </TR>
+<TR>
+<TD PORT="i"><FONT POINT-SIZE="12.0" COLOR="black">i</FONT></TD>
+
+ 
+<TD></TD></TR>
+
+</TABLE>>];
+
+sinkA [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">sinkA<BR/>(BufferSink)</FONT></TD>
+  </TR>
+</TABLE>>];
+
+sinkB [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">sinkB<BR/>(BufferSink)</FONT></TD>
+  </TR>
+</TABLE>>];
+
+
+
+buf2:i -> processing:b [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<Shared&lt;buffer,false&gt;>
+
+]
+
+bufCopy:i -> inplace:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<Shared&lt;buffer,false&gt;>
+
+]
+
+processing:o -> sinkA:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<Shared&lt;buffer,false&gt;>
+
+]
+
+inplace:i -> sinkB:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<Shared&lt;buffer,false&gt;>
+
+]
+
+buf1:i ->  
+dup0 [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<Shared&lt;buffer,false&gt;>
+
+]
+
+ 
+dup0 -> processing:i [style="solid",color="crimson",fontsize="12.0",fontcolor="black",label=<Shared&lt;buffer,true&gt;>
+
+]
+
+ 
+dup0 -> bufCopy:i [style="solid",color="crimson",fontsize="12.0",fontcolor="black",label=<Shared&lt;buffer,true&gt;>
+
+]
+
+
+}

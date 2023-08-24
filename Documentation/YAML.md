@@ -5,7 +5,7 @@
 - [YAML for the graph](#yaml-for-the-graph)
   - [`graph:`](#graph)
     - [`options:`](#options)
-    - [`structures:`](#structures)
+    - [`custom-types:`](#custom-types)
     - [`nodes:`](#nodes)
     - [`edges:`](#edges)
     - [Node description](#node-description)
@@ -113,24 +113,24 @@ graph:
 | `FIFO:`      | Optional | Name of the C++ class implementing FIFOs in the C++ generated code. (It can be overridden for each edge of the graph) |
 | `Duplicate:` | Optional | Name of class used for `Duplicate` node if the default class is not used. |
 
-### `structures:`
+### `custom-types:`
 
-List of C structs used in the node description.
+List of C++ custom types used in the node description.
 
 This entry is optional in the graph description.
 
 **Examples**
 
 ```yml
-  structures:
-    structure1:
+  custom-types:
+    custom_type_1:
       ...
-    structure2:
+    custom_type_2:
       ...
 ```
 
 ```yml
-  structures:
+  custom-types:
     complex:
       cname: complex
       bytes: 8
@@ -141,15 +141,19 @@ This entry is optional in the graph description.
 
 Each item in the list has following format:
 
-| Keyword  | Description                                              |
-| -------- | -------------------------------------------------------- |
-| `cname:` | C name of the structure                                  |
-| `bytes:` | Size of the structure in bytes as returned by C `sizeof` |
+| Keyword   | Description                                                  |
+| --------- | ------------------------------------------------------------ |
+| `cname:`  | C name of the structure                                      |
+| `bytes:`  | Not used for the custom type with `cname` `Shared`. Otherwise, size of the custom type in bytes as returned by C `sizeof` |
+| internal: | Only used for the custom type with `cname` `Shared`. Type of the buffer referenced by the `Shared` object |
+| shared:   | Only used for the custom type `cname` `Shared. Shared status of the buffer reference by the `Shared` object. |
+
+`Shared` types are mapped to C++ templates : ```Shared<bufferType,sharedStatus>```
 
 **Examples**
 
 ```yml
-- structures:
+- custom-types:
     complex:
       cname: complex
       bytes: 8

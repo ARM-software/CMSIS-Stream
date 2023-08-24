@@ -52,11 +52,30 @@ class Source(GenericSource):
         return "Source"
 
    
+class SharedSource(GenericSource):
+    def __init__(self,name,theType,outLength):
+        GenericSource.__init__(self,name)
+        self.addOutput("o",theType,outLength)
 
+    @property
+    def typeName(self):
+        return "SharedSource"
 
+class SharedSink(GenericSink):
+    def __init__(self,name,theTypeA,theTypeB,inLength):
+        GenericSink.__init__(self,name)
+        self.addInput("ia",theTypeA,inLength)
+        self.addInput("ib",theTypeB,inLength)
+
+    @property
+    def typeName(self):
+        return "SharedSink"
 
 ### Define nodes
 complexType=CStructType("complex",8)
+
+bufferType=CCustomType("buffer",4)
+sharedBufferType=SharedType(bufferType)
 
 srcType = CType(F32)
 dstType = complexType #CType(Q15)
@@ -65,6 +84,10 @@ src=Source("source",srcType,1)
 processing=ProcessingNode("processing",srcType,dstType,7,5,nb_in=5,nb_out=7)
 toSink=ToSink("toSink",dstType,5,nb=7)
 sink=Sink("sink",dstType,1)
+
+sharedSrc=Source("sharedSource",sharedBufferType,1)
+sharedSink=SharedSink("sharedSink",dstType,sharedBufferType,1)
+
 
 g = Graph()
 
@@ -86,6 +109,9 @@ g.connect(processing.of,toSink["if"])
 g.connect(processing.og,toSink.ig)
 
 g.connect(toSink.o,sink.i)
+
+g.connect(toSink.o,sharedSink.ia)
+g.connect(sharedSrc.o,sharedSink.ib)
 
 print("Generate graphviz and code")
 

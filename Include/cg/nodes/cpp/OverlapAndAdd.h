@@ -27,6 +27,7 @@
 #ifndef _OVERLAPANDADD_H_
 #define _OVERLAPANDADD_H_ 
 
+namespace arm_cmsis_stream {
 
 template<typename IN,int windowSize, int overlap>
 class OverlapAdd: public GenericNode<IN,windowSize,IN,windowSize-overlap>
@@ -90,4 +91,5 @@ protected:
 
 };
 
+} // end namespace
 #endif

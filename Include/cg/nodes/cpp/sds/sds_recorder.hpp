@@ -30,6 +30,7 @@
 #include "sds_rec.h"
 #include "cg_status.h"
 
+namespace arm_cmsis_stream {
 /*
 
 SDS Recorder node to work with the
@@ -122,3 +123,4 @@ protected:
     sdsRecId_t mRecId;
 };
 
+} // end namespace

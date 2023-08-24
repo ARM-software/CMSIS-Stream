@@ -9,6 +9,8 @@ digraph structs {
     edge [arrowsize="0.5",color="black",fontcolor="black",fontname="Times-Roman"]
 
 
+dup0 [shape=point,label="dup0"]
+
 
 fromSource [label=<
 <TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
@@ -73,6 +75,29 @@ processing [label=<
 
 </TABLE>>];
 
+
+sharedSink [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD PORT="ia"><FONT POINT-SIZE="12.0" COLOR="black">ia</FONT></TD>
+    <TD ALIGN="CENTER" ROWSPAN="2"><FONT COLOR="black" POINT-SIZE="14.0">sharedSink<BR/>(SharedSink)</FONT></TD>
+    <TD></TD>
+  </TR>
+<TR>
+<TD PORT="ib"><FONT POINT-SIZE="12.0" COLOR="black">ib</FONT></TD>
+
+ 
+<TD></TD></TR>
+
+</TABLE>>];
+
+sharedSource [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">sharedSource<BR/>(Source)</FONT></TD>
+  </TR>
+</TABLE>>];
+
 sink [label=<
 <TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
@@ -125,11 +150,9 @@ toSink [label=<
 
 
 
-source:i -> fromSource:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(1)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>
-,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>]
+source:i -> fromSource:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32>
+
+]
 
 fromSource:oa -> processing:ia [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(11)>
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
@@ -203,11 +226,24 @@ processing:og -> toSink:ig [style="solid",color="black",fontsize="12.0",fontcolo
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
 </TD></TR></TABLE>>]
 
-toSink:o -> sink:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<complex(1)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>
-,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >1</FONT>
-</TD></TR></TABLE>>]
+sharedSource:i -> sharedSink:ib [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<Shared&lt;buffer,false&gt;>
+
+]
+
+toSink:o ->  
+dup0 [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<complex>
+
+]
+
+ 
+dup0 -> sink:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<complex>
+
+]
+
+ 
+dup0 -> sharedSink:ia [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<complex>
+
+]
 
 
 }

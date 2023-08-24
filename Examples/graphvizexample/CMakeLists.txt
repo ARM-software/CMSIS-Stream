@@ -4,6 +4,6 @@ include(CMakePrintHelpers)
 project(Graphviz)
 
 
-add_custom_target(graphviz ALL)
+add_custom_target(graphviz ALL DEPENDS test.dot)
 
-dotdependency(graphviz test graph.py)
+dotdependency(graphviz test ON graph.py)

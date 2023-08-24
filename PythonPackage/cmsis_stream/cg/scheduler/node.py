@@ -165,6 +165,13 @@ class IO:
     @property
     def nbSamples(self):
         return self._nbSamples
+
+    @property 
+    def hasMoreThanOneSample(self):
+        if isinstance(self.nbSamples,int):
+            return(self.nbSamples>1)
+        else:
+            return(np.max(self.nbSamples)>1)
     
     
 

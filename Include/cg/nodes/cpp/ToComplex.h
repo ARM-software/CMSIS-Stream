@@ -26,6 +26,8 @@
 #ifndef _TOCOMPLEX_H_
 #define _TOCOMPLEX_H_
 
+namespace arm_cmsis_stream {
+
 /*
 
 Convert a stream of reals a b c d ...
@@ -69,4 +71,5 @@ public:
 
 };
 
+} // end namespace
 #endif 

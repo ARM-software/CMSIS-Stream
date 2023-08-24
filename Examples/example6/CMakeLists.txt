@@ -6,7 +6,7 @@ project(Example6)
 
 add_executable(example6 generated/scheduler.cpp main.cpp mfccConfigData.c)
 
-dotdependency(example6 test graph.py)
+dotdependency(example6 test ON graph.py)
 cppdependency(example6 generated/scheduler.cpp graph.py)
 add_sdf_dir(example6)
 

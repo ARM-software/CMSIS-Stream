@@ -26,6 +26,8 @@
 #ifndef _NULLSINK_H_
 #define _NULLSINK_H_
 
+namespace arm_cmsis_stream {
+
 /* Write a list of samples to a file in text form */
 template<typename IN, int inputSize>
 class NullSink: public GenericSink<IN, inputSize>
@@ -54,5 +56,7 @@ public:
     };
 
 };
+
+} // end namespace 
 
 #endif

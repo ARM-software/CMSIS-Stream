@@ -40,7 +40,9 @@ to record real-world data off a device and playing
 it back on Arm Virtual Hardware.
 
 */
-#include <cstdio>
+
+namespace arm_cmsis_stream {
+
 template<typename OUT,int outputSize>
 class SDSSensor;
 
@@ -225,3 +227,4 @@ private:
     FIFOBase<uint8_t> &mDst;
 };
 
+} // end namespace

@@ -249,11 +249,18 @@ def import_graph(filename):
                     the_graph.defaultFIFOClass = g['options']['FIFO']
                 if 'Duplicate' in g['options']:
                     the_graph.duplicateNodeClassName = g['options']['Duplicate']
-            if 'structures' in g:
-                for c in g['structures']:
-                    name = g['structures'][c]['cname']
-                    size = g['structures'][c]['bytes']
-                    cstruct[c]=CStructType(name,size)
+            if 'custom-types' in g:
+                for c in g['custom-types']:
+                    name = g['custom-types'][c]['cname']
+                    if name == "Shared":
+                        internal = g['custom-types'][c]['internal']
+                        shared = g['custom-types'][c]['shared']
+                        s = SharedType(cstruct[internal])
+                        s._shared = shared
+                        cstruct[c] = s
+                    else:
+                       size = g['custom-types'][c]['bytes']
+                       cstruct[c]=CStructType(name,size)
             if 'nodes' in g:
                 for n in g['nodes']:
                     name = n['node']

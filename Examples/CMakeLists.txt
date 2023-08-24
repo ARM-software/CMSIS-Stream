@@ -5,13 +5,13 @@ set(Python_FIND_REGISTRY "LAST")
 
 find_package (Python COMPONENTS Interpreter)
 
-function(dotdependency TARGET DOTNAME SCRIPT)
-    set(pre_schedule ON)
-    set (extra_args ${ARGN})
-    list(LENGTH extra_args extra_count)
-    if (${extra_count} GREATER 0)
-        list(GET extra_args 0 pre_schedule)
-    endif()
+function(dotdependency TARGET DOTNAME PRESCHEDULE SCRIPT)
+    #set (DEPS ${ARGN})
+    #list(TRANSFORM DEPS PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/)
+    #list(JOIN DEPS "\n" OUT)
+    #list(GET DEPS 0 SCRIPT)
+    #message(${SCRIPT})
+    
     
 if (DOT)
     add_custom_command(TARGET ${TARGET} PRE_BUILD 
@@ -29,7 +29,7 @@ if (DOT)
         VERBATIM
         )
 
-    if (${pre_schedule})
+    if (${PRESCHEDULE})
     add_custom_command(TARGET ${TARGET} PRE_BUILD 
         BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.pdf
         COMMAND ${DOT} -Tpdf -o ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.pdf ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.dot
@@ -57,6 +57,10 @@ function(cppdependency TARGET SRC SCRIPT)
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         VERBATIM
         ) 
+if(MSVC)
+    set_target_properties(${TARGET} PROPERTIES LINK_FLAGS "/INCREMENTAL:NO")
+endif()
+
 endfunction()
 
 function(pythondependency TARGET SRC SCRIPT)
@@ -94,6 +98,7 @@ add_subdirectory(example8 bin_example8)
 add_subdirectory(example9 bin_example9)
 add_subdirectory(example10 bin_example10)
 add_subdirectory(example11 bin_example11)
+add_subdirectory(example12 bin_example12)
 
 add_subdirectory(simple bin_simple)
 add_subdirectory(simpledsp bin_simpledsp)
@@ -105,3 +110,4 @@ add_subdirectory(example4_python bin_example4_python)
 add_subdirectory(example5_python bin_example5_python)
 add_subdirectory(example7_python bin_example7_python)
 add_subdirectory(graphvizexample bin_graphvizexample)
+add_subdirectory(yaml bin_yaml)

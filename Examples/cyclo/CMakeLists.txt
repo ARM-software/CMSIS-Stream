@@ -6,7 +6,7 @@ project(cyclo)
 
 add_executable(cyclo generated/scheduler.cpp main.cpp)
 
-dotdependency(cyclo cyclo create.py)
+dotdependency(cyclo cyclo ON create.py)
 cppdependency(cyclo generated/scheduler.cpp create.py)
 add_sdf_dir(cyclo)
 

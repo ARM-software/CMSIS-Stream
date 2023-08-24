@@ -26,6 +26,8 @@
 #ifndef _CFFT_H_ 
 #define _CFFT_H_
 
+namespace arm_cmsis_stream {
+
 template<typename IN, int inputSize,typename OUT,int outputSize>
 class CFFT;
 
@@ -159,4 +161,5 @@ public:
 
 };
 
+} // end namespace
 #endif

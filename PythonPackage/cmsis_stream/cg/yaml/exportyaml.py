@@ -1,7 +1,7 @@
 from ..scheduler import *
 from yaml import dump
 
-_yaml_version = "1.0.0"
+_yaml_version = "1.1.0"
 
 class _YAMLConstantEdge():
     def __init__(self,src,dst):
@@ -111,10 +111,17 @@ def _create_YAML_type(t,structured_datatypes):
        yaml_desc = {}
        yaml_desc["cname"] = t.ctype 
        #yaml_desc["python_name"] = t._python_name
-       yaml_desc["bytes"] = t.bytes
+       if isinstance(t,SharedType):
+          yaml_desc["cname"] = "Shared"
+          yaml_desc["internal"] = t._refType.ctype
+          yaml_desc["shared"] = t.shared
+          _create_YAML_type(t._refType,structured_datatypes)
+       else:
+          yaml_desc["bytes"] = t.bytes
 
+      
        if not t.ctype  in structured_datatypes:
-          structured_datatypes[t.ctype] = yaml_desc
+             structured_datatypes[t.ctype] = yaml_desc
        return(t.ctype)
 
     
@@ -334,13 +341,13 @@ def export_graph(graph,filename):
         if options:
             yaml["graph"] = {
              "options:" : options,
-             "structures" : structured_datatypes,
+             "custom-types" : structured_datatypes,
              "nodes":nodes,
              "edges":edges,
            }
         else:
            yaml["graph"] = {
-             "structures" : structured_datatypes,
+             "custom-types" : structured_datatypes,
              "nodes":nodes,
              "edges":edges,
            }
