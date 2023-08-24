@@ -1,9 +1,9 @@
 /*
 
-Generated with CMSIS-DSP Compute Graph Scripts.
-The generated code is not covered by CMSIS-DSP license.
+Generated with CMSIS-Stream python scripts.
+The generated code is not covered by CMSIS-Stream license.
 
-The support classes and code is covered by CMSIS-DSP license.
+The support classes and code are covered by CMSIS-Stream license.
 
 */
 
@@ -64,17 +64,19 @@ The support classes and code is covered by CMSIS-DSP license.
 #endif
 
 #if !defined(CG_BEFORE_NODE_EXECUTION)
-#define CG_BEFORE_NODE_EXECUTION
+#define CG_BEFORE_NODE_EXECUTION(ID)
 #endif
 
 #if !defined(CG_AFTER_NODE_EXECUTION)
-#define CG_AFTER_NODE_EXECUTION
+#define CG_AFTER_NODE_EXECUTION(ID)
 #endif
 
 
 
 CG_AFTER_INCLUDES
 
+
+using namespace arm_cmsis_stream;
 
 /*
 
@@ -314,36 +316,36 @@ uint32_t scheduler(int *error)
     /* 
     Create node objects
     */
-    Sink<float,32> dstaA(fifo10);
-    Sink<float,32> dstaB(fifo12);
-    Sink<float,32> dstaC(fifo14);
-    Sink<float,32> dstbA(fifo11);
-    Sink<float,32> dstbB(fifo13);
-    Duplicate<float,128,float,128> dup0(fifo15,{&fifo16,&fifo17,&fifo18});
-    Duplicate<float,128,float,128> dup1(fifo19,{&fifo20,&fifo21});
-    Duplicate<float,16,float,16> dup2(fifo22,{&fifo23,&fifo24,&fifo25,&fifo26});
-    Duplicate<float,16,float,16> dup3(fifo27,{&fifo28,&fifo29});
-    Duplicate<float,16,float,16> dup4(fifo30,{&fifo31,&fifo32});
-    ProcessingNode12<float,16,float,16,float,16> proc12(fifo17,fifo22,fifo4);
-    ProcessingNode13<float,16,float,16,float,16,float,16> proc13(fifo18,fifo5,fifo6,fifo7);
-    ProcessingNode21<float,16,float,16,float,16> proc21A(fifo21,fifo23,fifo8);
-    ProcessingNode21<float,16,float,16,float,16> proc21B(fifo4,fifo5,fifo9);
-    ProcessingNode<float,128,float,128> procA(fifo0,fifo1);
-    ProcessingNode<float,128,float,128> procB(fifo1,fifo2);
-    ProcessingNode<float,128,float,128> procC(fifo2,fifo15);
-    ProcessingNode<float,128,float,128> procD(fifo16,fifo19);
-    ProcessingNode<float,128,float,128> procE(fifo20,fifo3);
-    ProcessingNodeC<float,16,float,32> proc_f_m({&fifo25,&fifo29,&fifo32},fifo14);
-    ProcessingNodeA<float,16,float,32> proc_m_to_m({&fifo24,&fifo28,&fifo31},{&fifo10,&fifo11});
-    ProcessingNodeB<float,16,float,32> proc_to_m(fifo26,{&fifo12,&fifo13});
-    Sink<float,16> sink(fifo3);
-    Sink<float,16> sinkB(fifo6);
-    Sink<float,16> sinkC(fifo7);
-    Sink<float,16> sinkD(fifo8);
-    Sink<float,16> sinkE(fifo9);
-    Source<float,128> source(fifo0);
-    Source<float,16> src0(fifo27);
-    Source<float,16> src1(fifo30);
+    Sink<float,32> dstaA(fifo10); /* Node ID = 0 */
+    Sink<float,32> dstaB(fifo12); /* Node ID = 1 */
+    Sink<float,32> dstaC(fifo14); /* Node ID = 2 */
+    Sink<float,32> dstbA(fifo11); /* Node ID = 3 */
+    Sink<float,32> dstbB(fifo13); /* Node ID = 4 */
+    Duplicate<float,128,float,128> dup0(fifo15,{&fifo16,&fifo17,&fifo18}); /* Node ID = 5 */
+    Duplicate<float,128,float,128> dup1(fifo19,{&fifo20,&fifo21}); /* Node ID = 6 */
+    Duplicate<float,16,float,16> dup2(fifo22,{&fifo23,&fifo24,&fifo25,&fifo26}); /* Node ID = 7 */
+    Duplicate<float,16,float,16> dup3(fifo27,{&fifo28,&fifo29}); /* Node ID = 8 */
+    Duplicate<float,16,float,16> dup4(fifo30,{&fifo31,&fifo32}); /* Node ID = 9 */
+    ProcessingNode12<float,16,float,16,float,16> proc12(fifo17,fifo22,fifo4); /* Node ID = 10 */
+    ProcessingNode13<float,16,float,16,float,16,float,16> proc13(fifo18,fifo5,fifo6,fifo7); /* Node ID = 11 */
+    ProcessingNode21<float,16,float,16,float,16> proc21A(fifo21,fifo23,fifo8); /* Node ID = 12 */
+    ProcessingNode21<float,16,float,16,float,16> proc21B(fifo4,fifo5,fifo9); /* Node ID = 13 */
+    ProcessingNode<float,128,float,128> procA(fifo0,fifo1); /* Node ID = 14 */
+    ProcessingNode<float,128,float,128> procB(fifo1,fifo2); /* Node ID = 15 */
+    ProcessingNode<float,128,float,128> procC(fifo2,fifo15); /* Node ID = 16 */
+    ProcessingNode<float,128,float,128> procD(fifo16,fifo19); /* Node ID = 17 */
+    ProcessingNode<float,128,float,128> procE(fifo20,fifo3); /* Node ID = 18 */
+    ProcessingNodeC<float,16,float,32> proc_f_m({&fifo25,&fifo29,&fifo32},fifo14); /* Node ID = 19 */
+    ProcessingNodeA<float,16,float,32> proc_m_to_m({&fifo24,&fifo28,&fifo31},{&fifo10,&fifo11}); /* Node ID = 20 */
+    ProcessingNodeB<float,16,float,32> proc_to_m(fifo26,{&fifo12,&fifo13}); /* Node ID = 21 */
+    Sink<float,16> sink(fifo3); /* Node ID = 22 */
+    Sink<float,16> sinkB(fifo6); /* Node ID = 23 */
+    Sink<float,16> sinkC(fifo7); /* Node ID = 24 */
+    Sink<float,16> sinkD(fifo8); /* Node ID = 25 */
+    Sink<float,16> sinkE(fifo9); /* Node ID = 26 */
+    Source<float,128> source(fifo0); /* Node ID = 27 */
+    Source<float,16> src0(fifo27); /* Node ID = 28 */
+    Source<float,16> src1(fifo30); /* Node ID = 29 */
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -353,7 +355,7 @@ uint32_t scheduler(int *error)
         CG_BEFORE_ITERATION;
         for(unsigned long id=0 ; id < 184; id++)
         {
-            CG_BEFORE_NODE_EXECUTION;
+            CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
             switch(schedule[id])
             {
@@ -540,7 +542,7 @@ uint32_t scheduler(int *error)
                 default:
                 break;
             }
-            CG_AFTER_NODE_EXECUTION;
+            CG_AFTER_NODE_EXECUTION(schedule[id]);
             CHECKERROR;
         }
        debugCounter--;

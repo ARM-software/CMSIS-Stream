@@ -12,6 +12,9 @@
 #include "arm_math_types.h"
 #include "GenericNodes.h"
 
+using namespace arm_cmsis_stream;
+
+
 #define BUFSIZE 100
 #define FIFOSIZE0 100
 

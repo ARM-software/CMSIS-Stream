@@ -32,6 +32,9 @@
 #include "arm_math.h"
 #include "cg_status.h"
 
+using namespace arm_cmsis_stream;
+
+
 #include "CFFT.h"
 #include "ICFFT.h"
 

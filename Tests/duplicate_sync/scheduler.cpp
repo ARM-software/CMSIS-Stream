@@ -1,9 +1,9 @@
 /*
 
-Generated with CMSIS-DSP Compute Graph Scripts.
-The generated code is not covered by CMSIS-DSP license.
+Generated with CMSIS-Stream python scripts.
+The generated code is not covered by CMSIS-Stream license.
 
-The support classes and code is covered by CMSIS-DSP license.
+The support classes and code are covered by CMSIS-Stream license.
 
 */
 
@@ -64,17 +64,19 @@ The support classes and code is covered by CMSIS-DSP license.
 #endif
 
 #if !defined(CG_BEFORE_NODE_EXECUTION)
-#define CG_BEFORE_NODE_EXECUTION
+#define CG_BEFORE_NODE_EXECUTION(ID)
 #endif
 
 #if !defined(CG_AFTER_NODE_EXECUTION)
-#define CG_AFTER_NODE_EXECUTION
+#define CG_AFTER_NODE_EXECUTION(ID)
 #endif
 
 
 
 CG_AFTER_INCLUDES
 
+
+using namespace arm_cmsis_stream;
 
 /*
 
@@ -149,13 +151,13 @@ uint32_t scheduler(int *error,float* inputArray,
     /* 
     Create node objects
     */
-    Duplicate<float,192,float,192> dup0(fifo0,{&fifo1,&fifo2,&fifo3,&fifo4,&fifo5});
-    ArraySink<float,192> sink0(fifo1,&outputArray[0]);
-    ArraySink<float,192> sink1(fifo2,&outputArray[192]);
-    ArraySink<float,192> sink2(fifo3,&outputArray[384]);
-    ArraySink<float,192> sink3(fifo4,&outputArray[576]);
-    ArraySink<float,192> sink4(fifo5,&outputArray[768]);
-    ArraySource<float,192> src(fifo0,inputArray);
+    Duplicate<float,192,float,192> dup0(fifo0,{&fifo1,&fifo2,&fifo3,&fifo4,&fifo5}); /* Node ID = 0 */
+    ArraySink<float,192> sink0(fifo1,&outputArray[0]); /* Node ID = 1 */
+    ArraySink<float,192> sink1(fifo2,&outputArray[192]); /* Node ID = 2 */
+    ArraySink<float,192> sink2(fifo3,&outputArray[384]); /* Node ID = 3 */
+    ArraySink<float,192> sink3(fifo4,&outputArray[576]); /* Node ID = 4 */
+    ArraySink<float,192> sink4(fifo5,&outputArray[768]); /* Node ID = 5 */
+    ArraySource<float,192> src(fifo0,inputArray); /* Node ID = 6 */
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -165,7 +167,7 @@ uint32_t scheduler(int *error,float* inputArray,
         CG_BEFORE_ITERATION;
         for(unsigned long id=0 ; id < 7; id++)
         {
-            CG_BEFORE_NODE_EXECUTION;
+            CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
             switch(schedule[id])
             {
@@ -214,7 +216,7 @@ uint32_t scheduler(int *error,float* inputArray,
                 default:
                 break;
             }
-            CG_AFTER_NODE_EXECUTION;
+            CG_AFTER_NODE_EXECUTION(schedule[id]);
             CHECKERROR;
         }
        debugCounter--;

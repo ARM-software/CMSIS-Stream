@@ -1,9 +1,9 @@
 /*
 
-Generated with CMSIS-DSP Compute Graph Scripts.
-The generated code is not covered by CMSIS-DSP license.
+Generated with CMSIS-Stream python scripts.
+The generated code is not covered by CMSIS-Stream license.
 
-The support classes and code is covered by CMSIS-DSP license.
+The support classes and code are covered by CMSIS-Stream license.
 
 */
 
@@ -64,32 +64,30 @@ The support classes and code is covered by CMSIS-DSP license.
 #endif
 
 #if !defined(CG_BEFORE_NODE_EXECUTION)
-#define CG_BEFORE_NODE_EXECUTION
+#define CG_BEFORE_NODE_EXECUTION(ID)
 #endif
 
 #if !defined(CG_AFTER_NODE_EXECUTION)
-#define CG_AFTER_NODE_EXECUTION
-#endif
-
-#if !defined(CG_AFTER_NODE_EXECUTION)
-#define CG_AFTER_NODE_EXECUTION
+#define CG_AFTER_NODE_EXECUTION(ID)
 #endif
 
 #if !defined(CG_NODE_NOT_EXECUTED)
-#define CG_NODE_NOT_EXECUTED
+#define CG_NODE_NOT_EXECUTED(ID)
 #endif
 
 #if !defined(CG_ASYNC_BEFORE_NODE_CHECK)
-#define CG_ASYNC_BEFORE_NODE_CHECK
+#define CG_ASYNC_BEFORE_NODE_CHECK(ID)
 #endif
 
 #if !defined(CG_ASYNC_AFTER_NODE_CHECK)
-#define CG_ASYNC_AFTER_NODE_CHECK
+#define CG_ASYNC_AFTER_NODE_CHECK(ID)
 #endif
 
 
 CG_AFTER_INCLUDES
 
+
+using namespace arm_cmsis_stream;
 
 /*
 
@@ -176,14 +174,14 @@ uint32_t scheduler(int *error,float32_t* inputArray,
     /* 
     Create node objects
     */
-    OverlapAdd<float,256,128> audioOverlap(fifo6,fifo7);
-    SlidingBuffer<float,256,128> audioWin(fifo0,fifo1);
-    CFFT<float,512,float,512> cfft(fifo3,fifo4);
-    ICFFT<float,512,float,512> icfft(fifo4,fifo5);
-    ArraySink<float,192> sink(fifo7,outputArray);
-    ArraySource<float,192> src(fifo0,inputArray);
-    ToComplex<float,256,float,512> toCmplx(fifo2,fifo3);
-    ToReal<float,512,float,256> toReal(fifo5,fifo6);
+    OverlapAdd<float,256,128> audioOverlap(fifo6,fifo7); /* Node ID = 1 */
+    SlidingBuffer<float,256,128> audioWin(fifo0,fifo1); /* Node ID = 2 */
+    CFFT<float,512,float,512> cfft(fifo3,fifo4); /* Node ID = 3 */
+    ICFFT<float,512,float,512> icfft(fifo4,fifo5); /* Node ID = 4 */
+    ArraySink<float,192> sink(fifo7,outputArray); /* Node ID = 5 */
+    ArraySource<float,192> src(fifo0,inputArray); /* Node ID = 6 */
+    ToComplex<float,256,float,512> toCmplx(fifo2,fifo3); /* Node ID = 7 */
+    ToReal<float,512,float,256> toReal(fifo5,fifo6); /* Node ID = 8 */
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -193,10 +191,10 @@ uint32_t scheduler(int *error,float32_t* inputArray,
         CG_BEFORE_ITERATION;
         for(unsigned long id=0 ; id < 25; id++)
         {
-            CG_BEFORE_NODE_EXECUTION;
+            CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
             cgStaticError = 0;
-            CG_ASYNC_BEFORE_NODE_CHECK;
+            CG_ASYNC_BEFORE_NODE_CHECK(schedule[id]);
             switch(schedule[id])
             {
                 case 0:
@@ -269,12 +267,12 @@ uint32_t scheduler(int *error,float32_t* inputArray,
                 break;
             }
 
-            CG_ASYNC_AFTER_NODE_CHECK;
+            CG_ASYNC_AFTER_NODE_CHECK(schedule[id]);
 
             if (cgStaticError == CG_SKIP_EXECUTION_ID_CODE)
             { 
               cgStaticError = 0;
-              CG_NODE_NOT_EXECUTED;
+              CG_NODE_NOT_EXECUTED(schedule[id]);
               continue;
             }
 
@@ -348,7 +346,7 @@ uint32_t scheduler(int *error,float32_t* inputArray,
                 default:
                 break;
             }
-            CG_AFTER_NODE_EXECUTION;
+            CG_AFTER_NODE_EXECUTION(schedule[id]);
             CHECKERROR;
         }
        debugCounter--;
