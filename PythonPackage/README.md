@@ -14,6 +14,10 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.9.1:
+
+* Correction to the management of sharing buffer states. It makes it easier to use this feature from the Python
+
 ## Version 1.9.0:
 
 * Introduced a C++ namespace for the nodes

@@ -46,7 +46,18 @@ from ..types import *
 #import matplotlib.pyplot as plt
 
 class IncompatibleIO(Exception):
-    pass
+    def __init__(self,namea,nameb,ioa,iob,srcType,dstType):
+       Exception.__init__(self)
+       self._srcType=srcType
+       self._dstType=dstType
+       self._namea = namea
+       self._nameb = nameb
+       self._ioa = ioa
+       self._iob = iob
+
+    def __str__(self):
+        return(f"{self._namea}.{self._ioa}:{self._srcType.ctype} -> {self._nameb}.{self._iob}:{self._dstType.ctype}")
+
 
 class GraphIsNotConnected(Exception):
     pass
@@ -466,6 +477,7 @@ class Graph():
             nodeb.constantNode = nodea
             self._constantEdges[(nodea,nodeb)]=True
         else:
+
             if nodea.compatible(nodeb):
                 self._sortedNodes = None
                 self._sortedEdges = None
@@ -489,8 +501,12 @@ class Graph():
                    self._nodes[nodea.owner]=True
                 if not (nodeb.owner in self._nodes):
                    self._nodes[nodeb.owner]=True
+ 
             else:
-                raise IncompatibleIO
+                raise IncompatibleIO(nodea.owner.nodeName,
+                                     nodeb.owner.nodeName,
+                                     nodea.name,nodeb.name,
+                                     nodea.theType,nodeb.theType)
 
     def connectWithDelay(self,nodea,nodeb,delay,
         dupAllowed=True,
@@ -554,6 +570,16 @@ class Graph():
                fifo.fifoClass = fifoClass
             fifo.src=src
             fifo.dst=dst 
+
+            # To ensure dst node use same FIFO type as source
+            # node. There is no implicit typecast of pointer
+            # But the C++ template can typecast on elements
+            # so the shared status is imposed by the source
+            # and the destination node will adapt through C++
+            # when it make senses (like a const input can also 
+            # receive a non const pointer)
+            dst.theType._shared = src.theType._shared
+
             fifo.delay=self.getDelay(edge)
             # When a FIFO is working as an array then its buffer may
             # potentially be shared with other FIFOs workign as arrays
@@ -561,6 +587,9 @@ class Graph():
                 if fifo.delay==0:
                    if not config.asynchronous and not config.fullyAsynchronous:
                       fifo.isArray = True 
+            # Type of FIFO is coming from the SRC.
+            # It is an important property for the
+            # change of type in duplicate insertion
             fifo.theType = src.theType
             #fifo.dump()
 
