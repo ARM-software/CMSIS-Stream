@@ -16,9 +16,8 @@ But the content of the scheduling is defined in `sched_flat.dat` loaded at runti
 
 ## Temporary limitations:
 
-Following features from static mode are not yet available:
+Following features from build mode are not yet available:
 
-* dup node not yet implemented
 * fifo delay not yet implemented
 * async mode not implemented
 * customization hooks missing
@@ -31,3 +30,4 @@ Following features from static mode are not yet available:
 Those limitations are not temporary.
 
 * No way to have different FIFO implementations for different branches
+* No direct support of pure C function. They have to be packaged into a C++ wrapper (original  build mode can call directly a pure function with no state)

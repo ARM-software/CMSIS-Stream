@@ -48,6 +48,30 @@ private:
     RuntimeFIFO &mSrc;
 };
 
+template<typename IN,typename OUT>
+class GenericRuntimeToManyNode:public NodeBase
+{
+public:
+     explicit GenericRuntimeToManyNode(RuntimeFIFO &src,
+                std::vector<RuntimeFIFO*> dst):mSrc(src),mDstList(dst){};
+
+
+protected:
+     size_t getNbOutputs() const {return(mDstList.size());};
+
+     IN * getReadBuffer(int nb) {return mSrc.getReadBuffer<IN>(nb);};
+     OUT * getWriteBuffer(int id,int nb ) {return mDstList[id]->getWriteBuffer<OUT>(nb);};
+
+     bool willUnderflow(int nb) const {return mSrc.willUnderflowWith<IN>(nb);};
+     bool willOverflow(int id,int nb) const {return mDstList[id]->willOverflowWith<OUT>(nb);};
+
+private:
+    RuntimeFIFO &mSrc;
+    const std::vector<RuntimeFIFO*> mDstList;
+};
+
+
+
 /*
 
 C++ template for the Sink node.
@@ -211,6 +235,95 @@ protected:
 };
 
 
+template<>
+class Duplicate<char, RUNTIME,char, RUNTIME>:
+public GenericRuntimeToManyNode<char,char>
+{
+public:
+    using DUP = Duplicate<char,RUNTIME,char,RUNTIME>;
+
+    explicit Duplicate(const arm_cmsis_stream::Node &n,
+              RuntimeFIFO &src,
+              std::vector<RuntimeFIFO*> dst):
+    GenericRuntimeToManyNode<char,char>(src,dst),ndesc(n)
+    {
+    };
+
+    static int runNode(char* obj)
+    {
+        DUP *n = reinterpret_cast<DUP *>(obj);
+        return(n->run());
+    }
+
+    static int prepareForRunningNode(char* obj)
+    {
+        DUP *n = reinterpret_cast<DUP *>(obj);
+        return(n->prepareForRunning());
+    }
+
+    static void deleteNode(char* obj)
+    {
+        DUP *n = reinterpret_cast<DUP *>(obj);
+        delete n;
+    }
+
+    static char* mkNode(const runtime_context &ctx, 
+                        const arm_cmsis_stream::Node *ndesc)
+    {
+        auto inputs = ndesc->inputs();
+        auto outputs = ndesc->outputs();
+
+        RuntimeFIFO &i = *ctx.fifos[inputs->Get(0)->id()];
+        std::vector<RuntimeFIFO*> o;
+
+        for(auto out:*outputs)
+        {
+            o.push_back(ctx.fifos[out->id()].get());
+        }
+        
+        DUP *node=new DUP(*ndesc,i,o);
+        return(reinterpret_cast<char*>(node));
+    }
+
+    int prepareForRunning() final
+    {
+        auto inputs = ndesc.inputs();
+        auto outputs = ndesc.outputs();
+
+        if (this->willUnderflow(inputs->Get(0)->nb()))
+        {
+           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+        }
+
+        for(unsigned int i=0;i<this->getNbOutputs();i++)
+        {
+           if (this->willOverflow(i,outputs->Get(i)->nb()))
+           {
+              return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           }
+        }
+
+
+        return(CG_SUCCESS_ID_CODE);
+    };
+
+    int run() final {
+        auto inputs = ndesc.inputs();
+        auto outputs = ndesc.outputs();
+
+        char *a=this->getReadBuffer(inputs->Get(0)->nb());
+        
+        for(unsigned int i=0;i<this->getNbOutputs();i++)
+        {
+           char *b=this->getWriteBuffer(i,outputs->Get(i)->nb());
+           memcpy(b,a,inputs->Get(0)->nb());
+        }
+        
+        return(CG_SUCCESS_ID_CODE);
+    };
+protected:
+    const arm_cmsis_stream::Node &ndesc;
+};
 /*
 
 Source template.

@@ -33,6 +33,15 @@ import arm_cmsis_stream.IODesc as IODesc
 
 import arm_cmsis_stream.Schedule as S
 import uuid
+from cmsis_stream.cg.scheduler import Duplicate
+
+# We need a different uuid for different datatype
+# For duplicate node it would be annoying
+# So duplicate node is lways forced to int8
+# and nb samples are expressed in bytes
+# 
+DUPLICATE_UUID = "bf9e5977aaf34a54b84394f4a929805b"
+Duplicate.uuid = property(lambda self: DUPLICATE_UUID)
 
 def mkUUID(builder,u):
     b = uuid.UUID(u).bytes
@@ -68,6 +77,13 @@ def gen(sched,conf):
                     # cyclo static scheduling
                     nb = np.max(x.nbSamples)
 
+                # Duplicate node forced to int8
+                # so that we have a global UUID for
+                # any duplicate node instance
+                # so nb samples converted to bytes
+                if n.uuid == DUPLICATE_UUID:
+                    nb = nb * x.theType.bytes
+
                 fifoid = sched.fifoID(x.fifo)
 
                 IODesc.CreateIODesc(builder,fifoid,nb)
@@ -90,6 +106,12 @@ def gen(sched,conf):
                     # cyclo static scheduling
                     nb = np.max(x.nbSamples)
                 
+                # Duplicate node forced to int8
+                # so that we have a global UUID for
+                # any duplicate node instance
+                # so nb samples converted to bytes
+                if n.uuid == DUPLICATE_UUID:
+                    nb = nb * x.theType.bytes
                 fifoid = sched.fifoID(x.fifo)
 
                 IODesc.CreateIODesc(builder,fifoid,nb)

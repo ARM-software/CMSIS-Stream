@@ -8,18 +8,36 @@ graph:
     - output: o
       samples: 5
       type: float
-  - node: processing
+  - node: processinga
     identified: true
     kind: ProcessingNode
     inputs:
     - input: i
-      samples: 7
+      samples: 5
       type: float
     outputs:
     - output: o
-      samples: 7
+      samples: 5
       type: float
-  - node: sink
+  - node: sinka
+    identified: true
+    kind: Sink
+    inputs:
+    - input: i
+      samples: 5
+      type: float
+  - node: processingb
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 5
+      type: float
+    outputs:
+    - output: o
+      samples: 5
+      type: float
+  - node: sinkb
     identified: true
     kind: Sink
     inputs:
@@ -31,12 +49,24 @@ graph:
       node: source
       output: o
     dst:
-      node: processing
+      node: processinga
       input: i
   - src:
-      node: processing
+      node: processinga
       output: o
     dst:
-      node: sink
+      node: sinka
+      input: i
+  - src:
+      node: processinga
+      output: o
+    dst:
+      node: processingb
+      input: i
+  - src:
+      node: processingb
+      output: o
+    dst:
+      node: sinkb
       input: i
 
