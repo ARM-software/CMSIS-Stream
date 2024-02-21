@@ -68,7 +68,6 @@ def gen(sched,conf):
                     # cyclo static scheduling
                     nb = np.max(x.nbSamples)
 
-                nb = nb * x.theType.bytes
                 fifoid = sched.fifoID(x.fifo)
 
                 IODesc.CreateIODesc(builder,fifoid,nb)
@@ -91,7 +90,6 @@ def gen(sched,conf):
                     # cyclo static scheduling
                     nb = np.max(x.nbSamples)
                 
-                nb = nb * x.theType.bytes
                 fifoid = sched.fifoID(x.fifo)
 
                 IODesc.CreateIODesc(builder,fifoid,nb)
@@ -118,7 +116,9 @@ def gen(sched,conf):
     for i,fifo in enumerate(fifos):
         FIFODesc.Start(builder)
         FIFODesc.AddId(builder,i)
-        FIFODesc.AddLength(builder,fifo.length)
+        nb = fifo.length
+        nb = nb * fifo.theType.bytes
+        FIFODesc.AddLength(builder,nb)
         flat_fifos.append(FIFODesc.End(builder))
 
     S.StartNodesVector(builder,len(flat_nodes))
