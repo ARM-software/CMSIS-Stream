@@ -6,7 +6,7 @@ from cmsis_stream.cg.scheduler import *
 from nodes import * 
 
 NBA = 5
-NBB = 5
+NBB = 7
 
 # Define the datatype we are using for all the IOs in this
 # example
@@ -25,7 +25,6 @@ src=Source("source",floatType,NBA)
 # "processing" is the name of the C variable that will identify
 # this node
 processinga=ProcessingNode("processinga",floatType,NBB,NBB)
-processingb=ProcessingNode("processingb",floatType,NBB,NBB)
 
 # Instantiate a Sink node with a float datatype and consuming
 # 5 samples each time the node is executed in the C code
@@ -42,7 +41,15 @@ the_graph.connect(src.o,processinga.i)
 # Connect the processing node to the sink
 the_graph.connect(processinga.o,sinka.i)
 
-the_graph.connect(processinga.o,processingb.i)
+def crazy(nb,r):
+    for i in range(nb):
+        processingb=ProcessingNode(f"processing{i+1}",floatType,NBB,NBB)
+        the_graph.connect(r.o,processingb.i)
+        r = processingb
+    return(r)
+
+
+processingb = crazy(10,processinga)
 the_graph.connect(processingb.o,sinkb.i)
 
 

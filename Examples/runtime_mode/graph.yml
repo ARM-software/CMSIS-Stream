@@ -13,11 +13,11 @@ graph:
     kind: ProcessingNode
     inputs:
     - input: i
-      samples: 5
+      samples: 7
       type: float
     outputs:
     - output: o
-      samples: 5
+      samples: 7
       type: float
   - node: sinka
     identified: true
@@ -26,16 +26,115 @@ graph:
     - input: i
       samples: 5
       type: float
-  - node: processingb
+  - node: processing1
     identified: true
     kind: ProcessingNode
     inputs:
     - input: i
-      samples: 5
+      samples: 7
       type: float
     outputs:
     - output: o
-      samples: 5
+      samples: 7
+      type: float
+  - node: processing2
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 7
+      type: float
+    outputs:
+    - output: o
+      samples: 7
+      type: float
+  - node: processing3
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 7
+      type: float
+    outputs:
+    - output: o
+      samples: 7
+      type: float
+  - node: processing4
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 7
+      type: float
+    outputs:
+    - output: o
+      samples: 7
+      type: float
+  - node: processing5
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 7
+      type: float
+    outputs:
+    - output: o
+      samples: 7
+      type: float
+  - node: processing6
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 7
+      type: float
+    outputs:
+    - output: o
+      samples: 7
+      type: float
+  - node: processing7
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 7
+      type: float
+    outputs:
+    - output: o
+      samples: 7
+      type: float
+  - node: processing8
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 7
+      type: float
+    outputs:
+    - output: o
+      samples: 7
+      type: float
+  - node: processing9
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 7
+      type: float
+    outputs:
+    - output: o
+      samples: 7
+      type: float
+  - node: processing10
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 7
+      type: float
+    outputs:
+    - output: o
+      samples: 7
       type: float
   - node: sinkb
     identified: true
@@ -61,10 +160,64 @@ graph:
       node: processinga
       output: o
     dst:
-      node: processingb
+      node: processing1
       input: i
   - src:
-      node: processingb
+      node: processing1
+      output: o
+    dst:
+      node: processing2
+      input: i
+  - src:
+      node: processing2
+      output: o
+    dst:
+      node: processing3
+      input: i
+  - src:
+      node: processing3
+      output: o
+    dst:
+      node: processing4
+      input: i
+  - src:
+      node: processing4
+      output: o
+    dst:
+      node: processing5
+      input: i
+  - src:
+      node: processing5
+      output: o
+    dst:
+      node: processing6
+      input: i
+  - src:
+      node: processing6
+      output: o
+    dst:
+      node: processing7
+      input: i
+  - src:
+      node: processing7
+      output: o
+    dst:
+      node: processing8
+      input: i
+  - src:
+      node: processing8
+      output: o
+    dst:
+      node: processing9
+      input: i
+  - src:
+      node: processing9
+      output: o
+    dst:
+      node: processing10
+      input: i
+  - src:
+      node: processing10
       output: o
     dst:
       node: sinkb
