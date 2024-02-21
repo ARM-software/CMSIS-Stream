@@ -1,0 +1,18 @@
+# Makefile for MSVC compiler on Windows
+SHELL = cmd
+CC = cl.exe
+RM = del /Q /F
+
+INCLUDES = /I. /I "C:/ctools_pack/tensorflow/flatbuffers/1.23.2/src/include"
+WINFLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -MDd 
+CFLAGS =  /std:c++17 $(INCLUDES) $(WINFLAGS)
+
+all:
+	$(CC) /Feruntime_mode.exe $(CFLAGS) ./runtime_sched.cpp main.cpp sched_flat.c
+
+clean:
+	$(RM) main.obj
+	$(RM) scheduler.obj 
+	$(RM) runtime_mode.ilk 
+	$(RM) runtime_mode.exe 
+	$(RM) *.pdb 

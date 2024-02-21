@@ -1,6 +1,6 @@
-version: 1.0.0
+version: 1.1.0
 graph:
-  structures:
+  custom-types:
     std::shared_ptr<buffer>:
       cname: std::shared_ptr<buffer>
       bytes: 8

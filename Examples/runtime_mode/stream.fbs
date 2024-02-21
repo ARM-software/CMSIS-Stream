@@ -1,0 +1,34 @@
+namespace arm_cmsis_stream;
+
+
+struct UUID {
+   v:[ubyte:16];
+}
+
+struct IODesc {
+   id:uint32;
+   nb:uint32;
+}
+
+table Node {
+   uuid:UUID;
+   id:uint32;
+   inputs:[IODesc];
+   outputs:[IODesc];
+   data:[byte];
+}
+
+table FIFODesc {
+   id:uint32;
+   length:uint32;
+}
+
+table Schedule {
+    async_mode:bool;
+    nodes:[Node];
+    fifos:[FIFODesc];
+    schedule:[uint32];
+}
+
+
+root_type Schedule;
