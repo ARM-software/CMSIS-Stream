@@ -32,16 +32,16 @@ source [label=<
 
 
 
-source:i -> processing:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(5)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
+source:i -> processing:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(6)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >6</FONT>
 </TD></TR></TABLE>>
-,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >6</FONT>
 </TD></TR></TABLE>>]
 
-processing:i -> sink:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(5)>
-,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
+processing:i -> sink:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(6)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >6</FONT>
 </TD></TR></TABLE>>
-,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >6</FONT>
 </TD></TR></TABLE>>]
 
 

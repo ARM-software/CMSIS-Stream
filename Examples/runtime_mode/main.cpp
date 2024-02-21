@@ -12,6 +12,7 @@
 #include "GenericNodes.h"
 #include "cg_status.h"
 #include "AppNodes.h"
+#include <fstream>
 
 using namespace arm_cmsis_stream;
 
@@ -129,9 +130,13 @@ int main(int argc, char const *argv[])
     int error;
     printf("Start\n");
     auto registered_nodes = register_nodes();
-    //read_sched();
+     
+    std::ifstream input( "sched_flat.dat", std::ios::binary );
+    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
 
-    auto ctx = create_graph(sched,SCHED_LEN, registered_nodes);
+    auto ctx = create_graph(buffer.data(),buffer.size(), registered_nodes);
+
+    //auto ctx = create_graph(sched,SCHED_LEN, registered_nodes);
 
     uint32_t nbIterations = run_graph(ctx,&error,1);
 

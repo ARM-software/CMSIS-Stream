@@ -6,25 +6,25 @@ graph:
     kind: Source
     outputs:
     - output: o
-      samples: 5
+      samples: 6
       type: float
   - node: processing
     identified: true
     kind: ProcessingNode
     inputs:
     - input: i
-      samples: 5
+      samples: 6
       type: float
     outputs:
     - output: o
-      samples: 5
+      samples: 6
       type: float
   - node: sink
     identified: true
     kind: Sink
     inputs:
     - input: i
-      samples: 5
+      samples: 6
       type: float
   edges:
   - src:

@@ -170,3 +170,7 @@ def create_c_file(buf,name):
 def create_h_file(buf,name):
     with open(f"{name}.h", "w") as f:
         print(ARRAY_H % len(buf),file=f)
+
+def create_bin(buf,name):
+    with open(f"{name}.dat", "wb") as f:
+        f.write(buf)
