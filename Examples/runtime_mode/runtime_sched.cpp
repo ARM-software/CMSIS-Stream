@@ -7,8 +7,8 @@
 using namespace arm_cmsis_stream;
 
 runtime_context create_graph(const unsigned char * data,
-                               const uint32_t nb, 
-                               const registry_t &map)
+                             const uint32_t nb, 
+                             const registry_t &map)
 {
    runtime_context c;
    bool ok = VerifyScheduleBuffer(flatbuffers::Verifier(data, nb));
@@ -31,7 +31,7 @@ runtime_context create_graph(const unsigned char * data,
           const rnode_t *api = &map.at(uuid);
           c.node_api.push_back(api);
           auto node = api->mkNode(c,n);
-          c.nodes.push_back(std::unique_ptr<char>(node));
+          c.nodes.push_back(std::unique_ptr<NodeBase>(node));
       }
 
 
@@ -55,7 +55,7 @@ uint32_t run_graph(const runtime_context& ctx,int *error,int nbIterations)
         for (uint32_t i:*sched_desc) 
         {
             const rnode_t *api = ctx.node_api[i];
-            char *node = ctx.nodes[i].get();
+            NodeBase *node = ctx.nodes[i].get();
             int res = api->run(node);
             if (res != CG_SUCCESS)
             {

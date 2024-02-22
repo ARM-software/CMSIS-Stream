@@ -168,25 +168,20 @@ public:
          RuntimeFIFO &src):GenericRuntimeSink<IN>(src),ndesc(n){};
    
 
-    static int runNode(char* obj)
+
+    static int runNode(NodeBase* obj)
     {
         Sink<IN,RUNTIME> *n = reinterpret_cast<Sink<IN,RUNTIME> *>(obj);
         return(n->run());
     }
 
-    static int prepareForRunningNode(char* obj)
+    static int prepareForRunningNode(NodeBase* obj)
     {
         Sink<IN,RUNTIME> *n = reinterpret_cast<Sink<IN,RUNTIME> *>(obj);
         return(n->prepareForRunning());
     }
 
-    static void deleteNode(char* obj)
-    {
-        Sink<IN,RUNTIME> *n = reinterpret_cast<Sink<IN,RUNTIME> *>(obj);
-        delete n;
-    }
-
-    static char* mkNode(const runtime_context &ctx, 
+    static NodeBase* mkNode(const runtime_context &ctx, 
                         const arm_cmsis_stream::Node *ndesc)
     {
         auto inputs = ndesc->inputs();
@@ -194,7 +189,7 @@ public:
 
         
         Sink<IN,RUNTIME> *node=new Sink<IN,RUNTIME>(*ndesc,i);
-        return(reinterpret_cast<char*>(node));
+        return(static_cast<NodeBase*>(node));
     }
 
     // Used in asynchronous mode. In case of underflow on
@@ -249,25 +244,20 @@ public:
     {
     };
 
-    static int runNode(char* obj)
+
+    static int runNode(NodeBase* obj)
     {
         DUP *n = reinterpret_cast<DUP *>(obj);
         return(n->run());
     }
 
-    static int prepareForRunningNode(char* obj)
+    static int prepareForRunningNode(NodeBase* obj)
     {
         DUP *n = reinterpret_cast<DUP *>(obj);
         return(n->prepareForRunning());
     }
 
-    static void deleteNode(char* obj)
-    {
-        DUP *n = reinterpret_cast<DUP *>(obj);
-        delete n;
-    }
-
-    static char* mkNode(const runtime_context &ctx, 
+    static NodeBase* mkNode(const runtime_context &ctx, 
                         const arm_cmsis_stream::Node *ndesc)
     {
         auto inputs = ndesc->inputs();
@@ -282,7 +272,7 @@ public:
         }
         
         DUP *node=new DUP(*ndesc,i,o);
-        return(reinterpret_cast<char*>(node));
+        return(static_cast<NodeBase*>(node));
     }
 
     int prepareForRunning() final
@@ -367,25 +357,20 @@ public:
     Source(const arm_cmsis_stream::Node &n,
            RuntimeFIFO &dst):GenericRuntimeSource<OUT>(dst),ndesc(n){};
 
-    static int runNode(char* obj)
+
+    static int runNode(NodeBase* obj)
     {
         Source<OUT,RUNTIME> *n = reinterpret_cast<Source<OUT,RUNTIME> *>(obj);
         return(n->run());
     }
 
-    static int prepareForRunningNode(char* obj)
+    static int prepareForRunningNode(NodeBase* obj)
     {
         Source<OUT,RUNTIME> *n = reinterpret_cast<Source<OUT,RUNTIME> *>(obj);
         return(n->prepareForRunning());
     }
 
-    static void deleteNode(char* obj)
-    {
-        Source<OUT,RUNTIME> *n = reinterpret_cast<Source<OUT,RUNTIME> *>(obj);
-        delete n;
-    }
-
-    static char* mkNode(const runtime_context &ctx, 
+    static NodeBase* mkNode(const runtime_context &ctx, 
                         const arm_cmsis_stream::Node *ndesc)
     {
         auto outputs = ndesc->outputs();
@@ -393,7 +378,7 @@ public:
 
         
         Source<OUT,RUNTIME> *node=new Source<OUT,RUNTIME>(*ndesc,i);
-        return(reinterpret_cast<char*>(node));
+        return(static_cast<NodeBase*>(node));
     }
 
     int prepareForRunning() final
@@ -509,25 +494,21 @@ public:
                    RuntimeFIFO &src,
                    RuntimeFIFO &dst):GenericRuntimeNode<IN,IN>(src,dst),ndesc(n){};
 
-    static int runNode(char* obj)
+
+    static int runNode(NodeBase* obj)
     {
         ProcessingNode<IN,RUNTIME,IN,RUNTIME> *n = reinterpret_cast<ProcessingNode<IN,RUNTIME,IN,RUNTIME> *>(obj);
         return(n->run());
     }
 
-    static int prepareForRunningNode(char* obj)
+    static int prepareForRunningNode(NodeBase* obj)
     {
         ProcessingNode<IN,RUNTIME,IN,RUNTIME> *n = reinterpret_cast<ProcessingNode<IN,RUNTIME,IN,RUNTIME> *>(obj);
         return(n->prepareForRunning());
     }
 
-    static void deleteNode(char* obj)
-    {
-        ProcessingNode<IN,RUNTIME,IN,RUNTIME> *n = reinterpret_cast<ProcessingNode<IN,RUNTIME,IN,RUNTIME> *>(obj);
-        delete n;
-    }
 
-    static char* mkNode(const runtime_context &ctx, 
+    static NodeBase* mkNode(const runtime_context &ctx, 
                         const arm_cmsis_stream::Node *ndesc)
     {
         
@@ -539,7 +520,7 @@ public:
 
         
         ProcessingNode<IN,RUNTIME,IN,RUNTIME> *node=new ProcessingNode<IN,RUNTIME,IN,RUNTIME>(*ndesc,i,o);
-        return(reinterpret_cast<char*>(node));
+        return(static_cast<NodeBase*>(node));
     }
 
     /* In asynchronous mode, node execution will be 

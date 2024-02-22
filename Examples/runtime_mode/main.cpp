@@ -35,7 +35,6 @@ static registry_t register_nodes()
 
     /*  Register src */
     t.mkNode            = &Source<float,RUNTIME>::mkNode;
-    t.deleteNode        = &Source<float,RUNTIME>::deleteNode;
     t.prepareForRunning = &Source<float,RUNTIME>::prepareForRunningNode;
     t.run               = &Source<float,RUNTIME>::runNode;
 
@@ -44,7 +43,6 @@ static registry_t register_nodes()
     /*  Register proc */
     using FloatProc = ProcessingNode<float,RUNTIME,float,RUNTIME>;
     t.mkNode            = &FloatProc::mkNode;
-    t.deleteNode        = &FloatProc::deleteNode;
     t.prepareForRunning = &FloatProc::prepareForRunningNode;
     t.run               = &FloatProc::runNode;
 
@@ -52,7 +50,6 @@ static registry_t register_nodes()
 
     /*  Register dst */
     t.mkNode            = &Sink<float,RUNTIME>::mkNode;
-    t.deleteNode        = &Sink<float,RUNTIME>::deleteNode;
     t.prepareForRunning = &Sink<float,RUNTIME>::prepareForRunningNode;
     t.run               = &Sink<float,RUNTIME>::runNode;
 
@@ -60,7 +57,6 @@ static registry_t register_nodes()
 
     /*  Register duplicate int8 */
     t.mkNode            = &Duplicate<char,RUNTIME,char,RUNTIME>::mkNode;
-    t.deleteNode        = &Duplicate<char,RUNTIME,char,RUNTIME>::deleteNode;
     t.prepareForRunning = &Duplicate<char,RUNTIME,char,RUNTIME>::prepareForRunningNode;
     t.run               = &Duplicate<char,RUNTIME,char,RUNTIME>::runNode;
 
@@ -135,12 +131,9 @@ void read_sched()
     }
 }
 
-int main(int argc, char const *argv[])
+void run_demo(const registry_t &registered_nodes)
 {
     int error;
-    printf("Start\n");
-    auto registered_nodes = register_nodes();
-     
     std::ifstream input( "sched_flat.dat", std::ios::binary );
     std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
 
@@ -180,6 +173,15 @@ int main(int argc, char const *argv[])
        default:
         printf("Unknown error %d\r\n",error);
     }
+}
+
+int main(int argc, char const *argv[])
+{
+    
+    printf("Start\n");
+    auto registered_nodes = register_nodes();
+     
+    run_demo(registered_nodes);
   
     
     return 0;

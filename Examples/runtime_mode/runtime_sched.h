@@ -9,6 +9,9 @@
 #include <memory>
 #include <functional>
 #include "stream_generated.h"
+#include "GenericNodes.h"
+
+using namespace arm_cmsis_stream;
 
 class RuntimeFIFO
 {
@@ -97,21 +100,19 @@ typedef struct _rnode_t rnode_t;
 struct runtime_context {
   const arm_cmsis_stream::Schedule *schedobj;
   std::vector<std::unique_ptr<RuntimeFIFO>> fifos;
-  std::vector<std::unique_ptr<char>> nodes;
+  std::vector<std::unique_ptr<NodeBase>> nodes;
   std::vector<const rnode_t*> node_api;
 };
 
-typedef int (*run_f)(char*);
-typedef int (*prepareForRunning_f)(char*);
-typedef char* (*mkNode_f)(const runtime_context &ctx, 
+typedef int (*run_f)(NodeBase*);
+typedef int (*prepareForRunning_f)(NodeBase*);
+typedef NodeBase* (*mkNode_f)(const runtime_context &ctx, 
                           const arm_cmsis_stream::Node *desc);
-typedef void (*deleteNode_f)(char*);
 
 struct _rnode_t {
    run_f run;
    prepareForRunning_f prepareForRunning;
    mkNode_f mkNode;
-   deleteNode_f deleteNode;
 };
 
 #include <iostream>
@@ -159,8 +160,8 @@ protected:
 using registry_t = std::map<UUID_KEY,rnode_t,std::less<UUID_KEY>>;
 
 extern runtime_context create_graph(const unsigned char * data,
-                                       const uint32_t nb, 
-                                       const registry_t &map);
+                                    const uint32_t nb, 
+                                    const registry_t &map);
 
 extern uint32_t run_graph(const runtime_context& ctx,int *error,int nbIterations=-1);
 
