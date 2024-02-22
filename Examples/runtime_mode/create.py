@@ -16,11 +16,12 @@ conf.debugLimit=1
 # Disable inclusion of CMSIS-DSP headers so that we don't have
 # to recompile CMSIS-DSP for such a simple example
 conf.CMSISDSP = False
+conf.CAPI = True
 conf.asynchronous = False
 
 conf.nodeIdentification = True
 
-conf.memoryOptimization =True
+conf.memoryOptimization=True
 
 export_graph(the_graph,"graph.yml")
 export_config(conf,"config.yml")

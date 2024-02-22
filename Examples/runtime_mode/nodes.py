@@ -40,6 +40,25 @@ class ProcessingNode(GenericNode):
     def node_data(self):
         return(struct.pack('<i', self._v))
     
+class AdderNode(GenericNode):
+    def __init__(self,name,theType,ioLength):
+        GenericNode.__init__(self,name)
+        self.addInput("ia",theType,ioLength)
+        self.addInput("ib",theType,ioLength)
+        self.addOutput("o",theType,ioLength)
+
+    @property
+    def typeName(self):
+        """The name of the C++ class implementing this node"""
+        return "Adder"
+
+    @property
+    def uuid(self):
+        return "6a73381ccd114f13ba9634757c2c4a59"
+
+    @property
+    def node_data(self):
+        return None
 
 class Sink(GenericSink):
     """

@@ -1,223 +1,548 @@
 version: 1.1.0
 graph:
   nodes:
-  - node: source
+  - node: source0
     identified: false
     kind: Source
     outputs:
     - output: o
-      samples: 5
+      samples: 8
       type: float
-  - node: processinga
+  - node: adder1
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source1
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source2
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder2
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source3
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder3
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source4
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder4
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source5
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source6
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder5
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source7
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder6
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder7
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source8
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder8
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source9
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source10
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder9
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source11
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder10
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source12
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder11
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source13
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source14
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder12
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: source15
+    identified: false
+    kind: Source
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder13
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder14
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: adder15
+    identified: true
+    kind: Adder
+    inputs:
+    - input: ia
+      samples: 8
+      type: float
+    - input: ib
+      samples: 8
+      type: float
+    outputs:
+    - output: o
+      samples: 8
+      type: float
+  - node: processing
     identified: true
     kind: ProcessingNode
     inputs:
     - input: i
-      samples: 7
+      samples: 4
       type: float
     outputs:
     - output: o
-      samples: 7
+      samples: 4
       type: float
   - node: sinka
     identified: false
     kind: Sink
     inputs:
     - input: i
-      samples: 5
-      type: float
-  - node: processing1
-    identified: false
-    kind: ProcessingNode
-    inputs:
-    - input: i
-      samples: 7
-      type: float
-    outputs:
-    - output: o
-      samples: 7
-      type: float
-  - node: processing2
-    identified: false
-    kind: ProcessingNode
-    inputs:
-    - input: i
-      samples: 7
-      type: float
-    outputs:
-    - output: o
-      samples: 7
-      type: float
-  - node: processing3
-    identified: false
-    kind: ProcessingNode
-    inputs:
-    - input: i
-      samples: 7
-      type: float
-    outputs:
-    - output: o
-      samples: 7
-      type: float
-  - node: processing4
-    identified: false
-    kind: ProcessingNode
-    inputs:
-    - input: i
-      samples: 7
-      type: float
-    outputs:
-    - output: o
-      samples: 7
-      type: float
-  - node: processing5
-    identified: false
-    kind: ProcessingNode
-    inputs:
-    - input: i
-      samples: 7
-      type: float
-    outputs:
-    - output: o
-      samples: 7
-      type: float
-  - node: processing6
-    identified: false
-    kind: ProcessingNode
-    inputs:
-    - input: i
-      samples: 7
-      type: float
-    outputs:
-    - output: o
-      samples: 7
-      type: float
-  - node: processing7
-    identified: false
-    kind: ProcessingNode
-    inputs:
-    - input: i
-      samples: 7
-      type: float
-    outputs:
-    - output: o
-      samples: 7
-      type: float
-  - node: processing8
-    identified: false
-    kind: ProcessingNode
-    inputs:
-    - input: i
-      samples: 7
-      type: float
-    outputs:
-    - output: o
-      samples: 7
-      type: float
-  - node: processing9
-    identified: false
-    kind: ProcessingNode
-    inputs:
-    - input: i
-      samples: 7
-      type: float
-    outputs:
-    - output: o
-      samples: 7
-      type: float
-  - node: processing10
-    identified: true
-    kind: ProcessingNode
-    inputs:
-    - input: i
-      samples: 7
-      type: float
-    outputs:
-    - output: o
-      samples: 7
+      samples: 8
       type: float
   - node: sinkb
     identified: false
     kind: Sink
     inputs:
     - input: i
-      samples: 5
+      samples: 8
       type: float
   edges:
   - src:
-      node: source
+      node: source0
       output: o
     dst:
-      node: processinga
+      node: adder1
+      input: ia
+  - src:
+      node: source1
+      output: o
+    dst:
+      node: adder1
+      input: ib
+  - src:
+      node: source2
+      output: o
+    dst:
+      node: adder2
+      input: ia
+  - src:
+      node: source3
+      output: o
+    dst:
+      node: adder2
+      input: ib
+  - src:
+      node: adder1
+      output: o
+    dst:
+      node: adder3
+      input: ia
+  - src:
+      node: adder2
+      output: o
+    dst:
+      node: adder3
+      input: ib
+  - src:
+      node: source4
+      output: o
+    dst:
+      node: adder4
+      input: ia
+  - src:
+      node: source5
+      output: o
+    dst:
+      node: adder4
+      input: ib
+  - src:
+      node: source6
+      output: o
+    dst:
+      node: adder5
+      input: ia
+  - src:
+      node: source7
+      output: o
+    dst:
+      node: adder5
+      input: ib
+  - src:
+      node: adder4
+      output: o
+    dst:
+      node: adder6
+      input: ia
+  - src:
+      node: adder5
+      output: o
+    dst:
+      node: adder6
+      input: ib
+  - src:
+      node: adder3
+      output: o
+    dst:
+      node: adder7
+      input: ia
+  - src:
+      node: adder6
+      output: o
+    dst:
+      node: adder7
+      input: ib
+  - src:
+      node: source8
+      output: o
+    dst:
+      node: adder8
+      input: ia
+  - src:
+      node: source9
+      output: o
+    dst:
+      node: adder8
+      input: ib
+  - src:
+      node: source10
+      output: o
+    dst:
+      node: adder9
+      input: ia
+  - src:
+      node: source11
+      output: o
+    dst:
+      node: adder9
+      input: ib
+  - src:
+      node: adder8
+      output: o
+    dst:
+      node: adder10
+      input: ia
+  - src:
+      node: adder9
+      output: o
+    dst:
+      node: adder10
+      input: ib
+  - src:
+      node: source12
+      output: o
+    dst:
+      node: adder11
+      input: ia
+  - src:
+      node: source13
+      output: o
+    dst:
+      node: adder11
+      input: ib
+  - src:
+      node: source14
+      output: o
+    dst:
+      node: adder12
+      input: ia
+  - src:
+      node: source15
+      output: o
+    dst:
+      node: adder12
+      input: ib
+  - src:
+      node: adder11
+      output: o
+    dst:
+      node: adder13
+      input: ia
+  - src:
+      node: adder12
+      output: o
+    dst:
+      node: adder13
+      input: ib
+  - src:
+      node: adder10
+      output: o
+    dst:
+      node: adder14
+      input: ia
+  - src:
+      node: adder13
+      output: o
+    dst:
+      node: adder14
+      input: ib
+  - src:
+      node: adder7
+      output: o
+    dst:
+      node: adder15
+      input: ia
+  - src:
+      node: adder14
+      output: o
+    dst:
+      node: adder15
+      input: ib
+  - src:
+      node: adder15
+      output: o
+    dst:
+      node: processing
       input: i
   - src:
-      node: processinga
+      node: processing
       output: o
     dst:
       node: sinka
       input: i
   - src:
-      node: processinga
-      output: o
-    dst:
-      node: processing1
-      input: i
-  - src:
-      node: processing1
-      output: o
-    dst:
-      node: processing2
-      input: i
-  - src:
-      node: processing2
-      output: o
-    dst:
-      node: processing3
-      input: i
-  - src:
-      node: processing3
-      output: o
-    dst:
-      node: processing4
-      input: i
-  - src:
-      node: processing4
-      output: o
-    dst:
-      node: processing5
-      input: i
-  - src:
-      node: processing5
-      output: o
-    dst:
-      node: processing6
-      input: i
-  - src:
-      node: processing6
-      output: o
-    dst:
-      node: processing7
-      input: i
-  - src:
-      node: processing7
-      output: o
-    dst:
-      node: processing8
-      input: i
-  - src:
-      node: processing8
-      output: o
-    dst:
-      node: processing9
-      input: i
-  - src:
-      node: processing9
-      output: o
-    dst:
-      node: processing10
-      input: i
-  - src:
-      node: processing10
+      node: processing
       output: o
     dst:
       node: sinkb

@@ -5,8 +5,9 @@ from cmsis_stream.cg.scheduler import *
 # Include definition of the nodes
 from nodes import * 
 
-NBA = 5
-NBB = 7
+NB_SOURCE = 8
+NB_PROCESSING = 4
+NB_OF_SRC = 16
 
 # Define the datatype we are using for all the IOs in this
 # example
@@ -17,48 +18,62 @@ floatType=CType(F32)
 # source in the C code will generate 5 samples)
 # "source" is the name of the C variable that will identify
 # this node
-src=Source("source",floatType,NBA)
-src.identified=False 
+
+the_sources=[]
+for i in range(NB_OF_SRC):
+   src=Source(f"source{i}",floatType,NB_SOURCE)
+   src.identified=False 
+   the_sources.append(src)
+
+
+
+
 # Instantiate a Processing node using a float data type for
 # both the input and output. The number of samples consumed
 # on the input and produced on the output is 7 each time
 # the node is executed in the C code
 # "processing" is the name of the C variable that will identify
 # this node
-processinga=ProcessingNode("processinga",floatType,NBB,NBB,v=10)
-processinga.identified=False 
+processing=ProcessingNode("processing",floatType,NB_PROCESSING,NB_PROCESSING,v=10)
+processing.identified=True 
 
 # Instantiate a Sink node with a float datatype and consuming
 # 5 samples each time the node is executed in the C code
 # "sink" is the name of the C variable that will identify
 # this node
-sinka=Sink("sinka",floatType,NBA)
+sinka=Sink("sinka",floatType,NB_SOURCE)
 sinka.identified=False 
-sinkb=Sink("sinkb",floatType,NBA)
+sinkb=Sink("sinkb",floatType,NB_SOURCE)
 sinkb.identified=False 
 
 # Create a Graph object
 the_graph = Graph()
 
-# Connect the source to the processing node
-the_graph.connect(src.o,processinga.i)
-# Connect the processing node to the sink
-the_graph.connect(processinga.o,sinka.i)
+NB=0
+def recurse(s):
+    global NB
+    if len(s)==2:
+        NB = NB + 1
+        adder=AdderNode(f"adder{NB}",floatType,NB_SOURCE)
+        the_graph.connect(s[0].o,adder.ia)
+        the_graph.connect(s[1].o,adder.ib)
+        return(adder)
+    else:
+        nb=len(s) >> 1
+        sa=s[:nb]
+        sb=s[nb:]
+        oa = recurse(sa)
+        ob = recurse(sb)
+        NB = NB + 1
+        adder=AdderNode(f"adder{NB}",floatType,NB_SOURCE)
+        the_graph.connect(oa.o,adder.ia)
+        the_graph.connect(ob.o,adder.ib)
+        return(adder)
 
-def crazy(nb,r):
-    for i in range(nb):
-        processingb=ProcessingNode(f"processing{i+1}",floatType,NBB,NBB)
-        processingb.identified=False 
-        the_graph.connect(r.o,processingb.i)
-        r = processingb
-    return(r)
-
-
-processingb = crazy(10,processinga)
-
-processinga.identified=True 
-processingb.identified=True 
-
-the_graph.connect(processingb.o,sinkb.i)
+res = recurse(the_sources)
+        
+the_graph.connect(res.o,processing.i)
+the_graph.connect(processing.o,sinka.i)
+the_graph.connect(processing.o,sinkb.i)
 
 

@@ -83,11 +83,9 @@ using namespace arm_cmsis_stream;
 Description of the scheduling. 
 
 */
-static uint8_t schedule[81]=
+static uint8_t schedule[37]=
 { 
-14,14,11,0,12,1,3,4,5,6,7,8,9,10,2,13,14,11,0,12,1,3,4,5,6,7,8,9,10,2,13,14,14,11,0,12,12,1,3,4,
-5,6,7,8,9,10,2,13,13,14,11,0,12,1,3,4,5,6,7,8,9,10,2,13,14,11,0,12,12,1,3,4,5,6,7,8,9,10,2,13,
-13,
+19,20,0,21,22,14,23,24,2,25,26,3,4,27,28,7,8,29,30,9,31,32,10,11,12,33,34,13,1,5,6,16,15,16,15,17,18,
 };
 
 /***********
@@ -103,80 +101,84 @@ CG_BEFORE_FIFO_BUFFERS
 FIFO buffers
 
 ************/
-#define FIFOSIZE0 11
-#define FIFOSIZE1 7
-#define FIFOSIZE2 7
-#define FIFOSIZE3 7
-#define FIFOSIZE4 7
-#define FIFOSIZE5 7
-#define FIFOSIZE6 7
-#define FIFOSIZE7 7
-#define FIFOSIZE8 7
-#define FIFOSIZE9 7
-#define FIFOSIZE10 11
-#define FIFOSIZE11 7
-#define FIFOSIZE12 11
-#define FIFOSIZE13 7
+#define FIFOSIZE0 8
+#define FIFOSIZE1 8
+#define FIFOSIZE2 8
+#define FIFOSIZE3 8
+#define FIFOSIZE4 8
+#define FIFOSIZE5 8
+#define FIFOSIZE6 8
+#define FIFOSIZE7 8
+#define FIFOSIZE8 8
+#define FIFOSIZE9 8
+#define FIFOSIZE10 8
+#define FIFOSIZE11 8
+#define FIFOSIZE12 8
+#define FIFOSIZE13 8
+#define FIFOSIZE14 8
+#define FIFOSIZE15 8
+#define FIFOSIZE16 8
+#define FIFOSIZE17 8
+#define FIFOSIZE18 8
+#define FIFOSIZE19 8
+#define FIFOSIZE20 8
+#define FIFOSIZE21 8
+#define FIFOSIZE22 8
+#define FIFOSIZE23 8
+#define FIFOSIZE24 8
+#define FIFOSIZE25 8
+#define FIFOSIZE26 8
+#define FIFOSIZE27 8
+#define FIFOSIZE28 8
+#define FIFOSIZE29 8
+#define FIFOSIZE30 8
+#define FIFOSIZE31 4
+#define FIFOSIZE32 8
+#define FIFOSIZE33 8
 
-#define BUFFERSIZE0 28
+#define BUFFERSIZE0 32
 CG_BEFORE_BUFFER
 uint8_t buf0[BUFFERSIZE0]={0};
 
-#define BUFFERSIZE1 28
+#define BUFFERSIZE1 32
 CG_BEFORE_BUFFER
 uint8_t buf1[BUFFERSIZE1]={0};
 
-#define BUFFERSIZE2 28
+#define BUFFERSIZE2 32
 CG_BEFORE_BUFFER
 uint8_t buf2[BUFFERSIZE2]={0};
 
-#define BUFFERSIZE3 28
+#define BUFFERSIZE3 32
 CG_BEFORE_BUFFER
 uint8_t buf3[BUFFERSIZE3]={0};
 
-#define BUFFERSIZE4 28
+#define BUFFERSIZE4 32
 CG_BEFORE_BUFFER
 uint8_t buf4[BUFFERSIZE4]={0};
 
-#define BUFFERSIZE5 28
+#define BUFFERSIZE5 32
 CG_BEFORE_BUFFER
 uint8_t buf5[BUFFERSIZE5]={0};
 
-#define BUFFERSIZE6 28
+#define BUFFERSIZE6 32
 CG_BEFORE_BUFFER
 uint8_t buf6[BUFFERSIZE6]={0};
 
-#define BUFFERSIZE7 28
+#define BUFFERSIZE7 8
 CG_BEFORE_BUFFER
-uint8_t buf7[BUFFERSIZE7]={0};
+float buf7[BUFFERSIZE7]={0};
 
-#define BUFFERSIZE8 28
+#define BUFFERSIZE8 8
 CG_BEFORE_BUFFER
-uint8_t buf8[BUFFERSIZE8]={0};
+float buf8[BUFFERSIZE8]={0};
 
-#define BUFFERSIZE9 28
+#define BUFFERSIZE9 8
 CG_BEFORE_BUFFER
-uint8_t buf9[BUFFERSIZE9]={0};
-
-#define BUFFERSIZE10 28
-CG_BEFORE_BUFFER
-uint8_t buf10[BUFFERSIZE10]={0};
-
-#define BUFFERSIZE11 11
-CG_BEFORE_BUFFER
-float buf11[BUFFERSIZE11]={0};
-
-#define BUFFERSIZE12 11
-CG_BEFORE_BUFFER
-float buf12[BUFFERSIZE12]={0};
-
-#define BUFFERSIZE13 11
-CG_BEFORE_BUFFER
-float buf13[BUFFERSIZE13]={0};
+float buf9[BUFFERSIZE9]={0};
 
 
 typedef struct {
-FIFO<float,FIFOSIZE0,0,0> *fifo0;
+FIFO<float,FIFOSIZE0,1,0> *fifo0;
 FIFO<float,FIFOSIZE1,1,0> *fifo1;
 FIFO<float,FIFOSIZE2,1,0> *fifo2;
 FIFO<float,FIFOSIZE3,1,0> *fifo3;
@@ -186,28 +188,68 @@ FIFO<float,FIFOSIZE6,1,0> *fifo6;
 FIFO<float,FIFOSIZE7,1,0> *fifo7;
 FIFO<float,FIFOSIZE8,1,0> *fifo8;
 FIFO<float,FIFOSIZE9,1,0> *fifo9;
-FIFO<float,FIFOSIZE10,0,0> *fifo10;
+FIFO<float,FIFOSIZE10,1,0> *fifo10;
 FIFO<float,FIFOSIZE11,1,0> *fifo11;
-FIFO<float,FIFOSIZE12,0,0> *fifo12;
+FIFO<float,FIFOSIZE12,1,0> *fifo12;
 FIFO<float,FIFOSIZE13,1,0> *fifo13;
+FIFO<float,FIFOSIZE14,1,0> *fifo14;
+FIFO<float,FIFOSIZE15,1,0> *fifo15;
+FIFO<float,FIFOSIZE16,1,0> *fifo16;
+FIFO<float,FIFOSIZE17,1,0> *fifo17;
+FIFO<float,FIFOSIZE18,1,0> *fifo18;
+FIFO<float,FIFOSIZE19,1,0> *fifo19;
+FIFO<float,FIFOSIZE20,1,0> *fifo20;
+FIFO<float,FIFOSIZE21,1,0> *fifo21;
+FIFO<float,FIFOSIZE22,1,0> *fifo22;
+FIFO<float,FIFOSIZE23,1,0> *fifo23;
+FIFO<float,FIFOSIZE24,1,0> *fifo24;
+FIFO<float,FIFOSIZE25,1,0> *fifo25;
+FIFO<float,FIFOSIZE26,1,0> *fifo26;
+FIFO<float,FIFOSIZE27,1,0> *fifo27;
+FIFO<float,FIFOSIZE28,1,0> *fifo28;
+FIFO<float,FIFOSIZE29,1,0> *fifo29;
+FIFO<float,FIFOSIZE30,0,0> *fifo30;
+FIFO<float,FIFOSIZE31,1,0> *fifo31;
+FIFO<float,FIFOSIZE32,0,0> *fifo32;
+FIFO<float,FIFOSIZE33,0,0> *fifo33;
 } fifos_t;
 
 typedef struct {
-    Duplicate<float,7,float,7> *dup0;
-    ProcessingNode<float,7,float,7> *processing1;
-    ProcessingNode<float,7,float,7> *processing10;
-    ProcessingNode<float,7,float,7> *processing2;
-    ProcessingNode<float,7,float,7> *processing3;
-    ProcessingNode<float,7,float,7> *processing4;
-    ProcessingNode<float,7,float,7> *processing5;
-    ProcessingNode<float,7,float,7> *processing6;
-    ProcessingNode<float,7,float,7> *processing7;
-    ProcessingNode<float,7,float,7> *processing8;
-    ProcessingNode<float,7,float,7> *processing9;
-    ProcessingNode<float,7,float,7> *processinga;
-    Sink<float,5> *sinka;
-    Sink<float,5> *sinkb;
-    Source<float,5> *source;
+    Adder<float,8,float,8,float,8> *adder1;
+    Adder<float,8,float,8,float,8> *adder10;
+    Adder<float,8,float,8,float,8> *adder11;
+    Adder<float,8,float,8,float,8> *adder12;
+    Adder<float,8,float,8,float,8> *adder13;
+    Adder<float,8,float,8,float,8> *adder14;
+    Adder<float,8,float,8,float,8> *adder15;
+    Adder<float,8,float,8,float,8> *adder2;
+    Adder<float,8,float,8,float,8> *adder3;
+    Adder<float,8,float,8,float,8> *adder4;
+    Adder<float,8,float,8,float,8> *adder5;
+    Adder<float,8,float,8,float,8> *adder6;
+    Adder<float,8,float,8,float,8> *adder7;
+    Adder<float,8,float,8,float,8> *adder8;
+    Adder<float,8,float,8,float,8> *adder9;
+    Duplicate<float,4,float,4> *dup0;
+    ProcessingNode<float,4,float,4> *processing;
+    Sink<float,8> *sinka;
+    Sink<float,8> *sinkb;
+    Source<float,8> *source0;
+    Source<float,8> *source1;
+    Source<float,8> *source10;
+    Source<float,8> *source11;
+    Source<float,8> *source12;
+    Source<float,8> *source13;
+    Source<float,8> *source14;
+    Source<float,8> *source15;
+    Source<float,8> *source2;
+    Source<float,8> *source3;
+    Source<float,8> *source4;
+    Source<float,8> *source5;
+    Source<float,8> *source6;
+    Source<float,8> *source7;
+    Source<float,8> *source8;
+    Source<float,8> *source9;
 } nodes_t;
 
 CG_BEFORE_BUFFER
@@ -232,27 +274,27 @@ void *get_scheduler_node(int32_t nodeID)
 int init_scheduler()
 {
     CG_BEFORE_FIFO_INIT;
-    fifos.fifo0 = new FIFO<float,FIFOSIZE0,0,0>(buf11);
+    fifos.fifo0 = new FIFO<float,FIFOSIZE0,1,0>(buf0);
     if (fifos.fifo0==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo1 = new FIFO<float,FIFOSIZE1,1,0>(buf0);
+    fifos.fifo1 = new FIFO<float,FIFOSIZE1,1,0>(buf1);
     if (fifos.fifo1==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo2 = new FIFO<float,FIFOSIZE2,1,0>(buf1);
+    fifos.fifo2 = new FIFO<float,FIFOSIZE2,1,0>(buf3);
     if (fifos.fifo2==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo3 = new FIFO<float,FIFOSIZE3,1,0>(buf2);
+    fifos.fifo3 = new FIFO<float,FIFOSIZE3,1,0>(buf5);
     if (fifos.fifo3==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo4 = new FIFO<float,FIFOSIZE4,1,0>(buf3);
+    fifos.fifo4 = new FIFO<float,FIFOSIZE4,1,0>(buf2);
     if (fifos.fifo4==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
@@ -262,124 +304,352 @@ int init_scheduler()
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo6 = new FIFO<float,FIFOSIZE6,1,0>(buf5);
+    fifos.fifo6 = new FIFO<float,FIFOSIZE6,1,0>(buf4);
     if (fifos.fifo6==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo7 = new FIFO<float,FIFOSIZE7,1,0>(buf6);
+    fifos.fifo7 = new FIFO<float,FIFOSIZE7,1,0>(buf5);
     if (fifos.fifo7==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo8 = new FIFO<float,FIFOSIZE8,1,0>(buf7);
+    fifos.fifo8 = new FIFO<float,FIFOSIZE8,1,0>(buf5);
     if (fifos.fifo8==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo9 = new FIFO<float,FIFOSIZE9,1,0>(buf8);
+    fifos.fifo9 = new FIFO<float,FIFOSIZE9,1,0>(buf6);
     if (fifos.fifo9==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo10 = new FIFO<float,FIFOSIZE10,0,0>(buf12);
+    fifos.fifo10 = new FIFO<float,FIFOSIZE10,1,0>(buf2);
     if (fifos.fifo10==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo11 = new FIFO<float,FIFOSIZE11,1,0>(buf9);
+    fifos.fifo11 = new FIFO<float,FIFOSIZE11,1,0>(buf4);
     if (fifos.fifo11==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo12 = new FIFO<float,FIFOSIZE12,0,0>(buf13);
+    fifos.fifo12 = new FIFO<float,FIFOSIZE12,1,0>(buf3);
     if (fifos.fifo12==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo13 = new FIFO<float,FIFOSIZE13,1,0>(buf10);
+    fifos.fifo13 = new FIFO<float,FIFOSIZE13,1,0>(buf5);
     if (fifos.fifo13==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo14 = new FIFO<float,FIFOSIZE14,1,0>(buf4);
+    if (fifos.fifo14==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo15 = new FIFO<float,FIFOSIZE15,1,0>(buf5);
+    if (fifos.fifo15==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo16 = new FIFO<float,FIFOSIZE16,1,0>(buf1);
+    if (fifos.fifo16==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo17 = new FIFO<float,FIFOSIZE17,1,0>(buf3);
+    if (fifos.fifo17==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo18 = new FIFO<float,FIFOSIZE18,1,0>(buf3);
+    if (fifos.fifo18==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo19 = new FIFO<float,FIFOSIZE19,1,0>(buf0);
+    if (fifos.fifo19==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo20 = new FIFO<float,FIFOSIZE20,1,0>(buf1);
+    if (fifos.fifo20==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo21 = new FIFO<float,FIFOSIZE21,1,0>(buf4);
+    if (fifos.fifo21==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo22 = new FIFO<float,FIFOSIZE22,1,0>(buf1);
+    if (fifos.fifo22==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo23 = new FIFO<float,FIFOSIZE23,1,0>(buf5);
+    if (fifos.fifo23==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo24 = new FIFO<float,FIFOSIZE24,1,0>(buf3);
+    if (fifos.fifo24==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo25 = new FIFO<float,FIFOSIZE25,1,0>(buf4);
+    if (fifos.fifo25==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo26 = new FIFO<float,FIFOSIZE26,1,0>(buf4);
+    if (fifos.fifo26==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo27 = new FIFO<float,FIFOSIZE27,1,0>(buf1);
+    if (fifos.fifo27==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo28 = new FIFO<float,FIFOSIZE28,1,0>(buf2);
+    if (fifos.fifo28==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo29 = new FIFO<float,FIFOSIZE29,1,0>(buf0);
+    if (fifos.fifo29==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo30 = new FIFO<float,FIFOSIZE30,0,0>(buf7);
+    if (fifos.fifo30==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo31 = new FIFO<float,FIFOSIZE31,1,0>(buf0);
+    if (fifos.fifo31==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo32 = new FIFO<float,FIFOSIZE32,0,0>(buf8);
+    if (fifos.fifo32==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo33 = new FIFO<float,FIFOSIZE33,0,0>(buf9);
+    if (fifos.fifo33==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
 
     CG_BEFORE_NODE_INIT;
-    nodes.dup0 = new Duplicate<float,7,float,7>(fifo11,{&fifo12,&fifo13});
+    nodes.adder1 = new Adder<float,8,float,8,float,8>(fifo0,fifo1,fifo4);
+    if (nodes.adder1==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER1_ID]=(void*)nodes.adder1;
+    nodes.adder1->setID(ADDER1_ID);
+    nodes.adder10 = new Adder<float,8,float,8,float,8>(fifo18,fifo19,fifo26);
+    if (nodes.adder10==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER10_ID]=(void*)nodes.adder10;
+    nodes.adder10->setID(ADDER10_ID);
+    nodes.adder11 = new Adder<float,8,float,8,float,8>(fifo20,fifo21,fifo24);
+    if (nodes.adder11==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER11_ID]=(void*)nodes.adder11;
+    nodes.adder11->setID(ADDER11_ID);
+    nodes.adder12 = new Adder<float,8,float,8,float,8>(fifo22,fifo23,fifo25);
+    if (nodes.adder12==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER12_ID]=(void*)nodes.adder12;
+    nodes.adder12->setID(ADDER12_ID);
+    nodes.adder13 = new Adder<float,8,float,8,float,8>(fifo24,fifo25,fifo27);
+    if (nodes.adder13==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER13_ID]=(void*)nodes.adder13;
+    nodes.adder13->setID(ADDER13_ID);
+    nodes.adder14 = new Adder<float,8,float,8,float,8>(fifo26,fifo27,fifo29);
+    if (nodes.adder14==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER14_ID]=(void*)nodes.adder14;
+    nodes.adder14->setID(ADDER14_ID);
+    nodes.adder15 = new Adder<float,8,float,8,float,8>(fifo28,fifo29,fifo30);
+    if (nodes.adder15==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER15_ID]=(void*)nodes.adder15;
+    nodes.adder15->setID(ADDER15_ID);
+    nodes.adder2 = new Adder<float,8,float,8,float,8>(fifo2,fifo3,fifo5);
+    if (nodes.adder2==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER2_ID]=(void*)nodes.adder2;
+    nodes.adder2->setID(ADDER2_ID);
+    nodes.adder3 = new Adder<float,8,float,8,float,8>(fifo4,fifo5,fifo12);
+    if (nodes.adder3==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER3_ID]=(void*)nodes.adder3;
+    nodes.adder3->setID(ADDER3_ID);
+    nodes.adder4 = new Adder<float,8,float,8,float,8>(fifo6,fifo7,fifo10);
+    if (nodes.adder4==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER4_ID]=(void*)nodes.adder4;
+    nodes.adder4->setID(ADDER4_ID);
+    nodes.adder5 = new Adder<float,8,float,8,float,8>(fifo8,fifo9,fifo11);
+    if (nodes.adder5==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER5_ID]=(void*)nodes.adder5;
+    nodes.adder5->setID(ADDER5_ID);
+    nodes.adder6 = new Adder<float,8,float,8,float,8>(fifo10,fifo11,fifo13);
+    if (nodes.adder6==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER6_ID]=(void*)nodes.adder6;
+    nodes.adder6->setID(ADDER6_ID);
+    nodes.adder7 = new Adder<float,8,float,8,float,8>(fifo12,fifo13,fifo28);
+    if (nodes.adder7==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER7_ID]=(void*)nodes.adder7;
+    nodes.adder7->setID(ADDER7_ID);
+    nodes.adder8 = new Adder<float,8,float,8,float,8>(fifo14,fifo15,fifo18);
+    if (nodes.adder8==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER8_ID]=(void*)nodes.adder8;
+    nodes.adder8->setID(ADDER8_ID);
+    nodes.adder9 = new Adder<float,8,float,8,float,8>(fifo16,fifo17,fifo19);
+    if (nodes.adder9==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[ADDER9_ID]=(void*)nodes.adder9;
+    nodes.adder9->setID(ADDER9_ID);
+    nodes.dup0 = new Duplicate<float,4,float,4>(fifo31,{&fifo32,&fifo33});
     if (nodes.dup0==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    nodes.processing1 = new ProcessingNode<float,7,float,7>(fifo13,fifo1);
-    if (nodes.processing1==NULL)
+    nodes.processing = new ProcessingNode<float,4,float,4>(fifo30,fifo31);
+    if (nodes.processing==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    nodes.processing10 = new ProcessingNode<float,7,float,7>(fifo9,fifo10);
-    if (nodes.processing10==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
-    identifiedNodes[PROCESSING10_ID]=(void*)nodes.processing10;
-    nodes.processing10->setID(PROCESSING10_ID);
-    nodes.processing2 = new ProcessingNode<float,7,float,7>(fifo1,fifo2);
-    if (nodes.processing2==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
-    nodes.processing3 = new ProcessingNode<float,7,float,7>(fifo2,fifo3);
-    if (nodes.processing3==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
-    nodes.processing4 = new ProcessingNode<float,7,float,7>(fifo3,fifo4);
-    if (nodes.processing4==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
-    nodes.processing5 = new ProcessingNode<float,7,float,7>(fifo4,fifo5);
-    if (nodes.processing5==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
-    nodes.processing6 = new ProcessingNode<float,7,float,7>(fifo5,fifo6);
-    if (nodes.processing6==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
-    nodes.processing7 = new ProcessingNode<float,7,float,7>(fifo6,fifo7);
-    if (nodes.processing7==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
-    nodes.processing8 = new ProcessingNode<float,7,float,7>(fifo7,fifo8);
-    if (nodes.processing8==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
-    nodes.processing9 = new ProcessingNode<float,7,float,7>(fifo8,fifo9);
-    if (nodes.processing9==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
-    nodes.processinga = new ProcessingNode<float,7,float,7>(fifo0,fifo11);
-    if (nodes.processinga==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
-    identifiedNodes[PROCESSINGA_ID]=(void*)nodes.processinga;
-    nodes.processinga->setID(PROCESSINGA_ID);
-    nodes.sinka = new Sink<float,5>(fifo12);
+    identifiedNodes[PROCESSING_ID]=(void*)nodes.processing;
+    nodes.processing->setID(PROCESSING_ID);
+    nodes.sinka = new Sink<float,8>(fifo32);
     if (nodes.sinka==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    nodes.sinkb = new Sink<float,5>(fifo10);
+    nodes.sinkb = new Sink<float,8>(fifo33);
     if (nodes.sinkb==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    nodes.source = new Source<float,5>(fifo0);
-    if (nodes.source==NULL)
+    nodes.source0 = new Source<float,8>(fifo0);
+    if (nodes.source0==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source1 = new Source<float,8>(fifo1);
+    if (nodes.source1==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source10 = new Source<float,8>(fifo16);
+    if (nodes.source10==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source11 = new Source<float,8>(fifo17);
+    if (nodes.source11==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source12 = new Source<float,8>(fifo20);
+    if (nodes.source12==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source13 = new Source<float,8>(fifo21);
+    if (nodes.source13==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source14 = new Source<float,8>(fifo22);
+    if (nodes.source14==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source15 = new Source<float,8>(fifo23);
+    if (nodes.source15==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source2 = new Source<float,8>(fifo2);
+    if (nodes.source2==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source3 = new Source<float,8>(fifo3);
+    if (nodes.source3==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source4 = new Source<float,8>(fifo6);
+    if (nodes.source4==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source5 = new Source<float,8>(fifo7);
+    if (nodes.source5==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source6 = new Source<float,8>(fifo8);
+    if (nodes.source6==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source7 = new Source<float,8>(fifo9);
+    if (nodes.source7==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source8 = new Source<float,8>(fifo14);
+    if (nodes.source8==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    nodes.source9 = new Source<float,8>(fifo15);
+    if (nodes.source9==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
@@ -446,54 +716,154 @@ void free_scheduler()
     {
        delete fifos.fifo13;
     }
+    if (fifos.fifo14!=NULL)
+    {
+       delete fifos.fifo14;
+    }
+    if (fifos.fifo15!=NULL)
+    {
+       delete fifos.fifo15;
+    }
+    if (fifos.fifo16!=NULL)
+    {
+       delete fifos.fifo16;
+    }
+    if (fifos.fifo17!=NULL)
+    {
+       delete fifos.fifo17;
+    }
+    if (fifos.fifo18!=NULL)
+    {
+       delete fifos.fifo18;
+    }
+    if (fifos.fifo19!=NULL)
+    {
+       delete fifos.fifo19;
+    }
+    if (fifos.fifo20!=NULL)
+    {
+       delete fifos.fifo20;
+    }
+    if (fifos.fifo21!=NULL)
+    {
+       delete fifos.fifo21;
+    }
+    if (fifos.fifo22!=NULL)
+    {
+       delete fifos.fifo22;
+    }
+    if (fifos.fifo23!=NULL)
+    {
+       delete fifos.fifo23;
+    }
+    if (fifos.fifo24!=NULL)
+    {
+       delete fifos.fifo24;
+    }
+    if (fifos.fifo25!=NULL)
+    {
+       delete fifos.fifo25;
+    }
+    if (fifos.fifo26!=NULL)
+    {
+       delete fifos.fifo26;
+    }
+    if (fifos.fifo27!=NULL)
+    {
+       delete fifos.fifo27;
+    }
+    if (fifos.fifo28!=NULL)
+    {
+       delete fifos.fifo28;
+    }
+    if (fifos.fifo29!=NULL)
+    {
+       delete fifos.fifo29;
+    }
+    if (fifos.fifo30!=NULL)
+    {
+       delete fifos.fifo30;
+    }
+    if (fifos.fifo31!=NULL)
+    {
+       delete fifos.fifo31;
+    }
+    if (fifos.fifo32!=NULL)
+    {
+       delete fifos.fifo32;
+    }
+    if (fifos.fifo33!=NULL)
+    {
+       delete fifos.fifo33;
+    }
 
+    if (nodes.adder1!=NULL)
+    {
+        delete nodes.adder1;
+    }
+    if (nodes.adder10!=NULL)
+    {
+        delete nodes.adder10;
+    }
+    if (nodes.adder11!=NULL)
+    {
+        delete nodes.adder11;
+    }
+    if (nodes.adder12!=NULL)
+    {
+        delete nodes.adder12;
+    }
+    if (nodes.adder13!=NULL)
+    {
+        delete nodes.adder13;
+    }
+    if (nodes.adder14!=NULL)
+    {
+        delete nodes.adder14;
+    }
+    if (nodes.adder15!=NULL)
+    {
+        delete nodes.adder15;
+    }
+    if (nodes.adder2!=NULL)
+    {
+        delete nodes.adder2;
+    }
+    if (nodes.adder3!=NULL)
+    {
+        delete nodes.adder3;
+    }
+    if (nodes.adder4!=NULL)
+    {
+        delete nodes.adder4;
+    }
+    if (nodes.adder5!=NULL)
+    {
+        delete nodes.adder5;
+    }
+    if (nodes.adder6!=NULL)
+    {
+        delete nodes.adder6;
+    }
+    if (nodes.adder7!=NULL)
+    {
+        delete nodes.adder7;
+    }
+    if (nodes.adder8!=NULL)
+    {
+        delete nodes.adder8;
+    }
+    if (nodes.adder9!=NULL)
+    {
+        delete nodes.adder9;
+    }
     if (nodes.dup0!=NULL)
     {
         delete nodes.dup0;
     }
-    if (nodes.processing1!=NULL)
+    if (nodes.processing!=NULL)
     {
-        delete nodes.processing1;
-    }
-    if (nodes.processing10!=NULL)
-    {
-        delete nodes.processing10;
-    }
-    if (nodes.processing2!=NULL)
-    {
-        delete nodes.processing2;
-    }
-    if (nodes.processing3!=NULL)
-    {
-        delete nodes.processing3;
-    }
-    if (nodes.processing4!=NULL)
-    {
-        delete nodes.processing4;
-    }
-    if (nodes.processing5!=NULL)
-    {
-        delete nodes.processing5;
-    }
-    if (nodes.processing6!=NULL)
-    {
-        delete nodes.processing6;
-    }
-    if (nodes.processing7!=NULL)
-    {
-        delete nodes.processing7;
-    }
-    if (nodes.processing8!=NULL)
-    {
-        delete nodes.processing8;
-    }
-    if (nodes.processing9!=NULL)
-    {
-        delete nodes.processing9;
-    }
-    if (nodes.processinga!=NULL)
-    {
-        delete nodes.processinga;
+        delete nodes.processing;
     }
     if (nodes.sinka!=NULL)
     {
@@ -503,9 +873,69 @@ void free_scheduler()
     {
         delete nodes.sinkb;
     }
-    if (nodes.source!=NULL)
+    if (nodes.source0!=NULL)
     {
-        delete nodes.source;
+        delete nodes.source0;
+    }
+    if (nodes.source1!=NULL)
+    {
+        delete nodes.source1;
+    }
+    if (nodes.source10!=NULL)
+    {
+        delete nodes.source10;
+    }
+    if (nodes.source11!=NULL)
+    {
+        delete nodes.source11;
+    }
+    if (nodes.source12!=NULL)
+    {
+        delete nodes.source12;
+    }
+    if (nodes.source13!=NULL)
+    {
+        delete nodes.source13;
+    }
+    if (nodes.source14!=NULL)
+    {
+        delete nodes.source14;
+    }
+    if (nodes.source15!=NULL)
+    {
+        delete nodes.source15;
+    }
+    if (nodes.source2!=NULL)
+    {
+        delete nodes.source2;
+    }
+    if (nodes.source3!=NULL)
+    {
+        delete nodes.source3;
+    }
+    if (nodes.source4!=NULL)
+    {
+        delete nodes.source4;
+    }
+    if (nodes.source5!=NULL)
+    {
+        delete nodes.source5;
+    }
+    if (nodes.source6!=NULL)
+    {
+        delete nodes.source6;
+    }
+    if (nodes.source7!=NULL)
+    {
+        delete nodes.source7;
+    }
+    if (nodes.source8!=NULL)
+    {
+        delete nodes.source8;
+    }
+    if (nodes.source9!=NULL)
+    {
+        delete nodes.source9;
     }
 }
 
@@ -524,7 +954,7 @@ uint32_t scheduler(int *error)
     {
         /* Run a schedule iteration */
         CG_BEFORE_ITERATION;
-        for(unsigned long id=0 ; id < 81; id++)
+        for(unsigned long id=0 ; id < 37; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
@@ -532,91 +962,211 @@ uint32_t scheduler(int *error)
             {
                 case 0:
                 {
-                   cgStaticError = dup0.run();
+                   cgStaticError = adder1.run();
                 }
                 break;
 
                 case 1:
                 {
-                   cgStaticError = processing1.run();
+                   cgStaticError = adder10.run();
                 }
                 break;
 
                 case 2:
                 {
-                   cgStaticError = processing10.run();
+                   cgStaticError = adder11.run();
                 }
                 break;
 
                 case 3:
                 {
-                   cgStaticError = processing2.run();
+                   cgStaticError = adder12.run();
                 }
                 break;
 
                 case 4:
                 {
-                   cgStaticError = processing3.run();
+                   cgStaticError = adder13.run();
                 }
                 break;
 
                 case 5:
                 {
-                   cgStaticError = processing4.run();
+                   cgStaticError = adder14.run();
                 }
                 break;
 
                 case 6:
                 {
-                   cgStaticError = processing5.run();
+                   cgStaticError = adder15.run();
                 }
                 break;
 
                 case 7:
                 {
-                   cgStaticError = processing6.run();
+                   cgStaticError = adder2.run();
                 }
                 break;
 
                 case 8:
                 {
-                   cgStaticError = processing7.run();
+                   cgStaticError = adder3.run();
                 }
                 break;
 
                 case 9:
                 {
-                   cgStaticError = processing8.run();
+                   cgStaticError = adder4.run();
                 }
                 break;
 
                 case 10:
                 {
-                   cgStaticError = processing9.run();
+                   cgStaticError = adder5.run();
                 }
                 break;
 
                 case 11:
                 {
-                   cgStaticError = processinga.run();
+                   cgStaticError = adder6.run();
                 }
                 break;
 
                 case 12:
                 {
-                   cgStaticError = sinka.run();
+                   cgStaticError = adder7.run();
                 }
                 break;
 
                 case 13:
                 {
-                   cgStaticError = sinkb.run();
+                   cgStaticError = adder8.run();
                 }
                 break;
 
                 case 14:
                 {
-                   cgStaticError = source.run();
+                   cgStaticError = adder9.run();
+                }
+                break;
+
+                case 15:
+                {
+                   cgStaticError = dup0.run();
+                }
+                break;
+
+                case 16:
+                {
+                   cgStaticError = processing.run();
+                }
+                break;
+
+                case 17:
+                {
+                   cgStaticError = sinka.run();
+                }
+                break;
+
+                case 18:
+                {
+                   cgStaticError = sinkb.run();
+                }
+                break;
+
+                case 19:
+                {
+                   cgStaticError = source0.run();
+                }
+                break;
+
+                case 20:
+                {
+                   cgStaticError = source1.run();
+                }
+                break;
+
+                case 21:
+                {
+                   cgStaticError = source10.run();
+                }
+                break;
+
+                case 22:
+                {
+                   cgStaticError = source11.run();
+                }
+                break;
+
+                case 23:
+                {
+                   cgStaticError = source12.run();
+                }
+                break;
+
+                case 24:
+                {
+                   cgStaticError = source13.run();
+                }
+                break;
+
+                case 25:
+                {
+                   cgStaticError = source14.run();
+                }
+                break;
+
+                case 26:
+                {
+                   cgStaticError = source15.run();
+                }
+                break;
+
+                case 27:
+                {
+                   cgStaticError = source2.run();
+                }
+                break;
+
+                case 28:
+                {
+                   cgStaticError = source3.run();
+                }
+                break;
+
+                case 29:
+                {
+                   cgStaticError = source4.run();
+                }
+                break;
+
+                case 30:
+                {
+                   cgStaticError = source5.run();
+                }
+                break;
+
+                case 31:
+                {
+                   cgStaticError = source6.run();
+                }
+                break;
+
+                case 32:
+                {
+                   cgStaticError = source7.run();
+                }
+                break;
+
+                case 33:
+                {
+                   cgStaticError = source8.run();
+                }
+                break;
+
+                case 34:
+                {
+                   cgStaticError = source9.run();
                 }
                 break;
 

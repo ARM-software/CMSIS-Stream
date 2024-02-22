@@ -158,6 +158,38 @@ private:
     RuntimeEdge &mDst;
 };
 
+template<typename IN1,typename IN2,typename OUT>
+class GenericRuntimeNode21:public NodeBase
+{
+public:
+     explicit GenericRuntimeNode21(const arm_cmsis_stream::Node &n,
+                                 RuntimeEdge &src1,
+                                 RuntimeEdge &src2,
+                                 RuntimeEdge &dst):
+     ndesc(n),mSrc1(src1),mSrc2(src2),mDst(dst){};
+
+     std::size_t nb_input_samples1() const {return(ndesc.inputs()->Get(0)->nb());};
+     std::size_t nb_input_samples2() const {return(ndesc.inputs()->Get(1)->nb());};
+
+     std::size_t nb_output_samples() const {return(ndesc.outputs()->Get(0)->nb());};
+
+
+protected:
+     OUT * getWriteBuffer(const int nb=0 ) {return (OUT*)mDst.getWriteBuffer(*(ndesc.outputs()),sizeof(OUT),0,nb);};
+     IN1 * getReadBuffer1(const int nb=0 ) {return (IN1*)mSrc1.getReadBuffer(*(ndesc.inputs()),sizeof(IN1),0,nb);};
+     IN2 * getReadBuffer2(const int nb=0 ) {return (IN2*)mSrc2.getReadBuffer(*(ndesc.inputs()),sizeof(IN2),1,nb);};
+
+     bool willOverflow(const int nb=0 ) const {return mDst.willOverflowWith(*(ndesc.outputs()),sizeof(OUT),0,nb);};
+     bool willUnderflow1(const int nb=0 ) const {return mSrc1.willUnderflowWith(*(ndesc.inputs()),sizeof(IN1),0,nb);};
+     bool willUnderflow2(const int nb=0 ) const {return mSrc2.willUnderflowWith(*(ndesc.inputs()),sizeof(IN2),1,nb);};
+
+private:
+    const arm_cmsis_stream::Node &ndesc;
+    RuntimeEdge &mSrc1;
+    RuntimeEdge &mSrc2;
+    RuntimeEdge &mDst;
+};
+
 template<typename OUT>
 class GenericRuntimeSource:public NodeBase
 {
@@ -176,6 +208,8 @@ private:
     const arm_cmsis_stream::Node &ndesc;
     RuntimeEdge &mDst;
 };
+
+
 
 template<typename IN>
 class Sink<IN,RUNTIME>: public GenericRuntimeSink<IN>
@@ -574,6 +608,94 @@ public:
 
 protected:
     const uint32_t mInc;
+};
+
+template<typename IN1, int input1Size,
+         typename IN2, int inputSize2,
+         typename OUT, int outputSize>
+class AdderNode;
+
+template<typename IN>
+class AdderNode<IN,RUNTIME,
+                IN,RUNTIME,
+                IN,RUNTIME>: 
+      public GenericRuntimeNode21<IN,IN,IN>
+{
+public:
+    using ADD = AdderNode<IN,RUNTIME,
+                IN,RUNTIME,
+                IN,RUNTIME>;
+
+    /* Constructor needs the input and output FIFOs */
+    AdderNode(const arm_cmsis_stream::Node &n,
+              RuntimeEdge &src1,
+              RuntimeEdge &src2,
+              RuntimeEdge &dst):GenericRuntimeNode21<IN,IN,IN>(n,src1,src2,dst){};
+
+
+    static int runNode(NodeBase* obj)
+    {
+        ADD *n = reinterpret_cast<ADD *>(obj);
+        return(n->run());
+    }
+
+    static int prepareForRunningNode(NodeBase* obj)
+    {
+        ADD *n = reinterpret_cast<ADD *>(obj);
+        return(n->prepareForRunning());
+    }
+
+
+    static NodeBase* mkNode(const runtime_context &ctx, 
+                        const arm_cmsis_stream::Node *ndesc)
+    {
+        
+        auto inputs = ndesc->inputs();
+        RuntimeEdge &ia = *ctx.fifos[inputs->Get(0)->id()];
+        RuntimeEdge &ib = *ctx.fifos[inputs->Get(1)->id()];
+
+        auto outputs = ndesc->outputs();
+        RuntimeEdge &o = *ctx.fifos[outputs->Get(0)->id()];
+
+      
+        ADD *node=new ADD(*ndesc,ia,ib,o);
+        return(static_cast<NodeBase*>(node));
+    }
+
+    /* In asynchronous mode, node execution will be 
+       skipped in case of underflow on the input 
+       or overflow in the output.
+    */
+    int prepareForRunning() final
+    {
+        if (this->willOverflow() ||
+            this->willUnderflow1() ||
+            this->willUnderflow2())
+        {
+           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+        }
+
+        return(0);
+    };
+    
+    /* 
+       Node processing
+       1 is added to the input
+    */
+    int run() final{
+        //printf("AdderNode\n");
+
+
+        IN *a=this->getReadBuffer1();
+        IN *b=this->getReadBuffer2();
+        IN *c=this->getWriteBuffer();
+        for(int i=0;i<this->nb_input_samples1();i++)
+        {
+            c[i] = a[i]+b[i];
+        }
+        return(0);
+    };
+
 };
 
 
