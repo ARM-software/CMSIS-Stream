@@ -18,6 +18,7 @@ floatType=CType(F32)
 # "source" is the name of the C variable that will identify
 # this node
 src=Source("source",floatType,NBA)
+src.identified=False 
 # Instantiate a Processing node using a float data type for
 # both the input and output. The number of samples consumed
 # on the input and produced on the output is 7 each time
@@ -25,13 +26,16 @@ src=Source("source",floatType,NBA)
 # "processing" is the name of the C variable that will identify
 # this node
 processinga=ProcessingNode("processinga",floatType,NBB,NBB,v=10)
+processinga.identified=False 
 
 # Instantiate a Sink node with a float datatype and consuming
 # 5 samples each time the node is executed in the C code
 # "sink" is the name of the C variable that will identify
 # this node
 sinka=Sink("sinka",floatType,NBA)
+sinka.identified=False 
 sinkb=Sink("sinkb",floatType,NBA)
+sinkb.identified=False 
 
 # Create a Graph object
 the_graph = Graph()
@@ -44,12 +48,17 @@ the_graph.connect(processinga.o,sinka.i)
 def crazy(nb,r):
     for i in range(nb):
         processingb=ProcessingNode(f"processing{i+1}",floatType,NBB,NBB)
+        processingb.identified=False 
         the_graph.connect(r.o,processingb.i)
         r = processingb
     return(r)
 
 
 processingb = crazy(10,processinga)
+
+processinga.identified=True 
+processingb.identified=True 
+
 the_graph.connect(processingb.o,sinkb.i)
 
 

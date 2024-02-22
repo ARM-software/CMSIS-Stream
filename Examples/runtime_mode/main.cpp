@@ -155,6 +155,34 @@ void run_demo(const registry_t &registered_nodes)
     hooks.after_iteration=nullptr;
     hooks.after_schedule=after;
 
+    // Before running the graph, we try to access some nodes
+    // to check the optional identification feature:
+    // 
+
+    using Proc = ProcessingNode<float,RUNTIME,float,RUNTIME>;
+    auto proca = static_cast<Proc*>(get_node(ctx,"processinga"));
+    auto procb = static_cast<Proc*>(get_node(ctx,"processing10"));
+
+    
+
+    if (proca!=nullptr)
+    {
+       std::cout << "processinga increment = " << proca->inc() << "\r\n";
+    }
+    else 
+    {
+       std::cout << "can't access processinga node\r\n";
+    }
+
+    if (procb!=nullptr)
+    {
+       std::cout << "processing9 increment = " << procb->inc() << "\r\n";
+    }
+    else 
+    {
+       std::cout << "can't access processing9 node\r\n";
+    }
+
     uint32_t nbIterations = run_graph(hooks,ctx,&error,1);
 
     printf("Nb iterations = %d\r\n",nbIterations);

@@ -18,6 +18,8 @@ conf.debugLimit=1
 conf.CMSISDSP = False
 conf.asynchronous = False
 
+conf.nodeIdentification = True
+
 export_graph(the_graph,"graph.yml")
 export_config(conf,"config.yml")
 
@@ -34,10 +36,8 @@ scheduling = the_graph.computeSchedule(config=conf)
 print("Schedule length = %d" % scheduling.scheduleLength)
 print("Memory usage %d bytes" % scheduling.memory)
 
-# Generate the C++ code for the static scheduler
-# No generation of CPP. Instead a flatbuffer is generated
-# and loaded at runtime
-#scheduling.ccode(".",conf)
+
+scheduling.ccode(".",conf)
 
 buf = flat.gen(scheduling,conf)
 flat.create_c_file(buf,"sched_flat")

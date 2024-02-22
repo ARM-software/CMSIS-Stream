@@ -16,6 +16,7 @@ table Node {
    inputs:[IODesc];
    outputs:[IODesc];
    node_data:[byte];
+   name:string;
 }
 
 table FIFODesc {

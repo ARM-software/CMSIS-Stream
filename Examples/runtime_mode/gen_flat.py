@@ -129,6 +129,11 @@ def gen(sched,conf):
                 builder.PrependByte(i)
             node_data = builder.EndVector()
 
+         node_name = None
+         if conf.nodeIdentification:
+            if n.identified:
+               node_name = builder.CreateString(n.nodeName)
+
          Node.Start(builder)
          Node.AddUuid(builder, mkUUID(builder,n.uuid))
          Node.AddId(builder, i)
@@ -140,6 +145,8 @@ def gen(sched,conf):
             Node.AddOutputs(builder,outputs)
          if node_data is not None:
             Node.AddNodeData(builder,node_data)
+         if node_name is not None:
+            Node.AddName(builder,node_name)
         
 
          node = Node.End(builder)

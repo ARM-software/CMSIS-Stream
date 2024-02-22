@@ -44,6 +44,17 @@ runtime_context create_graph(const unsigned char * data,
           c.nodes.push_back(std::unique_ptr<NodeBase>(node));
       }
 
+      for (unsigned int i = 0; i < nodes->size(); i++)
+      {
+        auto n = nodes->Get(i);
+        if (n->name() != nullptr)
+        {
+             c.identification[n->name()->str()] = c.nodes[i].get();
+        }
+      }
+
+      
+
 
    }
    else
@@ -51,6 +62,20 @@ runtime_context create_graph(const unsigned char * data,
      std::cout << "Incorrect graph\r\n";
    }
    return(c);
+}
+
+NodeBase* get_node(const runtime_context& ctx,
+                   const std::string &name)
+{
+   if (ctx.identification.find(name) == ctx.identification.end())
+   {
+      return(nullptr);
+   }
+   else 
+   {
+      return(ctx.identification.at(name));
+     
+   }
 }
 
 #define HOOK(A,...)                       \

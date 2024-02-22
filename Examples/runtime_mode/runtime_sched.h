@@ -8,6 +8,8 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <string>
+
 #include "stream_generated.h"
 #include "GenericNodes.h"
 
@@ -269,6 +271,7 @@ struct runtime_context {
   std::vector<std::unique_ptr<RuntimeEdge>> fifos;
   std::vector<std::unique_ptr<NodeBase>> nodes;
   std::vector<const rnode_t*> node_api;
+  std::map<const std::string,NodeBase*> identification;
 };
 
 typedef int (*run_f)(NodeBase*);
@@ -344,5 +347,7 @@ extern uint32_t run_graph(const SchedulerHooks &hooks,
                           const runtime_context& ctx,
                           int *error,
                           int nbIterations=INFINITE_SCHEDULING);
+
+extern NodeBase* get_node(const runtime_context& ctx,const std::string &name);
 
 #endif

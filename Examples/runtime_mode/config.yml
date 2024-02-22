@@ -1,4 +1,6 @@
 version: 1.1.0
 code-generation-options:
   debug-limit: 1
+c-code-generation-options:
+  node-identification: true
 

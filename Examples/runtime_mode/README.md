@@ -20,7 +20,6 @@ Following features from build mode are not yet available:
 
 * async mode not implemented
 * result of python memory optimization not yet used
-* Node identification for outside access not yet implemented
 
 ## Limitations:
 

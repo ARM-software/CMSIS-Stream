@@ -117,7 +117,14 @@ class Node(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         return o == 0
 
-def NodeStart(builder): builder.StartObject(5)
+    # Node
+    def Name(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(14))
+        if o != 0:
+            return self._tab.String(o + self._tab.Pos)
+        return None
+
+def NodeStart(builder): builder.StartObject(6)
 def Start(builder):
     return NodeStart(builder)
 def NodeAddUuid(builder, uuid): builder.PrependStructSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(uuid), 0)
@@ -144,6 +151,9 @@ def AddNodeData(builder, nodeData):
 def NodeStartNodeDataVector(builder, numElems): return builder.StartVector(1, numElems, 1)
 def StartNodeDataVector(builder, numElems):
     return NodeStartNodeDataVector(builder, numElems)
+def NodeAddName(builder, name): builder.PrependUOffsetTRelativeSlot(5, flatbuffers.number_types.UOffsetTFlags.py_type(name), 0)
+def AddName(builder, name):
+    return NodeAddName(builder, name)
 def NodeEnd(builder): return builder.EndObject()
 def End(builder):
     return NodeEnd(builder)

@@ -570,6 +570,8 @@ public:
         return(0);
     };
 
+    uint32_t inc(void) const {return mInc;};
+
 protected:
     const uint32_t mInc;
 };

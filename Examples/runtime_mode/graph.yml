@@ -2,7 +2,7 @@ version: 1.1.0
 graph:
   nodes:
   - node: source
-    identified: true
+    identified: false
     kind: Source
     outputs:
     - output: o
@@ -20,14 +20,14 @@ graph:
       samples: 7
       type: float
   - node: sinka
-    identified: true
+    identified: false
     kind: Sink
     inputs:
     - input: i
       samples: 5
       type: float
   - node: processing1
-    identified: true
+    identified: false
     kind: ProcessingNode
     inputs:
     - input: i
@@ -38,7 +38,7 @@ graph:
       samples: 7
       type: float
   - node: processing2
-    identified: true
+    identified: false
     kind: ProcessingNode
     inputs:
     - input: i
@@ -49,7 +49,7 @@ graph:
       samples: 7
       type: float
   - node: processing3
-    identified: true
+    identified: false
     kind: ProcessingNode
     inputs:
     - input: i
@@ -60,7 +60,7 @@ graph:
       samples: 7
       type: float
   - node: processing4
-    identified: true
+    identified: false
     kind: ProcessingNode
     inputs:
     - input: i
@@ -71,7 +71,7 @@ graph:
       samples: 7
       type: float
   - node: processing5
-    identified: true
+    identified: false
     kind: ProcessingNode
     inputs:
     - input: i
@@ -82,7 +82,7 @@ graph:
       samples: 7
       type: float
   - node: processing6
-    identified: true
+    identified: false
     kind: ProcessingNode
     inputs:
     - input: i
@@ -93,7 +93,7 @@ graph:
       samples: 7
       type: float
   - node: processing7
-    identified: true
+    identified: false
     kind: ProcessingNode
     inputs:
     - input: i
@@ -104,7 +104,7 @@ graph:
       samples: 7
       type: float
   - node: processing8
-    identified: true
+    identified: false
     kind: ProcessingNode
     inputs:
     - input: i
@@ -115,7 +115,7 @@ graph:
       samples: 7
       type: float
   - node: processing9
-    identified: true
+    identified: false
     kind: ProcessingNode
     inputs:
     - input: i
@@ -137,7 +137,7 @@ graph:
       samples: 7
       type: float
   - node: sinkb
-    identified: true
+    identified: false
     kind: Sink
     inputs:
     - input: i
