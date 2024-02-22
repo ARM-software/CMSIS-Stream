@@ -57,8 +57,33 @@ class Schedule(object):
         return o == 0
 
     # Schedule
-    def Fifos(self, j):
+    def Buffers(self, j):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        if o != 0:
+            x = self._tab.Vector(o)
+            x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
+            x = self._tab.Indirect(x)
+            from arm_cmsis_stream.BufferDesc import BufferDesc
+            obj = BufferDesc()
+            obj.Init(self._tab.Bytes, x)
+            return obj
+        return None
+
+    # Schedule
+    def BuffersLength(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        if o != 0:
+            return self._tab.VectorLen(o)
+        return 0
+
+    # Schedule
+    def BuffersIsNone(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        return o == 0
+
+    # Schedule
+    def Fifos(self, j):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
@@ -71,19 +96,19 @@ class Schedule(object):
 
     # Schedule
     def FifosLength(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # Schedule
     def FifosIsNone(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         return o == 0
 
     # Schedule
     def Schedule(self, j):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
             a = self._tab.Vector(o)
             return self._tab.Get(flatbuffers.number_types.Uint16Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 2))
@@ -91,24 +116,24 @@ class Schedule(object):
 
     # Schedule
     def ScheduleAsNumpy(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
             return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint16Flags, o)
         return 0
 
     # Schedule
     def ScheduleLength(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # Schedule
     def ScheduleIsNone(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         return o == 0
 
-def ScheduleStart(builder): builder.StartObject(4)
+def ScheduleStart(builder): builder.StartObject(5)
 def Start(builder):
     return ScheduleStart(builder)
 def ScheduleAddAsyncMode(builder, asyncMode): builder.PrependBoolSlot(0, asyncMode, 0)
@@ -120,13 +145,19 @@ def AddNodes(builder, nodes):
 def ScheduleStartNodesVector(builder, numElems): return builder.StartVector(4, numElems, 4)
 def StartNodesVector(builder, numElems):
     return ScheduleStartNodesVector(builder, numElems)
-def ScheduleAddFifos(builder, fifos): builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(fifos), 0)
+def ScheduleAddBuffers(builder, buffers): builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(buffers), 0)
+def AddBuffers(builder, buffers):
+    return ScheduleAddBuffers(builder, buffers)
+def ScheduleStartBuffersVector(builder, numElems): return builder.StartVector(4, numElems, 4)
+def StartBuffersVector(builder, numElems):
+    return ScheduleStartBuffersVector(builder, numElems)
+def ScheduleAddFifos(builder, fifos): builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(fifos), 0)
 def AddFifos(builder, fifos):
     return ScheduleAddFifos(builder, fifos)
 def ScheduleStartFifosVector(builder, numElems): return builder.StartVector(4, numElems, 4)
 def StartFifosVector(builder, numElems):
     return ScheduleStartFifosVector(builder, numElems)
-def ScheduleAddSchedule(builder, schedule): builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(schedule), 0)
+def ScheduleAddSchedule(builder, schedule): builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(schedule), 0)
 def AddSchedule(builder, schedule):
     return ScheduleAddSchedule(builder, schedule)
 def ScheduleStartScheduleVector(builder, numElems): return builder.StartVector(2, numElems, 2)

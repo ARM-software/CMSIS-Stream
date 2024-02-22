@@ -19,9 +19,14 @@ table Node {
    name:string;
 }
 
+table BufferDesc {
+   length:uint32;
+}
+
 table FIFODesc {
    id:uint16;
    length:uint32;
+   bufid:uint16;
    delay:uint32;
    buffer:bool;
 }
@@ -29,6 +34,7 @@ table FIFODesc {
 table Schedule {
     async_mode:bool;
     nodes:[Node];
+    buffers:[BufferDesc];
     fifos:[FIFODesc];
     schedule:[uint16];
 }

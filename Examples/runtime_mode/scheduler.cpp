@@ -118,61 +118,61 @@ FIFO buffers
 #define FIFOSIZE12 11
 #define FIFOSIZE13 7
 
-#define BUFFERSIZE1 11
+#define BUFFERSIZE0 28
 CG_BEFORE_BUFFER
-float buf1[BUFFERSIZE1]={0};
+uint8_t buf0[BUFFERSIZE0]={0};
 
-#define BUFFERSIZE2 7
+#define BUFFERSIZE1 28
 CG_BEFORE_BUFFER
-float buf2[BUFFERSIZE2]={0};
+uint8_t buf1[BUFFERSIZE1]={0};
 
-#define BUFFERSIZE3 7
+#define BUFFERSIZE2 28
 CG_BEFORE_BUFFER
-float buf3[BUFFERSIZE3]={0};
+uint8_t buf2[BUFFERSIZE2]={0};
 
-#define BUFFERSIZE4 7
+#define BUFFERSIZE3 28
 CG_BEFORE_BUFFER
-float buf4[BUFFERSIZE4]={0};
+uint8_t buf3[BUFFERSIZE3]={0};
 
-#define BUFFERSIZE5 7
+#define BUFFERSIZE4 28
 CG_BEFORE_BUFFER
-float buf5[BUFFERSIZE5]={0};
+uint8_t buf4[BUFFERSIZE4]={0};
 
-#define BUFFERSIZE6 7
+#define BUFFERSIZE5 28
 CG_BEFORE_BUFFER
-float buf6[BUFFERSIZE6]={0};
+uint8_t buf5[BUFFERSIZE5]={0};
 
-#define BUFFERSIZE7 7
+#define BUFFERSIZE6 28
 CG_BEFORE_BUFFER
-float buf7[BUFFERSIZE7]={0};
+uint8_t buf6[BUFFERSIZE6]={0};
 
-#define BUFFERSIZE8 7
+#define BUFFERSIZE7 28
 CG_BEFORE_BUFFER
-float buf8[BUFFERSIZE8]={0};
+uint8_t buf7[BUFFERSIZE7]={0};
 
-#define BUFFERSIZE9 7
+#define BUFFERSIZE8 28
 CG_BEFORE_BUFFER
-float buf9[BUFFERSIZE9]={0};
+uint8_t buf8[BUFFERSIZE8]={0};
 
-#define BUFFERSIZE10 7
+#define BUFFERSIZE9 28
 CG_BEFORE_BUFFER
-float buf10[BUFFERSIZE10]={0};
+uint8_t buf9[BUFFERSIZE9]={0};
+
+#define BUFFERSIZE10 28
+CG_BEFORE_BUFFER
+uint8_t buf10[BUFFERSIZE10]={0};
 
 #define BUFFERSIZE11 11
 CG_BEFORE_BUFFER
 float buf11[BUFFERSIZE11]={0};
 
-#define BUFFERSIZE12 7
+#define BUFFERSIZE12 11
 CG_BEFORE_BUFFER
 float buf12[BUFFERSIZE12]={0};
 
 #define BUFFERSIZE13 11
 CG_BEFORE_BUFFER
 float buf13[BUFFERSIZE13]={0};
-
-#define BUFFERSIZE14 7
-CG_BEFORE_BUFFER
-float buf14[BUFFERSIZE14]={0};
 
 
 typedef struct {
@@ -232,62 +232,62 @@ void *get_scheduler_node(int32_t nodeID)
 int init_scheduler()
 {
     CG_BEFORE_FIFO_INIT;
-    fifos.fifo0 = new FIFO<float,FIFOSIZE0,0,0>(buf1);
+    fifos.fifo0 = new FIFO<float,FIFOSIZE0,0,0>(buf11);
     if (fifos.fifo0==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo1 = new FIFO<float,FIFOSIZE1,1,0>(buf2);
+    fifos.fifo1 = new FIFO<float,FIFOSIZE1,1,0>(buf0);
     if (fifos.fifo1==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo2 = new FIFO<float,FIFOSIZE2,1,0>(buf3);
+    fifos.fifo2 = new FIFO<float,FIFOSIZE2,1,0>(buf1);
     if (fifos.fifo2==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo3 = new FIFO<float,FIFOSIZE3,1,0>(buf4);
+    fifos.fifo3 = new FIFO<float,FIFOSIZE3,1,0>(buf2);
     if (fifos.fifo3==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo4 = new FIFO<float,FIFOSIZE4,1,0>(buf5);
+    fifos.fifo4 = new FIFO<float,FIFOSIZE4,1,0>(buf3);
     if (fifos.fifo4==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo5 = new FIFO<float,FIFOSIZE5,1,0>(buf6);
+    fifos.fifo5 = new FIFO<float,FIFOSIZE5,1,0>(buf4);
     if (fifos.fifo5==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo6 = new FIFO<float,FIFOSIZE6,1,0>(buf7);
+    fifos.fifo6 = new FIFO<float,FIFOSIZE6,1,0>(buf5);
     if (fifos.fifo6==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo7 = new FIFO<float,FIFOSIZE7,1,0>(buf8);
+    fifos.fifo7 = new FIFO<float,FIFOSIZE7,1,0>(buf6);
     if (fifos.fifo7==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo8 = new FIFO<float,FIFOSIZE8,1,0>(buf9);
+    fifos.fifo8 = new FIFO<float,FIFOSIZE8,1,0>(buf7);
     if (fifos.fifo8==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo9 = new FIFO<float,FIFOSIZE9,1,0>(buf10);
+    fifos.fifo9 = new FIFO<float,FIFOSIZE9,1,0>(buf8);
     if (fifos.fifo9==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo10 = new FIFO<float,FIFOSIZE10,0,0>(buf11);
+    fifos.fifo10 = new FIFO<float,FIFOSIZE10,0,0>(buf12);
     if (fifos.fifo10==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo11 = new FIFO<float,FIFOSIZE11,1,0>(buf12);
+    fifos.fifo11 = new FIFO<float,FIFOSIZE11,1,0>(buf9);
     if (fifos.fifo11==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
@@ -297,7 +297,7 @@ int init_scheduler()
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo13 = new FIFO<float,FIFOSIZE13,1,0>(buf14);
+    fifos.fifo13 = new FIFO<float,FIFOSIZE13,1,0>(buf10);
     if (fifos.fifo13==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);

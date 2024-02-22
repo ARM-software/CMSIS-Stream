@@ -30,6 +30,7 @@ import arm_cmsis_stream.UUID as UUID
 import arm_cmsis_stream.Node as Node
 import arm_cmsis_stream.FIFODesc as FIFODesc
 import arm_cmsis_stream.IODesc as IODesc
+import arm_cmsis_stream.BufferDesc as BufferDesc
 
 import arm_cmsis_stream.Schedule as S
 import uuid
@@ -152,6 +153,13 @@ def gen(sched,conf):
          node = Node.End(builder)
          flat_nodes.append(node)
 
+    flat_buffers = [] 
+    for i,buffer in enumerate(sched._graph._allBuffers):
+        BufferDesc.Start(builder)
+        l = buffer._length * buffer._theType.bytes
+        BufferDesc.AddLength(builder,l)
+        flat_buffers.append(BufferDesc.End(builder))
+
     flat_fifos=[]
     for i,fifo in enumerate(fifos):
         FIFODesc.Start(builder)
@@ -159,6 +167,9 @@ def gen(sched,conf):
         nb = fifo.length
         nb = nb * fifo.theType.bytes
         FIFODesc.AddLength(builder,nb)
+
+        FIFODesc.AddBufid(builder,fifo.buffer._bufferID)
+
         if fifo.hasDelay:
            FIFODesc.AddDelay(builder,fifo.delay*fifo.theType.bytes)
         else:
@@ -173,6 +184,11 @@ def gen(sched,conf):
     for n in reversed(flat_nodes):
        builder.PrependUOffsetTRelative(n)
     the_nodes=builder.EndVector()
+
+    S.StartNodesVector(builder,len(flat_buffers))
+    for n in reversed(flat_buffers):
+       builder.PrependUOffsetTRelative(n)
+    the_buffers=builder.EndVector()
     
     S.StartNodesVector(builder,len(flat_fifos))
     for f in reversed(flat_fifos):
@@ -192,6 +208,7 @@ def gen(sched,conf):
     S.Start(builder)
     S.AddAsyncMode(builder,conf.asynchronous)
     S.AddNodes(builder,the_nodes)
+    S.AddBuffers(builder,the_buffers)
     S.AddFifos(builder,the_fifos)
     S.AddSchedule(builder,the_sched)
     flat_sched=S.End(builder)

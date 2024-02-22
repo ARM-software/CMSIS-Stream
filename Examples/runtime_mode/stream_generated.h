@@ -21,6 +21,9 @@ struct IODesc;
 struct Node;
 struct NodeBuilder;
 
+struct BufferDesc;
+struct BufferDescBuilder;
+
 struct FIFODesc;
 struct FIFODescBuilder;
 
@@ -184,19 +187,64 @@ inline flatbuffers::Offset<Node> CreateNodeDirect(
       name__);
 }
 
+struct BufferDesc FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef BufferDescBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_LENGTH = 4
+  };
+  uint32_t length() const {
+    return GetField<uint32_t>(VT_LENGTH, 0);
+  }
+  bool Verify(flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_LENGTH, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct BufferDescBuilder {
+  typedef BufferDesc Table;
+  flatbuffers::FlatBufferBuilder &fbb_;
+  flatbuffers::uoffset_t start_;
+  void add_length(uint32_t length) {
+    fbb_.AddElement<uint32_t>(BufferDesc::VT_LENGTH, length, 0);
+  }
+  explicit BufferDescBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  flatbuffers::Offset<BufferDesc> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = flatbuffers::Offset<BufferDesc>(end);
+    return o;
+  }
+};
+
+inline flatbuffers::Offset<BufferDesc> CreateBufferDesc(
+    flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t length = 0) {
+  BufferDescBuilder builder_(_fbb);
+  builder_.add_length(length);
+  return builder_.Finish();
+}
+
 struct FIFODesc FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef FIFODescBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
     VT_LENGTH = 6,
-    VT_DELAY = 8,
-    VT_BUFFER = 10
+    VT_BUFID = 8,
+    VT_DELAY = 10,
+    VT_BUFFER = 12
   };
   uint16_t id() const {
     return GetField<uint16_t>(VT_ID, 0);
   }
   uint32_t length() const {
     return GetField<uint32_t>(VT_LENGTH, 0);
+  }
+  uint16_t bufid() const {
+    return GetField<uint16_t>(VT_BUFID, 0);
   }
   uint32_t delay() const {
     return GetField<uint32_t>(VT_DELAY, 0);
@@ -208,6 +256,7 @@ struct FIFODesc FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_ID, 2) &&
            VerifyField<uint32_t>(verifier, VT_LENGTH, 4) &&
+           VerifyField<uint16_t>(verifier, VT_BUFID, 2) &&
            VerifyField<uint32_t>(verifier, VT_DELAY, 4) &&
            VerifyField<uint8_t>(verifier, VT_BUFFER, 1) &&
            verifier.EndTable();
@@ -223,6 +272,9 @@ struct FIFODescBuilder {
   }
   void add_length(uint32_t length) {
     fbb_.AddElement<uint32_t>(FIFODesc::VT_LENGTH, length, 0);
+  }
+  void add_bufid(uint16_t bufid) {
+    fbb_.AddElement<uint16_t>(FIFODesc::VT_BUFID, bufid, 0);
   }
   void add_delay(uint32_t delay) {
     fbb_.AddElement<uint32_t>(FIFODesc::VT_DELAY, delay, 0);
@@ -245,11 +297,13 @@ inline flatbuffers::Offset<FIFODesc> CreateFIFODesc(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t id = 0,
     uint32_t length = 0,
+    uint16_t bufid = 0,
     uint32_t delay = 0,
     bool buffer = false) {
   FIFODescBuilder builder_(_fbb);
   builder_.add_delay(delay);
   builder_.add_length(length);
+  builder_.add_bufid(bufid);
   builder_.add_id(id);
   builder_.add_buffer(buffer);
   return builder_.Finish();
@@ -260,14 +314,18 @@ struct Schedule FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ASYNC_MODE = 4,
     VT_NODES = 6,
-    VT_FIFOS = 8,
-    VT_SCHEDULE = 10
+    VT_BUFFERS = 8,
+    VT_FIFOS = 10,
+    VT_SCHEDULE = 12
   };
   bool async_mode() const {
     return GetField<uint8_t>(VT_ASYNC_MODE, 0) != 0;
   }
   const flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::Node>> *nodes() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::Node>> *>(VT_NODES);
+  }
+  const flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::BufferDesc>> *buffers() const {
+    return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::BufferDesc>> *>(VT_BUFFERS);
   }
   const flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::FIFODesc>> *fifos() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::FIFODesc>> *>(VT_FIFOS);
@@ -281,6 +339,9 @@ struct Schedule FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            VerifyOffset(verifier, VT_NODES) &&
            verifier.VerifyVector(nodes()) &&
            verifier.VerifyVectorOfTables(nodes()) &&
+           VerifyOffset(verifier, VT_BUFFERS) &&
+           verifier.VerifyVector(buffers()) &&
+           verifier.VerifyVectorOfTables(buffers()) &&
            VerifyOffset(verifier, VT_FIFOS) &&
            verifier.VerifyVector(fifos()) &&
            verifier.VerifyVectorOfTables(fifos()) &&
@@ -299,6 +360,9 @@ struct ScheduleBuilder {
   }
   void add_nodes(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::Node>>> nodes) {
     fbb_.AddOffset(Schedule::VT_NODES, nodes);
+  }
+  void add_buffers(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::BufferDesc>>> buffers) {
+    fbb_.AddOffset(Schedule::VT_BUFFERS, buffers);
   }
   void add_fifos(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::FIFODesc>>> fifos) {
     fbb_.AddOffset(Schedule::VT_FIFOS, fifos);
@@ -321,11 +385,13 @@ inline flatbuffers::Offset<Schedule> CreateSchedule(
     flatbuffers::FlatBufferBuilder &_fbb,
     bool async_mode = false,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::Node>>> nodes = 0,
+    flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::BufferDesc>>> buffers = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::FIFODesc>>> fifos = 0,
     flatbuffers::Offset<flatbuffers::Vector<uint16_t>> schedule = 0) {
   ScheduleBuilder builder_(_fbb);
   builder_.add_schedule(schedule);
   builder_.add_fifos(fifos);
+  builder_.add_buffers(buffers);
   builder_.add_nodes(nodes);
   builder_.add_async_mode(async_mode);
   return builder_.Finish();
@@ -335,15 +401,18 @@ inline flatbuffers::Offset<Schedule> CreateScheduleDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     bool async_mode = false,
     const std::vector<flatbuffers::Offset<arm_cmsis_stream::Node>> *nodes = nullptr,
+    const std::vector<flatbuffers::Offset<arm_cmsis_stream::BufferDesc>> *buffers = nullptr,
     const std::vector<flatbuffers::Offset<arm_cmsis_stream::FIFODesc>> *fifos = nullptr,
     const std::vector<uint16_t> *schedule = nullptr) {
   auto nodes__ = nodes ? _fbb.CreateVector<flatbuffers::Offset<arm_cmsis_stream::Node>>(*nodes) : 0;
+  auto buffers__ = buffers ? _fbb.CreateVector<flatbuffers::Offset<arm_cmsis_stream::BufferDesc>>(*buffers) : 0;
   auto fifos__ = fifos ? _fbb.CreateVector<flatbuffers::Offset<arm_cmsis_stream::FIFODesc>>(*fifos) : 0;
   auto schedule__ = schedule ? _fbb.CreateVector<uint16_t>(*schedule) : 0;
   return arm_cmsis_stream::CreateSchedule(
       _fbb,
       async_mode,
       nodes__,
+      buffers__,
       fifos__,
       schedule__);
 }

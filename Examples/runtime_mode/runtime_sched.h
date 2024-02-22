@@ -54,9 +54,8 @@ public:
 class RuntimeFIFO:public RuntimeEdge
 {
     public:
-        explicit RuntimeFIFO(uint32_t nb,int delay=0):
-        readPos(0),writePos(delay),length(nb) {
-            mBuffer.resize(nb);
+        explicit RuntimeFIFO(int8_t *buf,const uint32_t nb,int delay=0):
+        mBuffer(buf),readPos(0),writePos(delay),length(nb) {
         };
 
         /* 
@@ -92,12 +91,12 @@ class RuntimeFIFO:public RuntimeEdge
 
             if (readPos > 0)
             {
-                memcpy((void*)mBuffer.data(),(void*)(mBuffer.data()+readPos),(writePos-readPos));
+                memcpy(mBuffer,mBuffer+readPos,writePos-readPos);
                 writePos -= readPos;
                 readPos = 0;
             }
             
-            int8_t *ret = mBuffer.data() + writePos;
+            int8_t *ret = mBuffer + writePos;
             writePos += nb; 
             return((char*)ret);
         };
@@ -124,7 +123,7 @@ class RuntimeFIFO:public RuntimeEdge
                 nb = nb_samples*sample_size;
             }
 
-            int8_t *ret = mBuffer.data() + readPos;
+            int8_t *ret = mBuffer + readPos;
             readPos += nb;
             return((char*)ret);
         }
@@ -170,9 +169,9 @@ class RuntimeFIFO:public RuntimeEdge
 
 
     protected:
-        std::vector<int8_t> mBuffer;
+        int8_t *mBuffer;
         int readPos,writePos;
-        uint32_t length;
+        const uint32_t length;
 };
 
 class RuntimeBuffer:public RuntimeEdge
@@ -181,8 +180,7 @@ class RuntimeBuffer:public RuntimeEdge
         /* No delay argument for this version of the FIFO.
            This version will not be generated when there is a delay
         */
-        explicit RuntimeBuffer(uint32_t nb) {
-            mBuffer.resize(nb);
+        explicit RuntimeBuffer(int8_t *buf):mBuffer(buf) {
         };
 
         /* 
@@ -243,7 +241,7 @@ class RuntimeBuffer:public RuntimeEdge
             (void)io;
             (void)sample_size;
             (void)io_id;
-            return(reinterpret_cast<char*>(mBuffer.data()));
+            return(reinterpret_cast<char*>(mBuffer));
         };
 
         char* getReadBuffer(const IOVector &io,
@@ -255,11 +253,11 @@ class RuntimeBuffer:public RuntimeEdge
             (void)io;
             (void)sample_size;
             (void)io_id;
-            return(reinterpret_cast<char*>(mBuffer.data()));
+            return(reinterpret_cast<char*>(mBuffer));
         }
 
     protected:
-        std::vector<int8_t> mBuffer;
+        int8_t *mBuffer;
 };
 
 struct _rnode_t;
@@ -268,6 +266,7 @@ typedef struct _rnode_t rnode_t;
 
 struct runtime_context {
   const arm_cmsis_stream::Schedule *schedobj;
+  std::vector<std::unique_ptr<std::vector<int8_t>>> buffers;
   std::vector<std::unique_ptr<RuntimeEdge>> fifos;
   std::vector<std::unique_ptr<NodeBase>> nodes;
   std::vector<const rnode_t*> node_api;

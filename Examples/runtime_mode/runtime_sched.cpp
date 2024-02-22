@@ -15,19 +15,29 @@ runtime_context create_graph(const unsigned char * data,
    if (ok)
    {
       c.schedobj = GetSchedule(data);
-      auto fifos = c.schedobj->fifos();
+      auto buffers = c.schedobj->buffers();
 
+      for (unsigned int i = 0; i < buffers->size(); i++)
+      {
+           const uint32_t nb_bytes = buffers->Get(i)->length();
+           std::vector<int8_t> *v = new std::vector<int8_t>(nb_bytes);
+           c.buffers.push_back(std::unique_ptr<std::vector<int8_t>>(v));
+      }
+
+      auto fifos = c.schedobj->fifos();
       for (unsigned int i = 0; i < fifos->size(); i++)
       {
           RuntimeEdge *f = nullptr;
+          const uint16_t bufid = fifos->Get(i)->bufid();
 
           if (fifos->Get(i)->buffer())
           {
-             f = new RuntimeBuffer(fifos->Get(i)->length());
+             f = new RuntimeBuffer(c.buffers[bufid].get()->data());
           }
           else
           {
-             f = new RuntimeFIFO(fifos->Get(i)->length(),
+             f = new RuntimeFIFO(c.buffers[bufid].get()->data(),
+                                 fifos->Get(i)->length(),
                                  fifos->Get(i)->delay());
           }
           c.fifos.push_back(std::unique_ptr<RuntimeEdge>(f));

@@ -20,6 +20,8 @@ conf.asynchronous = False
 
 conf.nodeIdentification = True
 
+conf.memoryOptimization =True
+
 export_graph(the_graph,"graph.yml")
 export_config(conf,"config.yml")
 
