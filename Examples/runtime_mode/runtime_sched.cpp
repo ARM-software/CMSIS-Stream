@@ -19,8 +19,18 @@ runtime_context create_graph(const unsigned char * data,
 
       for (unsigned int i = 0; i < fifos->size(); i++)
       {
-          auto f = new RuntimeFIFO(fifos->Get(i)->length());
-          c.fifos.push_back(std::unique_ptr<RuntimeFIFO>(f));
+          RuntimeEdge *f = nullptr;
+
+          if (fifos->Get(i)->buffer())
+          {
+             f = new RuntimeBuffer(fifos->Get(i)->length());
+          }
+          else
+          {
+             f = new RuntimeFIFO(fifos->Get(i)->length(),
+                                 fifos->Get(i)->delay());
+          }
+          c.fifos.push_back(std::unique_ptr<RuntimeEdge>(f));
       }
  
       auto nodes = c.schedobj->nodes();

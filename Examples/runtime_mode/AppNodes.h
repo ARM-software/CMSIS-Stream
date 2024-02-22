@@ -37,37 +37,47 @@ template<typename IN>
 class GenericRuntimeSink:public NodeBase
 {
 public:
-     explicit GenericRuntimeSink(RuntimeFIFO &src):mSrc(src){};
+     explicit GenericRuntimeSink(const arm_cmsis_stream::Node &n,
+                                 RuntimeEdge &src):ndesc(n),mSrc(src){};
+
+     std::size_t nb_input_samples() const {return(ndesc.inputs()->Get(0)->nb());};
 
 protected:
-     IN * getReadBuffer(int nb) {return mSrc.getReadBuffer<IN>(nb);};
+     IN * getReadBuffer(const int nb=0) {return (IN*)mSrc.getReadBuffer(*(ndesc.inputs()),sizeof(IN),0,nb);};
 
-     bool willUnderflow(int nb) const {return mSrc.willUnderflowWith<IN>(nb);};
+     bool willUnderflow(const int nb=0) const {return mSrc.willUnderflowWith(*(ndesc.inputs()),sizeof(IN),0,nb);};
 
 private:
-    RuntimeFIFO &mSrc;
+    const arm_cmsis_stream::Node &ndesc;
+    RuntimeEdge &mSrc;
 };
 
 template<typename IN,typename OUT>
 class GenericRuntimeToManyNode:public NodeBase
 {
 public:
-     explicit GenericRuntimeToManyNode(RuntimeFIFO &src,
-                std::vector<RuntimeFIFO*> dst):mSrc(src),mDstList(dst){};
+     explicit GenericRuntimeToManyNode(const arm_cmsis_stream::Node &n,
+                                       RuntimeEdge &src,
+                                       std::vector<RuntimeEdge*> dst):ndesc(n),mSrc(src),mDstList(dst){};
 
+     std::size_t nb_input_samples() const {return(ndesc.inputs()->Get(0)->nb());};
+     std::size_t nb_output_samples(const int i) const {return(ndesc.outputs()->Get(i)->nb());};
 
 protected:
      size_t getNbOutputs() const {return(mDstList.size());};
 
-     IN * getReadBuffer(int nb) {return mSrc.getReadBuffer<IN>(nb);};
-     OUT * getWriteBuffer(int id,int nb ) {return mDstList[id]->getWriteBuffer<OUT>(nb);};
+     IN * getReadBuffer(const int nb=0) {return (IN*)mSrc.getReadBuffer(*(ndesc.inputs()),sizeof(IN),0,nb);};
+     OUT * getWriteBuffer(const int io_id,
+                          const int nb=0) {return (OUT*)mDstList[io_id]->getWriteBuffer(*(ndesc.outputs()),sizeof(OUT),io_id,nb);};
 
-     bool willUnderflow(int nb) const {return mSrc.willUnderflowWith<IN>(nb);};
-     bool willOverflow(int id,int nb) const {return mDstList[id]->willOverflowWith<OUT>(nb);};
+     bool willUnderflow(const int nb=0) const {return mSrc.willUnderflowWith(*(ndesc.inputs()),sizeof(IN),0,nb);};
+     bool willOverflow(const int io_id,
+                       const int nb=0) const {return mDstList[io_id]->willOverflowWith(*(ndesc.outputs()),sizeof(OUT),io_id,nb);};
 
 private:
-    RuntimeFIFO &mSrc;
-    const std::vector<RuntimeFIFO*> mDstList;
+    const arm_cmsis_stream::Node &ndesc;
+    RuntimeEdge &mSrc;
+    const std::vector<RuntimeEdge*> mDstList;
 };
 
 
@@ -127,33 +137,44 @@ template<typename IN,typename OUT>
 class GenericRuntimeNode:public NodeBase
 {
 public:
-     explicit GenericRuntimeNode(RuntimeFIFO &src,RuntimeFIFO &dst):mSrc(src),mDst(dst){};
+     explicit GenericRuntimeNode(const arm_cmsis_stream::Node &n,
+                                 RuntimeEdge &src,
+                                 RuntimeEdge &dst):ndesc(n),mSrc(src),mDst(dst){};
+
+     std::size_t nb_input_samples() const {return(ndesc.inputs()->Get(0)->nb());};
+     std::size_t nb_output_samples() const {return(ndesc.outputs()->Get(0)->nb());};
+
 
 protected:
-     OUT * getWriteBuffer(int nb ) {return mDst.getWriteBuffer<OUT>(nb);};
-     IN * getReadBuffer(int nb ) {return mSrc.getReadBuffer<IN>(nb);};
+     OUT * getWriteBuffer(const int nb=0 ) {return (OUT*)mDst.getWriteBuffer(*(ndesc.outputs()),sizeof(OUT),0,nb);};
+     IN * getReadBuffer(const int nb=0 ) {return (IN*)mSrc.getReadBuffer(*(ndesc.inputs()),sizeof(IN),0,nb);};
 
-     bool willOverflow(int nb ) const {return mDst.willOverflowWith<OUT>(nb);};
-     bool willUnderflow(int nb ) const {return mSrc.willUnderflowWith<IN>(nb);};
+     bool willOverflow(const int nb=0 ) const {return mDst.willOverflowWith(*(ndesc.outputs()),sizeof(OUT),0,nb);};
+     bool willUnderflow(const int nb=0 ) const {return mSrc.willUnderflowWith(*(ndesc.inputs()),sizeof(IN),0,nb);};
 
 private:
-    RuntimeFIFO &mSrc;
-    RuntimeFIFO &mDst;
+    const arm_cmsis_stream::Node &ndesc;
+    RuntimeEdge &mSrc;
+    RuntimeEdge &mDst;
 };
 
 template<typename OUT>
 class GenericRuntimeSource:public NodeBase
 {
 public:
-     explicit GenericRuntimeSource(RuntimeFIFO &dst):mDst(dst){};
+     explicit GenericRuntimeSource(const arm_cmsis_stream::Node &n,
+                                   RuntimeEdge &dst):ndesc(n),mDst(dst){};
+
+     std::size_t nb_output_samples() const {return(ndesc.outputs()->Get(0)->nb());};
 
 protected:
-     OUT * getWriteBuffer(int nb) {return mDst.getWriteBuffer<OUT>(nb);};
+     OUT * getWriteBuffer(const int nb=0) {return (OUT*)mDst.getWriteBuffer(*(ndesc.outputs()),sizeof(OUT),0,nb);};
 
-     bool willOverflow(int nb) const {return mDst.willOverflowWith<OUT>(nb);};
+     bool willOverflow(const int nb=0) const {return mDst.willOverflowWith(*(ndesc.outputs()),sizeof(OUT),0,nb);};
 
 private:
-    RuntimeFIFO &mDst;
+    const arm_cmsis_stream::Node &ndesc;
+    RuntimeEdge &mDst;
 };
 
 template<typename IN>
@@ -165,7 +186,7 @@ public:
     // This FIFO is passed to the GenericSink contructor.
     // Implementation of this Sink constructor is doing nothing
     Sink(const arm_cmsis_stream::Node &n,
-         RuntimeFIFO &src):GenericRuntimeSink<IN>(src),ndesc(n){};
+         RuntimeEdge &src):GenericRuntimeSink<IN>(n,src){};
    
 
 
@@ -185,7 +206,7 @@ public:
                         const arm_cmsis_stream::Node *ndesc)
     {
         auto inputs = ndesc->inputs();
-        RuntimeFIFO &i = *ctx.fifos[inputs->Get(0)->id()];
+        RuntimeEdge &i = *ctx.fifos[inputs->Get(0)->id()];
 
         
         Sink<IN,RUNTIME> *node=new Sink<IN,RUNTIME>(*ndesc,i);
@@ -196,8 +217,7 @@ public:
     // the input, the execution of this node will be skipped
     int prepareForRunning() final
     {
-        auto inputs = ndesc.inputs();
-        if (this->willUnderflow(inputs->Get(0)->nb()))
+        if (this->willUnderflow())
         {
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
@@ -214,18 +234,15 @@ public:
     {
         printf("Sink\n");
 
-        auto inputs = ndesc.inputs();
 
-        IN *b=this->getReadBuffer(inputs->Get(0)->nb());
-        for(int i=0;i<inputs->Get(0)->nb();i++)
+        IN *b=this->getReadBuffer();
+        for(int i=0;i<this->nb_input_samples();i++)
         {
             std::cout << (int)b[i] << std::endl;
         }
         return(0);
     };
 
-protected:
-    const arm_cmsis_stream::Node &ndesc;
 
 };
 
@@ -238,9 +255,9 @@ public:
     using DUP = Duplicate<char,RUNTIME,char,RUNTIME>;
 
     explicit Duplicate(const arm_cmsis_stream::Node &n,
-              RuntimeFIFO &src,
-              std::vector<RuntimeFIFO*> dst):
-    GenericRuntimeToManyNode<char,char>(src,dst),ndesc(n)
+              RuntimeEdge &src,
+              std::vector<RuntimeEdge*> dst):
+    GenericRuntimeToManyNode<char,char>(n,src,dst)
     {
     };
 
@@ -263,8 +280,8 @@ public:
         auto inputs = ndesc->inputs();
         auto outputs = ndesc->outputs();
 
-        RuntimeFIFO &i = *ctx.fifos[inputs->Get(0)->id()];
-        std::vector<RuntimeFIFO*> o;
+        RuntimeEdge &i = *ctx.fifos[inputs->Get(0)->id()];
+        std::vector<RuntimeEdge*> o;
 
         for(auto out:*outputs)
         {
@@ -277,17 +294,15 @@ public:
 
     int prepareForRunning() final
     {
-        auto inputs = ndesc.inputs();
-        auto outputs = ndesc.outputs();
 
-        if (this->willUnderflow(inputs->Get(0)->nb()))
+        if (this->willUnderflow())
         {
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
         for(unsigned int i=0;i<this->getNbOutputs();i++)
         {
-           if (this->willOverflow(i,outputs->Get(i)->nb()))
+           if (this->willOverflow(i))
            {
               return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
            }
@@ -298,21 +313,18 @@ public:
     };
 
     int run() final {
-        auto inputs = ndesc.inputs();
-        auto outputs = ndesc.outputs();
 
-        char *a=this->getReadBuffer(inputs->Get(0)->nb());
+        char *a=this->getReadBuffer();
         
         for(unsigned int i=0;i<this->getNbOutputs();i++)
         {
-           char *b=this->getWriteBuffer(i,outputs->Get(i)->nb());
-           memcpy(b,a,inputs->Get(0)->nb());
+           char *b=this->getWriteBuffer(i);
+           memcpy(b,a,this->nb_input_samples());
         }
         
         return(CG_SUCCESS_ID_CODE);
     };
-protected:
-    const arm_cmsis_stream::Node &ndesc;
+
 };
 /*
 
@@ -355,7 +367,7 @@ class Source<OUT,RUNTIME>: public GenericRuntimeSource<OUT>
 {
 public:
     Source(const arm_cmsis_stream::Node &n,
-           RuntimeFIFO &dst):GenericRuntimeSource<OUT>(dst),ndesc(n){};
+           RuntimeEdge &dst):GenericRuntimeSource<OUT>(n,dst){};
 
 
     static int runNode(NodeBase* obj)
@@ -374,7 +386,7 @@ public:
                         const arm_cmsis_stream::Node *ndesc)
     {
         auto outputs = ndesc->outputs();
-        RuntimeFIFO &i = *ctx.fifos[outputs->Get(0)->id()];
+        RuntimeEdge &i = *ctx.fifos[outputs->Get(0)->id()];
 
         
         Source<OUT,RUNTIME> *node=new Source<OUT,RUNTIME>(*ndesc,i);
@@ -383,8 +395,7 @@ public:
 
     int prepareForRunning() final
     {
-        auto outputs = ndesc.outputs();
-        if (this->willOverflow(outputs->Get(0)->nb()))
+        if (this->willOverflow())
         {
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
@@ -394,18 +405,16 @@ public:
 
     int run() final{
         printf("Source\n");
-        auto outputs = ndesc.outputs();
-        OUT *b=this->getWriteBuffer(outputs->Get(0)->nb());
+        OUT *b=this->getWriteBuffer();
 
-        for(int i=0;i<outputs->Get(0)->nb();i++)
+        for(int i=0;i<this->nb_output_samples();i++)
         {
             b[i] = (OUT)i;
         }
 
         return(0);
     };
-protected:
-    const arm_cmsis_stream::Node &ndesc;
+
 };
 
 /* 
@@ -491,8 +500,8 @@ class ProcessingNode<IN,RUNTIME,
 public:
     /* Constructor needs the input and output FIFOs */
     ProcessingNode(const arm_cmsis_stream::Node &n,
-                   RuntimeFIFO &src,
-                   RuntimeFIFO &dst):GenericRuntimeNode<IN,IN>(src,dst),ndesc(n){};
+                   RuntimeEdge &src,
+                   RuntimeEdge &dst):GenericRuntimeNode<IN,IN>(n,src,dst){};
 
 
     static int runNode(NodeBase* obj)
@@ -513,10 +522,10 @@ public:
     {
         
         auto inputs = ndesc->inputs();
-        RuntimeFIFO &i = *ctx.fifos[inputs->Get(0)->id()];
+        RuntimeEdge &i = *ctx.fifos[inputs->Get(0)->id()];
 
         auto outputs = ndesc->outputs();
-        RuntimeFIFO &o = *ctx.fifos[outputs->Get(0)->id()];
+        RuntimeEdge &o = *ctx.fifos[outputs->Get(0)->id()];
 
         
         ProcessingNode<IN,RUNTIME,IN,RUNTIME> *node=new ProcessingNode<IN,RUNTIME,IN,RUNTIME>(*ndesc,i,o);
@@ -529,10 +538,8 @@ public:
     */
     int prepareForRunning() final
     {
-        auto inputs = ndesc.inputs();
-        auto outputs = ndesc.outputs();
-        if (this->willOverflow(inputs->Get(0)->nb()) ||
-            this->willUnderflow(outputs->Get(0)->nb()))
+        if (this->willOverflow() ||
+            this->willUnderflow())
         {
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
@@ -547,19 +554,16 @@ public:
     int run() final{
         printf("ProcessingNode\n");
 
-        auto inputs = ndesc.inputs();
-        auto outputs = ndesc.outputs();
 
-        IN *a=this->getReadBuffer(inputs->Get(0)->nb());
-        IN *b=this->getWriteBuffer(outputs->Get(0)->nb());
-        for(int i=0;i<inputs->Get(0)->nb();i++)
+        IN *a=this->getReadBuffer();
+        IN *b=this->getWriteBuffer();
+        for(int i=0;i<this->nb_input_samples();i++)
         {
             b[i] = a[i]+1;
         }
         return(0);
     };
-protected:
-    const arm_cmsis_stream::Node &ndesc;
+
 };
 
 

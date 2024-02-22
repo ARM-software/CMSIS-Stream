@@ -141,6 +141,14 @@ def gen(sched,conf):
         nb = fifo.length
         nb = nb * fifo.theType.bytes
         FIFODesc.AddLength(builder,nb)
+        if fifo.hasDelay:
+           FIFODesc.AddDelay(builder,fifo.delay*fifo.theType.bytes)
+        else:
+           FIFODesc.AddDelay(builder,0)
+        if fifo.isArrayAsInt:
+            FIFODesc.AddBuffer(builder,True)
+        else:
+            FIFODesc.AddBuffer(builder,False)
         flat_fifos.append(FIFODesc.End(builder))
 
     S.StartNodesVector(builder,len(flat_nodes))

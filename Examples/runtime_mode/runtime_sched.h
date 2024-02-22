@@ -13,15 +13,48 @@
 
 using namespace arm_cmsis_stream;
 
-class RuntimeFIFO
+using IOVector = flatbuffers::Vector<const arm_cmsis_stream::IODesc*>;
+
+class RuntimeEdge
+{
+public:
+   RuntimeEdge(){};
+   virtual ~RuntimeEdge(){};
+
+   virtual char* getWriteBuffer(const IOVector &io,
+                                const std::size_t sample_size,
+                                const int io_id,
+                                const int nb_samples=0)=0;
+
+   virtual char* getReadBuffer(const IOVector &io,
+                               const std::size_t sample_size,
+                               const int io_id,
+                               const int nb_samples=0)=0;
+
+  virtual bool willUnderflowWith(const IOVector &io,
+                                 const std::size_t sample_size,
+                                 const int io_id,
+                                 const int nb_samples=0) const=0;
+
+  virtual bool willOverflowWith(const IOVector &io,
+                                const std::size_t sample_size,
+                                const int io_id,
+                                const int nb_samples=0) const=0;
+        
+  virtual int nbBytesInFIFO() const =0;
+
+  virtual int nbOfFreeBytesInFIFO() const=0;
+};
+
+
+class RuntimeFIFO:public RuntimeEdge
 {
     public:
-        explicit RuntimeFIFO(uint32_t nb_bytes,int delay=0):
-        readPos(0),writePos(delay),length(nb_bytes) {
-            mBuffer.resize(nb_bytes);
+        explicit RuntimeFIFO(uint32_t nb,int delay=0):
+        readPos(0),writePos(delay),length(nb) {
+            mBuffer.resize(nb);
         };
 
-        ~RuntimeFIFO(){};
         /* 
         FIFO are fixed and not made to be copied or moved.
         */
@@ -38,10 +71,21 @@ class RuntimeFIFO
         before using this function 
         
         */
-        template<typename T>
-        T * getWriteBuffer(int nb) 
+        char* getWriteBuffer(const IOVector &io,
+                             const std::size_t sample_size,
+                             const int io_id,
+                             const int nb_samples=0)  final
         {
-            
+            int nb;
+            if (nb_samples==0) 
+            {
+                nb = io.Get(io_id)->nb()*sample_size;
+            }
+            else 
+            {
+                nb = nb_samples*sample_size;
+            }
+
             if (readPos > 0)
             {
                 memcpy((void*)mBuffer.data(),(void*)(mBuffer.data()+readPos),(writePos-readPos));
@@ -50,8 +94,8 @@ class RuntimeFIFO
             }
             
             int8_t *ret = mBuffer.data() + writePos;
-            writePos += nb*sizeof(T); 
-            return((T*)ret);
+            writePos += nb; 
+            return((char*)ret);
         };
 
         /* 
@@ -60,30 +104,64 @@ class RuntimeFIFO
         before using this function 
         
         */
-        template<typename T>
-        T* getReadBuffer(int nb)  
-        {
-           
-            int8_t *ret = mBuffer.data() + readPos;
-            readPos += nb*sizeof(T);
-            return((T*)ret);
-        }
-
-        template<typename T>
-        bool willUnderflowWith(int nb) const   
-        {
-            return((writePos - readPos - nb*sizeof(T))<0);
-        }
-
-        template<typename T>
-        bool willOverflowWith(int nb) const   
-        {
-            return((writePos - readPos + nb*sizeof(T))>length);
-        }
-
-        int nbBytesInFIFO() const    {return (writePos - readPos);};
         
-        int nbOfFreeBytesInFIFO() const    {return (length - writePos + readPos);};
+        char* getReadBuffer(const IOVector &io,
+                            const std::size_t sample_size,
+                            const int io_id,
+                            const int nb_samples=0)    final
+        {
+            int nb;
+            if (nb_samples==0) 
+            {
+                nb = io.Get(io_id)->nb()*sample_size;
+            }
+            else 
+            {
+                nb = nb_samples*sample_size;
+            }
+
+            int8_t *ret = mBuffer.data() + readPos;
+            readPos += nb;
+            return((char*)ret);
+        }
+
+        bool willUnderflowWith(const IOVector &io,
+                               const std::size_t sample_size,
+                               const int io_id,
+                               const int nb_samples=0) const   final
+        {
+            int nb;
+            if (nb_samples==0) 
+            {
+                nb = io.Get(io_id)->nb()*sample_size;
+            }
+            else 
+            {
+                nb = nb_samples*sample_size;
+            }
+            return((writePos - readPos - nb)<0);
+        }
+
+        bool willOverflowWith(const IOVector &io,
+                              const std::size_t sample_size,
+                              const int io_id,
+                              const int nb_samples=0) const   final
+        {
+            int nb;
+            if (nb_samples==0) 
+            {
+                nb = io.Get(io_id)->nb()*sample_size;
+            }
+            else 
+            {
+                nb = nb_samples*sample_size;
+            }
+            return((writePos - readPos + nb)>length);
+        }
+
+        int nbBytesInFIFO() const final   {return (writePos - readPos);};
+        
+        int nbOfFreeBytesInFIFO() const  final  {return (length - writePos + readPos);};
 
 
 
@@ -93,13 +171,100 @@ class RuntimeFIFO
         uint32_t length;
 };
 
+class RuntimeBuffer:public RuntimeEdge
+{
+    public:
+        /* No delay argument for this version of the FIFO.
+           This version will not be generated when there is a delay
+        */
+        explicit RuntimeBuffer(uint32_t nb) {
+            mBuffer.resize(nb);
+        };
+
+        /* 
+        FIFO are fixed and not made to be copied or moved.
+        */
+        RuntimeBuffer(const RuntimeBuffer&) = default;
+        RuntimeBuffer(RuntimeBuffer&&) = default;
+        RuntimeBuffer& operator=(const RuntimeBuffer&) = default;
+        RuntimeBuffer& operator=(RuntimeBuffer&&) = default;
+
+        /* 
+           Not used in synchronous mode 
+           and this version of the FIFO is
+           never used in asynchronous mode 
+           so empty functions are provided.
+        */
+        bool willUnderflowWith(const IOVector &io,
+                               const std::size_t sample_size,
+                               const int io_id,
+                               const int nb_samples=0) const final 
+        {
+            (void)nb_samples;
+            (void)io;
+            (void)sample_size;
+            (void)io_id;
+            return false;
+        };
+        
+        bool willOverflowWith(const IOVector &io,
+                              const std::size_t sample_size,
+                              const int io_id,
+                              const int nb_samples=0) const final   
+        {
+            (void)nb_samples;
+            (void)io;
+            (void)sample_size;
+            (void)io_id;
+            return false;
+        };
+        
+        int nbBytesInFIFO() const final   
+        {
+            return(0);
+        };
+        
+        int nbOfFreeBytesInFIFO() const final  
+        {
+            return( 0);
+        };
+
+
+        char* getWriteBuffer(const IOVector &io,
+                             const std::size_t sample_size,
+                             const int io_id,
+                             const int nb_samples=0)  final  
+        {
+            (void)nb_samples;
+            (void)io;
+            (void)sample_size;
+            (void)io_id;
+            return(reinterpret_cast<char*>(mBuffer.data()));
+        };
+
+        char* getReadBuffer(const IOVector &io,
+                            const std::size_t sample_size,
+                            const int io_id,
+                            const int nb_samples=0)    final
+        {
+            (void)nb_samples;
+            (void)io;
+            (void)sample_size;
+            (void)io_id;
+            return(reinterpret_cast<char*>(mBuffer.data()));
+        }
+
+    protected:
+        std::vector<int8_t> mBuffer;
+};
+
 struct _rnode_t;
 
 typedef struct _rnode_t rnode_t;
 
 struct runtime_context {
   const arm_cmsis_stream::Schedule *schedobj;
-  std::vector<std::unique_ptr<RuntimeFIFO>> fifos;
+  std::vector<std::unique_ptr<RuntimeEdge>> fifos;
   std::vector<std::unique_ptr<NodeBase>> nodes;
   std::vector<const rnode_t*> node_api;
 };

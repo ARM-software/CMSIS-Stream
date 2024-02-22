@@ -174,7 +174,9 @@ struct FIFODesc FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef FIFODescBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
-    VT_LENGTH = 6
+    VT_LENGTH = 6,
+    VT_DELAY = 8,
+    VT_BUFFER = 10
   };
   uint16_t id() const {
     return GetField<uint16_t>(VT_ID, 0);
@@ -182,10 +184,18 @@ struct FIFODesc FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   uint32_t length() const {
     return GetField<uint32_t>(VT_LENGTH, 0);
   }
+  uint32_t delay() const {
+    return GetField<uint32_t>(VT_DELAY, 0);
+  }
+  bool buffer() const {
+    return GetField<uint8_t>(VT_BUFFER, 0) != 0;
+  }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_ID, 2) &&
            VerifyField<uint32_t>(verifier, VT_LENGTH, 4) &&
+           VerifyField<uint32_t>(verifier, VT_DELAY, 4) &&
+           VerifyField<uint8_t>(verifier, VT_BUFFER, 1) &&
            verifier.EndTable();
   }
 };
@@ -199,6 +209,12 @@ struct FIFODescBuilder {
   }
   void add_length(uint32_t length) {
     fbb_.AddElement<uint32_t>(FIFODesc::VT_LENGTH, length, 0);
+  }
+  void add_delay(uint32_t delay) {
+    fbb_.AddElement<uint32_t>(FIFODesc::VT_DELAY, delay, 0);
+  }
+  void add_buffer(bool buffer) {
+    fbb_.AddElement<uint8_t>(FIFODesc::VT_BUFFER, static_cast<uint8_t>(buffer), 0);
   }
   explicit FIFODescBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -214,10 +230,14 @@ struct FIFODescBuilder {
 inline flatbuffers::Offset<FIFODesc> CreateFIFODesc(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint16_t id = 0,
-    uint32_t length = 0) {
+    uint32_t length = 0,
+    uint32_t delay = 0,
+    bool buffer = false) {
   FIFODescBuilder builder_(_fbb);
+  builder_.add_delay(delay);
   builder_.add_length(length);
   builder_.add_id(id);
+  builder_.add_buffer(buffer);
   return builder_.Finish();
 }
 

@@ -21,6 +21,8 @@ table Node {
 table FIFODesc {
    id:uint16;
    length:uint32;
+   delay:uint32;
+   buffer:bool;
 }
 
 table Schedule {

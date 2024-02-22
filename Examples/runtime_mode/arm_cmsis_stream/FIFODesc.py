@@ -38,7 +38,21 @@ class FIFODesc(object):
             return self._tab.Get(flatbuffers.number_types.Uint32Flags, o + self._tab.Pos)
         return 0
 
-def FIFODescStart(builder): builder.StartObject(2)
+    # FIFODesc
+    def Delay(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        if o != 0:
+            return self._tab.Get(flatbuffers.number_types.Uint32Flags, o + self._tab.Pos)
+        return 0
+
+    # FIFODesc
+    def Buffer(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
+        if o != 0:
+            return bool(self._tab.Get(flatbuffers.number_types.BoolFlags, o + self._tab.Pos))
+        return False
+
+def FIFODescStart(builder): builder.StartObject(4)
 def Start(builder):
     return FIFODescStart(builder)
 def FIFODescAddId(builder, id): builder.PrependUint16Slot(0, id, 0)
@@ -47,6 +61,12 @@ def AddId(builder, id):
 def FIFODescAddLength(builder, length): builder.PrependUint32Slot(1, length, 0)
 def AddLength(builder, length):
     return FIFODescAddLength(builder, length)
+def FIFODescAddDelay(builder, delay): builder.PrependUint32Slot(2, delay, 0)
+def AddDelay(builder, delay):
+    return FIFODescAddDelay(builder, delay)
+def FIFODescAddBuffer(builder, buffer): builder.PrependBoolSlot(3, buffer, 0)
+def AddBuffer(builder, buffer):
+    return FIFODescAddBuffer(builder, buffer)
 def FIFODescEnd(builder): return builder.EndObject()
 def End(builder):
     return FIFODescEnd(builder)
