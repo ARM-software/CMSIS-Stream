@@ -53,26 +53,47 @@ runtime_context create_graph(const unsigned char * data,
    return(c);
 }
 
-uint32_t run_graph(const runtime_context& ctx,int *error,int nbIterations)
+#define HOOK(A,...)                       \
+if (hooks.##A !=nullptr)                  \
+    {                                     \
+        hook_res = hooks.##A(__VA_ARGS__);\
+        if (hook_res)                     \
+        {                                 \
+            goto end;                     \
+        }                                 \
+    }
+
+uint32_t run_graph(const SchedulerHooks &hooks,
+                   const runtime_context& ctx,
+                   int *error,
+                   int nbIterations)
 {
     const bool is_async = ctx.schedobj->async_mode();
     auto sched_desc = ctx.schedobj->schedule();
     uint32_t nb = 0;
     *error = CG_SUCCESS;
+    bool hook_res;
 
+    HOOK(before_schedule,error,&nb);
+   
     while(true)
     {
+        HOOK(before_iteration,error,&nb);
         for (uint32_t i:*sched_desc) 
         {
             const rnode_t *api = ctx.node_api[i];
             NodeBase *node = ctx.nodes[i].get();
-            int res = api->run(node);
-            if (res != CG_SUCCESS)
+
+            HOOK(before_node_execution,error,&nb,i);
+            *error = api->run(node);
+            HOOK(after_node_execution,error,&nb,i);
+
+            if (*error != CG_SUCCESS)
             {
-                *error=res;
-                break;
+                goto end;
             }
         }
+        HOOK(after_iteration,error,&nb);
         nb++;
         if (nbIterations>0)
         {
@@ -80,12 +101,13 @@ uint32_t run_graph(const runtime_context& ctx,int *error,int nbIterations)
             if (nbIterations==0)
             {
                 *error=CG_STOP_SCHEDULER;
-                return(nb);
+                goto end;
             }
         }
     }
-
     
+end:
+    HOOK(after_schedule,error,&nb);
     return(nb);
 }
 

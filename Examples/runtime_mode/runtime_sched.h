@@ -11,6 +11,8 @@
 #include "stream_generated.h"
 #include "GenericNodes.h"
 
+#define INFINITE_SCHEDULING (-1)
+
 using namespace arm_cmsis_stream;
 
 using IOVector = flatbuffers::Vector<const arm_cmsis_stream::IODesc*>;
@@ -280,6 +282,16 @@ struct _rnode_t {
    mkNode_f mkNode;
 };
 
+struct SchedulerHooks{
+  bool (*before_schedule)(int *error,uint32_t *nbSchedule);
+  bool (*before_iteration)(int *error,uint32_t *nbSchedule);
+  bool (*before_node_execution)(int *error,uint32_t *nbSchedule,const int nodeID);
+  bool (*after_node_execution)(int *error,uint32_t *nbSchedule,const int nodeID);
+  bool (*after_iteration)(int *error,uint32_t *nbSchedule);
+  bool (*after_schedule)(int *error,uint32_t *nbSchedule);
+
+};
+
 #include <iostream>
 
 struct UUID_KEY
@@ -328,6 +340,9 @@ extern runtime_context create_graph(const unsigned char * data,
                                     const uint32_t nb, 
                                     const registry_t &map);
 
-extern uint32_t run_graph(const runtime_context& ctx,int *error,int nbIterations=-1);
+extern uint32_t run_graph(const SchedulerHooks &hooks,
+                          const runtime_context& ctx,
+                          int *error,
+                          int nbIterations=INFINITE_SCHEDULING);
 
 #endif

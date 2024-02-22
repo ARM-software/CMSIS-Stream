@@ -131,6 +131,12 @@ void read_sched()
     }
 }
 
+static bool after(int *error,uint32_t *nbSchedule)
+{
+    std::cout << "After schedule hook\r\n";
+    return(false);
+}
+
 void run_demo(const registry_t &registered_nodes)
 {
     int error;
@@ -141,7 +147,15 @@ void run_demo(const registry_t &registered_nodes)
 
     //auto ctx = create_graph(sched,SCHED_LEN, registered_nodes);
 
-    uint32_t nbIterations = run_graph(ctx,&error,1);
+    SchedulerHooks hooks;
+    hooks.before_schedule=nullptr;
+    hooks.before_iteration=nullptr;
+    hooks.before_node_execution=nullptr;
+    hooks.after_node_execution=nullptr;
+    hooks.after_iteration=nullptr;
+    hooks.after_schedule=after;
+
+    uint32_t nbIterations = run_graph(hooks,ctx,&error,1);
 
     printf("Nb iterations = %d\r\n",nbIterations);
 
