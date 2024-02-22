@@ -18,7 +18,6 @@ But the content of the scheduling is defined in `sched_flat.dat` loaded at runti
 
 Following features from build mode are not yet available:
 
-* async mode not implemented
 * result of python memory optimization not yet used
 
 ## Limitations:

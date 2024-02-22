@@ -190,7 +190,7 @@ def gen(sched,conf):
 
 
     S.Start(builder)
-    S.AddAsyncMode(builder,False)
+    S.AddAsyncMode(builder,conf.asynchronous)
     S.AddNodes(builder,the_nodes)
     S.AddFifos(builder,the_fifos)
     S.AddSchedule(builder,the_sched)

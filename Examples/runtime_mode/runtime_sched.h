@@ -288,8 +288,15 @@ struct _rnode_t {
 struct SchedulerHooks{
   bool (*before_schedule)(int *error,uint32_t *nbSchedule);
   bool (*before_iteration)(int *error,uint32_t *nbSchedule);
+  
+  bool (*async_before_node_check)(int *error,uint32_t *nbSchedule,const int nodeID);
+  bool (*async_after_node_check)(int *error,uint32_t *nbSchedule,const int nodeID);
+  bool (*async_node_not_executed)(int *error,uint32_t *nbSchedule,const int nodeID);
+
+
   bool (*before_node_execution)(int *error,uint32_t *nbSchedule,const int nodeID);
   bool (*after_node_execution)(int *error,uint32_t *nbSchedule,const int nodeID);
+  
   bool (*after_iteration)(int *error,uint32_t *nbSchedule);
   bool (*after_schedule)(int *error,uint32_t *nbSchedule);
 

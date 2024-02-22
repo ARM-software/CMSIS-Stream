@@ -98,6 +98,7 @@ uint32_t run_graph(const SchedulerHooks &hooks,
     uint32_t nb = 0;
     *error = CG_SUCCESS;
     bool hook_res;
+    
 
     HOOK(before_schedule,error,&nb);
    
@@ -108,6 +109,23 @@ uint32_t run_graph(const SchedulerHooks &hooks,
         {
             const rnode_t *api = ctx.node_api[i];
             NodeBase *node = ctx.nodes[i].get();
+
+            if (is_async)
+            {
+                HOOK(async_before_node_check,error,&nb,i);
+                *error = api->prepareForRunning(node);
+                HOOK(async_after_node_check,error,&nb,i);
+                if (*error == CG_SKIP_EXECUTION)
+                {
+                    *error = CG_SUCCESS;
+                    HOOK(async_node_not_executed,error,&nb,i);
+                    continue;
+                }
+                if (*error != CG_SUCCESS)
+                {
+                    goto end;
+                }
+            }
 
             HOOK(before_node_execution,error,&nb,i);
             *error = api->run(node);

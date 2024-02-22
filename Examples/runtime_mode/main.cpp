@@ -150,8 +150,15 @@ void run_demo(const registry_t &registered_nodes)
     SchedulerHooks hooks;
     hooks.before_schedule=nullptr;
     hooks.before_iteration=nullptr;
+
+    // Only used in async mode
+    hooks.async_before_node_check=nullptr;
+    hooks.async_after_node_check=nullptr;
+    hooks.async_node_not_executed=nullptr;
+
     hooks.before_node_execution=nullptr;
     hooks.after_node_execution=nullptr;
+
     hooks.after_iteration=nullptr;
     hooks.after_schedule=after;
 
