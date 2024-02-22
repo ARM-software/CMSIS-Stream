@@ -8,7 +8,9 @@
 
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
-
+static_assert(FLATBUFFERS_VERSION_MAJOR == 2 &&
+              FLATBUFFERS_VERSION_MINOR == 0,
+             "Non-compatible flatbuffers version included");
 
 namespace arm_cmsis_stream {
 
@@ -42,28 +44,28 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(1) UUID FLATBUFFERS_FINAL_CLASS {
 };
 FLATBUFFERS_STRUCT_END(UUID, 16);
 
-FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) IODesc FLATBUFFERS_FINAL_CLASS {
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(2) IODesc FLATBUFFERS_FINAL_CLASS {
  private:
-  uint32_t id_;
-  uint32_t nb_;
+  uint16_t id_;
+  uint16_t nb_;
 
  public:
   IODesc()
       : id_(0),
         nb_(0) {
   }
-  IODesc(uint32_t _id, uint32_t _nb)
+  IODesc(uint16_t _id, uint16_t _nb)
       : id_(flatbuffers::EndianScalar(_id)),
         nb_(flatbuffers::EndianScalar(_nb)) {
   }
-  uint32_t id() const {
+  uint16_t id() const {
     return flatbuffers::EndianScalar(id_);
   }
-  uint32_t nb() const {
+  uint16_t nb() const {
     return flatbuffers::EndianScalar(nb_);
   }
 };
-FLATBUFFERS_STRUCT_END(IODesc, 8);
+FLATBUFFERS_STRUCT_END(IODesc, 4);
 
 struct Node FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef NodeBuilder Builder;
@@ -77,8 +79,8 @@ struct Node FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const arm_cmsis_stream::UUID *uuid() const {
     return GetStruct<const arm_cmsis_stream::UUID *>(VT_UUID);
   }
-  uint32_t id() const {
-    return GetField<uint32_t>(VT_ID, 0);
+  uint16_t id() const {
+    return GetField<uint16_t>(VT_ID, 0);
   }
   const flatbuffers::Vector<const arm_cmsis_stream::IODesc *> *inputs() const {
     return GetPointer<const flatbuffers::Vector<const arm_cmsis_stream::IODesc *> *>(VT_INPUTS);
@@ -92,7 +94,7 @@ struct Node FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<arm_cmsis_stream::UUID>(verifier, VT_UUID, 1) &&
-           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
+           VerifyField<uint16_t>(verifier, VT_ID, 2) &&
            VerifyOffset(verifier, VT_INPUTS) &&
            verifier.VerifyVector(inputs()) &&
            VerifyOffset(verifier, VT_OUTPUTS) &&
@@ -110,8 +112,8 @@ struct NodeBuilder {
   void add_uuid(const arm_cmsis_stream::UUID *uuid) {
     fbb_.AddStruct(Node::VT_UUID, uuid);
   }
-  void add_id(uint32_t id) {
-    fbb_.AddElement<uint32_t>(Node::VT_ID, id, 0);
+  void add_id(uint16_t id) {
+    fbb_.AddElement<uint16_t>(Node::VT_ID, id, 0);
   }
   void add_inputs(flatbuffers::Offset<flatbuffers::Vector<const arm_cmsis_stream::IODesc *>> inputs) {
     fbb_.AddOffset(Node::VT_INPUTS, inputs);
@@ -136,7 +138,7 @@ struct NodeBuilder {
 inline flatbuffers::Offset<Node> CreateNode(
     flatbuffers::FlatBufferBuilder &_fbb,
     const arm_cmsis_stream::UUID *uuid = nullptr,
-    uint32_t id = 0,
+    uint16_t id = 0,
     flatbuffers::Offset<flatbuffers::Vector<const arm_cmsis_stream::IODesc *>> inputs = 0,
     flatbuffers::Offset<flatbuffers::Vector<const arm_cmsis_stream::IODesc *>> outputs = 0,
     flatbuffers::Offset<flatbuffers::Vector<int8_t>> data = 0) {
@@ -144,15 +146,15 @@ inline flatbuffers::Offset<Node> CreateNode(
   builder_.add_data(data);
   builder_.add_outputs(outputs);
   builder_.add_inputs(inputs);
-  builder_.add_id(id);
   builder_.add_uuid(uuid);
+  builder_.add_id(id);
   return builder_.Finish();
 }
 
 inline flatbuffers::Offset<Node> CreateNodeDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     const arm_cmsis_stream::UUID *uuid = nullptr,
-    uint32_t id = 0,
+    uint16_t id = 0,
     const std::vector<arm_cmsis_stream::IODesc> *inputs = nullptr,
     const std::vector<arm_cmsis_stream::IODesc> *outputs = nullptr,
     const std::vector<int8_t> *data = nullptr) {
@@ -174,15 +176,15 @@ struct FIFODesc FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_ID = 4,
     VT_LENGTH = 6
   };
-  uint32_t id() const {
-    return GetField<uint32_t>(VT_ID, 0);
+  uint16_t id() const {
+    return GetField<uint16_t>(VT_ID, 0);
   }
   uint32_t length() const {
     return GetField<uint32_t>(VT_LENGTH, 0);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
+           VerifyField<uint16_t>(verifier, VT_ID, 2) &&
            VerifyField<uint32_t>(verifier, VT_LENGTH, 4) &&
            verifier.EndTable();
   }
@@ -192,8 +194,8 @@ struct FIFODescBuilder {
   typedef FIFODesc Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_id(uint32_t id) {
-    fbb_.AddElement<uint32_t>(FIFODesc::VT_ID, id, 0);
+  void add_id(uint16_t id) {
+    fbb_.AddElement<uint16_t>(FIFODesc::VT_ID, id, 0);
   }
   void add_length(uint32_t length) {
     fbb_.AddElement<uint32_t>(FIFODesc::VT_LENGTH, length, 0);
@@ -211,7 +213,7 @@ struct FIFODescBuilder {
 
 inline flatbuffers::Offset<FIFODesc> CreateFIFODesc(
     flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t id = 0,
+    uint16_t id = 0,
     uint32_t length = 0) {
   FIFODescBuilder builder_(_fbb);
   builder_.add_length(length);
@@ -236,8 +238,8 @@ struct Schedule FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::FIFODesc>> *fifos() const {
     return GetPointer<const flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::FIFODesc>> *>(VT_FIFOS);
   }
-  const flatbuffers::Vector<uint32_t> *schedule() const {
-    return GetPointer<const flatbuffers::Vector<uint32_t> *>(VT_SCHEDULE);
+  const flatbuffers::Vector<uint16_t> *schedule() const {
+    return GetPointer<const flatbuffers::Vector<uint16_t> *>(VT_SCHEDULE);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -267,7 +269,7 @@ struct ScheduleBuilder {
   void add_fifos(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::FIFODesc>>> fifos) {
     fbb_.AddOffset(Schedule::VT_FIFOS, fifos);
   }
-  void add_schedule(flatbuffers::Offset<flatbuffers::Vector<uint32_t>> schedule) {
+  void add_schedule(flatbuffers::Offset<flatbuffers::Vector<uint16_t>> schedule) {
     fbb_.AddOffset(Schedule::VT_SCHEDULE, schedule);
   }
   explicit ScheduleBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -286,7 +288,7 @@ inline flatbuffers::Offset<Schedule> CreateSchedule(
     bool async_mode = false,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::Node>>> nodes = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<arm_cmsis_stream::FIFODesc>>> fifos = 0,
-    flatbuffers::Offset<flatbuffers::Vector<uint32_t>> schedule = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<uint16_t>> schedule = 0) {
   ScheduleBuilder builder_(_fbb);
   builder_.add_schedule(schedule);
   builder_.add_fifos(fifos);
@@ -300,10 +302,10 @@ inline flatbuffers::Offset<Schedule> CreateScheduleDirect(
     bool async_mode = false,
     const std::vector<flatbuffers::Offset<arm_cmsis_stream::Node>> *nodes = nullptr,
     const std::vector<flatbuffers::Offset<arm_cmsis_stream::FIFODesc>> *fifos = nullptr,
-    const std::vector<uint32_t> *schedule = nullptr) {
+    const std::vector<uint16_t> *schedule = nullptr) {
   auto nodes__ = nodes ? _fbb.CreateVector<flatbuffers::Offset<arm_cmsis_stream::Node>>(*nodes) : 0;
   auto fifos__ = fifos ? _fbb.CreateVector<flatbuffers::Offset<arm_cmsis_stream::FIFODesc>>(*fifos) : 0;
-  auto schedule__ = schedule ? _fbb.CreateVector<uint32_t>(*schedule) : 0;
+  auto schedule__ = schedule ? _fbb.CreateVector<uint16_t>(*schedule) : 0;
   return arm_cmsis_stream::CreateSchedule(
       _fbb,
       async_mode,

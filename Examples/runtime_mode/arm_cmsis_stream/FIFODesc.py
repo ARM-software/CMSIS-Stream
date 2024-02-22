@@ -28,7 +28,7 @@ class FIFODesc(object):
     def Id(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.Uint32Flags, o + self._tab.Pos)
+            return self._tab.Get(flatbuffers.number_types.Uint16Flags, o + self._tab.Pos)
         return 0
 
     # FIFODesc
@@ -41,7 +41,7 @@ class FIFODesc(object):
 def FIFODescStart(builder): builder.StartObject(2)
 def Start(builder):
     return FIFODescStart(builder)
-def FIFODescAddId(builder, id): builder.PrependUint32Slot(0, id, 0)
+def FIFODescAddId(builder, id): builder.PrependUint16Slot(0, id, 0)
 def AddId(builder, id):
     return FIFODescAddId(builder, id)
 def FIFODescAddLength(builder, length): builder.PrependUint32Slot(1, length, 0)

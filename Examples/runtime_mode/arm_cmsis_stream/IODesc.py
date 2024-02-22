@@ -11,19 +11,19 @@ class IODesc(object):
 
     @classmethod
     def SizeOf(cls):
-        return 8
+        return 4
 
     # IODesc
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
 
     # IODesc
-    def Id(self): return self._tab.Get(flatbuffers.number_types.Uint32Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(0))
+    def Id(self): return self._tab.Get(flatbuffers.number_types.Uint16Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(0))
     # IODesc
-    def Nb(self): return self._tab.Get(flatbuffers.number_types.Uint32Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(4))
+    def Nb(self): return self._tab.Get(flatbuffers.number_types.Uint16Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(2))
 
 def CreateIODesc(builder, id, nb):
-    builder.Prep(4, 8)
-    builder.PrependUint32(nb)
-    builder.PrependUint32(id)
+    builder.Prep(2, 4)
+    builder.PrependUint16(nb)
+    builder.PrependUint16(id)
     return builder.Offset()

@@ -1,7 +1,7 @@
 #ifndef SCHED_FLAT_H
 #define SCHED_FLAT_H
 
-#define SCHED_LEN 1508
+#define SCHED_LEN 1236
 
 #ifdef   __cplusplus
 extern "C"

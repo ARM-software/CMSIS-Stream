@@ -158,7 +158,7 @@ def gen(sched,conf):
     S.ScheduleStartScheduleVector(builder,len(sched.schedule))
     for s in reversed(sched.schedule):
         #print(sched.nodes[s].codeID)
-        builder.PrependUint32(sched.nodes[s].codeID)
+        builder.PrependUint16(sched.nodes[s].codeID)
     the_sched=builder.EndVector()
 
 

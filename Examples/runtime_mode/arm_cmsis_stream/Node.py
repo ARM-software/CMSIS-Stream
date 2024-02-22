@@ -39,7 +39,7 @@ class Node(object):
     def Id(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.Uint32Flags, o + self._tab.Pos)
+            return self._tab.Get(flatbuffers.number_types.Uint16Flags, o + self._tab.Pos)
         return 0
 
     # Node
@@ -47,7 +47,7 @@ class Node(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             x = self._tab.Vector(o)
-            x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 8
+            x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
             from arm_cmsis_stream.IODesc import IODesc
             obj = IODesc()
             obj.Init(self._tab.Bytes, x)
@@ -71,7 +71,7 @@ class Node(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
             x = self._tab.Vector(o)
-            x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 8
+            x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
             from arm_cmsis_stream.IODesc import IODesc
             obj = IODesc()
             obj.Init(self._tab.Bytes, x)
@@ -123,19 +123,19 @@ def Start(builder):
 def NodeAddUuid(builder, uuid): builder.PrependStructSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(uuid), 0)
 def AddUuid(builder, uuid):
     return NodeAddUuid(builder, uuid)
-def NodeAddId(builder, id): builder.PrependUint32Slot(1, id, 0)
+def NodeAddId(builder, id): builder.PrependUint16Slot(1, id, 0)
 def AddId(builder, id):
     return NodeAddId(builder, id)
 def NodeAddInputs(builder, inputs): builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(inputs), 0)
 def AddInputs(builder, inputs):
     return NodeAddInputs(builder, inputs)
-def NodeStartInputsVector(builder, numElems): return builder.StartVector(8, numElems, 4)
+def NodeStartInputsVector(builder, numElems): return builder.StartVector(4, numElems, 2)
 def StartInputsVector(builder, numElems):
     return NodeStartInputsVector(builder, numElems)
 def NodeAddOutputs(builder, outputs): builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(outputs), 0)
 def AddOutputs(builder, outputs):
     return NodeAddOutputs(builder, outputs)
-def NodeStartOutputsVector(builder, numElems): return builder.StartVector(8, numElems, 4)
+def NodeStartOutputsVector(builder, numElems): return builder.StartVector(4, numElems, 2)
 def StartOutputsVector(builder, numElems):
     return NodeStartOutputsVector(builder, numElems)
 def NodeAddData(builder, data): builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(data), 0)

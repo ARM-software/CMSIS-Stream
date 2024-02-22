@@ -6,20 +6,20 @@ struct UUID {
 }
 
 struct IODesc {
-   id:uint32;
-   nb:uint32;
+   id:uint16;
+   nb:uint16;
 }
 
 table Node {
    uuid:UUID;
-   id:uint32;
+   id:uint16;
    inputs:[IODesc];
    outputs:[IODesc];
    data:[byte];
 }
 
 table FIFODesc {
-   id:uint32;
+   id:uint16;
    length:uint32;
 }
 
@@ -27,7 +27,7 @@ table Schedule {
     async_mode:bool;
     nodes:[Node];
     fifos:[FIFODesc];
-    schedule:[uint32];
+    schedule:[uint16];
 }
 
 
