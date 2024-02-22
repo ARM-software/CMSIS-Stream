@@ -42,6 +42,7 @@ from cmsis_stream.cg.scheduler import Duplicate
 # 
 DUPLICATE_UUID = "bf9e5977aaf34a54b84394f4a929805b"
 Duplicate.uuid = property(lambda self: DUPLICATE_UUID)
+Duplicate.node_data = property(lambda self: None)
 
 def mkUUID(builder,u):
     b = uuid.UUID(u).bytes
@@ -60,8 +61,9 @@ def gen(sched,conf):
 
     flat_nodes=[]
     for i,n in enumerate(nodes):
-         inputs=None
-         outputs=None
+         inputs = None
+         outputs = None
+         node_data = None
          #print(n.nodeName)
          if len(n.inputNames)>0:
             #print("inputs")
@@ -119,7 +121,14 @@ def gen(sched,conf):
                 #print(f"{ioName},{nb},{fifoid}")
 
             outputs = builder.EndVector()
-         
+
+
+         if n.node_data is not None:
+            Node.StartNodeDataVector(builder,len(n.node_data))
+            for i in reversed(n.node_data):
+                builder.PrependByte(i)
+            node_data = builder.EndVector()
+
          Node.Start(builder)
          Node.AddUuid(builder, mkUUID(builder,n.uuid))
          Node.AddId(builder, i)
@@ -129,6 +138,8 @@ def gen(sched,conf):
             Node.AddInputs(builder,inputs)
          if outputs is not None:
             Node.AddOutputs(builder,outputs)
+         if node_data is not None:
+            Node.AddNodeData(builder,node_data)
         
 
          node = Node.End(builder)

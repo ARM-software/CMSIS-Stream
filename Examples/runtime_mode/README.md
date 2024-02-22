@@ -19,8 +19,6 @@ But the content of the scheduling is defined in `sched_flat.dat` loaded at runti
 Following features from build mode are not yet available:
 
 * async mode not implemented
-* customization hooks missing
-* not yet any way to pass data to the node
 * result of python memory optimization not yet used
 * Node identification for outside access not yet implemented
 

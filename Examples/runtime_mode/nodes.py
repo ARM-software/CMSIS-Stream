@@ -1,6 +1,8 @@
 # Include definitions from the Python package
 from cmsis_stream.cg.scheduler import GenericNode,GenericSink,GenericSource
 
+import struct
+
 ### Define new types of Nodes 
 
 class ProcessingNode(GenericNode):
@@ -19,10 +21,11 @@ class ProcessingNode(GenericNode):
     outLength : int 
               The number of samples produced on output
     """
-    def __init__(self,name,theType,inLength,outLength):
+    def __init__(self,name,theType,inLength,outLength,v=1):
         GenericNode.__init__(self,name)
         self.addInput("i",theType,inLength)
         self.addOutput("o",theType,outLength)
+        self._v = v
 
     @property
     def typeName(self):
@@ -32,6 +35,10 @@ class ProcessingNode(GenericNode):
     @property
     def uuid(self):
         return "3ff62b0c9ad8445dbbe9208d87423446"
+
+    @property
+    def node_data(self):
+        return(struct.pack('<i', self._v))
     
 
 class Sink(GenericSink):
@@ -61,6 +68,10 @@ class Sink(GenericSink):
     def uuid(self):
         return "c30ea9eae9c34638bbc6021fa3549d93"
 
+    @property
+    def node_data(self):
+        return None
+
 class Source(GenericSource):
     """
     Definition of a Source node for the graph
@@ -87,4 +98,8 @@ class Source(GenericSource):
     @property
     def uuid(self):
         return "c0089f592f334ec4902330f69f0f4833"
+
+    @property
+    def node_data(self):
+        return None
 

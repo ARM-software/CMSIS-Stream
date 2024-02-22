@@ -9,7 +9,7 @@
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
 static_assert(FLATBUFFERS_VERSION_MAJOR == 2 &&
-              FLATBUFFERS_VERSION_MINOR == 0,
+              FLATBUFFERS_VERSION_MINOR == 0 ,
              "Non-compatible flatbuffers version included");
 
 namespace arm_cmsis_stream {
@@ -74,7 +74,7 @@ struct Node FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
     VT_ID = 6,
     VT_INPUTS = 8,
     VT_OUTPUTS = 10,
-    VT_DATA = 12
+    VT_NODE_DATA = 12
   };
   const arm_cmsis_stream::UUID *uuid() const {
     return GetStruct<const arm_cmsis_stream::UUID *>(VT_UUID);
@@ -88,8 +88,8 @@ struct Node FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   const flatbuffers::Vector<const arm_cmsis_stream::IODesc *> *outputs() const {
     return GetPointer<const flatbuffers::Vector<const arm_cmsis_stream::IODesc *> *>(VT_OUTPUTS);
   }
-  const flatbuffers::Vector<int8_t> *data() const {
-    return GetPointer<const flatbuffers::Vector<int8_t> *>(VT_DATA);
+  const flatbuffers::Vector<int8_t> *node_data() const {
+    return GetPointer<const flatbuffers::Vector<int8_t> *>(VT_NODE_DATA);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -99,8 +99,8 @@ struct Node FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
            verifier.VerifyVector(inputs()) &&
            VerifyOffset(verifier, VT_OUTPUTS) &&
            verifier.VerifyVector(outputs()) &&
-           VerifyOffset(verifier, VT_DATA) &&
-           verifier.VerifyVector(data()) &&
+           VerifyOffset(verifier, VT_NODE_DATA) &&
+           verifier.VerifyVector(node_data()) &&
            verifier.EndTable();
   }
 };
@@ -121,8 +121,8 @@ struct NodeBuilder {
   void add_outputs(flatbuffers::Offset<flatbuffers::Vector<const arm_cmsis_stream::IODesc *>> outputs) {
     fbb_.AddOffset(Node::VT_OUTPUTS, outputs);
   }
-  void add_data(flatbuffers::Offset<flatbuffers::Vector<int8_t>> data) {
-    fbb_.AddOffset(Node::VT_DATA, data);
+  void add_node_data(flatbuffers::Offset<flatbuffers::Vector<int8_t>> node_data) {
+    fbb_.AddOffset(Node::VT_NODE_DATA, node_data);
   }
   explicit NodeBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -141,9 +141,9 @@ inline flatbuffers::Offset<Node> CreateNode(
     uint16_t id = 0,
     flatbuffers::Offset<flatbuffers::Vector<const arm_cmsis_stream::IODesc *>> inputs = 0,
     flatbuffers::Offset<flatbuffers::Vector<const arm_cmsis_stream::IODesc *>> outputs = 0,
-    flatbuffers::Offset<flatbuffers::Vector<int8_t>> data = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<int8_t>> node_data = 0) {
   NodeBuilder builder_(_fbb);
-  builder_.add_data(data);
+  builder_.add_node_data(node_data);
   builder_.add_outputs(outputs);
   builder_.add_inputs(inputs);
   builder_.add_uuid(uuid);
@@ -157,17 +157,17 @@ inline flatbuffers::Offset<Node> CreateNodeDirect(
     uint16_t id = 0,
     const std::vector<arm_cmsis_stream::IODesc> *inputs = nullptr,
     const std::vector<arm_cmsis_stream::IODesc> *outputs = nullptr,
-    const std::vector<int8_t> *data = nullptr) {
+    const std::vector<int8_t> *node_data = nullptr) {
   auto inputs__ = inputs ? _fbb.CreateVectorOfStructs<arm_cmsis_stream::IODesc>(*inputs) : 0;
   auto outputs__ = outputs ? _fbb.CreateVectorOfStructs<arm_cmsis_stream::IODesc>(*outputs) : 0;
-  auto data__ = data ? _fbb.CreateVector<int8_t>(*data) : 0;
+  auto node_data__ = node_data ? _fbb.CreateVector<int8_t>(*node_data) : 0;
   return arm_cmsis_stream::CreateNode(
       _fbb,
       uuid,
       id,
       inputs__,
       outputs__,
-      data__);
+      node_data__);
 }
 
 struct FIFODesc FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {

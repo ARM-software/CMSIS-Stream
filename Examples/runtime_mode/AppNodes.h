@@ -501,7 +501,8 @@ public:
     /* Constructor needs the input and output FIFOs */
     ProcessingNode(const arm_cmsis_stream::Node &n,
                    RuntimeEdge &src,
-                   RuntimeEdge &dst):GenericRuntimeNode<IN,IN>(n,src,dst){};
+                   RuntimeEdge &dst,
+                   const uint32_t inc):GenericRuntimeNode<IN,IN>(n,src,dst),mInc(inc){};
 
 
     static int runNode(NodeBase* obj)
@@ -527,8 +528,13 @@ public:
         auto outputs = ndesc->outputs();
         RuntimeEdge &o = *ctx.fifos[outputs->Get(0)->id()];
 
+        // Extract values from data
+        const int8_t *d = ndesc->node_data()->data();
+        const int32_t *v = reinterpret_cast<const int32_t*>(d);
+
+
         
-        ProcessingNode<IN,RUNTIME,IN,RUNTIME> *node=new ProcessingNode<IN,RUNTIME,IN,RUNTIME>(*ndesc,i,o);
+        ProcessingNode<IN,RUNTIME,IN,RUNTIME> *node=new ProcessingNode<IN,RUNTIME,IN,RUNTIME>(*ndesc,i,o,*v);
         return(static_cast<NodeBase*>(node));
     }
 
@@ -559,11 +565,13 @@ public:
         IN *b=this->getWriteBuffer();
         for(int i=0;i<this->nb_input_samples();i++)
         {
-            b[i] = a[i]+1;
+            b[i] = a[i]+mInc;
         }
         return(0);
     };
 
+protected:
+    const uint32_t mInc;
 };
 
 

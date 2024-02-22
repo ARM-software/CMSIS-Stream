@@ -15,7 +15,7 @@ table Node {
    id:uint16;
    inputs:[IODesc];
    outputs:[IODesc];
-   data:[byte];
+   node_data:[byte];
 }
 
 table FIFODesc {

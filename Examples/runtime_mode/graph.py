@@ -24,7 +24,7 @@ src=Source("source",floatType,NBA)
 # the node is executed in the C code
 # "processing" is the name of the C variable that will identify
 # this node
-processinga=ProcessingNode("processinga",floatType,NBB,NBB)
+processinga=ProcessingNode("processinga",floatType,NBB,NBB,v=10)
 
 # Instantiate a Sink node with a float datatype and consuming
 # 5 samples each time the node is executed in the C code

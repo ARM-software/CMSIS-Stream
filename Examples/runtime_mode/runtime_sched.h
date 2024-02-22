@@ -274,7 +274,7 @@ struct runtime_context {
 typedef int (*run_f)(NodeBase*);
 typedef int (*prepareForRunning_f)(NodeBase*);
 typedef NodeBase* (*mkNode_f)(const runtime_context &ctx, 
-                          const arm_cmsis_stream::Node *desc);
+                              const arm_cmsis_stream::Node *desc);
 
 struct _rnode_t {
    run_f run;

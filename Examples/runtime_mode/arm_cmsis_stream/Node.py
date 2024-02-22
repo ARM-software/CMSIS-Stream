@@ -91,7 +91,7 @@ class Node(object):
         return o == 0
 
     # Node
-    def Data(self, j):
+    def NodeData(self, j):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
             a = self._tab.Vector(o)
@@ -99,21 +99,21 @@ class Node(object):
         return 0
 
     # Node
-    def DataAsNumpy(self):
+    def NodeDataAsNumpy(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
             return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Int8Flags, o)
         return 0
 
     # Node
-    def DataLength(self):
+    def NodeDataLength(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # Node
-    def DataIsNone(self):
+    def NodeDataIsNone(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(12))
         return o == 0
 
@@ -138,12 +138,12 @@ def AddOutputs(builder, outputs):
 def NodeStartOutputsVector(builder, numElems): return builder.StartVector(4, numElems, 2)
 def StartOutputsVector(builder, numElems):
     return NodeStartOutputsVector(builder, numElems)
-def NodeAddData(builder, data): builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(data), 0)
-def AddData(builder, data):
-    return NodeAddData(builder, data)
-def NodeStartDataVector(builder, numElems): return builder.StartVector(1, numElems, 1)
-def StartDataVector(builder, numElems):
-    return NodeStartDataVector(builder, numElems)
+def NodeAddNodeData(builder, nodeData): builder.PrependUOffsetTRelativeSlot(4, flatbuffers.number_types.UOffsetTFlags.py_type(nodeData), 0)
+def AddNodeData(builder, nodeData):
+    return NodeAddNodeData(builder, nodeData)
+def NodeStartNodeDataVector(builder, numElems): return builder.StartVector(1, numElems, 1)
+def StartNodeDataVector(builder, numElems):
+    return NodeStartNodeDataVector(builder, numElems)
 def NodeEnd(builder): return builder.EndObject()
 def End(builder):
     return NodeEnd(builder)
