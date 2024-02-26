@@ -9,269 +9,15 @@
 #include <memory>
 #include <functional>
 #include <string>
+#include <iostream>
 
-#include "stream_generated.h"
-#include "GenericNodes.h"
+#include "GenericRuntimeNodes.h"
 
 #define INFINITE_SCHEDULING (-1)
 
-using namespace arm_cmsis_stream;
 
-using IOVector = flatbuffers::Vector<const arm_cmsis_stream::IODesc*>;
+namespace arm_cmsis_stream {
 
-class RuntimeEdge
-{
-public:
-   RuntimeEdge(){};
-   virtual ~RuntimeEdge(){};
-
-   virtual char* getWriteBuffer(const IOVector &io,
-                                const std::size_t sample_size,
-                                const int io_id,
-                                const int nb_samples=0)=0;
-
-   virtual char* getReadBuffer(const IOVector &io,
-                               const std::size_t sample_size,
-                               const int io_id,
-                               const int nb_samples=0)=0;
-
-  virtual bool willUnderflowWith(const IOVector &io,
-                                 const std::size_t sample_size,
-                                 const int io_id,
-                                 const int nb_samples=0) const=0;
-
-  virtual bool willOverflowWith(const IOVector &io,
-                                const std::size_t sample_size,
-                                const int io_id,
-                                const int nb_samples=0) const=0;
-        
-  virtual int nbBytesInFIFO() const =0;
-
-  virtual int nbOfFreeBytesInFIFO() const=0;
-};
-
-
-class RuntimeFIFO:public RuntimeEdge
-{
-    public:
-        explicit RuntimeFIFO(int8_t *buf,const uint32_t nb,int delay=0):
-        mBuffer(buf),readPos(0),writePos(delay),length(nb) {
-        };
-
-        /* 
-        FIFO are fixed and not made to be copied or moved.
-        */
-        
-        RuntimeFIFO(RuntimeFIFO&&) = default;
-        RuntimeFIFO& operator=(RuntimeFIFO&&) = default;
-
-        RuntimeFIFO(const RuntimeFIFO&) = default;
-        RuntimeFIFO& operator=(const RuntimeFIFO&) = default;
-
-        /* 
-
-        Check for overflow must have been done
-        before using this function 
-        
-        */
-        char* getWriteBuffer(const IOVector &io,
-                             const std::size_t sample_size,
-                             const int io_id,
-                             const int nb_samples=0)  final
-        {
-            int nb;
-            if (nb_samples==0) 
-            {
-                nb = io.Get(io_id)->nb()*sample_size;
-            }
-            else 
-            {
-                nb = nb_samples*sample_size;
-            }
-
-            if (readPos > 0)
-            {
-                memcpy(mBuffer,mBuffer+readPos,writePos-readPos);
-                writePos -= readPos;
-                readPos = 0;
-            }
-            
-            int8_t *ret = mBuffer + writePos;
-            writePos += nb; 
-            return((char*)ret);
-        };
-
-        /* 
-        
-        Check for undeflow must have been done
-        before using this function 
-        
-        */
-        
-        char* getReadBuffer(const IOVector &io,
-                            const std::size_t sample_size,
-                            const int io_id,
-                            const int nb_samples=0)    final
-        {
-            int nb;
-            if (nb_samples==0) 
-            {
-                nb = io.Get(io_id)->nb()*sample_size;
-            }
-            else 
-            {
-                nb = nb_samples*sample_size;
-            }
-
-            int8_t *ret = mBuffer + readPos;
-            readPos += nb;
-            return((char*)ret);
-        }
-
-        bool willUnderflowWith(const IOVector &io,
-                               const std::size_t sample_size,
-                               const int io_id,
-                               const int nb_samples=0) const   final
-        {
-            int nb;
-            if (nb_samples==0) 
-            {
-                nb = io.Get(io_id)->nb()*sample_size;
-            }
-            else 
-            {
-                nb = nb_samples*sample_size;
-            }
-            return((writePos - readPos - nb)<0);
-        }
-
-        bool willOverflowWith(const IOVector &io,
-                              const std::size_t sample_size,
-                              const int io_id,
-                              const int nb_samples=0) const   final
-        {
-            int nb;
-            if (nb_samples==0) 
-            {
-                nb = io.Get(io_id)->nb()*sample_size;
-            }
-            else 
-            {
-                nb = nb_samples*sample_size;
-            }
-            return((writePos - readPos + nb)>length);
-        }
-
-        int nbBytesInFIFO() const final   {return (writePos - readPos);};
-        
-        int nbOfFreeBytesInFIFO() const  final  {return (length - writePos + readPos);};
-
-
-
-    protected:
-        int8_t *mBuffer;
-        int readPos,writePos;
-        const uint32_t length;
-};
-
-class RuntimeBuffer:public RuntimeEdge
-{
-    public:
-        /* No delay argument for this version of the FIFO.
-           This version will not be generated when there is a delay
-        */
-        explicit RuntimeBuffer(int8_t *buf):mBuffer(buf) {
-        };
-
-        /* 
-        FIFO are fixed and not made to be copied or moved.
-        */
-        RuntimeBuffer(const RuntimeBuffer&) = default;
-        RuntimeBuffer(RuntimeBuffer&&) = default;
-        RuntimeBuffer& operator=(const RuntimeBuffer&) = default;
-        RuntimeBuffer& operator=(RuntimeBuffer&&) = default;
-
-        /* 
-           Not used in synchronous mode 
-           and this version of the FIFO is
-           never used in asynchronous mode 
-           so empty functions are provided.
-        */
-        bool willUnderflowWith(const IOVector &io,
-                               const std::size_t sample_size,
-                               const int io_id,
-                               const int nb_samples=0) const final 
-        {
-            (void)nb_samples;
-            (void)io;
-            (void)sample_size;
-            (void)io_id;
-            return false;
-        };
-        
-        bool willOverflowWith(const IOVector &io,
-                              const std::size_t sample_size,
-                              const int io_id,
-                              const int nb_samples=0) const final   
-        {
-            (void)nb_samples;
-            (void)io;
-            (void)sample_size;
-            (void)io_id;
-            return false;
-        };
-        
-        int nbBytesInFIFO() const final   
-        {
-            return(0);
-        };
-        
-        int nbOfFreeBytesInFIFO() const final  
-        {
-            return( 0);
-        };
-
-
-        char* getWriteBuffer(const IOVector &io,
-                             const std::size_t sample_size,
-                             const int io_id,
-                             const int nb_samples=0)  final  
-        {
-            (void)nb_samples;
-            (void)io;
-            (void)sample_size;
-            (void)io_id;
-            return(reinterpret_cast<char*>(mBuffer));
-        };
-
-        char* getReadBuffer(const IOVector &io,
-                            const std::size_t sample_size,
-                            const int io_id,
-                            const int nb_samples=0)    final
-        {
-            (void)nb_samples;
-            (void)io;
-            (void)sample_size;
-            (void)io_id;
-            return(reinterpret_cast<char*>(mBuffer));
-        }
-
-    protected:
-        int8_t *mBuffer;
-};
-
-struct _rnode_t;
-
-typedef struct _rnode_t rnode_t;
-
-struct runtime_context {
-  const arm_cmsis_stream::Schedule *schedobj;
-  std::vector<std::unique_ptr<std::vector<int8_t>>> buffers;
-  std::vector<std::unique_ptr<RuntimeEdge>> fifos;
-  std::vector<std::unique_ptr<NodeBase>> nodes;
-  std::vector<const rnode_t*> node_api;
-  std::map<const std::string,NodeBase*> identification;
-};
 
 typedef int (*run_f)(NodeBase*);
 typedef int (*prepareForRunning_f)(NodeBase*);
@@ -301,7 +47,6 @@ struct SchedulerHooks{
 
 };
 
-#include <iostream>
 
 struct UUID_KEY
 {
@@ -355,5 +100,21 @@ extern uint32_t run_graph(const SchedulerHooks &hooks,
                           int nbIterations=INFINITE_SCHEDULING);
 
 extern NodeBase* get_node(const runtime_context& ctx,const std::string &name);
+
+template<typename T>
+struct Component 
+{
+   static void reg(registry_t& res)
+   {
+      rnode_t t;
+      t.mkNode            = &T::mkNode;
+      t.prepareForRunning = &T::prepareForRunningNode;
+      t.run               = &T::runNode;
+
+      res[UUID_KEY(T::uuid.data())] = t;
+   };
+};
+
+}
 
 #endif

@@ -2,12 +2,12 @@
 XCodePath = $(shell xcode-select --print-path)
 CC = $(XCodePath)/usr/bin/g++
 
-INCLUDES = -I.
+INCLUDES = -I. -Iflatbuffers_1.23.2/include
 CFLAGS =  -std=c++11 $(INCLUDES)
 
 all:
-	$(CC) -o simple $(CFLAGS) ./scheduler.cpp main.cpp
+	$(CC) -o runtime_mode $(CFLAGS) ./runtime_sched.cpp main.cpp 
 
 clean:
-	rm -f ./simple
+	rm -f ./runtime_mode
 	

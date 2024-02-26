@@ -4,7 +4,7 @@
 
 
 
-using namespace arm_cmsis_stream;
+namespace arm_cmsis_stream {
 
 runtime_context create_graph(const unsigned char * data,
                              const uint32_t nb, 
@@ -165,3 +165,4 @@ end:
 }
 
 
+}

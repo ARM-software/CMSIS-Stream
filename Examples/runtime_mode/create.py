@@ -40,8 +40,6 @@ print("Schedule length = %d" % scheduling.scheduleLength)
 print("Memory usage %d bytes" % scheduling.memory)
 
 
-scheduling.ccode(".",conf)
-
 buf = flat.gen(scheduling,conf)
 flat.create_c_file(buf,"sched_flat")
 flat.create_h_file(buf,"sched_flat")
