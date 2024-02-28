@@ -1,14 +1,23 @@
 #include "runtime_sched.h"
 #include <map>
 #include "cg_status.h"
-
+#include "GenericRuntimeNodes.h"
 
 
 namespace arm_cmsis_stream {
 
-runtime_context create_graph(const unsigned char * data,
-                             const uint32_t nb, 
-                             const registry_t &map)
+/**
+ * @brief      Creates a graph.
+ *
+ * @param[in]  data  The flatbuffer data
+ * @param[in]  nb    The number of bytes of data
+ * @param[in]  map   The registry
+ *
+ * @return     An optional runtime context. Nothing in case of error.
+ */
+std::optional<runtime_context> create_graph(const unsigned char * data,
+                                            const uint32_t nb, 
+                                            const registry_t &map)
 {
    runtime_context c;
    bool ok = VerifyScheduleBuffer(flatbuffers::Verifier(data, nb));
@@ -62,18 +71,22 @@ runtime_context create_graph(const unsigned char * data,
              c.identification[n->name()->str()] = c.nodes[i].get();
         }
       }
-
-      
-
-
    }
    else
    {
-     std::cout << "Incorrect graph\r\n";
+     return {};
    }
    return(c);
 }
 
+/**
+ * @brief      Access a node by name
+ *
+ * @param[in]  ctx   The runtime context
+ * @param[in]  name  The name of the node
+ *
+ * @return     The node or nullptr.
+ */
 NodeBase* get_node(const runtime_context& ctx,
                    const std::string &name)
 {
@@ -88,6 +101,14 @@ NodeBase* get_node(const runtime_context& ctx,
    }
 }
 
+/**
+ * @brief      Check for existence of a customization hook
+ *             and call it if present
+ *
+ * @param      A     Customization hook
+ * @param      ...   Function arguments
+ *
+ */
 #define HOOK(A,...)                       \
 if (hooks.##A !=nullptr)                  \
     {                                     \
@@ -98,6 +119,16 @@ if (hooks.##A !=nullptr)                  \
         }                                 \
     }
 
+/**
+ * @brief      Run the graph
+ *
+ * @param[in]  hooks         The customization hooks
+ * @param[in]  ctx           The runtime context
+ * @param      error         The returned error
+ * @param[in]  nbIterations  The number of iterations
+ *
+ * @return     Number of iterations run until the end of the schedulng
+ */
 uint32_t run_graph(const SchedulerHooks &hooks,
                    const runtime_context& ctx,
                    int *error,

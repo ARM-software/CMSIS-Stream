@@ -32,46 +32,83 @@
 using namespace arm_cmsis_stream;
 
 
-
+/**
+ * @brief      This class describes a sink.
+ */
 class Sink: public GenericRuntimeSink<float>
 {
 public:
-    // The constructor for the sink is only using
-    // the input FIFO (coming from the generated scheduler).
-    // This FIFO is passed to the GenericSink contructor.
-    // Implementation of this Sink constructor is doing nothing
+    /**
+     * @brief      Constructs a new instance.
+     *
+     * @param[in]  n     flatbuffer description of this node instance
+     * @param      src   The source FIFO
+     */
     Sink(const arm_cmsis_stream::Node &n,
          RuntimeEdge &src):GenericRuntimeSink<float>(n,src){};
    
+    /**
+     * UUID identifying this class
+     */
     constexpr static std::array<uint8_t,16> uuid    = {0xc3,0x0e,0xa9,0xea,0xe9,0xc3,0x46,0x38,0xbb,0xc6,0x02,0x1f,0xa3,0x54,0x9d,0x93};
 
+    /**
+     * @brief      Running the node from the scheduler
+     *
+     * @param      obj   The object
+     *
+     * @return     Error code
+     */
     static int runNode(NodeBase* obj)
     {
         Sink *n = reinterpret_cast<Sink *>(obj);
         return(n->run());
     }
 
+    /**
+     * @brief      Checking if the node can be run from the scheduler in asynchronous mode
+     *
+     * @param      obj   The object
+     *
+     * @return     Error code
+     */
     static int prepareForRunningNode(NodeBase* obj)
     {
         Sink *n = reinterpret_cast<Sink *>(obj);
         return(n->prepareForRunning());
     }
 
+    /**
+     * @brief      Make a new sink instance
+     *
+     * @param[in]  ctx    The runtime context
+     * @param[in]  ndesc  The flatbuffer description of the instance
+     *
+     * @return     Pointer to the newly created node.
+     */
     static NodeBase* mkNode(const runtime_context &ctx, 
-                        const arm_cmsis_stream::Node *ndesc)
+                            const arm_cmsis_stream::Node *ndesc)
     {
         auto inputs = ndesc->inputs();
         RuntimeEdge &i = *ctx.fifos[inputs->Get(0)->id()];
-
-        
+    
         Sink *node=new Sink(*ndesc,i);
         return(static_cast<NodeBase*>(node));
     }
 
     // Used in asynchronous mode. In case of underflow on
     // the input, the execution of this node will be skipped
+    // 
+    
+    /**
+     * @brief      Check if node can be run in asynchronous mode
+     *
+     * @return     Error code
+     */
     int prepareForRunning() final
     {
+        // check if FIFO would underflow using default value
+        // (nb samples got from flatbuffer description)
         if (this->willUnderflow())
         {
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
@@ -81,6 +118,11 @@ public:
     };
 
    
+    /**
+     * @brief      Run the node
+     *
+     * @return     Error code
+     */
     int run() final
     {
         printf("Sink\n");
