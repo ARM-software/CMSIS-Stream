@@ -24,62 +24,38 @@ public:
    /**
     * @brief      Gets the write buffer.
     *
-    * @param[in]  io           The flatbuffer IO description for the node
-    * @param[in]  sample_size  The sample size in bytes
-    * @param[in]  io_id        The output id
-    * @param[in]  nb_samples   The number of samples to write
+    * @param[in]  nb_bytes   The number of bytes to write
     *
     * @return     The write buffer.
     */
-   virtual char* getWriteBuffer(const IOVector &io,
-                                const std::size_t sample_size,
-                                const int io_id,
-                                const int nb_samples=0)=0;
+   virtual char* getWriteBuffer(const int nb_bytes)=0;
 
     /**
     * @brief      Gets the read buffer.
     *
-    * @param[in]  io           The flatbuffer IO description for the node
-    * @param[in]  sample_size  The sample size in bytes
-    * @param[in]  io_id        The input  id
-    * @param[in]  nb_samples   The number of samples to read
+    * @param[in]  nb_bytes   The number of bytes to read
     *
-    * @return     The write buffer.
+    * @return     The read buffer.
     */
-   virtual char* getReadBuffer(const IOVector &io,
-                               const std::size_t sample_size,
-                               const int io_id,
-                               const int nb_samples=0)=0;
+   virtual char* getReadBuffer(const int nb_bytes)=0;
 
   /**
    * @brief      Check if input will underflow (asynchronous mode)
    *
-   * @param[in]  io           The flatbuffer i/o description
-   * @param[in]  sample_size  The sample size in bytes
-   * @param[in]  io_id        The input id
-   * @param[in]  nb_samples   The number of samples to read
+   * @param[in]  nb_bytes   The number of bytes to read
    *
    * @return     True if underflow would occur with this read
    */
-  virtual bool willUnderflowWith(const IOVector &io,
-                                 const std::size_t sample_size,
-                                 const int io_id,
-                                 const int nb_samples=0) const=0;
+  virtual bool willUnderflowWith(const int nb_bytes) const=0;
 
     /**
    * @brief      Check if output will overflow (asynchronous mode)
    *
-   * @param[in]  io           The flatbuffer i/o description
-   * @param[in]  sample_size  The sample size in bytes
-   * @param[in]  io_id        The output id
-   * @param[in]  nb_samples   The number of samples to write
+   * @param[in]  nb_bytes   The number of bytes to write
    *
    * @return     True if overflow would occur with this write
    */
-  virtual bool willOverflowWith(const IOVector &io,
-                                const std::size_t sample_size,
-                                const int io_id,
-                                const int nb_samples=0) const=0;
+  virtual bool willOverflowWith(const int nb_bytes) const=0;
         
   /**
    * @brief      Number of bytes in the FIFO (asynchronous mode)
@@ -129,21 +105,8 @@ class RuntimeFIFO:public RuntimeEdge
         
         */
 
-        char* getWriteBuffer(const IOVector &io,
-                             const std::size_t sample_size,
-                             const int io_id,
-                             const int nb_samples=0)  final
+        char* getWriteBuffer(const int nb)  final
         {
-            int nb;
-            if (nb_samples==0) 
-            {
-                nb = io.Get(io_id)->nb()*sample_size;
-            }
-            else 
-            {
-                nb = nb_samples*sample_size;
-            }
-
             if (readPos > 0)
             {
                 memcpy(mBuffer,mBuffer+readPos,writePos-readPos);
@@ -163,60 +126,20 @@ class RuntimeFIFO:public RuntimeEdge
         
         */
         
-        char* getReadBuffer(const IOVector &io,
-                            const std::size_t sample_size,
-                            const int io_id,
-                            const int nb_samples=0)    final
+        char* getReadBuffer(const int nb)    final
         {
-            int nb;
-            if (nb_samples==0) 
-            {
-                nb = io.Get(io_id)->nb()*sample_size;
-            }
-            else 
-            {
-                nb = nb_samples*sample_size;
-            }
-
             int8_t *ret = mBuffer + readPos;
             readPos += nb;
             return((char*)ret);
         }
 
-        bool willUnderflowWith(const IOVector &io,
-                               const std::size_t sample_size,
-                               const int io_id,
-                               const int nb_samples=0) const   final
+        bool willUnderflowWith(const int nb) const   final
         {
-            int nb;
-            // Default value : we use the flat buffer description
-            // to know how many samples are needed
-            if (nb_samples==0) 
-            {
-                nb = io.Get(io_id)->nb()*sample_size;
-            }
-            // otherwise we use thr provided value
-            else 
-            {
-                nb = nb_samples*sample_size;
-            }
             return((writePos - readPos - nb)<0);
         }
 
-        bool willOverflowWith(const IOVector &io,
-                              const std::size_t sample_size,
-                              const int io_id,
-                              const int nb_samples=0) const   final
+        bool willOverflowWith(const int nb) const   final
         {
-            int nb;
-            if (nb_samples==0) 
-            {
-                nb = io.Get(io_id)->nb()*sample_size;
-            }
-            else 
-            {
-                nb = nb_samples*sample_size;
-            }
             return((writePos - readPos + nb)>length);
         }
 
@@ -268,27 +191,15 @@ class RuntimeBuffer:public RuntimeEdge
            so empty functions are provided.
         */
 
-        bool willUnderflowWith(const IOVector &io,
-                               const std::size_t sample_size,
-                               const int io_id,
-                               const int nb_samples=0) const final 
+        bool willUnderflowWith(const int nb_bytes) const final 
         {
-            (void)nb_samples;
-            (void)io;
-            (void)sample_size;
-            (void)io_id;
+            (void)nb_bytes;
             return false;
         };
         
-        bool willOverflowWith(const IOVector &io,
-                              const std::size_t sample_size,
-                              const int io_id,
-                              const int nb_samples=0) const final   
+        bool willOverflowWith(const int nb_bytes) const final   
         {
-            (void)nb_samples;
-            (void)io;
-            (void)sample_size;
-            (void)io_id;
+            (void)nb_bytes;
             return false;
         };
         
@@ -303,47 +214,15 @@ class RuntimeBuffer:public RuntimeEdge
         };
 
 
-        /**
-         * @brief      Gets the write buffer.
-         *
-         * @param[in]  io           not used
-         * @param[in]  sample_size  not used
-         * @param[in]  io_id        not used
-         * @param[in]  nb_samples   not used
-         *
-         * @return     The write buffer.
-         */
-        char* getWriteBuffer(const IOVector &io,
-                             const std::size_t sample_size,
-                             const int io_id,
-                             const int nb_samples=0)  final  
+        char* getWriteBuffer(const int nb_bytes)  final  
         {
-            (void)nb_samples;
-            (void)io;
-            (void)sample_size;
-            (void)io_id;
+            (void)nb_bytes;
             return(reinterpret_cast<char*>(mBuffer));
         };
 
-        /**
-         * @brief      Gets the read buffer.
-         *
-         * @param[in]  io           not used
-         * @param[in]  sample_size  not used
-         * @param[in]  io_id        not used
-         * @param[in]  nb_samples   not used
-         *
-         * @return     The read buffer.
-         */
-        char* getReadBuffer(const IOVector &io,
-                            const std::size_t sample_size,
-                            const int io_id,
-                            const int nb_samples=0)    final
+        char* getReadBuffer(const int nb_bytes)    final
         {
-            (void)nb_samples;
-            (void)io;
-            (void)sample_size;
-            (void)io_id;
+            (void)nb_bytes;
             return(reinterpret_cast<char*>(mBuffer));
         }
 
@@ -384,6 +263,37 @@ public:
 
 };
 
+// Get number of bytes to read on input ID
+// If number of samples is not provided, it is read from the flatbuffer
+// otherwise the provided value is used
+#define GET_INPUT_NB(IN,NB_SAMPLES,ID)                  \
+    int nb;                                             \
+                                                        \
+    if ((NB_SAMPLES)==0)                                \
+    {                                                   \
+        nb = ndesc.inputs()->Get((ID))->nb()*sizeof(IN);\
+    }                                                   \
+    else                                                \
+    {                                                   \
+        nb = (NB_SAMPLES)*sizeof(IN);                   \
+    }
+
+// Get number of bytes to write on output ID
+// If number of samples is not provided, it is read from the flatbuffer
+// otherwise the provided value is used
+#define GET_OUTPUT_NB(OUT,NB_SAMPLES,ID)                  \
+    int nb;                                               \
+                                                          \
+    if ((NB_SAMPLES)==0)                                  \
+    {                                                     \
+        nb = ndesc.outputs()->Get((ID))->nb()*sizeof(OUT);\
+    }                                                     \
+    else                                                  \
+    {                                                     \
+        nb = (NB_SAMPLES)*sizeof(OUT);                    \
+    }
+
+
 /**
  * @brief      This class describes a generic runtime sink.
  *
@@ -421,13 +331,12 @@ protected:
      * and use the description from the flatbuffer to know
      * the number of samples.
      *
-     * It may be cleaner to do it here rather than in the FIFO
-     * since FIFO should not have knowledge of the IO.
-     * The test for nb == 0 should be done here
-     * and FIFO should only receive the number of bytes and nothing
-     * else (future improvement)
      */
-     IN * getReadBuffer(const int nb=0) {return (IN*)mSrc.getReadBuffer(*(ndesc.inputs()),sizeof(IN),0,nb);};
+     IN * getReadBuffer(const int nb_samples=0)
+     {
+        GET_INPUT_NB(IN,nb_samples,0);
+        return (IN*)mSrc.getReadBuffer(nb);
+     };
 
      /**
       * @brief      Check underflow (asynchronous mode)
@@ -436,7 +345,11 @@ protected:
       *
       * @return     True if will underflow
       */
-     bool willUnderflow(const int nb=0) const {return mSrc.willUnderflowWith(*(ndesc.inputs()),sizeof(IN),0,nb);};
+     bool willUnderflow(const int nb_samples=0) const 
+     {
+        GET_INPUT_NB(IN,nb_samples,0);
+        return mSrc.willUnderflowWith(nb);
+     };
 
 private:
     const arm_cmsis_stream::Node &ndesc;
@@ -463,13 +376,31 @@ public:
 protected:
      size_t getNbOutputs() const {return(mDstList.size());};
 
-     IN * getReadBuffer(const int nb=0) {return (IN*)mSrc.getReadBuffer(*(ndesc.inputs()),sizeof(IN),0,nb);};
-     OUT * getWriteBuffer(const int io_id,
-                          const int nb=0) {return (OUT*)mDstList[io_id]->getWriteBuffer(*(ndesc.outputs()),sizeof(OUT),io_id,nb);};
+     IN * getReadBuffer(const int nb_samples=0) 
+     {
+        GET_INPUT_NB(IN,nb_samples,0);
+        return (IN*)mSrc.getReadBuffer(nb);
+     };
 
-     bool willUnderflow(const int nb=0) const {return mSrc.willUnderflowWith(*(ndesc.inputs()),sizeof(IN),0,nb);};
+     OUT * getWriteBuffer(const int io_id,
+                          const int nb_samples=0) 
+     {
+        GET_OUTPUT_NB(OUT,nb_samples,io_id);
+        return (OUT*)mDstList[io_id]->getWriteBuffer(nb);
+     };
+
+     bool willUnderflow(const int nb_samples=0) const 
+     {
+        GET_INPUT_NB(IN,nb_samples,0);
+        return mSrc.willUnderflowWith(nb);
+     };
+
      bool willOverflow(const int io_id,
-                       const int nb=0) const {return mDstList[io_id]->willOverflowWith(*(ndesc.outputs()),sizeof(OUT),io_id,nb);};
+                       const int nb_samples=0) const 
+     {
+        GET_OUTPUT_NB(OUT,nb_samples,io_id);
+        return mDstList[io_id]->willOverflowWith(nb);
+     };
 
 private:
     const arm_cmsis_stream::Node &ndesc;
@@ -496,11 +427,29 @@ public:
 
 
 protected:
-     OUT * getWriteBuffer(const int nb=0 ) {return (OUT*)mDst.getWriteBuffer(*(ndesc.outputs()),sizeof(OUT),0,nb);};
-     IN * getReadBuffer(const int nb=0 ) {return (IN*)mSrc.getReadBuffer(*(ndesc.inputs()),sizeof(IN),0,nb);};
+     OUT * getWriteBuffer(const int nb_samples=0 ) 
+     {
+        GET_OUTPUT_NB(OUT,nb_samples,0);
+        return (OUT*)mDst.getWriteBuffer(nb);
+     };
+     
+     IN * getReadBuffer(const int nb_samples=0 ) 
+     {
+        GET_INPUT_NB(IN,nb_samples,0);
+        return (IN*)mSrc.getReadBuffer(nb);
+     };
 
-     bool willOverflow(const int nb=0 ) const {return mDst.willOverflowWith(*(ndesc.outputs()),sizeof(OUT),0,nb);};
-     bool willUnderflow(const int nb=0 ) const {return mSrc.willUnderflowWith(*(ndesc.inputs()),sizeof(IN),0,nb);};
+     bool willOverflow(const int nb_samples=0 ) const 
+     {
+        GET_OUTPUT_NB(OUT,nb_samples,0);
+        return mDst.willOverflowWith(nb);
+     };
+     
+     bool willUnderflow(const int nb_samples=0 ) const 
+     {
+        GET_INPUT_NB(IN,nb_samples,0);
+        return mSrc.willUnderflowWith(nb);
+     };
 
 private:
     const arm_cmsis_stream::Node &ndesc;
@@ -532,13 +481,41 @@ public:
 
 
 protected:
-     OUT * getWriteBuffer(const int nb=0 ) {return (OUT*)mDst.getWriteBuffer(*(ndesc.outputs()),sizeof(OUT),0,nb);};
-     IN1 * getReadBuffer1(const int nb=0 ) {return (IN1*)mSrc1.getReadBuffer(*(ndesc.inputs()),sizeof(IN1),0,nb);};
-     IN2 * getReadBuffer2(const int nb=0 ) {return (IN2*)mSrc2.getReadBuffer(*(ndesc.inputs()),sizeof(IN2),1,nb);};
+     OUT * getWriteBuffer(const int nb_samples=0 ) 
+     {
+        GET_OUTPUT_NB(OUT,nb_samples,0);
+        return (OUT*)mDst.getWriteBuffer(nb);
+     };
+     
+     IN1 * getReadBuffer1(const int nb_samples=0 ) 
+     {
+        GET_INPUT_NB(IN1,nb_samples,0);
+        return (IN1*)mSrc1.getReadBuffer(nb);
+     };
+     
+     IN2 * getReadBuffer2(const int nb_samples=0 ) 
+     {
+        GET_INPUT_NB(IN2,nb_samples,1);
+        return (IN2*)mSrc2.getReadBuffer(nb);
+     };
 
-     bool willOverflow(const int nb=0 ) const {return mDst.willOverflowWith(*(ndesc.outputs()),sizeof(OUT),0,nb);};
-     bool willUnderflow1(const int nb=0 ) const {return mSrc1.willUnderflowWith(*(ndesc.inputs()),sizeof(IN1),0,nb);};
-     bool willUnderflow2(const int nb=0 ) const {return mSrc2.willUnderflowWith(*(ndesc.inputs()),sizeof(IN2),1,nb);};
+     bool willOverflow(const int nb_samples=0 ) const 
+     {
+        GET_OUTPUT_NB(OUT,nb_samples,0);
+        return mDst.willOverflowWith(nb);
+     };
+     
+     bool willUnderflow1(const int nb_samples=0 ) const 
+     {
+        GET_INPUT_NB(IN1,nb_samples,0);
+        return mSrc1.willUnderflowWith(nb);
+     };
+     
+     bool willUnderflow2(const int nb_samples=0 ) const 
+     {
+        GET_INPUT_NB(IN2,nb_samples,1);
+        return mSrc2.willUnderflowWith(nb);
+     };
 
 private:
     const arm_cmsis_stream::Node &ndesc;
@@ -562,9 +539,17 @@ public:
      std::size_t nb_output_samples() const {return(ndesc.outputs()->Get(0)->nb());};
 
 protected:
-     OUT * getWriteBuffer(const int nb=0) {return (OUT*)mDst.getWriteBuffer(*(ndesc.outputs()),sizeof(OUT),0,nb);};
+     OUT * getWriteBuffer(const int nb_samples=0) 
+     {
+        GET_OUTPUT_NB(OUT,nb_samples,0);
+        return (OUT*)mDst.getWriteBuffer(nb);
+    };
 
-     bool willOverflow(const int nb=0) const {return mDst.willOverflowWith(*(ndesc.outputs()),sizeof(OUT),0,nb);};
+     bool willOverflow(const int nb_samples=0) const 
+     {
+        GET_OUTPUT_NB(OUT,nb_samples,0);
+        return mDst.willOverflowWith(nb);
+    };
 
 private:
     const arm_cmsis_stream::Node &ndesc;
