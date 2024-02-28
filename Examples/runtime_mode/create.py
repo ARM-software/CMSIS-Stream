@@ -43,17 +43,9 @@ print("Memory usage %d bytes" % scheduling.memory)
 buf = flat.gen(scheduling,conf)
 flat.create_bin(buf,"sched_flat")
 
-# The generated code is including GenericNodes.h and 
-# cg_status.h
-# Those files can either be used from the CMSIS-Stream 
-# repository or they can be generated from the Python 
-# package so that it is easier to start using CMSIS-Stream
-
-# GenericNodes.h is created in the folder "generated"
-#generateGenericNodes(".")
 
 # cg_status.h is created in the folder "generated"
-#generateCGStatus(".")
+generateCGStatus(".")
 
 
 # Generate a graphviz representation of the graph
