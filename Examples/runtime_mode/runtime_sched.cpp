@@ -57,9 +57,8 @@ std::optional<runtime_context> create_graph(const unsigned char * data,
       {
           auto n = nodes->Get(i);
           const UUID_KEY uuid = UUID_KEY(n->uuid()->v()->data());
-          const rnode_t *api = &map.at(uuid);
-          c.node_api.push_back(api);
-          auto node = api->mkNode(c,n);
+          const mkNode_f mkNode = map.at(uuid);
+          auto node = mkNode(c,n);
           c.nodes.push_back(std::unique_ptr<NodeBase>(node));
       }
 
@@ -148,13 +147,12 @@ uint32_t run_graph(const SchedulerHooks &hooks,
         HOOK(before_iteration,error,&nb);
         for (uint32_t i:*sched_desc) 
         {
-            const rnode_t *api = ctx.node_api[i];
             NodeBase *node = ctx.nodes[i].get();
 
             if (is_async)
             {
                 HOOK(async_before_node_check,error,&nb,i);
-                *error = api->prepareForRunning(node);
+                *error = node->prepareForRunning();
                 HOOK(async_after_node_check,error,&nb,i);
                 if (*error == CG_SKIP_EXECUTION)
                 {
@@ -169,7 +167,7 @@ uint32_t run_graph(const SchedulerHooks &hooks,
             }
 
             HOOK(before_node_execution,error,&nb,i);
-            *error = api->run(node);
+            *error = node->run();
             HOOK(after_node_execution,error,&nb,i);
 
             if (*error != CG_SUCCESS)

@@ -31,15 +31,6 @@ class RuntimeEdge;
 class NodeBase;
 struct runtime_context;
 
-/**
- * Function pointer type to run a node
- */
-typedef int (*run_f)(NodeBase*);
-
-/**
- * Function pointer type to check if a node can be run in asynchronous mode
- */
-typedef int (*prepareForRunning_f)(NodeBase*);
 
 /**
  * Function pointer type to create a node
@@ -47,9 +38,6 @@ typedef int (*prepareForRunning_f)(NodeBase*);
 typedef NodeBase* (*mkNode_f)(const runtime_context &ctx, 
                               const arm_cmsis_stream::Node *desc);
 
-struct _rnode_t;
-
-typedef struct _rnode_t rnode_t;
 
 /**
  * @brief      Runtime context
@@ -66,23 +54,10 @@ struct runtime_context {
   std::vector<std::unique_ptr<RuntimeEdge>> fifos;
   //! Nodes
   std::vector<std::unique_ptr<NodeBase>> nodes;
-  //! API to use for interacting with a node
-  std::vector<const rnode_t*> node_api;
   //! Node identification (some nodes are named)
   std::map<const std::string,NodeBase*> identification;
 };
 
-/**
- * @brief      API for a clss of nodes
- */
-struct _rnode_t {
-   //! How to run the node
-   run_f run;
-   //! How to check a node can run in asynchronous mode
-   prepareForRunning_f prepareForRunning;
-   //! Making an instance of this node
-   mkNode_f mkNode;
-};
 
 /**
  * @brief      Customization hooks for the scheduling
@@ -149,7 +124,7 @@ protected:
 };
 
 //! Datatype for the registry of node categories (API for each kind of node)
-using registry_t = std::map<UUID_KEY,rnode_t,std::less<UUID_KEY>>;
+using registry_t = std::map<UUID_KEY,mkNode_f,std::less<UUID_KEY>>;
 
 
 /**
@@ -205,12 +180,7 @@ struct Component
     */
    static void reg(registry_t& res)
    {
-      rnode_t t;
-      t.mkNode            = &T::mkNode;
-      t.prepareForRunning = &T::prepareForRunningNode;
-      t.run               = &T::runNode;
-
-      res[UUID_KEY(T::uuid.data())] = t;
+      res[UUID_KEY(T::uuid.data())] = &T::mkNode;
    };
 };
 

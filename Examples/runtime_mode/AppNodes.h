@@ -53,32 +53,6 @@ public:
     constexpr static std::array<uint8_t,16> uuid    = {0xc3,0x0e,0xa9,0xea,0xe9,0xc3,0x46,0x38,0xbb,0xc6,0x02,0x1f,0xa3,0x54,0x9d,0x93};
 
     /**
-     * @brief      Running the node from the scheduler
-     *
-     * @param      obj   The object
-     *
-     * @return     Error code
-     */
-    static int runNode(NodeBase* obj)
-    {
-        Sink *n = reinterpret_cast<Sink *>(obj);
-        return(n->run());
-    }
-
-    /**
-     * @brief      Checking if the node can be run from the scheduler in asynchronous mode
-     *
-     * @param      obj   The object
-     *
-     * @return     Error code
-     */
-    static int prepareForRunningNode(NodeBase* obj)
-    {
-        Sink *n = reinterpret_cast<Sink *>(obj);
-        return(n->prepareForRunning());
-    }
-
-    /**
      * @brief      Make a new sink instance
      *
      * @param[in]  ctx    The runtime context
@@ -150,17 +124,6 @@ public:
 
     constexpr static std::array<uint8_t,16> uuid    = {0xc0,0x08,0x9f,0x59,0x2f,0x33,0x4e,0xc4,0x90,0x23,0x30,0xf6,0x9f,0x0f,0x48,0x33};
 
-    static int runNode(NodeBase* obj)
-    {
-        Source *n = reinterpret_cast<Source *>(obj);
-        return(n->run());
-    }
-
-    static int prepareForRunningNode(NodeBase* obj)
-    {
-        Source *n = reinterpret_cast<Source *>(obj);
-        return(n->prepareForRunning());
-    }
 
     static NodeBase* mkNode(const runtime_context &ctx, 
                         const arm_cmsis_stream::Node *ndesc)
@@ -209,18 +172,6 @@ public:
                    const uint32_t inc):GenericRuntimeNode<float,float>(n,src,dst),mInc(inc){};
 
     constexpr static std::array<uint8_t,16> uuid   = {0x3f,0xf6,0x2b,0x0c,0x9a,0xd8,0x44,0x5d,0xbb,0xe9,0x20,0x8d,0x87,0x42,0x34,0x46};
-
-    static int runNode(NodeBase* obj)
-    {
-        ProcessingNode *n = reinterpret_cast<ProcessingNode *>(obj);
-        return(n->run());
-    }
-
-    static int prepareForRunningNode(NodeBase* obj)
-    {
-        ProcessingNode *n = reinterpret_cast<ProcessingNode *>(obj);
-        return(n->prepareForRunning());
-    }
 
 
     static NodeBase* mkNode(const runtime_context &ctx, 
@@ -295,19 +246,6 @@ public:
               RuntimeEdge &dst):GenericRuntimeNode21<float,float,float>(n,src1,src2,dst){};
 
     constexpr static std::array<uint8_t,16> uuid  = {0x6a,0x73,0x38,0x1c,0xcd,0x11,0x4f,0x13,0xba,0x96,0x34,0x75,0x7c,0x2c,0x4a,0x59};
-
-
-    static int runNode(NodeBase* obj)
-    {
-        AdderNode *n = reinterpret_cast<AdderNode *>(obj);
-        return(n->run());
-    }
-
-    static int prepareForRunningNode(NodeBase* obj)
-    {
-        AdderNode *n = reinterpret_cast<AdderNode *>(obj);
-        return(n->prepareForRunning());
-    }
 
 
     static NodeBase* mkNode(const runtime_context &ctx, 

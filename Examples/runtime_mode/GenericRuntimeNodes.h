@@ -578,19 +578,6 @@ public:
 
     constexpr static std::array<uint8_t,16> uuid    = {0xbf,0x9e,0x59,0x77,0xaa,0xf3,0x4a,0x54,0xb8,0x43,0x94,0xf4,0xa9,0x29,0x80,0x5b};
 
-
-    static int runNode(NodeBase* obj)
-    {
-        RuntimeDuplicate *n = reinterpret_cast<RuntimeDuplicate *>(obj);
-        return(n->run());
-    }
-
-    static int prepareForRunningNode(NodeBase* obj)
-    {
-        RuntimeDuplicate *n = reinterpret_cast<RuntimeDuplicate *>(obj);
-        return(n->prepareForRunning());
-    }
-
     static NodeBase* mkNode(const runtime_context &ctx, 
                             const arm_cmsis_stream::Node *ndesc)
     {
