@@ -26,13 +26,13 @@ extern unsigned char sched[SCHED_LEN];
 """
 
 import flatbuffers
-import arm_cmsis_stream.UUID as UUID
-import arm_cmsis_stream.Node as Node
-import arm_cmsis_stream.FIFODesc as FIFODesc
-import arm_cmsis_stream.IODesc as IODesc
-import arm_cmsis_stream.BufferDesc as BufferDesc
+import cmsis_stream_writer.UUID as UUID
+import cmsis_stream_writer.Node as Node
+import cmsis_stream_writer.FIFODesc as FIFODesc
+import cmsis_stream_writer.IODesc as IODesc
+import cmsis_stream_writer.BufferDesc as BufferDesc
 
-import arm_cmsis_stream.Schedule as S
+import cmsis_stream_writer.Schedule as S
 import uuid
 from cmsis_stream.cg.scheduler import Duplicate
 

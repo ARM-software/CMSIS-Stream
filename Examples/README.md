@@ -61,4 +61,5 @@ python main.py
 * [Example 10 : The dynamic dataflow mode](example10/README.md)
 * [Cyclo-static scheduling](cyclo/README.md)
 * [Simple example with the event recorder](eventrecorder/README.md)
+* [runtime_mode](runtime_mode/README.md) : This example shows how to change the graph at runtime without recompiling
 

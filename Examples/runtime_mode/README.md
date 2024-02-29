@@ -1,6 +1,6 @@
-# README
+# RUNTIME MODE EXAMPLE
 
-It is an example of runtime mode : the graph can be changed at runtime without recompiling.
+In this example, the graph can be changed at runtime without recompiling.
 
 Runtime mode has **lot of** security consequences. The data representing the graph to create and run should have to be validated before being used. This validation can be complex and it may not even be possible to fully validate everything.
 
@@ -79,7 +79,6 @@ public:
         auto outputs = ndesc->outputs();
         RuntimeEdge &i = *ctx.fifos[outputs->Get(0)->id()];
 
-        
         Source *node=new Source(*ndesc,i);
         return(static_cast<NodeBase*>(node));
     }
@@ -125,7 +124,7 @@ The flatbuffer description of the node is an argument of the constructor because
 
 ### Registering the nodes
 
-Once the nodes have been defined, they need to be registered so that the graph interpreter knows where to find the code:
+Once the nodes have been defined, they need to be registered so that the graph interpreter knows where to find the code. The code must already be available in the firmware (the code is **not** updated or downloaded at runtime):
 
 ```cpp
 #include "runtime_sched.h"

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------
- * Project:      CMSIS Stream Library
+ * Project:      CMSIS DSP Library
  * Title:        cg_status.h
  * Description:  Error code for the Compute Graph
  *
@@ -7,7 +7,7 @@
  * Target Processor: Cortex-M and Cortex-A cores
  * -------------------------------------------------------------------- 
  *
- * Copyright (C) 2021-2024 ARM Limited or its affiliates. All rights reserved.
+ * Copyright (C) 2021-2023 ARM Limited or its affiliates. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
