@@ -30,9 +30,49 @@ The content of the scheduling is defined in `sched_flat.dat` loaded at runtime. 
 
 A copy of flatbuffer library is included in this example to make it easy to build it on a host computer. To build for FVP using CMSIS build tools, you should add a dependency to the flatbuffer pack instead of using the copy from this example.
 
+# Graph implemented in this example
+
+![runtime_mode](runtime_mode.svg)
+
+# Expected result
+
+```shell
+Sink
+10
+26
+42
+58
+74
+90
+106
+122
+Sink
+10
+26
+42
+58
+74
+90
+106
+122
+After schedule hook
+Nb iterations = 1
+Normal end of the scheduler
+```
+
+A source node is generating the sequence 0,1,2,3,4,5,6,7,0,1,2 ...
+
+We have 16 sources that are added, so the input of the processing node should be:
+
+0, 16, 32, 48, 64, 80, 96, 112 ...
+
+The processing node is adding the offset `10` (as defined in the Python script). The output of processing (and thus the display of the sink) should be:
+
+10, 26, 42, 58, 74, 90, 106, 122 ...
+
 ## Limitations:
 
-* No way to have different FIFO implementations for different branches
+* No way to select different FIFO implementations for different branches from the Python script
 * No direct support of pure C function. They have to be packaged into a C++ wrapper (original  build mode can call directly a pure function with no state)
 
 ## Differences
@@ -174,8 +214,6 @@ if (maybe_ctx.has_value())
     ...
 }
 ```
-
-
 
 ### Running the graph
 

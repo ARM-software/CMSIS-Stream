@@ -5,9 +5,9 @@ from cmsis_stream.cg.scheduler import *
 # Include definition of the nodes
 from nodes import * 
 
-NB_SOURCE = 8
-NB_PROCESSING = 4
-NB_OF_SRC = 16
+NB_SOURCE = 8 # Periodicity of the source (and number of samples produced)
+NB_PROCESSING = 4 # NUmber of samples consumed by the processing node
+NB_OF_SRC = 16 # Number of source nodes
 
 # Define the datatype we are using for all the IOs in this
 # example
