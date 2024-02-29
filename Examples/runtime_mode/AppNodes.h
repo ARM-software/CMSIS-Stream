@@ -1,12 +1,12 @@
 /* ----------------------------------------------------------------------
- * Project:      CMSIS DSP Library
+ * Project:      CMSIS Stream Library
  * Title:        AppNodes.h
  * Description:  Application nodes for Example simple
  *
  * Target Processor: Cortex-M and Cortex-A cores
  * -------------------------------------------------------------------- 
 *
- * Copyright (C) 2021-2023 ARM Limited or its affiliates. All rights reserved.
+ * Copyright (C) 2024 ARM Limited or its affiliates. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
