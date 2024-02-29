@@ -10,9 +10,9 @@
 
 using namespace arm_cmsis_stream;
 
-static registry_t register_nodes()
+static Registry register_nodes()
 {
-    registry_t res;
+    Registry res;
 
     Component<Source>::reg(res);
     Component<Sink>::reg(res);
@@ -30,7 +30,7 @@ static bool after(int *error,uint32_t *nbSchedule)
     return(false);
 }
 
-void run_demo(const registry_t &registered_nodes)
+void run_demo(const Registry &registered_nodes)
 {
     int error;
     std::ifstream input( "sched_flat.dat", std::ios::binary );
@@ -40,7 +40,7 @@ void run_demo(const registry_t &registered_nodes)
 
     if (maybe_ctx.has_value())
     {
-        const runtime_context &ctx = maybe_ctx.value();
+        const RuntimeContext &ctx = maybe_ctx.value();
 
         SchedulerHooks hooks;
         hooks.before_schedule=nullptr;

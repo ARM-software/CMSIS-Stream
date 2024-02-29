@@ -15,11 +15,11 @@ namespace arm_cmsis_stream {
  *
  * @return     An optional runtime context. Nothing in case of error.
  */
-std::optional<runtime_context> create_graph(const unsigned char * data,
-                                            const uint32_t nb, 
-                                            const registry_t &map)
+std::optional<RuntimeContext> create_graph(const unsigned char * data,
+                                           const uint32_t nb, 
+                                           const Registry &map)
 {
-   runtime_context c;
+   RuntimeContext c;
    bool ok = VerifyScheduleBuffer(flatbuffers::Verifier(data, nb));
    if (ok)
    {
@@ -86,7 +86,7 @@ std::optional<runtime_context> create_graph(const unsigned char * data,
  *
  * @return     The node or nullptr.
  */
-NodeBase* get_node(const runtime_context& ctx,
+NodeBase* get_node(const RuntimeContext& ctx,
                    const std::string &name)
 {
    if (ctx.identification.find(name) == ctx.identification.end())
@@ -129,7 +129,7 @@ if (hooks.##A !=nullptr)                  \
  * @return     Number of iterations run until the end of the schedulng
  */
 uint32_t run_graph(const SchedulerHooks &hooks,
-                   const runtime_context& ctx,
+                   const RuntimeContext& ctx,
                    int *error,
                    int nbIterations)
 {

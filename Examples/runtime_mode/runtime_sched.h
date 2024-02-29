@@ -29,14 +29,14 @@ namespace arm_cmsis_stream {
 
 class RuntimeEdge;
 class NodeBase;
-struct runtime_context;
+struct RuntimeContext;
 
 
 /**
  * Function pointer type to create a node
  */
-typedef NodeBase* (*mkNode_f)(const runtime_context &ctx, 
-                              const arm_cmsis_stream::Node *desc);
+typedef NodeBase* (*mkNode_f)(const RuntimeContext &ctx, 
+                              const Node *desc);
 
 
 /**
@@ -45,9 +45,9 @@ typedef NodeBase* (*mkNode_f)(const runtime_context &ctx,
  * The buffers, FIFOs and nodes created at runtime from the graph
  * description.
  */
-struct runtime_context {
+struct RuntimeContext {
   //! Flat buffer description of the schedule
-  const arm_cmsis_stream::Schedule *schedobj;
+  const Schedule *schedobj;
   //! Memory buffers
   std::vector<std::unique_ptr<std::vector<int8_t>>> buffers;
   //! FIFOs or Buffers
@@ -124,7 +124,7 @@ protected:
 };
 
 //! Datatype for the registry of node categories (API for each kind of node)
-using registry_t = std::map<UUID_KEY,mkNode_f,std::less<UUID_KEY>>;
+using Registry = std::map<UUID_KEY,mkNode_f,std::less<UUID_KEY>>;
 
 
 /**
@@ -136,9 +136,9 @@ using registry_t = std::map<UUID_KEY,mkNode_f,std::less<UUID_KEY>>;
  *
  * @return     An optional runtime context. Nothing in case of error.
  */
-extern std::optional<runtime_context> create_graph(const unsigned char * data,
-                                                   const uint32_t nb, 
-                                                   const registry_t &map);
+extern std::optional<RuntimeContext> create_graph(const unsigned char * data,
+                                                  const uint32_t nb, 
+                                                  const Registry &map);
 
 /**
  * @brief      Run the graph
@@ -151,7 +151,7 @@ extern std::optional<runtime_context> create_graph(const unsigned char * data,
  * @return     Number of iterations run until the end of the schedulng
  */
 extern uint32_t run_graph(const SchedulerHooks &hooks,
-                          const runtime_context& ctx,
+                          const RuntimeContext& ctx,
                           int *error,
                           int nbIterations=INFINITE_SCHEDULING);
 
@@ -163,7 +163,7 @@ extern uint32_t run_graph(const SchedulerHooks &hooks,
  *
  * @return     The node or nullptr.
  */
-extern NodeBase* get_node(const runtime_context& ctx,const std::string &name);
+extern NodeBase* get_node(const RuntimeContext& ctx,const std::string &name);
 
 /**
  * @brief      Template to register a component
@@ -178,7 +178,7 @@ struct Component
     *
     * @param      res   The registry
     */
-   static void reg(registry_t& res)
+   static void reg(Registry& res)
    {
       res[UUID_KEY(T::uuid.data())] = &T::mkNode;
    };

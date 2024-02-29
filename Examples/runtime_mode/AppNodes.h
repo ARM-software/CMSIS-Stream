@@ -44,7 +44,7 @@ public:
      * @param[in]  n     flatbuffer description of this node instance
      * @param      src   The source FIFO
      */
-    Sink(const arm_cmsis_stream::Node &n,
+    Sink(const Node &n,
          RuntimeEdge &src):GenericRuntimeSink<float>(n,src){};
    
     /**
@@ -60,8 +60,8 @@ public:
      *
      * @return     Pointer to the newly created node.
      */
-    static NodeBase* mkNode(const runtime_context &ctx, 
-                            const arm_cmsis_stream::Node *ndesc)
+    static NodeBase* mkNode(const RuntimeContext &ctx, 
+                            const Node *ndesc)
     {
         auto inputs = ndesc->inputs();
         RuntimeEdge &i = *ctx.fifos[inputs->Get(0)->id()];
@@ -119,14 +119,14 @@ public:
 class Source: public GenericRuntimeSource<float>
 {
 public:
-    Source(const arm_cmsis_stream::Node &n,
+    Source(const Node &n,
            RuntimeEdge &dst):GenericRuntimeSource<float>(n,dst){};
 
     constexpr static std::array<uint8_t,16> uuid    = {0xc0,0x08,0x9f,0x59,0x2f,0x33,0x4e,0xc4,0x90,0x23,0x30,0xf6,0x9f,0x0f,0x48,0x33};
 
 
-    static NodeBase* mkNode(const runtime_context &ctx, 
-                        const arm_cmsis_stream::Node *ndesc)
+    static NodeBase* mkNode(const RuntimeContext &ctx, 
+                            const Node *ndesc)
     {
         auto outputs = ndesc->outputs();
         RuntimeEdge &i = *ctx.fifos[outputs->Get(0)->id()];
@@ -166,7 +166,7 @@ class ProcessingNode: public GenericRuntimeNode<float,float>
 {
 public:
     /* Constructor needs the input and output FIFOs */
-    ProcessingNode(const arm_cmsis_stream::Node &n,
+    ProcessingNode(const Node &n,
                    RuntimeEdge &src,
                    RuntimeEdge &dst,
                    const uint32_t inc):GenericRuntimeNode<float,float>(n,src,dst),mInc(inc){};
@@ -174,8 +174,8 @@ public:
     constexpr static std::array<uint8_t,16> uuid   = {0x3f,0xf6,0x2b,0x0c,0x9a,0xd8,0x44,0x5d,0xbb,0xe9,0x20,0x8d,0x87,0x42,0x34,0x46};
 
 
-    static NodeBase* mkNode(const runtime_context &ctx, 
-                        const arm_cmsis_stream::Node *ndesc)
+    static NodeBase* mkNode(const RuntimeContext &ctx, 
+                            const Node *ndesc)
     {
         
         auto inputs = ndesc->inputs();
@@ -240,7 +240,7 @@ public:
 
 
     /* Constructor needs the input and output FIFOs */
-    AdderNode(const arm_cmsis_stream::Node &n,
+    AdderNode(const Node &n,
               RuntimeEdge &src1,
               RuntimeEdge &src2,
               RuntimeEdge &dst):GenericRuntimeNode21<float,float,float>(n,src1,src2,dst){};
@@ -248,8 +248,8 @@ public:
     constexpr static std::array<uint8_t,16> uuid  = {0x6a,0x73,0x38,0x1c,0xcd,0x11,0x4f,0x13,0xba,0x96,0x34,0x75,0x7c,0x2c,0x4a,0x59};
 
 
-    static NodeBase* mkNode(const runtime_context &ctx, 
-                        const arm_cmsis_stream::Node *ndesc)
+    static NodeBase* mkNode(const RuntimeContext &ctx, 
+                            const Node *ndesc)
     {
         
         auto inputs = ndesc->inputs();

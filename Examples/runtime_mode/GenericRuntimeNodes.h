@@ -10,7 +10,7 @@
 
 namespace arm_cmsis_stream {
 
-using IOVector = flatbuffers::Vector<const arm_cmsis_stream::IODesc*>;
+using IOVector = flatbuffers::Vector<const IODesc*>;
 
 /**
  * @brief      Virtual class for edges (FIFO or buffer)
@@ -303,7 +303,7 @@ template<typename IN>
 class GenericRuntimeSink:public NodeBase
 {
 public:
-     explicit GenericRuntimeSink(const arm_cmsis_stream::Node &n,
+     explicit GenericRuntimeSink(const Node &n,
                                  RuntimeEdge &src):ndesc(n),mSrc(src){};
 
      /**
@@ -352,7 +352,7 @@ protected:
      };
 
 private:
-    const arm_cmsis_stream::Node &ndesc;
+    const Node &ndesc;
     RuntimeEdge &mSrc;
 };
 
@@ -366,7 +366,7 @@ template<typename IN,typename OUT>
 class GenericRuntimeToManyNode:public NodeBase
 {
 public:
-     explicit GenericRuntimeToManyNode(const arm_cmsis_stream::Node &n,
+     explicit GenericRuntimeToManyNode(const Node &n,
                                        RuntimeEdge &src,
                                        std::vector<RuntimeEdge*> dst):ndesc(n),mSrc(src),mDstList(dst){};
 
@@ -403,7 +403,7 @@ protected:
      };
 
 private:
-    const arm_cmsis_stream::Node &ndesc;
+    const Node &ndesc;
     RuntimeEdge &mSrc;
     const std::vector<RuntimeEdge*> mDstList;
 };
@@ -418,7 +418,7 @@ template<typename IN,typename OUT>
 class GenericRuntimeNode:public NodeBase
 {
 public:
-     explicit GenericRuntimeNode(const arm_cmsis_stream::Node &n,
+     explicit GenericRuntimeNode(const Node &n,
                                  RuntimeEdge &src,
                                  RuntimeEdge &dst):ndesc(n),mSrc(src),mDst(dst){};
 
@@ -452,7 +452,7 @@ protected:
      };
 
 private:
-    const arm_cmsis_stream::Node &ndesc;
+    const Node &ndesc;
     RuntimeEdge &mSrc;
     RuntimeEdge &mDst;
 };
@@ -468,7 +468,7 @@ template<typename IN1,typename IN2,typename OUT>
 class GenericRuntimeNode21:public NodeBase
 {
 public:
-     explicit GenericRuntimeNode21(const arm_cmsis_stream::Node &n,
+     explicit GenericRuntimeNode21(const Node &n,
                                  RuntimeEdge &src1,
                                  RuntimeEdge &src2,
                                  RuntimeEdge &dst):
@@ -518,7 +518,7 @@ protected:
      };
 
 private:
-    const arm_cmsis_stream::Node &ndesc;
+    const Node &ndesc;
     RuntimeEdge &mSrc1;
     RuntimeEdge &mSrc2;
     RuntimeEdge &mDst;
@@ -533,7 +533,7 @@ template<typename OUT>
 class GenericRuntimeSource:public NodeBase
 {
 public:
-     explicit GenericRuntimeSource(const arm_cmsis_stream::Node &n,
+     explicit GenericRuntimeSource(const Node &n,
                                    RuntimeEdge &dst):ndesc(n),mDst(dst){};
 
      std::size_t nb_output_samples() const {return(ndesc.outputs()->Get(0)->nb());};
@@ -552,7 +552,7 @@ protected:
     };
 
 private:
-    const arm_cmsis_stream::Node &ndesc;
+    const Node &ndesc;
     RuntimeEdge &mDst;
 };
 
@@ -569,7 +569,7 @@ public GenericRuntimeToManyNode<char,char>
 {
 public:
 
-    explicit RuntimeDuplicate(const arm_cmsis_stream::Node &n,
+    explicit RuntimeDuplicate(const Node &n,
               RuntimeEdge &src,
               std::vector<RuntimeEdge*> dst):
     GenericRuntimeToManyNode<char,char>(n,src,dst)
@@ -578,8 +578,8 @@ public:
 
     constexpr static std::array<uint8_t,16> uuid    = {0xbf,0x9e,0x59,0x77,0xaa,0xf3,0x4a,0x54,0xb8,0x43,0x94,0xf4,0xa9,0x29,0x80,0x5b};
 
-    static NodeBase* mkNode(const runtime_context &ctx, 
-                            const arm_cmsis_stream::Node *ndesc)
+    static NodeBase* mkNode(const RuntimeContext &ctx, 
+                            const Node *ndesc)
     {
         auto inputs = ndesc->inputs();
         auto outputs = ndesc->outputs();
