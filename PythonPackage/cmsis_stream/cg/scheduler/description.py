@@ -582,8 +582,13 @@ class Graph():
 
             fifo.delay=self.getDelay(edge)
             # When a FIFO is working as an array then its buffer may
-            # potentially be shared with other FIFOs workign as arrays
-            if src.nbSamples == dst.nbSamples:
+            # potentially be shared with other FIFOs working as arrays
+            # If fifo length is bigger it means we may have
+            # double write, double read and so the FIFO is not used
+            # as an array.
+            # The scheduling try to interleave read / write so this
+            # case may nto occur too often.
+            if src.nbSamples == dst.nbSamples and src.nbSamples == fifo.length:
                 if fifo.delay==0:
                    if not config.asynchronous and not config.fullyAsynchronous:
                       fifo.isArray = True 
