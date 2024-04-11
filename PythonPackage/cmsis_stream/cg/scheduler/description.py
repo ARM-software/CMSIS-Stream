@@ -632,7 +632,7 @@ class Graph():
             #fifo.dump()
 
 
-        bufferID=0
+        bufferID=-1
         allBuffers={}
 
         # Compute a graph describing when FIFOs are used at the same time
@@ -739,8 +739,6 @@ class Graph():
                    fifo.sharedNB=sharedToContinuous[d[fifo]]
                    bufferID=max(bufferID,fifo.sharedNB)
 
-
-
             # Compute the max size for each shared buffer
             maxSizes={} 
             for fifo in d:
@@ -769,11 +767,15 @@ class Graph():
             # Use bufferID which is starting after the numbers allocated
             # to shared buffers
             else:
-                buf = FifoBuffer(bufferID,fifo.theType,fifo.length)
-                allBuffers[bufferID]=buf
-                fifo.buffer=buf
-                fifo.bufferID = bufferID
-                bufferID = bufferID + 1
+                # It applies wheh no memory optimization or when the
+                # fifo is not used as an array and so was not handled
+                # in the buffer allocations above.
+                if fifo.customBuffer is None:
+                   buf = FifoBuffer(bufferID,fifo.theType,fifo.length)
+                   allBuffers[bufferID]=buf
+                   fifo.buffer=buf
+                   fifo.bufferID = bufferID
+                   bufferID = bufferID + 1
 
         allBuffers = allBuffers.values()
 
