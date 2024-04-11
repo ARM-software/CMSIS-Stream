@@ -66,12 +66,46 @@ FIFO buffers
 #define FIFOSIZE{{fifo.fifoID}} {{fifo.length}}
 {% endfor %}
 
+{% if config.bufferAllocation %}
+typedef struct {
+{% for buf in sched._graph._allBuffers %}
+{{buf._theType.ctype}}  *buf{{buf._bufferID}};
+{% endfor %}
+} buffers_t;
+
+CG_BEFORE_BUFFER
+static buffers_t buffers={0};
+
+int init_buffer_{{config.schedName}}({{optionalargs(True)}})
+{
+{% for buf in sched._graph._allBuffers %}
+    buffers.buf{{buf._bufferID}} = ({{buf._theType.ctype}} *)CG_MALLOC({{buf._length}} * sizeof({{buf._theType.ctype}}));
+    if (buffers.buf{{buf._bufferID}}==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+{% endfor %}
+    return(CG_SUCCESS);
+}
+
+void free_buffer_{{config.schedName}}({{optionalargs(True)}})
+{
+{% for buf in sched._graph._allBuffers %}
+    if (buffers.buf{{buf._bufferID}}!=NULL)
+    {
+        CG_FREE(buffers.buf{{buf._bufferID}});
+    }
+{% endfor %}
+}
+
+{% else %}
 {% for buf in sched._graph._allBuffers %}
 #define BUFFERSIZE{{buf._bufferID}} {{buf._length}}
 CG_BEFORE_BUFFER
 {{buf._theType.ctype}} {{config.prefix}}buf{{buf._bufferID}}[BUFFERSIZE{{buf._bufferID}}]={0};
 
 {% endfor %}
+{% endif %}
 
 {% if config.heapAllocation %}
 typedef struct {
@@ -118,13 +152,13 @@ int init_{{config.schedName}}({{optionalargs(True)}})
     CG_BEFORE_FIFO_INIT;
 {% for id in range(nbFifos) %}
 {% if fifos[id].hasDelay %}
-    fifos.fifo{{id}} = new {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{config.prefix}}buf{{fifos[id].buffer._bufferID}},{{fifos[id].delay}});
+    fifos.fifo{{id}} = new {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{fifos[id].bufName(config)}},{{fifos[id].delay}});
     if (fifos.fifo{{id}}==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
 {% else %}
-    fifos.fifo{{id}} = new {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{config.prefix}}buf{{fifos[id].buffer._bufferID}});
+    fifos.fifo{{id}} = new {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{fifos[id].bufName(config)}});
     if (fifos.fifo{{id}}==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
@@ -194,9 +228,9 @@ uint32_t {{config.schedName}}(int *error{{optionalargs(False)}})
     */
 {% for id in range(nbFifos) %}
 {% if fifos[id].hasDelay %}
-    {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}> fifo{{id}}({{config.prefix}}buf{{fifos[id].buffer._bufferID}},{{fifos[id].delay}});
+    {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}> fifo{{id}}({{fifos[id].bufName(config)}},{{fifos[id].delay}});
 {% else %}
-    {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}> fifo{{id}}({{config.prefix}}buf{{fifos[id].buffer._bufferID}});
+    {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}> fifo{{id}}({{fifos[id].bufName(config)}});
 {% endif %}
 {% endfor %}
 

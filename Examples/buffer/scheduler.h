@@ -17,8 +17,10 @@ extern "C"
 
 
 
+extern int init_buffer_scheduler(uint8_t *myBuffer);
+extern void free_buffer_scheduler(uint8_t *myBuffer);
 
-extern uint32_t scheduler(int *error);
+extern uint32_t scheduler(int *error,uint8_t *myBuffer);
 
 #ifdef   __cplusplus
 }

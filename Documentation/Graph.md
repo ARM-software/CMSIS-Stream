@@ -5,7 +5,7 @@
 Those methods must be applied to a graph object created with `Graph()`. The `Graph` class is defined inside `cmsis_stream.cg.scheduler` from the cmsis-stream Python package.
 
 ```python
-def connect(self,input_io,output_io,fifoClass=None,fifoScale = 1.0):
+def connect(self,input_io,output_io,fifoClass=None,fifoScale = 1.0,fifoAsyncLength=0,buffer=None):
 ```
 
 Typically this method is used as:
@@ -18,13 +18,15 @@ the_graph = Graph()
 the_graph.connect(src.o,processing.i)
 ```
 
-There are two optional arguments for the `connect` function:
+There are few optional arguments for the `connect` function:
 
 * `fifoClass` : To use a different C++ class for implementing the connection between the two IOs. (it is also possible to change the FIFO class globally by setting an option on the graph. See below). The `FIFO` class is provided by default. Any new implementation must inherit from `FIFObase<T>`
-* `fifoScale` : In asynchronous mode, it is a scaling factor to increase the length of the FIFO compared to what has been computed by the synchronous approximation. This setting can also be set globally using the scheduler options. `fifoScale` is overriding the global setting. It must be a `float` (not an `int`).
+* `fifoScale` : In asynchronous mode (deprecated), it is a scaling factor to increase the length of the FIFO compared to what has been computed by the synchronous approximation. This setting can also be set globally using the scheduler options. `fifoScale` is overriding the global setting. It must be a `float` (not an `int`).
+* `fifoAsyncLength` : In fully asynchronous mode. It is the size to use for the FIFO
+* `buffer`: Custom memory buffer to use for this FIFO. When a custom buffer is specified, the FIFO is no more participating to the memory optimization algorithm.
 
 ```python
-def connectWithDelay(self,input_io,output_io,delay,fifoClass=None,fifoScale=1.0):  
+def connectWithDelay(self,input_io,output_io,delay,fifoClass=None,fifoScale=1.0,fifoAsyncLength=0,buffer=None):  
 ```
 
 The only difference with the previous function is the `delay` argument. It could be used like:

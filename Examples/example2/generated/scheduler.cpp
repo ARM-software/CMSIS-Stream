@@ -23,6 +23,7 @@ The support classes and code are covered by CMSIS-Stream license.
 
 #endif
 
+
 #if !defined(CG_BEFORE_ITERATION)
 #define CG_BEFORE_ITERATION
 #endif 

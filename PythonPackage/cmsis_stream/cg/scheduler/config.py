@@ -154,7 +154,11 @@ class Configuration:
         # like CMSIS-DSP
         self.asyncDefaultSkip = True
 
+        # Objects are allocated on the heap rather than stack
         self.heapAllocation = False
+
+        # Buffer are allocated through memory allocator
+        self.bufferAllocation = False
 
         # When true, create a new C++ header only
         # with an array allowing to access the identified

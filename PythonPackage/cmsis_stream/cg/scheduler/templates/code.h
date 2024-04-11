@@ -45,6 +45,11 @@ extern NodeBase *get_{{config.schedName}}_node(int32_t nodeID);
 {% endif %}
 {% endif %}
 
+{% if config.bufferAllocation %}
+extern int init_buffer_{{config.schedName}}({{optionalargs(True)}});
+extern void free_buffer_{{config.schedName}}({{optionalargs(True)}});
+{% endif %}
+
 {% if config.heapAllocation %}
 extern int init_{{config.schedName}}({{optionalargs(True)}});
 extern void free_{{config.schedName}}({{optionalargs(True)}});

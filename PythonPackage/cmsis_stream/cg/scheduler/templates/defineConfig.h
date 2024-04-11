@@ -6,6 +6,16 @@
 
 #endif
 
+{% if config.bufferAllocation %}
+#if !defined(CG_MALLOC)
+#define CG_MALLOC(A) malloc((A))
+#endif 
+
+#if !defined(CG_FREE)
+#define CG_FREE(A) free((A))
+#endif 
+{% endif %}
+
 #if !defined(CG_BEFORE_ITERATION)
 #define CG_BEFORE_ITERATION
 #endif 

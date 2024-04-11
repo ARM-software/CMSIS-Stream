@@ -82,13 +82,15 @@ class DupDestination:
                  fifoClass,
                  fifoScale,
                  fifoAsyncLength,
-                 fifoWeak):
+                 fifoWeak,
+                 fifoCustomBuffer):
         self.node = node
         self.delay = delay 
         self.fifoClass = fifoClass 
         self.fifoScale = fifoScale 
         self.fifoAsyncLength = fifoAsyncLength 
         self.fifoWeak = fifoWeak 
+        self.fifoCustomBuffer = fifoCustomBuffer
 
 
 class FifoBuffer:
@@ -100,15 +102,17 @@ class FifoBuffer:
 
 class FIFODesc:
     """A FIFO connecting two nodes"""
-    def __init__(self,fifoid,fifoClass,fifoScale,fifoAsyncLength=0,weak=False):
+    def __init__(self,fifoid,fifoClass,fifoScale,fifoAsyncLength=0,weak=False,customBuffer=None):
         # The FIFO is in fact just an array
         self.isArray=False 
         # FIFO length
         self.length=0
         # FIFO type
         self.theType=None 
-        # Buffer used by FIFO
+        # Buffer used by FIFO (allocated by the scheduler)
         self.buffer=None 
+        # Custom buffer assigned to FIFO 
+        self.customBuffer = customBuffer
         # Used for plot in graphviz
         self.bufferID=-1
         self._fifoID=fifoid 
@@ -175,6 +179,14 @@ class FIFODesc:
         if (theTime > stop):
             self._liveInterval=(start,theTime)
 
+    def bufName(self,config):
+        if not self.customBuffer is None:
+            return(self.customBuffer)
+        if config.bufferAllocation:
+           return(f"buffers.buf{self.buffer._bufferID}")
+        else:
+           return(f"{config.prefix}buf{self.buffer._bufferID}")
+
 
 def analyzeStep(vec,allFIFOs,theTime):
     """Analyze an evolution step to know which FIFOs are read and written to"""
@@ -210,6 +222,10 @@ class Graph():
         # and weak state
         self._FIFOAsyncLength = {}
         self._FIFOWeak = {}
+        # If FIFO must be mapped on a custom buffer
+        # It prevents memory optimization from bein applied to
+        # this FIFO
+        self._FIFOCustomBuffer = {}
         # Topological sorting of nodes
         # computed during topology matrix
         # and used for some scheduling
@@ -305,14 +321,16 @@ class Graph():
                                            fifoClass=destination[theId].fifoClass,
                                            fifoScale=destination[theId].fifoScale,
                                            fifoAsyncLength=destination[theId].fifoAsyncLength,
-                                           weak=destination[theId].fifoWeak)
+                                           weak=destination[theId].fifoWeak,
+                                           buffer=destination[theId].fifoCustomBuffer)
         else:
             self.connect(outputIO,destination[theId].node,
                                   dupAllowed=False,
                                   fifoClass=destination[theId].fifoClass,
                                   fifoScale=destination[theId].fifoScale,
                                   fifoAsyncLength=destination[theId].fifoAsyncLength,
-                                  weak=destination[theId].fifoWeak
+                                  weak=destination[theId].fifoWeak,
+                                  buffer=destination[theId].fifoCustomBuffer
                                   )
 
 
@@ -381,6 +399,7 @@ class Graph():
                         fifoScale = 1.0
                         fifoAsyncLength = 0
                         fifoWeak = False
+                        fifoCustomBuffer = None
                         if (nodea,nodeb) in self._FIFOClasses:
                             fifoClass = self._FIFOClasses[(nodea,nodeb)]
 
@@ -393,6 +412,9 @@ class Graph():
                         if (nodea,nodeb) in self._FIFOWeak:
                             fifoWeak = self._FIFOWeak[(nodea,nodeb)]
 
+                        if (nodea,nodeb) in self._FIFOCustomBuffer:
+                            fifoCustomBuffer = self._FIFOCustomBuffer[(nodea,nodeb)]
+
                         if (nodea,nodeb) in self._delays:
                            delay = self._delays[(nodea,nodeb)]
                         else:
@@ -403,7 +425,8 @@ class Graph():
                             fifoClass,
                             fifoScale,
                             fifoAsyncLength,
-                            fifoWeak)
+                            fifoWeak,
+                            fifoCustomBuffer)
 
                         destinations.append(destination)
 
@@ -431,6 +454,8 @@ class Graph():
                             del self._FIFOAsyncLength[(nodea,nodeb)]
                         if (nodea,nodeb) in self._FIFOWeak:
                             del self._FIFOWeak[(nodea,nodeb)]
+                        if (nodea,nodeb) in self._FIFOCustomBuffer:
+                            del self._FIFOCustomBuffer[(nodea,nodeb)]
 
                         if (nodea,nodeb) in self._delays:
                            del self._delays[(nodea,nodeb)]
@@ -467,7 +492,8 @@ class Graph():
         fifoClass=None,
         fifoScale = 1.0,
         fifoAsyncLength=0,
-        weak=False):
+        weak=False,
+        buffer=None):
         if fifoClass is None:
             fifoClass = self.defaultFIFOClass
         # When connecting to a constant node we do nothing
@@ -495,6 +521,8 @@ class Graph():
                 self._FIFOScale[(nodea,nodeb)] = fifoScale
                 self._FIFOAsyncLength[(nodea,nodeb)] = fifoAsyncLength
                 self._FIFOWeak[(nodea,nodeb)] = weak
+                if not buffer is None:
+                    self._FIFOCustomBuffer[(nodea,nodeb)] = buffer
 
 
                 if not (nodea.owner in self._nodes):
@@ -513,7 +541,8 @@ class Graph():
         fifoClass=None,
         fifoScale=1.0,
         fifoAsyncLength=0,
-        weak=False):
+        weak=False,
+        buffer=None):
         if fifoClass is None:
             fifoClass = self.defaultFIFOClass
         # We cannot connect with delay to a constant node
@@ -525,7 +554,8 @@ class Graph():
                 fifoClass=fifoClass,
                 fifoScale = fifoScale,
                 fifoAsyncLength=fifoAsyncLength,
-                weak=weak)
+                weak=weak,
+                buffer=buffer)
             self._delays[(nodea,nodeb)] = delay
     
     def __str__(self):
@@ -571,6 +601,9 @@ class Graph():
             fifo.src=src
             fifo.dst=dst 
 
+            if edge in self._FIFOCustomBuffer:
+                fifo.customBuffer = self._FIFOCustomBuffer[edge]
+
             # To ensure dst node use same FIFO type as source
             # node. There is no implicit typecast of pointer
             # But the C++ template can typecast on elements
@@ -600,7 +633,7 @@ class Graph():
 
 
         bufferID=0
-        allBuffers=[]
+        allBuffers={}
 
         # Compute a graph describing when FIFOs are used at the same time
         # Then use graph coloring to allocate buffer to those FIFOs.
@@ -615,6 +648,16 @@ class Graph():
             for fifo in allFIFOs: 
                     if fifo.isArray:
                         G.add_node(fifo)
+
+            # FIFO with an assigned external buffer
+            # are interfering 
+            for fifo in allFIFOs: 
+                if not fifo.customBuffer is None:
+                    if fifo.isArray:
+                        for other in allFIFOs:
+                            if other != fifo and other.isArray:
+                                if not G.has_edge(fifo,other) and not G.has_edge(other,fifo):
+                                   G.add_edge(fifo,other)
 
             # Create the interference graph
 
@@ -653,7 +696,8 @@ class Graph():
                         if start<=currentTime and stop >= currentTime:
                             if not (fifo in active):
                                 for k in active:
-                                    G.add_edge(k,fifo)
+                                    if not G.has_edge(k,fifo) and not G.has_edge(fifo,k):
+                                       G.add_edge(k,fifo)
                                 active[fifo]=True 
     
                 currentTime = currentTime + 1
@@ -681,43 +725,57 @@ class Graph():
             # and keep track of the max color number
             # Since other buffers (for real FIFOs) will have their
             # numbering start after this one.
+            
+            # Remap to continuous buffer number starting from 0
+            # since the Jinja templates assume that buffers are
+            # continuous
+            continuousNumber = 0
+            sharedToContinuous={}
             for fifo in d:
-                fifo.sharedNB=d[fifo]
-                bufferID=max(bufferID,fifo.sharedNB)
+                if fifo.customBuffer is None:
+                   if not d[fifo] in sharedToContinuous:
+                       sharedToContinuous[d[fifo]] = continuousNumber
+                       continuousNumber = continuousNumber + 1
+                   fifo.sharedNB=sharedToContinuous[d[fifo]]
+                   bufferID=max(bufferID,fifo.sharedNB)
 
 
 
             # Compute the max size for each shared buffer
             maxSizes={} 
             for fifo in d:
-                lengthInBytes = fifo.theType.bytes * fifo.length
-                if fifo.sharedNB in maxSizes:
-                    maxSizes[fifo.sharedNB] = max(maxSizes[fifo.sharedNB],lengthInBytes) 
-                else:
-                    maxSizes[fifo.sharedNB]=lengthInBytes
+                # No custom buffer assigned so can use a shared buffer
+                if fifo.customBuffer is None:
+                   lengthInBytes = fifo.theType.bytes * fifo.length
+                   if fifo.sharedNB in maxSizes:
+                       maxSizes[fifo.sharedNB] = max(maxSizes[fifo.sharedNB],lengthInBytes) 
+                   else:
+                       maxSizes[fifo.sharedNB]=lengthInBytes
 
             # Create the buffers
             for theID in maxSizes:
               sharedA = FifoBuffer(theID,CType(UINT8),maxSizes[theID])
-              allBuffers.append(sharedA)
-
+              allBuffers[theID]=sharedA
 
         # bufferID must start after all shared buffers
         bufferID = bufferID + 1
         for fifo in allFIFOs:
             # Use shared buffer if memory optimization
             if fifo.isArray and (config.memoryOptimization and not config.asynchronous and not config.fullyAsynchronous):
-                fifo.buffer=allBuffers[fifo.sharedNB] 
-                fifo.bufferID=fifo.sharedNB
+                if fifo.customBuffer is None:
+                   fifo.buffer=allBuffers[fifo.sharedNB] 
+                   fifo.bufferID=fifo.sharedNB
             # Create a new buffer for a real FIFO
             # Use bufferID which is starting after the numbers allocated
             # to shared buffers
             else:
                 buf = FifoBuffer(bufferID,fifo.theType,fifo.length)
-                allBuffers.append(buf)
+                allBuffers[bufferID]=buf
                 fifo.buffer=buf
                 fifo.bufferID = bufferID
                 bufferID = bufferID + 1
+
+        allBuffers = allBuffers.values()
 
         # Compute the total memory used in bytes
         self._totalMemory = 0
@@ -726,7 +784,6 @@ class Graph():
 
         #for fifo in allFIFOs:
         #    fifo.dump()
-        
         return(allBuffers)
 
 

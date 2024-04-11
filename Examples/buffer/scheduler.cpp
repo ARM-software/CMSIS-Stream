@@ -13,7 +13,7 @@ The support classes and code are covered by CMSIS-Stream license.
 #include "GenericNodes.h"
 #include "cg_status.h"
 #include "AppNodes.h"
-#include "static_scheduler.h"
+#include "scheduler.h"
 
 #if !defined(CHECKERROR)
 #define CHECKERROR       if (cgStaticError < 0) \
@@ -23,6 +23,13 @@ The support classes and code are covered by CMSIS-Stream license.
 
 #endif
 
+#if !defined(CG_MALLOC)
+#define CG_MALLOC(A) malloc((A))
+#endif 
+
+#if !defined(CG_FREE)
+#define CG_FREE(A) free((A))
+#endif 
 
 #if !defined(CG_BEFORE_ITERATION)
 #define CG_BEFORE_ITERATION
@@ -84,9 +91,9 @@ using namespace arm_cmsis_stream;
 Description of the scheduling. 
 
 */
-static uint8_t schedule[8]=
+static uint8_t schedule[7]=
 { 
-1,0,3,5,6,2,4,7,
+6,1,0,5,2,3,4,
 };
 
 
@@ -96,46 +103,62 @@ CG_BEFORE_FIFO_BUFFERS
 FIFO buffers
 
 ************/
-#define FIFOSIZE0 1
-#define FIFOSIZE1 1
-#define FIFOSIZE2 1
-#define FIFOSIZE3 1
-#define FIFOSIZE4 1
-#define FIFOSIZE5 1
-#define FIFOSIZE6 1
+#define FIFOSIZE0 5
+#define FIFOSIZE1 5
+#define FIFOSIZE2 5
+#define FIFOSIZE3 5
+#define FIFOSIZE4 5
+#define FIFOSIZE5 5
 
-#define BUFFERSIZE1 1
-CG_BEFORE_BUFFER
-Shared<buffer,false> static_buf1[BUFFERSIZE1]={0};
+typedef struct {
+uint8_t  *buf0;
+uint8_t  *buf1;
+uint8_t  *buf2;
+} buffers_t;
 
-#define BUFFERSIZE2 1
 CG_BEFORE_BUFFER
-Shared<buffer,false> static_buf2[BUFFERSIZE2]={0};
+static buffers_t buffers={0};
 
-#define BUFFERSIZE3 1
-CG_BEFORE_BUFFER
-Shared<buffer,false> static_buf3[BUFFERSIZE3]={0};
+int init_buffer_scheduler(uint8_t *myBuffer)
+{
+    buffers.buf0 = (uint8_t *)CG_MALLOC(20 * sizeof(uint8_t));
+    if (buffers.buf0==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    buffers.buf1 = (uint8_t *)CG_MALLOC(20 * sizeof(uint8_t));
+    if (buffers.buf1==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    buffers.buf2 = (uint8_t *)CG_MALLOC(20 * sizeof(uint8_t));
+    if (buffers.buf2==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    return(CG_SUCCESS);
+}
 
-#define BUFFERSIZE4 1
-CG_BEFORE_BUFFER
-Shared<buffer,false> static_buf4[BUFFERSIZE4]={0};
-
-#define BUFFERSIZE5 1
-CG_BEFORE_BUFFER
-Shared<buffer,false> static_buf5[BUFFERSIZE5]={0};
-
-#define BUFFERSIZE6 1
-CG_BEFORE_BUFFER
-Shared<buffer,true> static_buf6[BUFFERSIZE6]={0};
-
-#define BUFFERSIZE7 1
-CG_BEFORE_BUFFER
-Shared<buffer,true> static_buf7[BUFFERSIZE7]={0};
+void free_buffer_scheduler(uint8_t *myBuffer)
+{
+    if (buffers.buf0!=NULL)
+    {
+        CG_FREE(buffers.buf0);
+    }
+    if (buffers.buf1!=NULL)
+    {
+        CG_FREE(buffers.buf1);
+    }
+    if (buffers.buf2!=NULL)
+    {
+        CG_FREE(buffers.buf2);
+    }
+}
 
 
 
 CG_BEFORE_SCHEDULER_FUNCTION
-uint32_t static_scheduler(int *error)
+uint32_t scheduler(int *error,uint8_t *myBuffer)
 {
     int cgStaticError=0;
     uint32_t nbSchedule=0;
@@ -145,26 +168,24 @@ uint32_t static_scheduler(int *error)
     /*
     Create FIFOs objects
     */
-    FIFO<Shared<buffer,false>,FIFOSIZE0,1,0> fifo0(static_buf1);
-    FIFO<Shared<buffer,false>,FIFOSIZE1,1,0> fifo1(static_buf2);
-    FIFO<Shared<buffer,false>,FIFOSIZE2,1,0> fifo2(static_buf3);
-    FIFO<Shared<buffer,false>,FIFOSIZE3,1,0> fifo3(static_buf4);
-    FIFO<Shared<buffer,false>,FIFOSIZE4,1,0> fifo4(static_buf5);
-    FIFO<Shared<buffer,true>,FIFOSIZE5,1,0> fifo5(static_buf6);
-    FIFO<Shared<buffer,true>,FIFOSIZE6,1,0> fifo6(static_buf7);
+    FIFO<float,FIFOSIZE0,1,0> fifo0(myBuffer);
+    FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf1);
+    FIFO<float,FIFOSIZE2,1,0> fifo2(buffers.buf0);
+    FIFO<float,FIFOSIZE3,1,0> fifo3(buffers.buf1);
+    FIFO<float,FIFOSIZE4,1,0> fifo4(buffers.buf2);
+    FIFO<float,FIFOSIZE5,1,0> fifo5(buffers.buf0);
 
     CG_BEFORE_NODE_INIT;
     /* 
     Create node objects
     */
-    BufferSource<Shared<buffer,false>,1> buf1(fifo4); /* Node ID = 0 */
-    BufferSource<Shared<buffer,false>,1> buf2(fifo0); /* Node ID = 1 */
-    BufferCopy<Shared<buffer,true>,1,Shared<buffer,false>,1> bufCopy(fifo6,fifo1); /* Node ID = 2 */
-    Duplicate<Shared<buffer,false>,1,Shared<buffer,true>,1> dup0(fifo4,{&fifo5,&fifo6}); /* Node ID = 3 */
-    InPlace<Shared<buffer,false>,1,Shared<buffer,false>,1> inplace(fifo1,fifo3); /* Node ID = 4 */
-    Processing<Shared<buffer,false>,1,Shared<buffer,true>,1,Shared<buffer,false>,1> processing(fifo0,fifo5,fifo2); /* Node ID = 5 */
-    BufferSink<Shared<buffer,false>,1> sinkA(fifo2); /* Node ID = 6 */
-    BufferSink<Shared<buffer,false>,1> sinkB(fifo3); /* Node ID = 7 */
+    Duplicate<float,5,float,5> dup0(fifo3,{&fifo4,&fifo5}); /* Node ID = 0 */
+    ProcessingNode<float,5,float,5> processing1(fifo0,fifo3); /* Node ID = 1 */
+    ProcessingNode<float,5,float,5> processing2(fifo5,fifo1); /* Node ID = 2 */
+    ProcessingNode<float,5,float,5> processing3(fifo1,fifo2); /* Node ID = 3 */
+    Sink<float,5> sink1(fifo2); /* Node ID = 4 */
+    Sink<float,5> sink2(fifo4); /* Node ID = 5 */
+    Source<float,5> source(fifo0); /* Node ID = 6 */
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -172,7 +193,7 @@ uint32_t static_scheduler(int *error)
     {
         /* Run a schedule iteration */
         CG_BEFORE_ITERATION;
-        for(unsigned long id=0 ; id < 8; id++)
+        for(unsigned long id=0 ; id < 7; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
@@ -180,49 +201,43 @@ uint32_t static_scheduler(int *error)
             {
                 case 0:
                 {
-                   cgStaticError = buf1.run();
+                   cgStaticError = dup0.run();
                 }
                 break;
 
                 case 1:
                 {
-                   cgStaticError = buf2.run();
+                   cgStaticError = processing1.run();
                 }
                 break;
 
                 case 2:
                 {
-                   cgStaticError = bufCopy.run();
+                   cgStaticError = processing2.run();
                 }
                 break;
 
                 case 3:
                 {
-                   cgStaticError = dup0.run();
+                   cgStaticError = processing3.run();
                 }
                 break;
 
                 case 4:
                 {
-                   cgStaticError = inplace.run();
+                   cgStaticError = sink1.run();
                 }
                 break;
 
                 case 5:
                 {
-                   cgStaticError = processing.run();
+                   cgStaticError = sink2.run();
                 }
                 break;
 
                 case 6:
                 {
-                   cgStaticError = sinkA.run();
-                }
-                break;
-
-                case 7:
-                {
-                   cgStaticError = sinkB.run();
+                   cgStaticError = source.run();
                 }
                 break;
 

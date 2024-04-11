@@ -17,6 +17,7 @@ extern "C"
 
 
 
+
 extern uint32_t scheduler(int *error,arm_mfcc_instance_f32 *mfccConfig);
 
 #ifdef   __cplusplus

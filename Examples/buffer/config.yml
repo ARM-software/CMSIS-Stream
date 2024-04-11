@@ -1,0 +1,10 @@
+version: 1.1.0
+schedule-options:
+  memory-optimization: true
+code-generation-options:
+  debug-limit: 1
+  fifo-prefix: cv
+c-code-generation-options:
+  c-optional-args:
+  - uint8_t *myBuffer
+
