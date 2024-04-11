@@ -14,10 +14,17 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.10.0:
+
+* A specific memory buffer can now be assigned to a FIFO (so buffer external to this framework)
+* New option to dynamically allocate the FIFO buffers using custom memory allocator
+* And some corrections applied to 1.9.2
+
 ## Version 1.9.2:
 
 * A specific memory buffer can now be assigned to a FIFO (so buffer external to this framework)
 * New option to dynamically allocate the FIFO buffers using custom memory allocator
+* (Version number not correct - the middle number should have been increased)
 
 ## Version 1.9.1:
 
