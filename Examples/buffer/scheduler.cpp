@@ -112,53 +112,36 @@ FIFO buffers
 
 typedef struct {
 uint8_t  *buf0;
-uint8_t  *buf1;
-uint8_t  *buf2;
 } buffers_t;
 
 CG_BEFORE_BUFFER
 static buffers_t buffers={0};
 
-int init_buffer_scheduler(uint8_t *myBuffer)
+int init_buffer_scheduler(uint8_t *myBuffer,
+                              uint8_t *myBufferB)
 {
     buffers.buf0 = (uint8_t *)CG_MALLOC(20 * sizeof(uint8_t));
     if (buffers.buf0==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    buffers.buf1 = (uint8_t *)CG_MALLOC(20 * sizeof(uint8_t));
-    if (buffers.buf1==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
-    buffers.buf2 = (uint8_t *)CG_MALLOC(20 * sizeof(uint8_t));
-    if (buffers.buf2==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
     return(CG_SUCCESS);
 }
 
-void free_buffer_scheduler(uint8_t *myBuffer)
+void free_buffer_scheduler(uint8_t *myBuffer,
+                              uint8_t *myBufferB)
 {
     if (buffers.buf0!=NULL)
     {
         CG_FREE(buffers.buf0);
-    }
-    if (buffers.buf1!=NULL)
-    {
-        CG_FREE(buffers.buf1);
-    }
-    if (buffers.buf2!=NULL)
-    {
-        CG_FREE(buffers.buf2);
     }
 }
 
 
 
 CG_BEFORE_SCHEDULER_FUNCTION
-uint32_t scheduler(int *error,uint8_t *myBuffer)
+uint32_t scheduler(int *error,uint8_t *myBuffer,
+                              uint8_t *myBufferB)
 {
     int cgStaticError=0;
     uint32_t nbSchedule=0;
@@ -169,22 +152,22 @@ uint32_t scheduler(int *error,uint8_t *myBuffer)
     Create FIFOs objects
     */
     FIFO<float,FIFOSIZE0,1,0> fifo0(myBuffer);
-    FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf1);
+    FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf0);
     FIFO<float,FIFOSIZE2,1,0> fifo2(buffers.buf0);
-    FIFO<float,FIFOSIZE3,1,0> fifo3(buffers.buf1);
-    FIFO<float,FIFOSIZE4,1,0> fifo4(buffers.buf2);
+    FIFO<float,FIFOSIZE3,1,0> fifo3(buffers.buf0);
+    FIFO<float,FIFOSIZE4,1,0> fifo4(buffers.buf0);
     FIFO<float,FIFOSIZE5,1,0> fifo5(buffers.buf0);
 
     CG_BEFORE_NODE_INIT;
     /* 
     Create node objects
     */
-    Duplicate<float,5,float,5> dup0(fifo3,{&fifo4,&fifo5}); /* Node ID = 0 */
+    Duplicate<float,5,float,5> dup0(fifo3,{}); /* Node ID = 0 */
     ProcessingNode<float,5,float,5> processing1(fifo0,fifo3); /* Node ID = 1 */
     ProcessingNode<float,5,float,5> processing2(fifo5,fifo1); /* Node ID = 2 */
     ProcessingNode<float,5,float,5> processing3(fifo1,fifo2); /* Node ID = 3 */
-    Sink<float,5> sink1(fifo2); /* Node ID = 4 */
-    Sink<float,5> sink2(fifo4); /* Node ID = 5 */
+    Sink<float,5> sink1(fifo2,"sink1"); /* Node ID = 4 */
+    Sink<float,5> sink2(fifo4,"sink2"); /* Node ID = 5 */
     Source<float,5> source(fifo0); /* Node ID = 6 */
 
     /* Run several schedule iterations */

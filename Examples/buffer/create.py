@@ -17,7 +17,7 @@ conf.CMSISDSP = False
 conf.asynchronous = False
 conf.memoryOptimization=True
 conf.bufferAllocation = True
-conf.cOptionalArgs=["uint8_t *myBuffer"]
+conf.cOptionalArgs=["uint8_t *myBuffer","uint8_t *myBufferB"]
 conf.prefix = "cv"
 
 export_graph(the_graph,"graph.yml")

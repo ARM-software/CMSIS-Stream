@@ -46,6 +46,7 @@ class Sink(GenericSink):
     def __init__(self,name,theType,inLength):
         GenericSink.__init__(self,name)
         self.addInput("i",theType,inLength)
+        self.addLiteralArg(name)
 
     @property
     def typeName(self):

@@ -48,7 +48,7 @@ public:
     // the input FIFO (coming from the generated scheduler).
     // This FIFO is passed to the GenericSink contructor.
     // Implementation of this Sink constructor is doing nothing
-    Sink(FIFOBase<IN> &src):GenericSink<IN,inputSize>(src){};
+    Sink(FIFOBase<IN> &src,const char *name):GenericSink<IN,inputSize>(src),mName(name){};
 
     // Used in asynchronous mode. In case of underflow on
     // the input, the execution of this node will be skipped
@@ -70,14 +70,15 @@ public:
     int run() final
     {
         IN *b=this->getReadBuffer();
-        printf("Sink\n");
+        printf("%s\r\n",mName);
         for(int i=0;i<inputSize;i++)
         {
             std::cout << (int)b[i] << std::endl;
         }
         return(0);
     };
-
+protected:
+    const char *mName;
 };
 
 /*

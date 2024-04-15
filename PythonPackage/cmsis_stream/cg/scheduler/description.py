@@ -141,6 +141,10 @@ class FIFODesc:
         # shared buffer number not yet allocated
         self.sharedNB=-1
 
+        # When true, this fifo is ignore in the output
+        # arguments of the C duplicate node
+        self._skip_for_duplicate = False
+
     # For c code generation 
     @property
     def isArrayAsInt(self):
@@ -568,6 +572,38 @@ class Graph():
 
         return(res)
 
+    def is_not_related_to_same_duplicate(self,k,f):
+        if not k.isArray:
+            return(True)
+        if not f.isArray:
+            return(True)
+
+
+        
+
+        # We check if k and f are related to same duplicate
+        if k.src.owner == f.src.owner and isinstance(k.src.owner,Duplicate):
+            # No interference between k and f FIFO buffers
+            # They both are output FIFO of same duplicate node
+            # In this case we must also ensure that the input FIFO of duplicate node
+            # is working in array mode otherwise we still need to make a copy.
+            
+            srcNode = k.src.owner
+            inputFifo = srcNode._inputs['i']._fifo
+            fifoDesc = self._edgeToFIFO[inputFifo]
+           
+            # If input is not an array, we add an interference edge
+            return(not fifoDesc.isArray)
+
+        if k.dst.owner == f.src.owner and isinstance(k.dst.owner,Duplicate):
+            # No interference between k and f FIFO buffers
+            # They are both connected to Duplicate node
+            return(False)
+        if k.src.owner == f.dst.owner and isinstance(f.dst.owner,Duplicate):
+            # No interference between k and f FIFO buffers
+            # They are both connected to Duplicate node
+            return(False)
+
     def initializeFIFODescriptions(self,config,allFIFOs, fifoLengths,maxTime):
         """Initialize FIFOs datastructure""" 
         for fifo in allFIFOs:
@@ -697,7 +733,10 @@ class Graph():
                             if not (fifo in active):
                                 for k in active:
                                     if not G.has_edge(k,fifo) and not G.has_edge(fifo,k):
-                                       G.add_edge(k,fifo)
+                                       # if the connection is with output of a duplicate node
+                                       # and if fifo isArray then we do not add an interference edge
+                                       if self.is_not_related_to_same_duplicate(k,fifo):
+                                          G.add_edge(k,fifo)
                                 active[fifo]=True 
     
                 currentTime = currentTime + 1
@@ -783,6 +822,22 @@ class Graph():
         self._totalMemory = 0
         for buf in allBuffers:
             self._totalMemory = self._totalMemory + buf._theType.bytes * buf._length
+
+        # Now we scan the duplicate nodes and check when output fifo is
+        # sharing buffer with input fifo
+        # In this case, we mark this fifo for skipping in the duplicate node
+        # argument generation
+        for n in self._sortedNodes:
+            if isinstance(n,Duplicate):
+                inputEdge = n._inputs['i']._fifo
+                inputFIFO = self._edgeToFIFO[inputEdge]
+                inputBuf = inputFIFO.buffer
+                for o in n._outputs:
+                    outputEdge = n._outputs[o]._fifo
+                    outputFIFO = self._edgeToFIFO[outputEdge]
+                    outputBuf = outputFIFO.buffer
+                    if outputBuf == inputBuf:
+                        outputFIFO._skip_for_duplicate = True
 
         #for fifo in allFIFOs:
         #    fifo.dump()
@@ -1079,8 +1134,11 @@ class Graph():
         # Define the list of FIFOs objects
         nbFIFOS = t.shape[0]
         allFIFOs = [] 
+        self._edgeToFIFO = {}
         for i in range(nbFIFOS):
-            allFIFOs.append(FIFODesc(i,self.defaultFIFOClass,1.0))
+            desc = FIFODesc(i,self.defaultFIFOClass,1.0)
+            allFIFOs.append(desc)
+            self._edgeToFIFO[self._sortedEdges[i]] = desc
 
        
 
@@ -1153,8 +1211,11 @@ class Graph():
         # Define the list of FIFOs objects
         nbFIFOS = t.shape[0]
         allFIFOs = [] 
+        self._edgeToFIFO = {}
         for i in range(nbFIFOS):
-            allFIFOs.append(FIFODesc(i,self.defaultFIFOClass,1.0))
+            desc = FIFODesc(i,self.defaultFIFOClass,1.0)
+            allFIFOs.append(desc)
+            self._edgeToFIFO[self._sortedEdges[i]] = desc
 
         # Normalization vector
         # For static scheduling it is
@@ -1303,18 +1364,21 @@ class Schedule:
         self._schedule = schedule 
         self._graph = g
         self._config = config
+        self._edgeToFIFO = g._edgeToFIFO
         # Nodes containing pure functions (no state) like some
         # CMSIS-DSP functions.
         
         nodeCodeID = 0
         pureClassID = 1
+
+
         for n in self.nodes:
             n.codeID = nodeCodeID
             nodeCodeID = nodeCodeID + 1
             # Constant nodes are ignored since they have
             # no arcs, and are connected to no FIFOs
             
-            pureClassID=n.createArgsWithSchedulerFifoID(pureClassID,self._config,self.fifoID)
+            pureClassID=n.createArgsWithSchedulerFifoID(pureClassID,self._config,self.fifoID,self._edgeToFIFO)
             
 
             

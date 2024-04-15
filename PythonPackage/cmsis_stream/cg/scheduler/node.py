@@ -395,7 +395,7 @@ class BaseNode:
 
 
 
-    def createArgsWithSchedulerFifoID(self,pureClassID,config,fifoID):
+    def createArgsWithSchedulerFifoID(self,pureClassID,config,fifoID,edgeToFIFO):
         """Get list of IO objects for inputs and outputs"""
         i=[] 
         o=[]
@@ -422,8 +422,12 @@ class BaseNode:
                    theArgs.append(io.constantNode.name)
                    theArgTypes.append(io.constantNode.name)
         for io in o:
-                theArgs.append(fifoID(io.fifo))
-                theArgTypes.append(io.ctype)
+                # Duplicate node is skipping copy when output fifo is
+                # sharing buffer with input fifo
+                edge = edgeToFIFO[io.fifo]
+                if not edge._skip_for_duplicate:
+                   theArgs.append(fifoID(io.fifo))
+                   theArgTypes.append(io.ctype)
 
         if not self.hasState:
            # For pure function, analyze how many
@@ -758,7 +762,10 @@ class GenericToManyNode(BaseNode):
         theOutputs = allArgs[len(self._inputs):]
         
         ioInputs = [x.reference for x in theInputs]
-        ioOutputs = ["{" + "".join(joinit([x.pointer for x in theOutputs],",")) + "}"]
+        if theOutputs:
+           ioOutputs = ["{" + "".join(joinit([x.pointer for x in theOutputs],",")) + "}"]
+        else:
+            ioOutputs = ["{}"]
         # Add specific argrs after FIFOs
         sched = []
         if self.schedArgs:

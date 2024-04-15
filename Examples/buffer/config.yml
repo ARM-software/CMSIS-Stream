@@ -7,4 +7,5 @@ code-generation-options:
 c-code-generation-options:
   c-optional-args:
   - uint8_t *myBuffer
+  - uint8_t *myBufferB
 

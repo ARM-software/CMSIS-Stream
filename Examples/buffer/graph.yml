@@ -26,6 +26,8 @@ graph:
     - input: i
       samples: 5
       type: float
+    args:
+    - literal: sink2
   - node: processing2
     identified: true
     kind: ProcessingNode
@@ -55,6 +57,8 @@ graph:
     - input: i
       samples: 5
       type: float
+    args:
+    - literal: sink1
   edges:
   - src:
       node: source
