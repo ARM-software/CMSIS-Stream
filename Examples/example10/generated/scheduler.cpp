@@ -120,23 +120,27 @@ FIFO buffers
 #define FIFOSIZE10 2
 #define FIFOSIZE11 2
 
+#define BUFFERSIZE0 2
+CG_BEFORE_BUFFER
+int16_t buf0[BUFFERSIZE0]={0};
+
 #define BUFFERSIZE1 2
 CG_BEFORE_BUFFER
 int16_t buf1[BUFFERSIZE1]={0};
 
-#define BUFFERSIZE2 2
+#define BUFFERSIZE2 3
 CG_BEFORE_BUFFER
 int16_t buf2[BUFFERSIZE2]={0};
 
-#define BUFFERSIZE3 3
+#define BUFFERSIZE3 2
 CG_BEFORE_BUFFER
 int16_t buf3[BUFFERSIZE3]={0};
 
-#define BUFFERSIZE4 2
+#define BUFFERSIZE4 3
 CG_BEFORE_BUFFER
 int16_t buf4[BUFFERSIZE4]={0};
 
-#define BUFFERSIZE5 3
+#define BUFFERSIZE5 2
 CG_BEFORE_BUFFER
 int16_t buf5[BUFFERSIZE5]={0};
 
@@ -163,10 +167,6 @@ int16_t buf10[BUFFERSIZE10]={0};
 #define BUFFERSIZE11 2
 CG_BEFORE_BUFFER
 int16_t buf11[BUFFERSIZE11]={0};
-
-#define BUFFERSIZE12 2
-CG_BEFORE_BUFFER
-int16_t buf12[BUFFERSIZE12]={0};
 
 
 typedef struct {
@@ -209,62 +209,62 @@ static nodes_t nodes={0};
 int init_scheduler()
 {
     CG_BEFORE_FIFO_INIT;
-    fifos.fifo0 = new FIFO<int16_t,FIFOSIZE0,0,1>(buf1);
+    fifos.fifo0 = new FIFO<int16_t,FIFOSIZE0,0,1>(buf0);
     if (fifos.fifo0==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo1 = new FIFO<int16_t,FIFOSIZE1,0,1>(buf2);
+    fifos.fifo1 = new FIFO<int16_t,FIFOSIZE1,0,1>(buf1);
     if (fifos.fifo1==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo2 = new FIFO<int16_t,FIFOSIZE2,0,1>(buf3);
+    fifos.fifo2 = new FIFO<int16_t,FIFOSIZE2,0,1>(buf2);
     if (fifos.fifo2==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo3 = new FIFO<int16_t,FIFOSIZE3,0,1>(buf4);
+    fifos.fifo3 = new FIFO<int16_t,FIFOSIZE3,0,1>(buf3);
     if (fifos.fifo3==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo4 = new FIFO<int16_t,FIFOSIZE4,0,1>(buf5);
+    fifos.fifo4 = new FIFO<int16_t,FIFOSIZE4,0,1>(buf4);
     if (fifos.fifo4==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo5 = new FIFO<int16_t,FIFOSIZE5,0,1>(buf6);
+    fifos.fifo5 = new FIFO<int16_t,FIFOSIZE5,0,1>(buf5);
     if (fifos.fifo5==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo6 = new FIFO<int16_t,FIFOSIZE6,0,1>(buf7);
+    fifos.fifo6 = new FIFO<int16_t,FIFOSIZE6,0,1>(buf6);
     if (fifos.fifo6==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo7 = new FIFO<int16_t,FIFOSIZE7,0,1>(buf8);
+    fifos.fifo7 = new FIFO<int16_t,FIFOSIZE7,0,1>(buf7);
     if (fifos.fifo7==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo8 = new FIFO<int16_t,FIFOSIZE8,0,1>(buf9);
+    fifos.fifo8 = new FIFO<int16_t,FIFOSIZE8,0,1>(buf8);
     if (fifos.fifo8==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo9 = new FIFO<int16_t,FIFOSIZE9,0,1>(buf10);
+    fifos.fifo9 = new FIFO<int16_t,FIFOSIZE9,0,1>(buf9);
     if (fifos.fifo9==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo10 = new FIFO<int16_t,FIFOSIZE10,0,1>(buf11);
+    fifos.fifo10 = new FIFO<int16_t,FIFOSIZE10,0,1>(buf10);
     if (fifos.fifo10==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo11 = new FIFO<int16_t,FIFOSIZE11,0,1>(buf12);
+    fifos.fifo11 = new FIFO<int16_t,FIFOSIZE11,0,1>(buf11);
     if (fifos.fifo11==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);

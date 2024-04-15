@@ -100,17 +100,17 @@ FIFO buffers
 #define FIFOSIZE1 7
 #define FIFOSIZE2 5
 
+#define BUFFERSIZE0 7
+CG_BEFORE_BUFFER
+float32_t buf0[BUFFERSIZE0]={0};
+
 #define BUFFERSIZE1 7
 CG_BEFORE_BUFFER
 float32_t buf1[BUFFERSIZE1]={0};
 
-#define BUFFERSIZE2 7
+#define BUFFERSIZE2 5
 CG_BEFORE_BUFFER
-float32_t buf2[BUFFERSIZE2]={0};
-
-#define BUFFERSIZE3 5
-CG_BEFORE_BUFFER
-q15_t buf3[BUFFERSIZE3]={0};
+q15_t buf2[BUFFERSIZE2]={0};
 
 
 
@@ -125,9 +125,9 @@ uint32_t scheduler(int *error)
     /*
     Create FIFOs objects
     */
-    FIFO<float32_t,FIFOSIZE0,1,0> fifo0(buf1);
-    FIFO<float32_t,FIFOSIZE1,1,0> fifo1(buf2);
-    FIFO<q15_t,FIFOSIZE2,1,0> fifo2(buf3);
+    FIFO<float32_t,FIFOSIZE0,1,0> fifo0(buf0);
+    FIFO<float32_t,FIFOSIZE1,1,0> fifo1(buf1);
+    FIFO<q15_t,FIFOSIZE2,1,0> fifo2(buf2);
 
     CG_BEFORE_NODE_INIT;
     /* 

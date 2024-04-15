@@ -107,25 +107,9 @@ FIFO buffers
 CG_BEFORE_BUFFER
 uint8_t buf0[BUFFERSIZE0]={0};
 
-#define BUFFERSIZE1 40
+#define BUFFERSIZE1 11
 CG_BEFORE_BUFFER
-uint8_t buf1[BUFFERSIZE1]={0};
-
-#define BUFFERSIZE2 40
-CG_BEFORE_BUFFER
-uint8_t buf2[BUFFERSIZE2]={0};
-
-#define BUFFERSIZE3 40
-CG_BEFORE_BUFFER
-uint8_t buf3[BUFFERSIZE3]={0};
-
-#define BUFFERSIZE4 40
-CG_BEFORE_BUFFER
-uint8_t buf4[BUFFERSIZE4]={0};
-
-#define BUFFERSIZE5 11
-CG_BEFORE_BUFFER
-complex buf5[BUFFERSIZE5]={0};
+complex buf1[BUFFERSIZE1]={0};
 
 
 
@@ -140,18 +124,18 @@ uint32_t scheduler(int *error,int someVariable)
     /*
     Create FIFOs objects
     */
-    FIFO<complex,FIFOSIZE0,0,0> fifo0(buf5);
+    FIFO<complex,FIFOSIZE0,0,0> fifo0(buf1);
     FIFO<complex,FIFOSIZE1,1,0> fifo1(buf0);
-    FIFO<complex,FIFOSIZE2,1,0> fifo2(buf1);
-    FIFO<complex,FIFOSIZE3,1,0> fifo3(buf2);
-    FIFO<complex,FIFOSIZE4,1,0> fifo4(buf3);
-    FIFO<complex,FIFOSIZE5,1,0> fifo5(buf4);
+    FIFO<complex,FIFOSIZE2,1,0> fifo2(buf0);
+    FIFO<complex,FIFOSIZE3,1,0> fifo3(buf0);
+    FIFO<complex,FIFOSIZE4,1,0> fifo4(buf0);
+    FIFO<complex,FIFOSIZE5,1,0> fifo5(buf0);
 
     CG_BEFORE_NODE_INIT;
     /* 
     Create node objects
     */
-    Duplicate<complex,5,complex,5> dup0(fifo2,{&fifo3,&fifo4,&fifo5}); /* Node ID = 0 */
+    Duplicate<complex,5,complex,5> dup0(fifo2,{}); /* Node ID = 0 */
     ProcessingNode<complex,7,complex,5,complex,5> filter(fifo0,fifo2,fifo1,4,"Test",someVariable); /* Node ID = 1 */
     Sink<complex,5> sa(fifo3); /* Node ID = 2 */
     Sink<complex,5> sb(fifo4); /* Node ID = 3 */

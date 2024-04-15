@@ -101,21 +101,21 @@ FIFO buffers
 #define FIFOSIZE2 13
 #define FIFOSIZE3 26
 
+#define BUFFERSIZE0 256
+CG_BEFORE_BUFFER
+float buf0[BUFFERSIZE0]={0};
+
 #define BUFFERSIZE1 256
 CG_BEFORE_BUFFER
 float buf1[BUFFERSIZE1]={0};
 
-#define BUFFERSIZE2 256
+#define BUFFERSIZE2 13
 CG_BEFORE_BUFFER
 float buf2[BUFFERSIZE2]={0};
 
-#define BUFFERSIZE3 13
+#define BUFFERSIZE3 26
 CG_BEFORE_BUFFER
 float buf3[BUFFERSIZE3]={0};
-
-#define BUFFERSIZE4 26
-CG_BEFORE_BUFFER
-float buf4[BUFFERSIZE4]={0};
 
 
 
@@ -130,10 +130,10 @@ uint32_t scheduler(int *error,arm_mfcc_instance_f32 *mfccConfig)
     /*
     Create FIFOs objects
     */
-    FIFO<float,FIFOSIZE0,0,0> fifo0(buf1);
-    FIFO<float,FIFOSIZE1,1,0> fifo1(buf2);
-    FIFO<float,FIFOSIZE2,1,0> fifo2(buf3);
-    FIFO<float,FIFOSIZE3,0,0> fifo3(buf4);
+    FIFO<float,FIFOSIZE0,0,0> fifo0(buf0);
+    FIFO<float,FIFOSIZE1,1,0> fifo1(buf1);
+    FIFO<float,FIFOSIZE2,1,0> fifo2(buf2);
+    FIFO<float,FIFOSIZE3,0,0> fifo3(buf3);
 
     CG_BEFORE_NODE_INIT;
     /* 

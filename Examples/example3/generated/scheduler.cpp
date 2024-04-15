@@ -105,15 +105,19 @@ FIFO buffers
 #define FIFOSIZE6 256
 #define FIFOSIZE7 256
 
+#define BUFFERSIZE0 256
+CG_BEFORE_BUFFER
+float buf0[BUFFERSIZE0]={0};
+
 #define BUFFERSIZE1 256
 CG_BEFORE_BUFFER
-float buf1[BUFFERSIZE1]={0};
+float32_t buf1[BUFFERSIZE1]={0};
 
 #define BUFFERSIZE2 256
 CG_BEFORE_BUFFER
 float32_t buf2[BUFFERSIZE2]={0};
 
-#define BUFFERSIZE3 256
+#define BUFFERSIZE3 512
 CG_BEFORE_BUFFER
 float32_t buf3[BUFFERSIZE3]={0};
 
@@ -125,17 +129,13 @@ float32_t buf4[BUFFERSIZE4]={0};
 CG_BEFORE_BUFFER
 float32_t buf5[BUFFERSIZE5]={0};
 
-#define BUFFERSIZE6 512
+#define BUFFERSIZE6 256
 CG_BEFORE_BUFFER
 float32_t buf6[BUFFERSIZE6]={0};
 
 #define BUFFERSIZE7 256
 CG_BEFORE_BUFFER
 float32_t buf7[BUFFERSIZE7]={0};
-
-#define BUFFERSIZE8 256
-CG_BEFORE_BUFFER
-float32_t buf8[BUFFERSIZE8]={0};
 
 
 
@@ -150,14 +150,14 @@ uint32_t scheduler(int *error)
     /*
     Create FIFOs objects
     */
-    FIFO<float,FIFOSIZE0,0,0> fifo0(buf1);
-    FIFO<float32_t,FIFOSIZE1,1,0> fifo1(buf2);
-    FIFO<float32_t,FIFOSIZE2,1,0> fifo2(buf3);
-    FIFO<float32_t,FIFOSIZE3,1,0> fifo3(buf4);
-    FIFO<float32_t,FIFOSIZE4,1,0> fifo4(buf5);
-    FIFO<float32_t,FIFOSIZE5,1,0> fifo5(buf6);
-    FIFO<float32_t,FIFOSIZE6,1,0> fifo6(buf7);
-    FIFO<float32_t,FIFOSIZE7,0,0> fifo7(buf8);
+    FIFO<float,FIFOSIZE0,0,0> fifo0(buf0);
+    FIFO<float32_t,FIFOSIZE1,1,0> fifo1(buf1);
+    FIFO<float32_t,FIFOSIZE2,1,0> fifo2(buf2);
+    FIFO<float32_t,FIFOSIZE3,1,0> fifo3(buf3);
+    FIFO<float32_t,FIFOSIZE4,1,0> fifo4(buf4);
+    FIFO<float32_t,FIFOSIZE5,1,0> fifo5(buf5);
+    FIFO<float32_t,FIFOSIZE6,1,0> fifo6(buf6);
+    FIFO<float32_t,FIFOSIZE7,0,0> fifo7(buf7);
 
     CG_BEFORE_NODE_INIT;
     /* 

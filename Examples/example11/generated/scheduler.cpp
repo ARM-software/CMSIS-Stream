@@ -121,7 +121,11 @@ FIFO buffers
 #define FIFOSIZE11 2
 #define FIFOSIZE12 2
 
-#define BUFFERSIZE1 1
+#define BUFFERSIZE0 1
+CG_BEFORE_BUFFER
+int16_t buf0[BUFFERSIZE0]={0};
+
+#define BUFFERSIZE1 2
 CG_BEFORE_BUFFER
 int16_t buf1[BUFFERSIZE1]={0};
 
@@ -129,11 +133,11 @@ int16_t buf1[BUFFERSIZE1]={0};
 CG_BEFORE_BUFFER
 int16_t buf2[BUFFERSIZE2]={0};
 
-#define BUFFERSIZE3 2
+#define BUFFERSIZE3 1
 CG_BEFORE_BUFFER
 int16_t buf3[BUFFERSIZE3]={0};
 
-#define BUFFERSIZE4 1
+#define BUFFERSIZE4 2
 CG_BEFORE_BUFFER
 int16_t buf4[BUFFERSIZE4]={0};
 
@@ -169,10 +173,6 @@ int16_t buf11[BUFFERSIZE11]={0};
 CG_BEFORE_BUFFER
 int16_t buf12[BUFFERSIZE12]={0};
 
-#define BUFFERSIZE13 2
-CG_BEFORE_BUFFER
-int16_t buf13[BUFFERSIZE13]={0};
-
 
 
 CG_BEFORE_SCHEDULER_FUNCTION
@@ -186,19 +186,19 @@ uint32_t scheduler(int *error)
     /*
     Create FIFOs objects
     */
-    FIFO<int16_t,FIFOSIZE0,0,1> fifo0(buf1);
-    FIFO<int16_t,FIFOSIZE1,0,1> fifo1(buf2);
-    FIFO<int16_t,FIFOSIZE2,0,1> fifo2(buf3);
-    FIFO<int16_t,FIFOSIZE3,0,1> fifo3(buf4);
-    FIFO<int16_t,FIFOSIZE4,0,1> fifo4(buf5);
-    FIFO<int16_t,FIFOSIZE5,0,1> fifo5(buf6);
-    FIFO<int16_t,FIFOSIZE6,0,1> fifo6(buf7);
-    FIFO<int16_t,FIFOSIZE7,0,1> fifo7(buf8);
-    FIFO<int16_t,FIFOSIZE8,0,1> fifo8(buf9);
-    FIFO<int16_t,FIFOSIZE9,0,1> fifo9(buf10);
-    FIFO<int16_t,FIFOSIZE10,0,1> fifo10(buf11);
-    FIFO<int16_t,FIFOSIZE11,0,1> fifo11(buf12);
-    FIFO<int16_t,FIFOSIZE12,0,1> fifo12(buf13);
+    FIFO<int16_t,FIFOSIZE0,0,1> fifo0(buf0);
+    FIFO<int16_t,FIFOSIZE1,0,1> fifo1(buf1);
+    FIFO<int16_t,FIFOSIZE2,0,1> fifo2(buf2);
+    FIFO<int16_t,FIFOSIZE3,0,1> fifo3(buf3);
+    FIFO<int16_t,FIFOSIZE4,0,1> fifo4(buf4);
+    FIFO<int16_t,FIFOSIZE5,0,1> fifo5(buf5);
+    FIFO<int16_t,FIFOSIZE6,0,1> fifo6(buf6);
+    FIFO<int16_t,FIFOSIZE7,0,1> fifo7(buf7);
+    FIFO<int16_t,FIFOSIZE8,0,1> fifo8(buf8);
+    FIFO<int16_t,FIFOSIZE9,0,1> fifo9(buf9);
+    FIFO<int16_t,FIFOSIZE10,0,1> fifo10(buf10);
+    FIFO<int16_t,FIFOSIZE11,0,1> fifo11(buf11);
+    FIFO<int16_t,FIFOSIZE12,0,1> fifo12(buf12);
 
     CG_BEFORE_NODE_INIT;
     /* 

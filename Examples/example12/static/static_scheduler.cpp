@@ -104,6 +104,10 @@ FIFO buffers
 #define FIFOSIZE5 1
 #define FIFOSIZE6 1
 
+#define BUFFERSIZE0 1
+CG_BEFORE_BUFFER
+Shared<buffer,false> static_buf0[BUFFERSIZE0]={0};
+
 #define BUFFERSIZE1 1
 CG_BEFORE_BUFFER
 Shared<buffer,false> static_buf1[BUFFERSIZE1]={0};
@@ -122,15 +126,11 @@ Shared<buffer,false> static_buf4[BUFFERSIZE4]={0};
 
 #define BUFFERSIZE5 1
 CG_BEFORE_BUFFER
-Shared<buffer,false> static_buf5[BUFFERSIZE5]={0};
+Shared<buffer,true> static_buf5[BUFFERSIZE5]={0};
 
 #define BUFFERSIZE6 1
 CG_BEFORE_BUFFER
 Shared<buffer,true> static_buf6[BUFFERSIZE6]={0};
-
-#define BUFFERSIZE7 1
-CG_BEFORE_BUFFER
-Shared<buffer,true> static_buf7[BUFFERSIZE7]={0};
 
 
 
@@ -145,13 +145,13 @@ uint32_t static_scheduler(int *error)
     /*
     Create FIFOs objects
     */
-    FIFO<Shared<buffer,false>,FIFOSIZE0,1,0> fifo0(static_buf1);
-    FIFO<Shared<buffer,false>,FIFOSIZE1,1,0> fifo1(static_buf2);
-    FIFO<Shared<buffer,false>,FIFOSIZE2,1,0> fifo2(static_buf3);
-    FIFO<Shared<buffer,false>,FIFOSIZE3,1,0> fifo3(static_buf4);
-    FIFO<Shared<buffer,false>,FIFOSIZE4,1,0> fifo4(static_buf5);
-    FIFO<Shared<buffer,true>,FIFOSIZE5,1,0> fifo5(static_buf6);
-    FIFO<Shared<buffer,true>,FIFOSIZE6,1,0> fifo6(static_buf7);
+    FIFO<Shared<buffer,false>,FIFOSIZE0,1,0> fifo0(static_buf0);
+    FIFO<Shared<buffer,false>,FIFOSIZE1,1,0> fifo1(static_buf1);
+    FIFO<Shared<buffer,false>,FIFOSIZE2,1,0> fifo2(static_buf2);
+    FIFO<Shared<buffer,false>,FIFOSIZE3,1,0> fifo3(static_buf3);
+    FIFO<Shared<buffer,false>,FIFOSIZE4,1,0> fifo4(static_buf4);
+    FIFO<Shared<buffer,true>,FIFOSIZE5,1,0> fifo5(static_buf5);
+    FIFO<Shared<buffer,true>,FIFOSIZE6,1,0> fifo6(static_buf6);
 
     CG_BEFORE_NODE_INIT;
     /* 

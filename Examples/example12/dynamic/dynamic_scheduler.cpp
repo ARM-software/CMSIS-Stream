@@ -104,6 +104,10 @@ FIFO buffers
 #define FIFOSIZE5 1
 #define FIFOSIZE6 1
 
+#define BUFFERSIZE0 1
+CG_BEFORE_BUFFER
+std::shared_ptr<buffer> dynamic_buf0[BUFFERSIZE0]={0};
+
 #define BUFFERSIZE1 1
 CG_BEFORE_BUFFER
 std::shared_ptr<buffer> dynamic_buf1[BUFFERSIZE1]={0};
@@ -128,10 +132,6 @@ std::shared_ptr<buffer> dynamic_buf5[BUFFERSIZE5]={0};
 CG_BEFORE_BUFFER
 std::shared_ptr<buffer> dynamic_buf6[BUFFERSIZE6]={0};
 
-#define BUFFERSIZE7 1
-CG_BEFORE_BUFFER
-std::shared_ptr<buffer> dynamic_buf7[BUFFERSIZE7]={0};
-
 
 
 CG_BEFORE_SCHEDULER_FUNCTION
@@ -145,13 +145,13 @@ uint32_t dynamic_scheduler(int *error)
     /*
     Create FIFOs objects
     */
-    FIFO<std::shared_ptr<buffer>,FIFOSIZE0,1,0> fifo0(dynamic_buf1);
-    FIFO<std::shared_ptr<buffer>,FIFOSIZE1,1,0> fifo1(dynamic_buf2);
-    FIFO<std::shared_ptr<buffer>,FIFOSIZE2,1,0> fifo2(dynamic_buf3);
-    FIFO<std::shared_ptr<buffer>,FIFOSIZE3,1,0> fifo3(dynamic_buf4);
-    FIFO<std::shared_ptr<buffer>,FIFOSIZE4,1,0> fifo4(dynamic_buf5);
-    FIFO<std::shared_ptr<buffer>,FIFOSIZE5,1,0> fifo5(dynamic_buf6);
-    FIFO<std::shared_ptr<buffer>,FIFOSIZE6,1,0> fifo6(dynamic_buf7);
+    FIFO<std::shared_ptr<buffer>,FIFOSIZE0,1,0> fifo0(dynamic_buf0);
+    FIFO<std::shared_ptr<buffer>,FIFOSIZE1,1,0> fifo1(dynamic_buf1);
+    FIFO<std::shared_ptr<buffer>,FIFOSIZE2,1,0> fifo2(dynamic_buf2);
+    FIFO<std::shared_ptr<buffer>,FIFOSIZE3,1,0> fifo3(dynamic_buf3);
+    FIFO<std::shared_ptr<buffer>,FIFOSIZE4,1,0> fifo4(dynamic_buf4);
+    FIFO<std::shared_ptr<buffer>,FIFOSIZE5,1,0> fifo5(dynamic_buf5);
+    FIFO<std::shared_ptr<buffer>,FIFOSIZE6,1,0> fifo6(dynamic_buf6);
 
     CG_BEFORE_NODE_INIT;
     /* 
