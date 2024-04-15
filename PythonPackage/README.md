@@ -14,6 +14,10 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.11.0:
+
+* With memory optimization mode, the constraints on Duplicate nodes are relaxed to avoid copies as much as possible
+
 ## Version 1.10.0:
 
 * A specific memory buffer can now be assigned to a FIFO (so buffer external to this framework)
