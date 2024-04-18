@@ -67,14 +67,18 @@ FIFO buffers
 {% endfor %}
 
 {% if config.bufferAllocation %}
+{% if sched._graph._allBuffers|length >0 %}
 typedef struct {
 {% for buf in sched._graph._allBuffers %}
 {{buf._theType.ctype}}  *buf{{buf._bufferID}};
 {% endfor %}
 } buffers_t;
+{% endif %}
 
 CG_BEFORE_BUFFER
+{% if sched._graph._allBuffers|length >0 %}
 static buffers_t buffers={0};
+{% endif %}
 
 int init_buffer_{{config.schedName}}({{optionalargs(True)}})
 {

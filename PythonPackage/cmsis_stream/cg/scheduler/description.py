@@ -604,6 +604,8 @@ class Graph():
             # They are both connected to Duplicate node
             return(False)
 
+        return(True)
+
     def initializeFIFODescriptions(self,config,allFIFOs, fifoLengths,maxTime):
         """Initialize FIFOs datastructure""" 
         for fifo in allFIFOs:
