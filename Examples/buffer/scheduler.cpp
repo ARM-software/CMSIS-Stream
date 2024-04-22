@@ -112,6 +112,7 @@ FIFO buffers
 
 typedef struct {
 uint8_t  *buf0;
+uint8_t  *buf1;
 } buffers_t;
 
 CG_BEFORE_BUFFER
@@ -125,6 +126,11 @@ int init_buffer_scheduler(uint8_t *myBuffer,
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
+    buffers.buf1 = (uint8_t *)CG_MALLOC(20 * sizeof(uint8_t));
+    if (buffers.buf1==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
     return(CG_SUCCESS);
 }
 
@@ -134,6 +140,10 @@ void free_buffer_scheduler(uint8_t *myBuffer,
     if (buffers.buf0!=NULL)
     {
         CG_FREE(buffers.buf0);
+    }
+    if (buffers.buf1!=NULL)
+    {
+        CG_FREE(buffers.buf1);
     }
 }
 
@@ -152,7 +162,7 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
     Create FIFOs objects
     */
     FIFO<float,FIFOSIZE0,1,0> fifo0(myBuffer);
-    FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf0);
+    FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf1);
     FIFO<float,FIFOSIZE2,1,0> fifo2(buffers.buf0);
     FIFO<float,FIFOSIZE3,1,0> fifo3(buffers.buf0);
     FIFO<float,FIFOSIZE4,1,0> fifo4(buffers.buf0);

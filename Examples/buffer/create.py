@@ -16,6 +16,7 @@ conf.debugLimit=1
 conf.CMSISDSP = False
 conf.asynchronous = False
 conf.memoryOptimization=True
+conf.memStrategy = 'independent_set'
 conf.bufferAllocation = True
 conf.cOptionalArgs=["uint8_t *myBuffer","uint8_t *myBufferB"]
 conf.prefix = "cv"

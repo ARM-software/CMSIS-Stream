@@ -168,6 +168,17 @@ class Configuration:
         # must be available before the scheduler is started.
         self.nodeIdentification = False
 
+        # Default graph coloring strategy for memory optimization algorithm
+        # Values are from networkX library and can be:
+        # 'largest_first'
+        # 'random_sequential'
+        # 'smallest_last'
+        # 'independent_set'
+        # 'connected_sequential_bfs'
+        # 'connected_sequential_dfs'
+        # 'saturation_largest_first'
+        self.memStrategy = "largest_first"
+
 
        
     @property

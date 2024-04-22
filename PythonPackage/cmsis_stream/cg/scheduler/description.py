@@ -572,7 +572,7 @@ class Graph():
 
         return(res)
 
-    def is_not_related_to_same_duplicate(self,k,f):
+    def no_exception_for_duplicate(self,k,f):
         if not k.isArray:
             return(True)
         if not f.isArray:
@@ -590,20 +590,39 @@ class Graph():
             
             srcNode = k.src.owner
             inputFifo = srcNode._inputs['i']._fifo
-            fifoDesc = self._edgeToFIFO[inputFifo]
-           
-            # If input is not an array, we add an interference edge
-            return(not fifoDesc.isArray)
+            fifoDescInput = self._edgeToFIFO[inputFifo]
+
+            duplicate_exception = fifoDescInput.isArray
+
+            # We must check they don't interfere with input
+            # stop <= start
+            no_src_inteferenceA = fifoDescInput._liveInterval[1] <= k._liveInterval[0]
+            duplicate_exception = duplicate_exception and no_src_inteferenceA
+
+            no_src_inteferenceB = fifoDescInput._liveInterval[1] <= f._liveInterval[0]
+            duplicate_exception = duplicate_exception and no_src_inteferenceB
+
+            #print(f"dup -> dst1,dst2 : {not duplicate_exception}")
+
+            return(not duplicate_exception)
 
         if k.dst.owner == f.src.owner and isinstance(k.dst.owner,Duplicate):
             # No interference between k and f FIFO buffers
-            # They are both connected to Duplicate node
-            return(False)
+            # They are both connected to Duplicate node and don't overlap in time
+            duplicate_exception = k._liveInterval[1] <= f._liveInterval[0]
+            #print(f"dst <- src : {not duplicate_exception}")
+
+            return(not duplicate_exception)
         if k.src.owner == f.dst.owner and isinstance(f.dst.owner,Duplicate):
             # No interference between k and f FIFO buffers
-            # They are both connected to Duplicate node
-            return(False)
+            # They are both connected to Duplicate node and don't overlap in time
+            duplicate_exception = f._liveInterval[1] <= k._liveInterval[0]
+            #print(f"src -> dst : {not duplicate_exception}")
 
+            return(not duplicate_exception)
+
+        #print(f"{k.src.owner.nodeName} -> {k.dst.owner.nodeName}")
+        #print(f"  {f.src.owner.nodeName} -> {f.dst.owner.nodeName}")
         return(True)
 
     def initializeFIFODescriptions(self,config,allFIFOs, fifoLengths,maxTime):
@@ -734,10 +753,14 @@ class Graph():
                         if start<=currentTime and stop >= currentTime:
                             if not (fifo in active):
                                 for k in active:
+                                    # Interference edge between two FIFOs is they
+                                    # are active at same time
+                                    # with some exception for duplicate nodes
                                     if not G.has_edge(k,fifo) and not G.has_edge(fifo,k):
                                        # if the connection is with output of a duplicate node
                                        # and if fifo isArray then we do not add an interference edge
-                                       if self.is_not_related_to_same_duplicate(k,fifo):
+                                       # in all cases
+                                       if self.no_exception_for_duplicate(k,fifo):
                                           G.add_edge(k,fifo)
                                 active[fifo]=True 
     
@@ -751,7 +774,7 @@ class Graph():
                   labels[n]="%s -> %s" % (n.src.owner.nodeName,n.dst.owner.nodeName)
        
                pos = nx.spring_layout(G, seed=3113794652)
-               subax1 = plt.subplot(121)
+               #subax1 = plt.subplot(121)
                nx.draw_networkx_edges(G, pos, width=1.0, alpha=0.5)
                
                nx.draw_networkx_labels(G, pos, labels, font_size=10)
@@ -760,7 +783,7 @@ class Graph():
 
         
             # Graph coloring
-            d = nx.coloring.greedy_color(G, strategy="largest_first")
+            d = nx.coloring.greedy_color(G, strategy=config.memStrategy)
 
             # Allocate the colors (buffer ID) to the FIFO
             # and keep track of the max color number
