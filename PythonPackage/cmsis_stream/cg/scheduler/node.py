@@ -51,6 +51,36 @@ def joinit(iterable, delimiter):
 
 ### Definition of the IOs
 
+class BufferConstraint:
+    """Constraints on a buffer that must be assigned to a FIFO"""
+    def __init__(self,name=None,mustBeArray=True,assignedByNode=False):
+        self._name = name 
+        self._mustBeArray = mustBeArray
+        self._assignedByNode = assignedByNode
+
+    @property
+    def name(self):
+        return self._name
+    
+    @property
+    def mustBeArray(self):
+        return self._mustBeArray
+    
+
+    @property
+    def assignedByNode(self):
+        return self._assignedByNode
+
+    # When two IO with buffer constraints are connected
+    # we need to check they are compatible.
+    # They need to use same buffer in same configuration (must be array)
+    def compatibleWith(self,other):
+        return(self.name == other.name and
+        self.mustBeArray == other.mustBeArray)
+
+    def __str__(self):
+        return f"BufferConstraint(name={self.name},mustBeArray={self.mustBeArray},assignedByNode={self.assignedByNode})"
+
 class IO:
     """Class of input / outputs"""
     def __init__(self,owner,name,theType,nbSamples):
@@ -67,6 +97,11 @@ class IO:
         # and when simulating the schedule we need to know
         # where we currently are in the list
         self._cyclePosition = 0 
+
+        self._bufferConstraint = None
+
+    def setBufferConstraint(self,name=None,mustBeArray=True,assignedByNode=True):
+        self._bufferConstraint = BufferConstraint(name=name,mustBeArray=mustBeArray,assignedByNode=assignedByNode)
 
     # For cyclo static scheduling we advance the position in the
     # cycle

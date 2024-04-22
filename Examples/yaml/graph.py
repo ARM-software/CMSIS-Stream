@@ -9,6 +9,13 @@ class ProcessingNode(GenericManyToManyNode):
         self.addManyInput(theType_in,inLength,nb_in)
         self.addManyOutput(theType_out,outLength,nb_out)
 
+        no = self.outputNameFromIndex(0)
+        self[no].setBufferConstraint(name=f"Testo_{name}",mustBeArray=False,assignedByNode=False)
+
+        ni = self.inputNameFromIndex(1)
+        self[ni].setBufferConstraint(name=f"Testi_{name}",mustBeArray=False,assignedByNode=False)
+
+
     @property
     def typeName(self):
         return "ProcessingNode"

@@ -12,7 +12,7 @@ TEST1 = 1
 # Test2 : One output FIFO of duplicate is assigned to a specific buffer
 # so duplicate must copy to this FIFO 
 # Initialization code in CPP will be:
-# Duplicate<float,5,float,5> dup0(fifo3,{&fifo5});
+# Duplicate<float,5,float,5> dup0(fifo3,{});
 TEST2 = 2
 # Test3: One output FIFO is a real FIFO and is not used as an array
 # We must copy to this FIFO 
@@ -62,11 +62,12 @@ the_graph.connect(src.o,processing1.i,buffer="myBuffer")
 
 the_graph.connect(processing1.o,sink2.i)
     
+the_graph.connect(processing1.o,processing2.i)
+
 if TEST == TEST2:
-    the_graph.connect(processing1.o,processing2.i,buffer="myBufferB")
+   the_graph.connect(processing2.o,processing3.i,buffer="myBufferB")
 else:
-    the_graph.connect(processing1.o,processing2.i)
-the_graph.connect(processing2.o,processing3.i)
+   the_graph.connect(processing2.o,processing3.i)
 # Connect the processing node to the sink
 the_graph.connect(processing3.o,sink1.i)
 

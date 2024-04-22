@@ -104,6 +104,8 @@ add_subdirectory(simple bin_simple)
 add_subdirectory(simpledsp bin_simpledsp)
 add_subdirectory(cyclo bin_cyclo)
 add_subdirectory(functionexample bin_functionexample)
+add_subdirectory(callback bin_callback)
+
 
 # Python examples
 add_subdirectory(example4_python bin_example4_python)

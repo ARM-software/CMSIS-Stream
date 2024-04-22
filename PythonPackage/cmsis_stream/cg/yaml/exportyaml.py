@@ -1,7 +1,7 @@
 from ..scheduler import *
 from yaml import dump
 
-_yaml_version = "1.1.0"
+_yaml_version = "2.0.0"
 
 class _YAMLConstantEdge():
     def __init__(self,src,dst):
@@ -31,9 +31,16 @@ class _YAMLConstantEdge():
 
         return(yaml_desc)
 
+def _mkBufferConstraint(fifoCustomBuffer):
+    buf = {}
+    if  fifoCustomBuffer.name:
+        buf["name"] = fifoCustomBuffer.name
+    buf["must-be-array"] = fifoCustomBuffer.mustBeArray
+    buf["assigned-by-node"] = fifoCustomBuffer.assignedByNode
+    return buf
 
 class _YAMLEdge():
-    def __init__(self,src,dst,fifoClass,fifoScale,fifoDelay,fifoAsyncLength,fifoWeak,constantEdge):
+    def __init__(self,src,dst,fifoClass,fifoScale,fifoDelay,fifoAsyncLength,fifoWeak,constantEdge,fifoCustomBuffer):
         self._src = src
         self._dst = dst
         self._fifoClass = fifoClass 
@@ -42,6 +49,7 @@ class _YAMLEdge():
         self._fifoAsyncLength = fifoAsyncLength
         self._fifoWeak = fifoWeak
         self._constantEdge = constantEdge
+        self._fifoCustomBuffer = fifoCustomBuffer
 
     @property
     def src(self):
@@ -102,6 +110,8 @@ class _YAMLEdge():
             yaml_desc["async-length"] = self.fifoAsyncLength
         if self.fifoWeak:
             yaml_desc["weak-edge"] = self.fifoWeak
+        if self._fifoCustomBuffer and not self.src._bufferConstraint and not self.dst._bufferConstraint:
+            yaml_desc["buffer-constraint"] = _mkBufferConstraint(self._fifoCustomBuffer)
         return(yaml_desc)
     
 def _create_YAML_type(t,structured_datatypes):
@@ -138,6 +148,8 @@ def _create_YAML_IO(io,structured_datatypes,is_input=False):
     else:
        yaml_desc["samples"] = io.nbSamples 
     yaml_desc["type"] = _create_YAML_type(io.theType,structured_datatypes)
+    if io._bufferConstraint:
+       yaml_desc["buffer-constraint"] = _mkBufferConstraint(io._bufferConstraint)
     
     return(yaml_desc)
 
@@ -148,8 +160,18 @@ def _create_YAML_OUTPUT_LIST_IO(self):
     out=[]
     for o in self.node._outputs:
         io = self.node._outputs[o]
-        out.append(io.name)
-    yaml_desc["names"]=out
+        if io._bufferConstraint:
+           buf = _mkBufferConstraint(io._bufferConstraint)
+           d={"output":
+             {"name":io.name,
+              "buffer-constraint":buf
+             }
+           }
+           out.append(d)
+    
+        else:
+            out.append({"output":io.name})
+    yaml_desc["descriptions"]=out
     #outputs={"list":yaml_desc}
     outputs = yaml_desc
 
@@ -162,9 +184,18 @@ def _create_YAML_INPUT_LIST_IO(self):
     inp=[]
     for o in self.node._inputs:
         io = self.node._inputs[o]
-        inp.append(io.name)
-    yaml_desc["names"]=inp
-    inputs={"list":yaml_desc}
+        if io._bufferConstraint:
+           buf = _mkBufferConstraint(io._bufferConstraint)
+           d={"input":
+             {"name":io.name,
+              "buffer-constraint":buf
+             }
+           }
+           inp.append(d)
+    
+        else:
+            inp.append({"input":io.name})
+    yaml_desc["descriptions"]=inp
     inputs=yaml_desc
 
     return(inputs)
@@ -292,6 +323,7 @@ def export_graph(graph,filename):
         fifoAsyncLength = None 
         fifoWeak = False
         constantEdge = False
+        fifoCustomBuffer = None
 
         srcNode = src.owner 
         dstNode = dst.owner 
@@ -304,6 +336,9 @@ def export_graph(graph,filename):
         if edge in graph._delays:
             fifoDelay = graph._delays[edge]
 
+        if edge in graph._FIFOCustomBuffer:
+            fifoCustomBuffer = graph._FIFOCustomBuffer[edge]
+
 
         if edge in graph._FIFOAsyncLength:
             fifoAsyncLength = graph._FIFOAsyncLength[edge]
@@ -315,7 +350,7 @@ def export_graph(graph,filename):
             constantEdge = graph._constantEdges[edge]
 
         if not edge in allEdges:
-            allEdges[edge] = _YAMLEdge(src,dst,fifoClass,fifoScale,fifoDelay,fifoAsyncLength,fifoWeak,constantEdge)
+            allEdges[edge] = _YAMLEdge(src,dst,fifoClass,fifoScale,fifoDelay,fifoAsyncLength,fifoWeak,constantEdge,fifoCustomBuffer)
 
         if not srcNode in allNodes:
             allNodes[srcNode] = _YAMLNode(srcNode,structured_datatypes)
@@ -388,6 +423,12 @@ def export_config(config,filename):
 
     if schedule_options:
         yaml["schedule-options"] = schedule_options 
+
+    if config.memStrategy != default.memStrategy:
+        schedule_options["mem-strategy"] = config.memStrategy
+
+    if config.bufferAllocation != default.bufferAllocation:
+        schedule_options["buffer-allocation"] = config.bufferAllocation
 
     code_gen = {}
 

@@ -36,6 +36,12 @@ def _dataType(s,cstruct):
     if s in cstruct:
         return(cstruct[s])
 
+def _addBufferConstraint(io_yaml,io):
+    if 'buffer-constraint' in io_yaml:
+        constraint = io_yaml['buffer-constraint']
+        io.setBufferConstraint(name=constraint["name"],mustBeArray=constraint["must-be-array"],assignedByNode=constraint["assigned-by-node"])
+      
+
 class _YamlSource(GenericSource):
     def __init__(self,yaml,cstruct,identified):
         GenericSource.__init__(self,yaml['node'],identified=identified)
@@ -45,6 +51,7 @@ class _YamlSource(GenericSource):
             nbSamples = o['samples']
             name = o['output']
             self.addOutput(name,_dataType(theType,cstruct),nbSamples)
+            _addBufferConstraint(o,self[name])
 
     @property
     def typeName(self):
@@ -60,6 +67,7 @@ class _YamlSink(GenericSink):
             nbSamples = i['samples']
             name = i['input']
             self.addInput(name,_dataType(theType,cstruct),nbSamples)
+            _addBufferConstraint(i,self[name])
 
     @property
     def typeName(self):
@@ -72,6 +80,7 @@ def _processInputs(self,yaml,cstruct):
         nbSamples = i['samples']
         name = i['input']
         self.addInput(name,_dataType(theType,cstruct),nbSamples)
+        _addBufferConstraint(i,self[name])
 
 def _processOutputs(self,yaml,cstruct):
     for o in yaml['outputs']:
@@ -79,22 +88,44 @@ def _processOutputs(self,yaml,cstruct):
         nbSamples = o['samples']
         name = o['output']
         self.addOutput(name,_dataType(theType,cstruct),nbSamples)
+        _addBufferConstraint(o,self[name])
+
+def _get_many_io_names(x):
+    if 'output' in x:
+        if 'name' in x['output']:
+            return x['output']['name']
+        else:
+            return x['output']
+
+    if 'input' in x:
+        if 'name' in x['input']:
+            return x['input']['name']
+        else:
+            return x['input']
 
 def _processListOutput(self,yaml,cstruct):
     
     theType = yaml['type']
     nbSamples = yaml['samples']
-    self.fromOutputNames = yaml['names']
-   
+    self.fromOutputNames = yaml['descriptions']
+
     self.addManyOutput(_dataType(theType,cstruct),nbSamples,len(self.fromOutputNames))
+    for o in range(len(self.fromOutputNames)):
+        oyaml = self.fromOutputNames[o]['output']
+        name = self.outputNameFromIndex(o)
+        _addBufferConstraint(oyaml,self[name])
 
 def _processListInput(self,yaml,cstruct):
     
     theType = yaml['type']
     nbSamples = yaml['samples']
-    self.fromInputNames = yaml['names']
+    self.fromInputNames = yaml['descriptions']
    
     self.addManyInput(_dataType(theType,cstruct),nbSamples,len(self.fromInputNames))
+    for i in range(len(self.fromInputNames)):
+        iyaml = self.fromInputNames[i]['input']
+        name = self.inputNameFromIndex(i)
+        _addBufferConstraint(iyaml,self[name])
 
 class _YamlNode(GenericNode):
     def __init__(self,yaml,cstruct,identified):
@@ -116,7 +147,7 @@ class _YamlToManyNode(GenericToManyNode):
         _processListOutput(self,yaml["outputs"],cstruct)
 
     def outputNameFromIndex(self,i):
-        return(self.fromOutputNames[i])
+        return(_get_many_io_names(self.fromOutputNames[i]))
        
     @property
     def typeName(self):
@@ -131,7 +162,7 @@ class _YamlFromManyNode(GenericFromManyNode):
         _processOutputs(self,yaml,cstruct)
 
     def inputNameFromIndex(self,i):
-        return(self.fromInputNames[i])
+        return(_get_many_io_names(self.fromInputNames[i]))
        
     @property
     def typeName(self):
@@ -146,15 +177,17 @@ class _YamlManyToManyNode(GenericManyToManyNode):
         _processListOutput(self,yaml["outputs"],cstruct)
 
     def outputNameFromIndex(self,i):
-        return(self.fromOutputNames[i])
+        return(_get_many_io_names(self.fromOutputNames[i]))
     
     def inputNameFromIndex(self,i):
-        return(self.fromInputNames[i])
+        return(_get_many_io_names(self.fromInputNames[i]))
        
     @property
     def typeName(self):
         """The name of the C++ class implementing this node"""
         return (self._cpp)
+
+
 
 class _YamlGenericFunction(GenericFunction):
     def __init__(self,name,yaml,cstruct,args):
@@ -164,11 +197,13 @@ class _YamlGenericFunction(GenericFunction):
             nbSamples = i['samples']
             name = i['input']
             self.addInput(name,_dataType(theType,cstruct),nbSamples)
+            _addBufferConstraint(i,self[name])
         for o in yaml['outputs']:
             theType = o['type']
             nbSamples = o['samples']
             name = o['output']
             self.addOutput(name,_dataType(theType,cstruct),nbSamples)
+            _addBufferConstraint(o,self[name])
 
     @property
     def typeName(self):
@@ -308,6 +343,8 @@ def import_graph(filename):
                     fifoScale = 1.0 
                     fifoAsyncLength = None 
                     fifoWeak = False
+                    buffer = None 
+                    customBufferMustBeArray = True
     
                     if 'class' in e: 
                         fifoClass = e['class']
@@ -320,6 +357,12 @@ def import_graph(filename):
 
                     if 'weak-edge' in e:
                         fifoWeak = e['weak-edge']
+
+                    if 'buffer-constraint' in e:
+                        fifoCustomBuffer = e['buffer-constraint']
+                        buffer = fifoCustomBuffer['name']
+                        customBufferMustBeArray = fifoCustomBuffer['must-be-array']
+
     
                     if o is None:
                        if delay is not None:
@@ -328,13 +371,17 @@ def import_graph(filename):
                             fifoScale=fifoScale,
                             fifoClass=fifoClass,
                             fifoAsyncLength=fifoAsyncLength,
-                            weak=fifoWeak)
+                            weak=fifoWeak,
+                            buffer=buffer,
+                            customBufferMustBeArray=customBufferMustBeArray)
                        else:
                           the_graph.connect(src,dst[i],
                             fifoScale=fifoScale,
                             fifoClass=fifoClass,
                             fifoAsyncLength=fifoAsyncLength,
-                            weak=fifoWeak)
+                            weak=fifoWeak,
+                            buffer=buffer,
+                            customBufferMustBeArray=customBufferMustBeArray)
                     else:
                        if delay is not None:
                           the_graph.connectWithDelay(src[o],dst[i],
@@ -342,13 +389,17 @@ def import_graph(filename):
                             fifoScale=fifoScale,
                             fifoClass=fifoClass,
                             fifoAsyncLength=fifoAsyncLength,
-                            weak=fifoWeak)
+                            weak=fifoWeak,
+                            buffer=buffer,
+                            customBufferMustBeArray=customBufferMustBeArray)
                        else:
                           the_graph.connect(src[o],dst[i],
                             fifoScale=fifoScale,
                             fifoClass=fifoClass,
                             fifoAsyncLength=fifoAsyncLength,
-                            weak=fifoWeak)
+                            weak=fifoWeak,
+                            buffer=buffer,
+                            customBufferMustBeArray=customBufferMustBeArray)
         return(the_graph)
 
 def import_config(filename):
@@ -369,6 +420,12 @@ def import_config(filename):
     
             if 'dump-schedule' in so:
                 conf.dumpSchedule = so['dump-schedule']
+
+            if 'mem-strategy' in so:
+                conf.memStrategy = so['mem-strategy']
+
+            if 'buffer-allocation' in so:
+                conf.bufferAllocation = so['buffer-allocation']
     
         if 'code-generation-options' in r:
             co = r['code-generation-options']

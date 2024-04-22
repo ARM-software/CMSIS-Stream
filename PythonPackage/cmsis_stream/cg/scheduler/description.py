@@ -74,6 +74,44 @@ class CannotDelayConstantError(Exception):
 class TooManyNodesOnOutput(Exception):
     pass
 
+# Trying to use a FIFO as a real FIFO (no array)
+# when a buffer is assigned to the FIFO and the buffer must be used
+# # as an array
+class FIFOWithCustomBufferMustBeUsedAsArray(Exception):
+    def __init__(self,fifo):
+        self._fifo = fifo
+
+    def __str__(self):
+        return(f"{self._fifo.src.owner.nodeName} -> {self._fifo.dst.owner.nodeName}")
+
+
+# Trying to connect two IO with incompatible buffer constraints
+class BufferConstraintOnIOAreIncompatibles(Exception):
+    def __init__(self,src,dst):
+        self._src = src
+        self._dst = dst
+
+    def __str__(self):
+        return(f"{self._src.owner.nodeName} -> {self._dst.owner.nodeName}")
+
+# Trying to insert a duplicate node when there is a constraint on the
+# FIFO that is not coming from an IO
+# Then, it is not possible to know where the constraint must be applied 
+# once the duplicate node has been inserted
+class CantHaveBufferConstraintOnFIFOWhenDuplicateIsInserted(Exception):
+    def __init__(self,src,dst):
+        self._src = src
+        self._dst = dst
+
+    def __str__(self):
+        return(f"{self._src.owner.nodeName} -> {self._dst.owner.nodeName}")
+
+class CannotReuseCustomBufferMoreThanOnce(Exception):
+    def __init__(self,name):
+        self._name = name
+
+    def __str__(self):
+        return(f"custom buffer: {self._name}")
 
 class DupDestination:
     def __init__(self,
@@ -82,16 +120,16 @@ class DupDestination:
                  fifoClass,
                  fifoScale,
                  fifoAsyncLength,
-                 fifoWeak,
-                 fifoCustomBuffer):
+                 fifoWeak):
         self.node = node
         self.delay = delay 
         self.fifoClass = fifoClass 
         self.fifoScale = fifoScale 
         self.fifoAsyncLength = fifoAsyncLength 
         self.fifoWeak = fifoWeak 
-        self.fifoCustomBuffer = fifoCustomBuffer
 
+
+    
 
 class FifoBuffer:
     """Buffer used by a FIFO"""
@@ -185,7 +223,10 @@ class FIFODesc:
 
     def bufName(self,config):
         if not self.customBuffer is None:
-            return(self.customBuffer)
+            if self.customBuffer.assignedByNode:
+                return("nullptr")
+            else:
+               return(self.customBuffer.name)
         if config.bufferAllocation:
            return(f"buffers.buf{self.buffer._bufferID}")
         else:
@@ -325,16 +366,14 @@ class Graph():
                                            fifoClass=destination[theId].fifoClass,
                                            fifoScale=destination[theId].fifoScale,
                                            fifoAsyncLength=destination[theId].fifoAsyncLength,
-                                           weak=destination[theId].fifoWeak,
-                                           buffer=destination[theId].fifoCustomBuffer)
+                                           weak=destination[theId].fifoWeak)
         else:
             self.connect(outputIO,destination[theId].node,
                                   dupAllowed=False,
                                   fifoClass=destination[theId].fifoClass,
                                   fifoScale=destination[theId].fifoScale,
                                   fifoAsyncLength=destination[theId].fifoAsyncLength,
-                                  weak=destination[theId].fifoWeak,
-                                  buffer=destination[theId].fifoCustomBuffer
+                                  weak=destination[theId].fifoWeak
                                   )
 
 
@@ -353,7 +392,7 @@ class Graph():
                 # Check if the FIFO list has only 1 element
                 # In this case, we convert it into a value
                 # since code using the graph is expecting an
-                # IO to be connected top one and only one other IO
+                # IO to be connected to one and only one other IO
                 # so the FIFO must be a value and not a list
                 if len(fifo)==1:
                     # Extract first element of list
@@ -403,7 +442,7 @@ class Graph():
                         fifoScale = 1.0
                         fifoAsyncLength = 0
                         fifoWeak = False
-                        fifoCustomBuffer = None
+                        
                         if (nodea,nodeb) in self._FIFOClasses:
                             fifoClass = self._FIFOClasses[(nodea,nodeb)]
 
@@ -417,7 +456,7 @@ class Graph():
                             fifoWeak = self._FIFOWeak[(nodea,nodeb)]
 
                         if (nodea,nodeb) in self._FIFOCustomBuffer:
-                            fifoCustomBuffer = self._FIFOCustomBuffer[(nodea,nodeb)]
+                            raise CantHaveBufferConstraintOnFIFOWhenDuplicateIsInserted(nodea,nodeb)
 
                         if (nodea,nodeb) in self._delays:
                            delay = self._delays[(nodea,nodeb)]
@@ -429,8 +468,7 @@ class Graph():
                             fifoClass,
                             fifoScale,
                             fifoAsyncLength,
-                            fifoWeak,
-                            fifoCustomBuffer)
+                            fifoWeak)
 
                         destinations.append(destination)
 
@@ -458,8 +496,7 @@ class Graph():
                             del self._FIFOAsyncLength[(nodea,nodeb)]
                         if (nodea,nodeb) in self._FIFOWeak:
                             del self._FIFOWeak[(nodea,nodeb)]
-                        if (nodea,nodeb) in self._FIFOCustomBuffer:
-                            del self._FIFOCustomBuffer[(nodea,nodeb)]
+                        
 
                         if (nodea,nodeb) in self._delays:
                            del self._delays[(nodea,nodeb)]
@@ -497,7 +534,8 @@ class Graph():
         fifoScale = 1.0,
         fifoAsyncLength=0,
         weak=False,
-        buffer=None):
+        buffer=None,
+        customBufferMustBeArray=True):
         if fifoClass is None:
             fifoClass = self.defaultFIFOClass
         # When connecting to a constant node we do nothing
@@ -509,6 +547,11 @@ class Graph():
         else:
 
             if nodea.compatible(nodeb):
+                if (not nodea._bufferConstraint is None) and (not nodeb._bufferConstraint is None):
+                    if not nodea._bufferConstraint.compatibleWith(nodeb._bufferConstraint):
+                        raise BufferConstraintOnIOAreIncompatibles(nodea,nodeb)
+                
+
                 self._sortedNodes = None
                 self._sortedEdges = None
                 self._g.add_edge(nodea.owner,nodeb.owner)
@@ -525,8 +568,13 @@ class Graph():
                 self._FIFOScale[(nodea,nodeb)] = fifoScale
                 self._FIFOAsyncLength[(nodea,nodeb)] = fifoAsyncLength
                 self._FIFOWeak[(nodea,nodeb)] = weak
-                if not buffer is None:
-                    self._FIFOCustomBuffer[(nodea,nodeb)] = buffer
+                if not nodea._bufferConstraint is None:
+                    self._FIFOCustomBuffer[(nodea,nodeb)] = nodea._bufferConstraint
+                elif not nodeb._bufferConstraint is None:
+                    self._FIFOCustomBuffer[(nodea,nodeb)] = nodeb._bufferConstraint
+                elif not buffer is None:
+                    self._FIFOCustomBuffer[(nodea,nodeb)] = BufferConstraint(name=buffer,mustBeArray=customBufferMustBeArray)
+                    
 
 
                 if not (nodea.owner in self._nodes):
@@ -546,7 +594,8 @@ class Graph():
         fifoScale=1.0,
         fifoAsyncLength=0,
         weak=False,
-        buffer=None):
+        buffer=None,
+        customBufferMustBeArray=True):
         if fifoClass is None:
             fifoClass = self.defaultFIFOClass
         # We cannot connect with delay to a constant node
@@ -559,7 +608,7 @@ class Graph():
                 fifoScale = fifoScale,
                 fifoAsyncLength=fifoAsyncLength,
                 weak=weak,
-                buffer=buffer)
+                buffer=buffer,customBufferMustBeArray=customBufferMustBeArray)
             self._delays[(nodea,nodeb)] = delay
     
     def __str__(self):
@@ -572,7 +621,9 @@ class Graph():
 
         return(res)
 
-    def no_exception_for_duplicate(self,k,f):
+    def no_exception_for_duplicate(self,config,k,f):
+        if config.disableDuplicateOptimization:
+            return(True)
         if not k.isArray:
             return(True)
         if not f.isArray:
@@ -627,6 +678,18 @@ class Graph():
 
     def initializeFIFODescriptions(self,config,allFIFOs, fifoLengths,maxTime):
         """Initialize FIFOs datastructure""" 
+
+        # Before we start we check that no custom buffer is used more than once
+
+        customBufferNames = {}
+        for edge in self._FIFOCustomBuffer:
+            custom = self._FIFOCustomBuffer[edge]
+            if not custom.name is None:
+                if custom.name in customBufferNames:
+                    raise CannotReuseCustomBufferMoreThanOnce(custom.name)
+                else:
+                    customBufferNames[custom.name] = True
+
         for fifo in allFIFOs:
             edge = self._sortedEdges[fifo.fifoID]
             if config.asynchronous:
@@ -688,6 +751,11 @@ class Graph():
             fifo.theType = src.theType
             #fifo.dump()
 
+
+        for fifo in allFIFOs:
+            if not fifo.customBuffer is None:
+                if fifo.customBuffer.mustBeArray and not fifo.isArray:
+                    raise FIFOWithCustomBufferMustBeUsedAsArray(fifo)
 
         bufferID=-1
         allBuffers={}
@@ -760,7 +828,7 @@ class Graph():
                                        # if the connection is with output of a duplicate node
                                        # and if fifo isArray then we do not add an interference edge
                                        # in all cases
-                                       if self.no_exception_for_duplicate(k,fifo):
+                                       if self.no_exception_for_duplicate(config,k,fifo):
                                           G.add_edge(k,fifo)
                                 active[fifo]=True 
     

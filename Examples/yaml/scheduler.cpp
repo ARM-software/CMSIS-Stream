@@ -135,9 +135,9 @@ float buf3[BUFFERSIZE3]={0};
 CG_BEFORE_BUFFER
 float buf4[BUFFERSIZE4]={0};
 
-#define BUFFERSIZE5 11
+#define BUFFERSIZE5 5
 CG_BEFORE_BUFFER
-float buf5[BUFFERSIZE5]={0};
+complex buf5[BUFFERSIZE5]={0};
 
 #define BUFFERSIZE6 5
 CG_BEFORE_BUFFER
@@ -159,29 +159,21 @@ complex buf9[BUFFERSIZE9]={0};
 CG_BEFORE_BUFFER
 complex buf10[BUFFERSIZE10]={0};
 
-#define BUFFERSIZE11 5
+#define BUFFERSIZE11 1
 CG_BEFORE_BUFFER
-complex buf11[BUFFERSIZE11]={0};
+Shared<buffer,false> buf11[BUFFERSIZE11]={0};
 
-#define BUFFERSIZE12 5
+#define BUFFERSIZE12 1
 CG_BEFORE_BUFFER
 complex buf12[BUFFERSIZE12]={0};
 
 #define BUFFERSIZE13 1
 CG_BEFORE_BUFFER
-Shared<buffer,false> buf13[BUFFERSIZE13]={0};
+complex buf13[BUFFERSIZE13]={0};
 
 #define BUFFERSIZE14 1
 CG_BEFORE_BUFFER
 complex buf14[BUFFERSIZE14]={0};
-
-#define BUFFERSIZE15 1
-CG_BEFORE_BUFFER
-complex buf15[BUFFERSIZE15]={0};
-
-#define BUFFERSIZE16 1
-CG_BEFORE_BUFFER
-complex buf16[BUFFERSIZE16]={0};
 
 
 
@@ -198,21 +190,21 @@ uint32_t scheduler(int *error,int someVariable)
     */
     FIFO<float,FIFOSIZE0,1,0> fifo0(buf0);
     FIFO<float,FIFOSIZE1,0,0> fifo1(buf1);
-    FIFO<float,FIFOSIZE2,0,0> fifo2(buf2);
-    FIFO<float,FIFOSIZE3,0,0> fifo3(buf3);
-    FIFO<float,FIFOSIZE4,0,0> fifo4(buf4);
-    FIFO<float,FIFOSIZE5,0,0> fifo5(buf5);
-    FIFO<complex,FIFOSIZE6,1,0> fifo6(buf6);
-    FIFO<complex,FIFOSIZE7,1,0> fifo7(buf7);
-    FIFO<complex,FIFOSIZE8,1,0> fifo8(buf8);
-    FIFO<complex,FIFOSIZE9,1,0> fifo9(buf9);
-    FIFO<complex,FIFOSIZE10,1,0> fifo10(buf10);
-    FIFO<complex,FIFOSIZE11,1,0> fifo11(buf11);
-    FIFO<complex,FIFOSIZE12,1,0> fifo12(buf12);
-    FIFO<Shared<buffer,false>,FIFOSIZE13,1,0> fifo13(buf13);
-    FIFO<complex,FIFOSIZE14,1,0> fifo14(buf14);
-    FIFO<complex,FIFOSIZE15,1,0> fifo15(buf15);
-    FIFO<complex,FIFOSIZE16,1,0> fifo16(buf16);
+    FIFO<float,FIFOSIZE2,0,0> fifo2(Testi_processing);
+    FIFO<float,FIFOSIZE3,0,0> fifo3(buf2);
+    FIFO<float,FIFOSIZE4,0,0> fifo4(buf3);
+    FIFO<float,FIFOSIZE5,0,0> fifo5(buf4);
+    FIFO<complex,FIFOSIZE6,1,0> fifo6(Testo_processing);
+    FIFO<complex,FIFOSIZE7,1,0> fifo7(buf5);
+    FIFO<complex,FIFOSIZE8,1,0> fifo8(buf6);
+    FIFO<complex,FIFOSIZE9,1,0> fifo9(buf7);
+    FIFO<complex,FIFOSIZE10,1,0> fifo10(buf8);
+    FIFO<complex,FIFOSIZE11,1,0> fifo11(buf9);
+    FIFO<complex,FIFOSIZE12,1,0> fifo12(buf10);
+    FIFO<Shared<buffer,false>,FIFOSIZE13,1,0> fifo13(buf11);
+    FIFO<complex,FIFOSIZE14,1,0> fifo14(buf12);
+    FIFO<complex,FIFOSIZE15,1,0> fifo15(buf13);
+    FIFO<complex,FIFOSIZE16,1,0> fifo16(buf14);
 
     CG_BEFORE_NODE_INIT;
     /* 
