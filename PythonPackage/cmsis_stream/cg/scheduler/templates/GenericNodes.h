@@ -77,6 +77,12 @@ public:
     virtual T* getWriteBuffer(int nb)=0;
     virtual T* getReadBuffer(int nb)=0;
     virtual ~FIFOBase() {};
+
+    /*
+    Used when FIFO buffer is enforced by a node.
+    Can only be used before the FIFO has been interacted with
+    */
+    virtual void setBuffer(T *buffer)=0;
     /*
 
     Below functions are only useful in asynchronous mode.
@@ -104,6 +110,8 @@ class FIFO<T,length,0,0>: public FIFOBase<T>
         /* Constructor used for memory sharing optimization.
            The buffer is a shared memory wrapper */
         explicit FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
+
+        void setBuffer(T *buffer){mBuffer = buffer;};
 
         /* 
         FIFO are fixed and not made to be copied or moved.
@@ -177,7 +185,7 @@ class FIFO<T,length,0,0>: public FIFOBase<T>
         #endif
 
     protected:
-        T * const mBuffer;
+        T * mBuffer;
         int readPos,writePos;
 };
 
@@ -191,6 +199,8 @@ class FIFO<T,length,1,0>: public FIFOBase<T>
         */
         explicit FIFO(T *buffer):mBuffer(buffer) {};
         explicit FIFO(void *buffer):mBuffer((T*)buffer) {};
+
+        void setBuffer(T *buffer){mBuffer = buffer;};
 
         /* 
         FIFO are fixed and not made to be copied or moved.
@@ -245,7 +255,7 @@ class FIFO<T,length,1,0>: public FIFOBase<T>
         #endif
 
     protected:
-        T * const mBuffer;
+        T * mBuffer;
 };
 
 /* Real FIFO, Asynchronous */
@@ -255,6 +265,8 @@ class FIFO<T,length,0,1>: public FIFOBase<T>
     public:
         explicit FIFO(T *buffer,int delay=0):mBuffer(buffer),readPos(0),writePos(delay) {};
         explicit FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
+
+        void setBuffer(T *buffer){mBuffer = buffer;};
 
         /* 
         FIFO are fixed and not made to be copied or moved.
@@ -336,7 +348,7 @@ class FIFO<T,length,0,1>: public FIFOBase<T>
         #endif
 
     protected:
-        T * const mBuffer;
+        T * mBuffer;
         int readPos,writePos;
 };
 
