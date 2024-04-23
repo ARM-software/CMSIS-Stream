@@ -62,15 +62,16 @@ Currently it is limited to 3. If you need more that 3 outputs on an IO you'll ha
 In the generated code, you'll see the `Duplicate` nodes. For instance, in this example:
 
 ```C++
-Duplicate3<complex,5,complex,5,complex,5,complex,5> dup0(fifo2,fifo3,fifo4,fifo5);
+Duplicate<complex,5,complex,5> dup0(fifo2,{}); /* Node ID = 0 */
 ```
+
+It means that with the computed scheduled, it is possible to avoid the copy in the `Duplicate` node and the output buffers are the same as the input buffer.
 
 # Expected output
 
 ```
 Start
 Source
-Source
 ProcessingNode
 Sink
 3 + I 0
@@ -99,104 +100,25 @@ Sink
 Source
 ProcessingNode
 Sink
-10 + I 0
+8 + I 0
 0 + I 0
 0 + I 0
 0 + I 0
 0 + I 0
 Sink
-10 + I 0
+8 + I 0
 0 + I 0
 0 + I 0
 0 + I 0
 0 + I 0
 Sink
-10 + I 0
+8 + I 0
 0 + I 0
 0 + I 0
 0 + I 0
 0 + I 0
 Sink
-10 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-Source
-Source
-ProcessingNode
-Sink
-17 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-Sink
-17 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-Sink
-17 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-Sink
-17 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-Source
-ProcessingNode
-Sink
-24 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-Sink
-24 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-Sink
-24 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-Sink
-24 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-Source
-ProcessingNode
-Sink
-31 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-Sink
-31 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-Sink
-31 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-0 + I 0
-Sink
-31 + I 0
+8 + I 0
 0 + I 0
 0 + I 0
 0 + I 0

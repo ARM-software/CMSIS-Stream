@@ -17,8 +17,8 @@ The support classes and code are covered by CMSIS-Stream license.
 #include <cstdint>
 {% endif %}
 #include "{{config.customCName}}"
-#include "{{config.genericNodeCName}}"
 #include "{{config.cgStatusCName}}"
+#include "{{config.genericNodeCName}}"
 #include "{{config.appNodesCName}}"
 #include "{{config.schedulerCFileName}}.h"
 {% if config.postCustomCName -%}
@@ -42,6 +42,22 @@ using namespace arm_cmsis_stream;
 
 {% block schedArray %}
 {% endblock %}
+
+{% if config.callback -%}
+#define PAUSED_SCHEDULER 1 
+#define SCHEDULER_NOT_STARTED 2 
+
+
+void init_cb_state_{{config.schedName}}({{config.schedName}}_cb_t* state)
+{
+    if (state)
+    {
+      state->status = SCHEDULER_NOT_STARTED;
+      state->nbSched = 0;
+      state->scheduleStateID = 0;
+    }
+}
+{% endif %}
 
 {% if config.nodeIdentification %}
 /***********
@@ -217,12 +233,24 @@ void free_{{config.schedName}}({{optionalargs(True)}})
 {% endif %}
 
 CG_BEFORE_SCHEDULER_FUNCTION
+{% if config.callback -%}
+uint32_t {{config.schedName}}(int *error,{{config.schedName}}_cb_t *scheduleState{{optionalargs(False)}})
+{% else %}
 uint32_t {{config.schedName}}(int *error{{optionalargs(False)}})
+{% endif %}
 {
     int cgStaticError=0;
     uint32_t nbSchedule=0;
 {% if config.debug %}
     int32_t debugCounter={{config.debugLimit}};
+{% endif %}
+
+{% if config.callback -%}
+   if (scheduleState->status==PAUSED_SCHEDULER)
+   {
+      nbSchedule = scheduleState->nbSched;
+
+   }
 {% endif %}
 
 {% if not config.heapAllocation %}

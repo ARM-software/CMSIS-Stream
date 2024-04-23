@@ -10,8 +10,8 @@ The support classes and code are covered by CMSIS-Stream license.
 
 #include <cstdint>
 #include "custom.h"
-#include "GenericNodes.h"
 #include "cg_status.h"
+#include "GenericNodes.h"
 #include "AppNodes.h"
 #include "scheduler.h"
 
@@ -74,6 +74,8 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 
+
+
 CG_AFTER_INCLUDES
 
 
@@ -84,10 +86,11 @@ using namespace arm_cmsis_stream;
 Description of the scheduling. 
 
 */
-static uint8_t schedule[37]=
+static uint8_t schedule[7]=
 { 
-6,6,1,5,0,2,3,4,6,1,5,0,2,3,4,6,6,1,5,0,2,3,4,6,1,5,0,2,3,4,6,1,5,0,2,3,4,
+6,1,5,0,2,3,4,
 };
+
 
 
 CG_BEFORE_FIFO_BUFFERS
@@ -96,7 +99,7 @@ CG_BEFORE_FIFO_BUFFERS
 FIFO buffers
 
 ************/
-#define FIFOSIZE0 11
+#define FIFOSIZE0 5
 #define FIFOSIZE1 5
 #define FIFOSIZE2 5
 #define FIFOSIZE3 5
@@ -107,9 +110,13 @@ FIFO buffers
 CG_BEFORE_BUFFER
 uint8_t buf0[BUFFERSIZE0]={0};
 
-#define BUFFERSIZE1 11
+#define BUFFERSIZE1 40
 CG_BEFORE_BUFFER
-complex buf1[BUFFERSIZE1]={0};
+uint8_t buf1[BUFFERSIZE1]={0};
+
+#define BUFFERSIZE2 40
+CG_BEFORE_BUFFER
+uint8_t buf2[BUFFERSIZE2]={0};
 
 
 
@@ -118,15 +125,16 @@ uint32_t scheduler(int *error,int someVariable)
 {
     int cgStaticError=0;
     uint32_t nbSchedule=0;
-    int32_t debugCounter=1;
+    int32_t debugCounter=2;
+
 
     CG_BEFORE_FIFO_INIT;
     /*
     Create FIFOs objects
     */
-    FIFO<complex,FIFOSIZE0,0,0> fifo0(buf1);
-    FIFO<complex,FIFOSIZE1,1,0> fifo1(buf0);
-    FIFO<complex,FIFOSIZE2,1,0> fifo2(buf0);
+    FIFO<complex,FIFOSIZE0,1,0> fifo0(buf0);
+    FIFO<complex,FIFOSIZE1,1,0> fifo1(buf1);
+    FIFO<complex,FIFOSIZE2,1,0> fifo2(buf2);
     FIFO<complex,FIFOSIZE3,1,0> fifo3(buf0);
     FIFO<complex,FIFOSIZE4,1,0> fifo4(buf0);
     FIFO<complex,FIFOSIZE5,1,0> fifo5(buf0);
@@ -135,8 +143,8 @@ uint32_t scheduler(int *error,int someVariable)
     /* 
     Create node objects
     */
-    Duplicate<complex,5,complex,5> dup0(fifo2,{}); /* Node ID = 0 */
-    ProcessingNode<complex,7,complex,5,complex,5> filter(fifo0,fifo2,fifo1,4,"Test",someVariable); /* Node ID = 1 */
+    Duplicate<complex,5,complex,5> dup0(fifo2,{&fifo3}); /* Node ID = 0 */
+    ProcessingNode<complex,5,complex,5,complex,5> filter(fifo0,fifo2,fifo1,4,"Test",someVariable); /* Node ID = 1 */
     Sink<complex,5> sa(fifo3); /* Node ID = 2 */
     Sink<complex,5> sb(fifo4); /* Node ID = 3 */
     Sink<complex,5> sc(fifo5); /* Node ID = 4 */
@@ -149,7 +157,8 @@ uint32_t scheduler(int *error,int someVariable)
     {
         /* Run a schedule iteration */
         CG_BEFORE_ITERATION;
-        for(unsigned long id=0 ; id < 37; id++)
+        unsigned long id=0;
+        for(; id < 7; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
@@ -201,7 +210,7 @@ uint32_t scheduler(int *error,int someVariable)
                 break;
             }
             CG_AFTER_NODE_EXECUTION(schedule[id]);
-            CHECKERROR;
+                        CHECKERROR;
         }
        debugCounter--;
        CG_AFTER_ITERATION;

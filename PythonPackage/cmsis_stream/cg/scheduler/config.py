@@ -49,6 +49,25 @@ class Configuration:
         # Print schedule in a human understandble form
         self.dumpSchedule = False
 
+        # Following two options should be code generation options
+        # but must currently be scheduling option
+        # (rework needed to be able to use them only as code generation options)
+        # Objects are allocated on the heap rather than stack
+        self.heapAllocation = False
+
+        # True if callback mode is used to call the scheduler
+        # Switch case is implied so that the state machine
+        # state can be saved / restore in the middle
+        self.callback = False
+
+        # Disable the memory optimization related to buffer
+        # sharing between output and input FIFOs of
+        # duplicate node
+        # This feature is still experimental and in case of
+        # bug the user must be able to disable it
+        self.disableDuplicateOptimization =  False
+
+
         #############################
         #
         # GRAPHVIZ GENERATION OPTIONS
@@ -95,10 +114,6 @@ class Configuration:
         # we can generate a switch/case instead
         self.switchCase = True
 
-        # True if callback mode is used to call the scheduler
-        # Switch case is implied so that the state machine
-        # state can be saved / restore in the middle
-        self.callback = False
 
         # Enable support for CMSIS Event Recorder 
         self.eventRecorder = False
@@ -159,8 +174,7 @@ class Configuration:
         # like CMSIS-DSP
         self.asyncDefaultSkip = True
 
-        # Objects are allocated on the heap rather than stack
-        self.heapAllocation = False
+        
 
         # Buffer are allocated through memory allocator
         self.bufferAllocation = False
@@ -184,13 +198,7 @@ class Configuration:
         # 'saturation_largest_first'
         self.memStrategy = "largest_first"
 
-        # Disable the memory optimization related to buffer
-        # sharing between output and input FIFOs of
-        # duplicate node
-        # This feature is still experimental and in case of
-        # bug the user must be able to disable it
-        self.disableDuplicateOptimization =  False
-
+        
 
        
     @property

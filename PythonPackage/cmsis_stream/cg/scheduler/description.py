@@ -653,7 +653,7 @@ class Graph():
             no_src_inteferenceB = fifoDescInput._liveInterval[1] <= f._liveInterval[0]
             duplicate_exception = duplicate_exception and no_src_inteferenceB
 
-            #print(f"dup -> dst1,dst2 : {not duplicate_exception}")
+            #print(f"{fifoDescInput.src.owner.nodeName} -> dup -> {k.dst.owner.nodeName},{f.dst.owner.nodeName} : {not duplicate_exception}")
 
             return(not duplicate_exception)
 
@@ -661,14 +661,14 @@ class Graph():
             # No interference between k and f FIFO buffers
             # They are both connected to Duplicate node and don't overlap in time
             duplicate_exception = k._liveInterval[1] <= f._liveInterval[0]
-            #print(f"dst <- src : {not duplicate_exception}")
+            #print(f"{f.dst.owner.nodeName} <- dup <- {k.src.owner.nodeName} : {not duplicate_exception}")
 
             return(not duplicate_exception)
         if k.src.owner == f.dst.owner and isinstance(f.dst.owner,Duplicate):
             # No interference between k and f FIFO buffers
             # They are both connected to Duplicate node and don't overlap in time
             duplicate_exception = f._liveInterval[1] <= k._liveInterval[0]
-            #print(f"src -> dst : {not duplicate_exception}")
+            #print(f"{f.src.owner.nodeName} -> dup -> {k.dst.owner.nodeName} : {not duplicate_exception}")
 
             return(not duplicate_exception)
 
@@ -843,6 +843,8 @@ class Graph():
        
                pos = nx.spring_layout(G, seed=3113794652)
                #subax1 = plt.subplot(121)
+               nx.draw_networkx_nodes(G, pos)
+
                nx.draw_networkx_edges(G, pos, width=1.0, alpha=0.5)
                
                nx.draw_networkx_labels(G, pos, labels, font_size=10)
@@ -920,18 +922,41 @@ class Graph():
         # sharing buffer with input fifo
         # In this case, we mark this fifo for skipping in the duplicate node
         # argument generation
-        for n in self._sortedNodes:
-            if isinstance(n,Duplicate):
-                inputEdge = n._inputs['i']._fifo
-                inputFIFO = self._edgeToFIFO[inputEdge]
-                inputBuf = inputFIFO.buffer
-                for o in n._outputs:
-                    outputEdge = n._outputs[o]._fifo
-                    outputFIFO = self._edgeToFIFO[outputEdge]
-                    outputBuf = outputFIFO.buffer
-                    if outputBuf == inputBuf:
-                        outputFIFO._skip_for_duplicate = True
-
+        # We have also the case when several output fifos are sharing the same
+        # buffer but it is not the input buffer.
+        # In this case we should only copy one fifo (not yet done)
+        if not config.disableDuplicateOptimization:
+            for n in self._sortedNodes:
+                if isinstance(n,Duplicate):
+                    inputEdge = n._inputs['i']._fifo
+                    inputFIFO = self._edgeToFIFO[inputEdge]
+                    inputBuf = inputFIFO.buffer
+    
+                    list_to_process = list(n._outputs).copy()
+                    for o in n._outputs:
+                        outputEdge = n._outputs[o]._fifo
+                        outputFIFO = self._edgeToFIFO[outputEdge]
+                        outputBuf = outputFIFO.buffer
+                        if outputBuf == inputBuf:
+                            outputFIFO._skip_for_duplicate = True
+                            list_to_process.remove(o)
+    
+                    # Now we organize remaining list per buffer and  the first element
+                    # of each group will do the copy.
+                    buf_groups = {}
+                    for a in list_to_process:
+                        outputEdge = n._outputs[a]._fifo
+                        outputFIFO = self._edgeToFIFO[outputEdge]
+                        outputBuf = outputFIFO.buffer
+                        if outputBuf in buf_groups:
+                            buf_groups[outputBuf].append(outputFIFO)
+                        else:
+                            buf_groups[outputBuf]=[outputFIFO]
+                    # Now we skip for duplicate all elements of each group except the first
+                    for k in buf_groups:
+                        for l in buf_groups[k][1:]:
+                            l._skip_for_duplicate = True
+    
         #for fifo in allFIFOs:
         #    fifo.dump()
         return(allBuffers)
@@ -1463,6 +1488,13 @@ class Schedule:
         
         nodeCodeID = 0
         pureClassID = 1
+
+        # Because heapAllocation must be set as a scheduling option (which is an error)
+        # So if we detect callback mode in the config, we set the
+        # options enforced by callback.
+        if config.callback:
+           config.switchCase = True
+           config.heapAllocation = True
 
 
         for n in self.nodes:

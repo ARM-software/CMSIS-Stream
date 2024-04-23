@@ -10,8 +10,8 @@ The support classes and code are covered by CMSIS-Stream license.
 
 #include <cstdint>
 #include "custom.h"
-#include "GenericNodes.h"
 #include "cg_status.h"
+#include "GenericNodes.h"
 #include "AppNodes.h"
 #include "scheduler.h"
 
@@ -74,6 +74,8 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 
+
+
 CG_AFTER_INCLUDES
 
 
@@ -89,6 +91,7 @@ static uint8_t schedule[44]=
 4,6,1,6,1,2,7,0,3,5,4,6,1,2,7,0,3,5,4,6,1,6,1,2,7,0,3,5,4,6,1,2,7,0,3,5,4,6,1,2,
 7,0,3,5,
 };
+
 
 
 CG_BEFORE_FIFO_BUFFERS
@@ -184,6 +187,7 @@ uint32_t scheduler(int *error,int someVariable)
     uint32_t nbSchedule=0;
     int32_t debugCounter=1;
 
+
     CG_BEFORE_FIFO_INIT;
     /*
     Create FIFOs objects
@@ -225,7 +229,8 @@ uint32_t scheduler(int *error,int someVariable)
     {
         /* Run a schedule iteration */
         CG_BEFORE_ITERATION;
-        for(unsigned long id=0 ; id < 44; id++)
+        unsigned long id=0;
+        for(; id < 44; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
 
@@ -283,7 +288,7 @@ uint32_t scheduler(int *error,int someVariable)
                 break;
             }
             CG_AFTER_NODE_EXECUTION(schedule[id]);
-            CHECKERROR;
+                        CHECKERROR;
         }
        debugCounter--;
        CG_AFTER_ITERATION;

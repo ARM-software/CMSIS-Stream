@@ -1,4 +1,4 @@
-version: 1.1.0
+version: 2.0.0
 graph:
   custom-types:
     complex:
@@ -17,7 +17,7 @@ graph:
     kind: ProcessingNode
     inputs:
     - input: i
-      samples: 7
+      samples: 5
       type: complex
     outputs:
     - output: oa

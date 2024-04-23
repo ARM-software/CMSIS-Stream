@@ -426,6 +426,15 @@ def import_config(filename):
 
             if 'buffer-allocation' in so:
                 conf.bufferAllocation = so['buffer-allocation']
+
+            if 'callback' in so:
+                conf.callback = so['callback']
+
+            if 'heap-allocation' in so:
+                conf.heapAllocation = so['heap-allocation']
+
+            if 'disable-duplicate-optimization' in so:
+                conf.disableDuplicateOptimization = so['disable-duplicate-optimization']
     
         if 'code-generation-options' in r:
             co = r['code-generation-options']
@@ -453,6 +462,9 @@ def import_config(filename):
     
             if 'switch-case' in cco:
                 conf.switchCase = cco['switch-case']
+
+            if 'callback' in cco:
+                conf.callback = cco['callback']
     
             if 'event-recorder' in cco:
                 conf.eventRecorder = cco['event-recorder']
@@ -486,9 +498,6 @@ def import_config(filename):
     
             if 'async-default-skip' in cco:
                 conf.asyncDefaultSkip = cco['async-default-skip']
-
-            if 'heap-allocation' in cco:
-                conf.heapAllocation = cco['heap-allocation']
 
             if 'node-identification' in cco:
                 conf.nodeIdentification = cco['node-identification']

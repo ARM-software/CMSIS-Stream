@@ -14,6 +14,9 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
 
 {% block scheduleLoop %}
     CG_BEFORE_SCHEDULE;
+{% if config.callback -%}
+    CG_RESTORE_STATE_MACHINE_STATE;
+{% endif %}
 {% if config.debug %}
     while((cgStaticError==0) && (debugCounter > 0))
 {% else %}
@@ -25,7 +28,14 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
         EventRecord2 (Evt_Scheduler, nbSchedule, 0);
         {% endif -%}
         CG_BEFORE_ITERATION;
-        for(unsigned long id=0 ; id < {{schedLen}}; id++)
+        unsigned long id=0;
+{% if config.callback %}
+        if (scheduleState->status==PAUSED_SCHEDULER)
+        {
+            id = scheduleState->scheduleStateID;
+        }
+{% endif %}
+        for(; id < {{schedLen}}; id++)
         {
             {% if config.eventRecorder -%}
             EventRecord2 (Evt_Node, schedule[id], 0);
@@ -108,6 +118,16 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
                 EventRecord2 (Evt_Error, cgStaticError, 0);
             }
             {% endif -%}
+
+{% if config.callback -%}
+            if (cgStaticError == CG_PAUSE_SCHEDULER)
+            {
+                CG_SAVE_STATE_MACHINE_STATE;
+                scheduleState->status = PAUSED_SCHEDULER;
+                scheduleState->nbSched = nbSchedule;
+                scheduleState->scheduleStateID = id;
+            }
+{% endif %}
             CHECKERROR;
         }
 {% if config.debug %}

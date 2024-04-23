@@ -36,7 +36,7 @@ Without `memoryOptimization`, the FIFO are consuming 60 bytes (4*5 * 3 FIFOs). W
 
 You cannot share memory for the input / output of a node since a node needs both to read and write for its execution. This imposes some constraints on the graph.
 
-The constraints are internally represented by a different graph that represents when buffers are live at the same time : the interference graph. The input / output buffers of a node are live at the same time. Graph coloring is used to identify, from this graph of interferences, when memory for buffers can be shared. 
+The constraints are internally represented by a different graph that represents when buffers are live at the same time : the interference graph. The input / output buffers of a node are live at the same time (except for `Duplicate` node where the constraint is relaxed). Graph coloring is used to identify, from this graph of interferences, when memory for buffers can be shared. 
 
 The interference graph is highly depend on how the compute graph is scheduled : a buffer is live when a write has taken place but no read has yet read the full content.
 
@@ -63,6 +63,20 @@ uint8_t buf0[BUFFERSIZE0]={0};
 `uint8_t` is used (instead of the `float32_t` of this example) because different edges of the graph may use different datatypes.
 
 It is really important that you use the macro `CG_BEFORE_BUFFER` to align this buffer so that the alignment is coherent with the datatype used on all the FIFOs.
+
+Note that liveliness analysis is currently very simple since it generates only an interval. But the activity of a FIFO should be a list of interval.  With a list of interval more buffer sharing would be possible (but it is not currently implemented).
+
+## Duplicate node optimizations
+
+This optimization is enabled when `memoryOptimization` is enabled. It is experimental and can be disabled with `disableDuplicateOptimization`.
+
+Generally, the input and output FIFOs of a node are active at the same time and thus cannot share a buffer.
+
+For the `Duplicate` node, this constraint is relaxed and in some case the output FIFOs are not considered active at the same time as the input one. It enables the input and outputs to share buffers.
+
+When FIFOs are sharing buffers, they are not generated in the C++ initialization of the `Duplicate` node so that copy will occur only for a subset of the FIFOs in the `Duplicate` node.
+
+
 
 ## Very big graph example
 

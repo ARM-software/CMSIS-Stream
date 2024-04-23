@@ -78,3 +78,14 @@
 #define CG_ASYNC_AFTER_NODE_CHECK(ID)
 #endif
 {% endif %}
+
+
+{% if config.callback -%}
+#if !defined(CG_RESTORE_STATE_MACHINE_STATE)
+#define CG_RESTORE_STATE_MACHINE_STATE
+#endif
+
+#if !defined(CG_SAVE_STATE_MACHINE_STATE)
+#define CG_SAVE_STATE_MACHINE_STATE
+#endif
+{% endif %}

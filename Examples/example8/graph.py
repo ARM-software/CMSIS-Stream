@@ -52,7 +52,8 @@ else:
    complexType=CStructType("complex",8)
 
 src=Source("source",complexType,5)
-b=ProcessingNode("filter",complexType,7,5)
+# if 7 for processing input then no duplicate buffer optimization
+b=ProcessingNode("filter",complexType,5,5)
 b.addLiteralArg(4)
 b.addLiteralArg("Test")
 b.addVariableArg("someVariable")
@@ -89,9 +90,11 @@ conf=Configuration()
 # (Introduction of duplicate nodes ...)
 # So we cannot reuse the graph to compute the Python and the C
 # code generation
-conf.debugLimit=1
+conf.debugLimit=2
 conf.cOptionalArgs="int someVariable"
 conf.memoryOptimization=True
+#conf.memStrategy = 'connected_sequential_bfs'
+#conf.disableDuplicateOptimization = True
 
 export_graph(g,"graph.yml")
 export_config(conf,"config.yml")

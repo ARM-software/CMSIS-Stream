@@ -18,8 +18,10 @@ extern "C"
 
 
 
+
 extern int init_scheduler();
 extern void free_scheduler();
+
 extern uint32_t scheduler(int *error);
 
 #ifdef   __cplusplus

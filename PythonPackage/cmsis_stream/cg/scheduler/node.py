@@ -458,7 +458,7 @@ class BaseNode:
                    theArgTypes.append(io.constantNode.name)
         for io in o:
                 # Duplicate node is skipping copy when output fifo is
-                # sharing buffer with input fifo
+                # sharing buffer with input fifo or another output
                 edge = edgeToFIFO[io.fifo]
                 if not edge._skip_for_duplicate:
                    theArgs.append(fifoID(io.fifo))
@@ -473,7 +473,8 @@ class BaseNode:
 
         # Used to know how to call the run function of the
         # node in the CRun functions.
-        if config.heapAllocation:
+        # callback implies heapAllocation
+        if config.callback or config.heapAllocation:
             self.nodeVariable=ArgsPtrObj(self.nodeName,owner="nodes")
         else:
             self.nodeVariable=ArgsObject(self.nodeName)
@@ -617,7 +618,8 @@ class BaseNode:
           # They have already been ordered (in calling function)
           # using alphabetical order of input and output names
           if isinstance(x,int):
-             if config.heapAllocation:
+             # callback implies heapAllocation
+             if config.callback or config.heapAllocation:
                 fifoArg = FifoPtrID(x,owner="fifos")
              else:
                 fifoArg = FifoID(x)

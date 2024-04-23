@@ -21,6 +21,17 @@ extern "C"
 #endif
 {% endif %}
 
+{% if config.callback -%}
+typedef struct {{config.schedName}}_cb
+{
+    unsigned long scheduleStateID;
+    unsigned long nbSched;
+    int status;
+} {{config.schedName}}_cb_t;
+
+extern void init_cb_state_{{config.schedName}}({{config.schedName}}_cb_t*);
+{% endif %}
+
 {% if config.eventRecorder %}
 #include "EventRecorder.h"
 
@@ -54,7 +65,12 @@ extern void free_buffer_{{config.schedName}}({{optionalargs(True)}});
 extern int init_{{config.schedName}}({{optionalargs(True)}});
 extern void free_{{config.schedName}}({{optionalargs(True)}});
 {% endif %}
+
+{% if config.callback %}
+extern uint32_t {{config.schedName}}(int *error,{{config.schedName}}_cb_t *scheduleState{{optionalargs(False)}});
+{% else %}
 extern uint32_t {{config.schedName}}(int *error{{optionalargs(False)}});
+{% endif %}
 
 {% if config.CAPI -%}
 #ifdef   __cplusplus

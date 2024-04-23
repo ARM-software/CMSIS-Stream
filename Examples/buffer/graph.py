@@ -9,13 +9,11 @@ from nodes import *
 # Initialization code in CPP will be:
 # Duplicate<float,5,float,5> dup0(fifo3,{});
 TEST1 = 1
-# Test2 : One output FIFO of duplicate is assigned to a specific buffer
-# so duplicate must copy to this FIFO 
+# Test2 : 
 # Initialization code in CPP will be:
 # Duplicate<float,5,float,5> dup0(fifo3,{});
 TEST2 = 2
-# Test3: One output FIFO is a real FIFO and is not used as an array
-# We must copy to this FIFO 
+# Test3: 
 # Initialization code in CPP will be:
 # Duplicate<float,5,float,5> dup0(fifo3,{&fifo4,&fifo5}); 
 # The presence of both FIFO is because the scheduling may be modifying the

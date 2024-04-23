@@ -1,0 +1,97 @@
+version: 2.0.0
+graph:
+  nodes:
+  - node: source
+    identified: true
+    kind: Source
+    outputs:
+    - output: o
+      samples: 5
+      type: float
+  - node: processing1
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 5
+      type: float
+    outputs:
+    - output: o
+      samples: 5
+      type: float
+  - node: sink2
+    identified: true
+    kind: Sink
+    inputs:
+    - input: i
+      samples: 5
+      type: float
+    args:
+    - literal: sink2
+  - node: processing2
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 5
+      type: float
+    outputs:
+    - output: o
+      samples: 5
+      type: float
+  - node: processing3
+    identified: true
+    kind: ProcessingNode
+    inputs:
+    - input: i
+      samples: 5
+      type: float
+    outputs:
+    - output: o
+      samples: 5
+      type: float
+  - node: sink1
+    identified: true
+    kind: Sink
+    inputs:
+    - input: i
+      samples: 5
+      type: float
+    args:
+    - literal: sink1
+  edges:
+  - src:
+      node: source
+      output: o
+    dst:
+      node: processing1
+      input: i
+    buffer-constraint:
+      name: myBuffer
+      must-be-array: true
+      assigned-by-node: false
+  - src:
+      node: processing1
+      output: o
+    dst:
+      node: sink2
+      input: i
+  - src:
+      node: processing1
+      output: o
+    dst:
+      node: processing2
+      input: i
+  - src:
+      node: processing2
+      output: o
+    dst:
+      node: processing3
+      input: i
+  - src:
+      node: processing3
+      output: o
+    dst:
+      node: sink1
+      input: i
+

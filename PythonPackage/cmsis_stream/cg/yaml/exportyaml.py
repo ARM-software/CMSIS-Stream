@@ -421,15 +421,25 @@ def export_config(config,filename):
     if config.dumpSchedule   != default.dumpSchedule  :
         schedule_options["dump-schedule"] = config.dumpSchedule 
 
-    if schedule_options:
-        yaml["schedule-options"] = schedule_options 
-
     if config.memStrategy != default.memStrategy:
         schedule_options["mem-strategy"] = config.memStrategy
 
     if config.bufferAllocation != default.bufferAllocation:
         schedule_options["buffer-allocation"] = config.bufferAllocation
 
+    if config.disableDuplicateOptimization != default.disableDuplicateOptimization:
+        schedule_options["disable-duplicate-optimization"] = config.disableDuplicateOptimization
+
+    if config.callback != default.callback:
+        schedule_options["callback"] = config.callback
+
+    if config.heapAllocation   != default.heapAllocation        :
+        schedule_options["heap-allocation"] = config.heapAllocation 
+
+    if schedule_options:
+        yaml["schedule-options"] = schedule_options 
+
+    
     code_gen = {}
 
     if config.debugLimit != default.debugLimit:
@@ -489,9 +499,6 @@ def export_config(config,filename):
 
     if config.asyncDefaultSkip   != default.asyncDefaultSkip        :
         c_code_gen["async-default-skip"] = config.asyncDefaultSkip  
-
-    if config.heapAllocation   != default.heapAllocation        :
-        c_code_gen["heap-allocation"] = config.heapAllocation 
 
     if config.nodeIdentification   != default.nodeIdentification        :
         c_code_gen["node-identification"] = config.nodeIdentification  

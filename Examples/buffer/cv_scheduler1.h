@@ -17,10 +17,12 @@ extern "C"
 
 
 
+
 extern int init_buffer_scheduler(uint8_t *myBuffer,
                               uint8_t *myBufferB);
 extern void free_buffer_scheduler(uint8_t *myBuffer,
                               uint8_t *myBufferB);
+
 
 extern uint32_t scheduler(int *error,uint8_t *myBuffer,
                               uint8_t *myBufferB);

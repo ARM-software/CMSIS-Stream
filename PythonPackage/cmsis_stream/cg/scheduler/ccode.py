@@ -66,6 +66,14 @@ def gencode(sched,directory,config):
        # underflow in async mode
        config.switchCase = True
 
+   # callback implies switchcase since we need to be able
+   # to restore / save the state machine
+   # Since the scheduler state machine is called several times
+   # the FIFO and objects must be created before
+    if config.callback:
+       config.switchCase = True
+       config.heapAllocation = True
+
     identifiedNodes = []
     if config.nodeIdentification:
        config.heapAllocation = True

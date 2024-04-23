@@ -54,15 +54,17 @@ CMSIS-Stream is licensed under [Apache License 2.0](LICENSE).
 
 5. ### [Memory optimizations](Documentation/Memory.md)
 
-6. ### Extensions
+6. ### [Integration in a system](Documentation/Integration.md)
+
+7. ### Extensions
 
    1. #### [Cyclo-static scheduling](Documentation/CycloStatic.md)
 
    2. #### [Dynamic / Asynchronous mode](Documentation/Async.md)
 
-7. ### [Maths principles](Documentation/MATHS.md)
+8. ### [Maths principles](Documentation/MATHS.md)
 
-8. ### [FAQs](Documentation/FAQ.md)
+9. ### [FAQs](Documentation/FAQ.md)
 
 
 
