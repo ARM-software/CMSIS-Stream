@@ -180,53 +180,60 @@ uint32_t static_scheduler(int *error)
         for(; id < 8; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             switch(schedule[id])
             {
                 case 0:
                 {
+                    
                    cgStaticError = buf1.run();
                 }
                 break;
 
                 case 1:
                 {
+                    
                    cgStaticError = buf2.run();
                 }
                 break;
 
                 case 2:
                 {
+                    
                    cgStaticError = bufCopy.run();
                 }
                 break;
 
                 case 3:
                 {
+                    
                    cgStaticError = dup0.run();
                 }
                 break;
 
                 case 4:
                 {
+                    
                    cgStaticError = inplace.run();
                 }
                 break;
 
                 case 5:
                 {
+                    
                    cgStaticError = processing.run();
                 }
                 break;
 
                 case 6:
                 {
+                    
                    cgStaticError = sinkA.run();
                 }
                 break;
 
                 case 7:
                 {
+                    
                    cgStaticError = sinkB.run();
                 }
                 break;

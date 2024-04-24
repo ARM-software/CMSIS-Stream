@@ -22,6 +22,7 @@ src=Source("source",floatType,5)
 # "processing" is the name of the C variable that will identify
 # this node
 processing=ProcessingNode("processing",floatType,7,7)
+func = MyFunction(7)
 # Instantiate a Sink node with a float datatype and consuming
 # 5 samples each time the node is executed in the C code
 # "sink" is the name of the C variable that will identify
@@ -32,8 +33,9 @@ sink=Sink("sink",floatType,5)
 the_graph = Graph()
 
 # Connect the source to the processing node
-the_graph.connect(src.o,processing.i)
+the_graph.connect(src.o,processing.i,fifoAsyncLength=11)
+the_graph.connect(processing.o,func.i,fifoAsyncLength=7)
 # Connect the processing node to the sink
-the_graph.connect(processing.o,sink.i)
+the_graph.connect(func.o,sink.i,fifoAsyncLength=11)
 
 

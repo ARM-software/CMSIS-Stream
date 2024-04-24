@@ -14,4 +14,16 @@
     someState = *someVariable;
 
 
+#ifdef   __cplusplus
+extern "C"
+{
+#endif
+
+
+extern void myfunc(const float *i,float *o,int l);
+
+#ifdef   __cplusplus
+}
+#endif
+
 #endif 

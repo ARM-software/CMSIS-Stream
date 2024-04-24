@@ -17,7 +17,6 @@ extern "C"
 
 
 
-
 extern int init_buffer_scheduler(uint8_t *myBuffer,
                               uint8_t *myBufferB);
 extern void free_buffer_scheduler(uint8_t *myBuffer,

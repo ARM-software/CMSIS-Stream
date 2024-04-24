@@ -13,7 +13,8 @@ conf=Configuration()
 # Disable inclusion of CMSIS-DSP headers so that we don't have
 # to recompile CMSIS-DSP for such a simple example
 conf.CMSISDSP = False
-conf.asynchronous = False
+#conf.fullyAsynchronous = True
+#conf.asynchronous = True
 conf.callback = True
 # Some arguments used to save the state of the state machine
 # Here the state is the state variable defined in macro CG_BEFORE_SCHEDULE

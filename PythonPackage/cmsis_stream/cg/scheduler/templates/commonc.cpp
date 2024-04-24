@@ -44,18 +44,29 @@ using namespace arm_cmsis_stream;
 {% endblock %}
 
 {% if config.callback -%}
-#define PAUSED_SCHEDULER 1 
-#define SCHEDULER_NOT_STARTED 2 
+/* For callback management */
 
+#define CG_PAUSED_SCHEDULER_ID 1
+#define CG_SCHEDULER_NOT_STARTED_ID 2
+#define CG_SCHEDULER_RUNNING_ID 3
 
-void init_cb_state_{{config.schedName}}({{config.schedName}}_cb_t* state)
+struct cb_state_t
 {
-    if (state)
-    {
-      state->status = SCHEDULER_NOT_STARTED;
-      state->nbSched = 0;
-      state->scheduleStateID = 0;
-    }
+    unsigned long scheduleStateID;
+    unsigned long nbSched;
+    int status;
+    kCBStatus running;
+};
+
+static cb_state_t cb_state;
+
+
+static void init_cb_state()
+{
+    cb_state.status = CG_SCHEDULER_NOT_STARTED_ID;
+    cb_state.nbSched = 0;
+    cb_state.scheduleStateID = 0;
+    cb_state.running = kNewExecution;
 }
 {% endif %}
 
@@ -169,6 +180,10 @@ NodeBase *get_{{config.schedName}}_node(int32_t nodeID)
 
 int init_{{config.schedName}}({{optionalargs(True)}})
 {
+{% if config.callback -%}
+    init_cb_state();
+{% endif %}
+
     CG_BEFORE_FIFO_INIT;
 {% for id in range(nbFifos) %}
 {% if fifos[id].hasDelay %}
@@ -233,11 +248,7 @@ void free_{{config.schedName}}({{optionalargs(True)}})
 {% endif %}
 
 CG_BEFORE_SCHEDULER_FUNCTION
-{% if config.callback -%}
-uint32_t {{config.schedName}}(int *error,{{config.schedName}}_cb_t *scheduleState{{optionalargs(False)}})
-{% else %}
 uint32_t {{config.schedName}}(int *error{{optionalargs(False)}})
-{% endif %}
 {
     int cgStaticError=0;
     uint32_t nbSchedule=0;
@@ -246,9 +257,9 @@ uint32_t {{config.schedName}}(int *error{{optionalargs(False)}})
 {% endif %}
 
 {% if config.callback -%}
-   if (scheduleState->status==PAUSED_SCHEDULER)
+   if (cb_state.status==CG_PAUSED_SCHEDULER_ID)
    {
-      nbSchedule = scheduleState->nbSched;
+      nbSchedule = cb_state.nbSched;
 
    }
 {% endif %}

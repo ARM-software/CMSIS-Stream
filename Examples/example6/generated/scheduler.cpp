@@ -159,35 +159,39 @@ uint32_t scheduler(int *error,arm_mfcc_instance_f32 *mfccConfig)
         for(; id < 17; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             switch(schedule[id])
             {
                 case 0:
                 {
+                    
                    cgStaticError = audioWin.run();
                 }
                 break;
 
                 case 1:
                 {
+                    
                    cgStaticError = mfcc.run();
                 }
                 break;
 
                 case 2:
                 {
+                    
                    cgStaticError = mfccWin.run();
                 }
                 break;
 
                 case 3:
                 {
+                    
                    cgStaticError = sink.run();
                 }
                 break;
 
                 case 4:
                 {
+                    
                    cgStaticError = src.run();
                 }
                 break;

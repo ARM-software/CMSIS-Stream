@@ -144,11 +144,11 @@ uint32_t scheduler(int *error)
         for(; id < 19; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             switch(schedule[id])
             {
                 case 0:
                 {
+                    
                    
                   {
 
@@ -164,12 +164,14 @@ uint32_t scheduler(int *error)
 
                 case 1:
                 {
+                    
                    cgStaticError = sink.run();
                 }
                 break;
 
                 case 2:
                 {
+                    
                    cgStaticError = source.run();
                 }
                 break;

@@ -47,7 +47,7 @@ are not used by the core nodes.
     CG_BUFFER_ERROR               = -6, /**< Stop execution due to FIFO overflow or underflow (asynchronous mode for pure function) */
     CG_OS_ERROR                   = -7, /**< RTOS API error */
     CG_STOP_SCHEDULER             = -8, /**< Stop scheduling */
-    CG_PAUSE_SCHEDULER            = -9  /**< Pause scheduler in callback mode */
+    CG_PAUSED_SCHEDULER           = -9  /**< Pause scheduler in callback mode */
   } cg_status;
 
 

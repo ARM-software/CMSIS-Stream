@@ -1,10 +1,10 @@
-# Integration is a system
+# Integration in a system
 
 CMSIS-Stream graph scheduling is a sequence of function calls organized thanks to the dataflow dependencies. There is no concept of time inside the graph.
 
 But when the graph is integrated into a system, it must be synchronized with peripherals (sensors, audio ...)
 
-There are two cases to consider
+There are two cases to consider.
 
 ## RTOS / Interrupt
 
@@ -18,19 +18,11 @@ With an interrupt based system with no RTOS, the CMSIS-Stream loop would sleep a
 
 Some systems are designed with callbacks : when an event occurs the callback is executed. The event could be a new audio of video frame.
 
-In this case, CMSIS-Stream must work in `switchCase` mode so that there is a state machine. And there is a mechanism to pause and restore the state machine.
+In this case, CMSIS-Stream must work in `switchCase` mode so that there is a state machine. With the `callback` mode, here is a mechanism to pause and restore the CMSIS-Stream state machine.
 
-There is an option `callback` to enable this mode. It will also enable the `heapAllocation` mode since the FIFO and Nodes must be allocated outside of the scheduler loop since this loop is now a callback and will be called several time.
+`callback` mode will also enable the `heapAllocation` mode since the FIFO and Nodes must be allocated outside of the scheduler loop because this loop is now a callback and will be called several time.
 
 See the example `callback`.
-
-The generated API has a new argument: `scheduler_cb_t *scheduleState` after the `error` argument.
-
-This state must be initialized before the very first call to the scheduler function with : 
-
-```C
-extern void init_cb_state_scheduler(scheduler_cb_t* state);
-```
 
 In a node, the execution can be paused by returning `CG_PAUSE_SCHEDULER`.
 
@@ -39,4 +31,19 @@ Note that function like `getReadBuffer`, `getWriteBuffer` must not be called sev
 If you define additional state using macro like `CG_BEFORE_SCHEDULE` then this state can be saved / restored using macros `CG_RESTORE_STATE_MACHINE_STATE` and `CG_SAVE_STATE_MACHINE_STATE`.
 
 You may need to define additional arguments of the scheduler function to save this additional state.
+
+In asynchronous mode, the function `prepareForRunning` can also pause the execution. 
+
+When a node execution is restarted, both `prepareForRunning` and `run` functions are executed in asynchronous mode.
+
+It is possible to test if the node is being resume or starting a new execution with the function  `executionStatus`.
+
+The status is of type `kCBStatus`:
+
+```C
+enum kCBStatus {
+   kNewExecution = 1,
+   kResumedExecution = 2
+};
+```
 

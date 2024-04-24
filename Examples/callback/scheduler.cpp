@@ -93,23 +93,34 @@ using namespace arm_cmsis_stream;
 Description of the scheduling. 
 
 */
-static uint8_t schedule[19]=
+static uint8_t schedule[24]=
 { 
-2,2,0,1,2,0,1,2,2,0,1,1,2,0,1,2,0,1,1,
+3,3,1,0,2,3,1,0,2,3,3,1,0,2,2,3,1,0,2,3,1,0,2,2,
 };
 
-#define PAUSED_SCHEDULER 1 
-#define SCHEDULER_NOT_STARTED 2 
+/* For callback management */
 
+#define CG_PAUSED_SCHEDULER_ID 1
+#define CG_SCHEDULER_NOT_STARTED_ID 2
+#define CG_SCHEDULER_RUNNING_ID 3
 
-void init_cb_state_scheduler(scheduler_cb_t* state)
+struct cb_state_t
 {
-    if (state)
-    {
-      state->status = SCHEDULER_NOT_STARTED;
-      state->nbSched = 0;
-      state->scheduleStateID = 0;
-    }
+    unsigned long scheduleStateID;
+    unsigned long nbSched;
+    int status;
+    kCBStatus running;
+};
+
+static cb_state_t cb_state;
+
+
+static void init_cb_state()
+{
+    cb_state.status = CG_SCHEDULER_NOT_STARTED_ID;
+    cb_state.nbSched = 0;
+    cb_state.scheduleStateID = 0;
+    cb_state.running = kNewExecution;
 }
 
 
@@ -120,20 +131,26 @@ FIFO buffers
 
 ************/
 #define FIFOSIZE0 11
-#define FIFOSIZE1 11
+#define FIFOSIZE1 7
+#define FIFOSIZE2 11
 
 #define BUFFERSIZE0 11
 CG_BEFORE_BUFFER
 float buf0[BUFFERSIZE0]={0};
 
-#define BUFFERSIZE1 11
+#define BUFFERSIZE1 7
 CG_BEFORE_BUFFER
 float buf1[BUFFERSIZE1]={0};
+
+#define BUFFERSIZE2 11
+CG_BEFORE_BUFFER
+float buf2[BUFFERSIZE2]={0};
 
 
 typedef struct {
 FIFO<float,FIFOSIZE0,0,0> *fifo0;
-FIFO<float,FIFOSIZE1,0,0> *fifo1;
+FIFO<float,FIFOSIZE1,1,0> *fifo1;
+FIFO<float,FIFOSIZE2,0,0> *fifo2;
 } fifos_t;
 
 typedef struct {
@@ -151,14 +168,21 @@ static nodes_t nodes={0};
 
 int init_scheduler(int *someVariable)
 {
+init_cb_state();
+
     CG_BEFORE_FIFO_INIT;
     fifos.fifo0 = new FIFO<float,FIFOSIZE0,0,0>(buf0);
     if (fifos.fifo0==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo1 = new FIFO<float,FIFOSIZE1,0,0>(buf1);
+    fifos.fifo1 = new FIFO<float,FIFOSIZE1,1,0>(buf1);
     if (fifos.fifo1==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    fifos.fifo2 = new FIFO<float,FIFOSIZE2,0,0>(buf2);
+    if (fifos.fifo2==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
@@ -169,7 +193,7 @@ int init_scheduler(int *someVariable)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    nodes.sink = new Sink<float,5>(*(fifos.fifo1));
+    nodes.sink = new Sink<float,5>(*(fifos.fifo2));
     if (nodes.sink==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
@@ -194,6 +218,10 @@ void free_scheduler(int *someVariable)
     {
        delete fifos.fifo1;
     }
+    if (fifos.fifo2!=NULL)
+    {
+       delete fifos.fifo2;
+    }
 
     if (nodes.processing!=NULL)
     {
@@ -211,14 +239,14 @@ void free_scheduler(int *someVariable)
 
 
 CG_BEFORE_SCHEDULER_FUNCTION
-uint32_t scheduler(int *error,scheduler_cb_t *scheduleState,int *someVariable)
+uint32_t scheduler(int *error,int *someVariable)
 {
     int cgStaticError=0;
     uint32_t nbSchedule=0;
 
-if (scheduleState->status==PAUSED_SCHEDULER)
+if (cb_state.status==CG_PAUSED_SCHEDULER_ID)
    {
-      nbSchedule = scheduleState->nbSched;
+      nbSchedule = cb_state.nbSched;
 
    }
 
@@ -231,30 +259,49 @@ CG_RESTORE_STATE_MACHINE_STATE;
         /* Run a schedule iteration */
         CG_BEFORE_ITERATION;
         unsigned long id=0;
-        if (scheduleState->status==PAUSED_SCHEDULER)
+        if (cb_state.status==CG_PAUSED_SCHEDULER_ID)
         {
-            id = scheduleState->scheduleStateID;
+            id = cb_state.scheduleStateID;
+            cb_state.status = CG_SCHEDULER_RUNNING_ID;
         }
-        for(; id < 19; id++)
+        for(; id < 24; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             switch(schedule[id])
             {
                 case 0:
                 {
-                   cgStaticError = nodes.processing->run();
+                    
+                   
+                  {
+
+                   float* i0;
+                   float* o1;
+                   i0=fifos.fifo1->getReadBuffer(7);
+                   o1=fifos.fifo2->getWriteBuffer(7);
+                   myfunc(i0,o1,7);
+                   cgStaticError = 0;
+                  }
                 }
                 break;
 
                 case 1:
                 {
-                   cgStaticError = nodes.sink->run();
+                    nodes.processing->setExecutionStatus(cb_state.running);
+                   cgStaticError = nodes.processing->run();
                 }
                 break;
 
                 case 2:
                 {
+                    nodes.sink->setExecutionStatus(cb_state.running);
+                   cgStaticError = nodes.sink->run();
+                }
+                break;
+
+                case 3:
+                {
+                    nodes.source->setExecutionStatus(cb_state.running);
                    cgStaticError = nodes.source->run();
                 }
                 break;
@@ -263,12 +310,14 @@ CG_RESTORE_STATE_MACHINE_STATE;
                 break;
             }
             CG_AFTER_NODE_EXECUTION(schedule[id]);
-            if (cgStaticError == CG_PAUSE_SCHEDULER)
+            cb_state.running = kNewExecution;
+            if (cgStaticError == CG_PAUSED_SCHEDULER)
             {
                 CG_SAVE_STATE_MACHINE_STATE;
-                scheduleState->status = PAUSED_SCHEDULER;
-                scheduleState->nbSched = nbSchedule;
-                scheduleState->scheduleStateID = id;
+                cb_state.status = CG_PAUSED_SCHEDULER_ID;
+                cb_state.nbSched = nbSchedule;
+                cb_state.scheduleStateID = id;
+                cb_state.running = kResumedExecution;
             }
             CHECKERROR;
         }

@@ -197,17 +197,18 @@ uint32_t scheduler(int *error,int opt1,int opt2)
         for(; id < 302; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             switch(schedule[id])
             {
                 case 0:
                 {
+                    
                    cgStaticError = TFLite.run();
                 }
                 break;
 
                 case 1:
                 {
+                    
                    
                   {
 
@@ -225,6 +226,7 @@ uint32_t scheduler(int *error,int opt1,int opt2)
 
                 case 2:
                 {
+                    
                    
                   {
 
@@ -240,6 +242,7 @@ uint32_t scheduler(int *error,int opt1,int opt2)
 
                 case 3:
                 {
+                    
                    
                   {
 
@@ -255,30 +258,35 @@ uint32_t scheduler(int *error,int opt1,int opt2)
 
                 case 4:
                 {
+                    
                    cgStaticError = audioWin.run();
                 }
                 break;
 
                 case 5:
                 {
+                    
                    cgStaticError = mfcc.run();
                 }
                 break;
 
                 case 6:
                 {
+                    
                    cgStaticError = mfccWind.run();
                 }
                 break;
 
                 case 7:
                 {
+                    
                    cgStaticError = src.run();
                 }
                 break;
 
                 case 8:
                 {
+                    
                    cgStaticError = toMono.run();
                 }
                 break;

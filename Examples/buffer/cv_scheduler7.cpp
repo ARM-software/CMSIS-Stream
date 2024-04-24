@@ -174,8 +174,8 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
     Create FIFOs objects
     */
     FIFO<float,FIFOSIZE0,0,0> fifo0(Test);
-    FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf1);
-    FIFO<float,FIFOSIZE2,1,0> fifo2(buffers.buf2);
+    FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf2);
+    FIFO<float,FIFOSIZE2,1,0> fifo2(buffers.buf1);
     FIFO<float,FIFOSIZE3,1,0> fifo3(buffers.buf0);
 
     CG_BEFORE_NODE_INIT;
@@ -198,35 +198,39 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
         for(; id < 27; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             switch(schedule[id])
             {
                 case 0:
                 {
+                    
                    cgStaticError = dup0.run();
                 }
                 break;
 
                 case 1:
                 {
+                    
                    cgStaticError = processing1.run();
                 }
                 break;
 
                 case 2:
                 {
+                    
                    cgStaticError = sink1.run();
                 }
                 break;
 
                 case 3:
                 {
+                    
                    cgStaticError = sink2.run();
                 }
                 break;
 
                 case 4:
                 {
+                    
                    cgStaticError = source.run();
                 }
                 break;

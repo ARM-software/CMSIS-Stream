@@ -35,13 +35,32 @@ Defined in cg_status.h by default but user
 may want to use a different header to define the 
 error codes of the application
 */
-#define CG_SUCCESS_ID_CODE (0)
-#define CG_SKIP_EXECUTION_ID_CODE (-5)
-#define CG_BUFFER_ERROR_ID_CODE (-6)
+#ifndef CG_SUCCESS_ID_CODE
+#define CG_SUCCESS_ID_CODE (CG_SUCCESS)
+#endif 
+
+#ifndef CG_SKIP_EXECUTION_ID_CODE
+#define CG_SKIP_EXECUTION_ID_CODE (CG_SKIP_EXECUTION)
+#endif
+
+#ifndef CG_BUFFER_ERROR_ID_CODE
+#define CG_BUFFER_ERROR_ID_CODE (CG_BUFFER_ERROR)
+#endif
+
+/*
+ 
+ For callback mode 
+
+*/
+
+enum kCBStatus {
+   kNewExecution = 1,
+   kResumedExecution = 2
+};
 
 /* Node ID is -1 when nodes are not identified for the external
 world */
-#define UNIDENTIFIED_NODE (-1)
+#define CG_UNIDENTIFIED_NODE (-1)
 
 namespace arm_cmsis_stream {
 // FIFOS 
@@ -77,6 +96,12 @@ public:
     virtual T* getWriteBuffer(int nb)=0;
     virtual T* getReadBuffer(int nb)=0;
     virtual ~FIFOBase() {};
+
+    /*
+    Used when FIFO buffer is enforced by a node.
+    Can only be used before the FIFO has been interacted with
+    */
+    virtual void setBuffer(T *buffer)=0;
     /*
 
     Below functions are only useful in asynchronous mode.
@@ -104,6 +129,8 @@ class FIFO<T,length,0,0>: public FIFOBase<T>
         /* Constructor used for memory sharing optimization.
            The buffer is a shared memory wrapper */
         explicit FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
+
+        void setBuffer(T *buffer){mBuffer = buffer;};
 
         /* 
         FIFO are fixed and not made to be copied or moved.
@@ -177,7 +204,7 @@ class FIFO<T,length,0,0>: public FIFOBase<T>
         #endif
 
     protected:
-        T * const mBuffer;
+        T * mBuffer;
         int readPos,writePos;
 };
 
@@ -191,6 +218,8 @@ class FIFO<T,length,1,0>: public FIFOBase<T>
         */
         explicit FIFO(T *buffer):mBuffer(buffer) {};
         explicit FIFO(void *buffer):mBuffer((T*)buffer) {};
+
+        void setBuffer(T *buffer){mBuffer = buffer;};
 
         /* 
         FIFO are fixed and not made to be copied or moved.
@@ -245,7 +274,7 @@ class FIFO<T,length,1,0>: public FIFOBase<T>
         #endif
 
     protected:
-        T * const mBuffer;
+        T * mBuffer;
 };
 
 /* Real FIFO, Asynchronous */
@@ -255,6 +284,8 @@ class FIFO<T,length,0,1>: public FIFOBase<T>
     public:
         explicit FIFO(T *buffer,int delay=0):mBuffer(buffer),readPos(0),writePos(delay) {};
         explicit FIFO(void *buffer,int delay=0):mBuffer((T*)buffer),readPos(0),writePos(delay) {};
+
+        void setBuffer(T *buffer){mBuffer = buffer;};
 
         /* 
         FIFO are fixed and not made to be copied or moved.
@@ -336,7 +367,7 @@ class FIFO<T,length,0,1>: public FIFOBase<T>
         #endif
 
     protected:
-        T * const mBuffer;
+        T * mBuffer;
         int readPos,writePos;
 };
 
@@ -365,8 +396,13 @@ public:
 
     void setID(int id)   {mNodeID = id;};
     int nodeID() const   {return(mNodeID);};
+
+    void setExecutionStatus(kCBStatus id)   {mExecutionStatus = id;};
+    kCBStatus executionStatus() const   {return(mExecutionStatus);};
+
 private:
-    int mNodeID = UNIDENTIFIED_NODE;
+    int mNodeID = CG_UNIDENTIFIED_NODE;
+    kCBStatus mExecutionStatus = kNewExecution;
 };
 
 template<typename IN, int inputSize,typename OUT, int outputSize>

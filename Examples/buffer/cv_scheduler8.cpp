@@ -159,23 +159,25 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
         for(; id < 3; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             switch(schedule[id])
             {
                 case 0:
                 {
+                    
                    cgStaticError = processing1.run();
                 }
                 break;
 
                 case 1:
                 {
+                    
                    cgStaticError = sink1.run();
                 }
                 break;
 
                 case 2:
                 {
+                    
                    cgStaticError = source.run();
                 }
                 break;

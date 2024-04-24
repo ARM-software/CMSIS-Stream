@@ -231,7 +231,6 @@ uint32_t scheduler(int *error)
         for(; id < 13; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             cgStaticError = 0;
             CG_ASYNC_BEFORE_NODE_CHECK(schedule[id]);
             switch(schedule[id])
@@ -339,12 +338,14 @@ uint32_t scheduler(int *error)
               continue;
             }
 
+            
             CHECKERROR;
 
             switch(schedule[id])
             {
                 case 0:
                 {
+                    
                    
                   {
 
@@ -360,72 +361,84 @@ uint32_t scheduler(int *error)
 
                 case 1:
                 {
+                    
                    cgStaticError = debug.run();
                 }
                 break;
 
                 case 2:
                 {
+                    
                    cgStaticError = debug0.run();
                 }
                 break;
 
                 case 3:
                 {
+                    
                    cgStaticError = debug1.run();
                 }
                 break;
 
                 case 4:
                 {
+                    
                    cgStaticError = debug2.run();
                 }
                 break;
 
                 case 5:
                 {
+                    
                    cgStaticError = debug3.run();
                 }
                 break;
 
                 case 6:
                 {
+                    
                    cgStaticError = dup0.run();
                 }
                 break;
 
                 case 7:
                 {
+                    
                    cgStaticError = dup1.run();
                 }
                 break;
 
                 case 8:
                 {
+                    
                    cgStaticError = proc.run();
                 }
                 break;
 
                 case 9:
                 {
+                    
                    cgStaticError = sinka.run();
                 }
                 break;
 
                 case 10:
                 {
+                    
                    cgStaticError = sinkb.run();
                 }
                 break;
 
                 case 11:
                 {
+                    
                    cgStaticError = sourceEven.run();
                 }
                 break;
 
                 case 12:
                 {
+                    
                    cgStaticError = sourceOdd.run();
                 }
                 break;

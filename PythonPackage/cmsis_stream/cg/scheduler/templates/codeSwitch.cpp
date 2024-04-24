@@ -30,9 +30,10 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
         CG_BEFORE_ITERATION;
         unsigned long id=0;
 {% if config.callback %}
-        if (scheduleState->status==PAUSED_SCHEDULER)
+        if (cb_state.status==CG_PAUSED_SCHEDULER_ID)
         {
-            id = scheduleState->scheduleStateID;
+            id = cb_state.scheduleStateID;
+            cb_state.status = CG_SCHEDULER_RUNNING_ID;
         }
 {% endif %}
         for(; id < {{schedLen}}; id++)
@@ -41,7 +42,6 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
             EventRecord2 (Evt_Node, schedule[id], 0);
             {% endif -%}
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             {% if config.asynchronous or config.fullyAsynchronous -%}
             cgStaticError = 0;
             CG_ASYNC_BEFORE_NODE_CHECK(schedule[id]);
@@ -54,6 +54,9 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
                     {%- if not config.heapAllocation -%}
                     cgStaticError = {{nodes[nodeID].nodeName}}.prepareForRunning();
                     {%- else -%}
+                    {% if config.callback -%}
+                    nodes.{{nodes[nodeID].nodeName}}->setExecutionStatus(cb_state.running);
+                    {% endif -%}
                     cgStaticError = nodes.{{nodes[nodeID].nodeName}}->prepareForRunning();
                     {%- endif -%}
                     {%- else -%}
@@ -85,6 +88,18 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
             }
             {% endif -%}
 
+{% if config.callback -%}
+            cb_state.running = kNewExecution;
+            if (cgStaticError == CG_PAUSED_SCHEDULER)
+            {
+                CG_SAVE_STATE_MACHINE_STATE;
+                cb_state.status = CG_PAUSED_SCHEDULER_ID;
+                cb_state.nbSched = nbSchedule;
+                cb_state.scheduleStateID = id;
+                cb_state.running = kResumedExecution;
+            }
+{% endif %}
+
             CHECKERROR;
 
             {% endif -%}
@@ -94,6 +109,12 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
                 {% for nodeID in range(nbNodes) -%}
                 case {{nodeID}}:
                 {
+                    {% if config.callback -%}
+                    {% if not nodes[nodeID].isPureNode -%}
+                    nodes.{{nodes[nodeID].nodeName}}->setExecutionStatus(cb_state.running);
+                    {%- endif -%}
+                    {% endif %}
+
                    {{nodes[nodeID].cRun(config)}}
 
                    {%- if config.dumpFIFO %}
@@ -120,12 +141,14 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
             {% endif -%}
 
 {% if config.callback -%}
-            if (cgStaticError == CG_PAUSE_SCHEDULER)
+            cb_state.running = kNewExecution;
+            if (cgStaticError == CG_PAUSED_SCHEDULER)
             {
                 CG_SAVE_STATE_MACHINE_STATE;
-                scheduleState->status = PAUSED_SCHEDULER;
-                scheduleState->nbSched = nbSchedule;
-                scheduleState->scheduleStateID = id;
+                cb_state.status = CG_PAUSED_SCHEDULER_ID;
+                cb_state.nbSched = nbSchedule;
+                cb_state.scheduleStateID = id;
+                cb_state.running = kResumedExecution;
             }
 {% endif %}
             CHECKERROR;

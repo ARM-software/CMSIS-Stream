@@ -35,13 +35,32 @@ Defined in cg_status.h by default but user
 may want to use a different header to define the 
 error codes of the application
 */
-#define CG_SUCCESS_ID_CODE (0)
-#define CG_SKIP_EXECUTION_ID_CODE (-5)
-#define CG_BUFFER_ERROR_ID_CODE (-6)
+#ifndef CG_SUCCESS_ID_CODE
+#define CG_SUCCESS_ID_CODE (CG_SUCCESS)
+#endif 
+
+#ifndef CG_SKIP_EXECUTION_ID_CODE
+#define CG_SKIP_EXECUTION_ID_CODE (CG_SKIP_EXECUTION)
+#endif
+
+#ifndef CG_BUFFER_ERROR_ID_CODE
+#define CG_BUFFER_ERROR_ID_CODE (CG_BUFFER_ERROR)
+#endif
+
+/*
+ 
+ For callback mode 
+
+*/
+
+enum kCBStatus {
+   kNewExecution = 1,
+   kResumedExecution = 2
+};
 
 /* Node ID is -1 when nodes are not identified for the external
 world */
-#define UNIDENTIFIED_NODE (-1)
+#define CG_UNIDENTIFIED_NODE (-1)
 
 namespace arm_cmsis_stream {
 // FIFOS 
@@ -377,8 +396,13 @@ public:
 
     void setID(int id)   {mNodeID = id;};
     int nodeID() const   {return(mNodeID);};
+
+    void setExecutionStatus(kCBStatus id)   {mExecutionStatus = id;};
+    kCBStatus executionStatus() const   {return(mExecutionStatus);};
+
 private:
-    int mNodeID = UNIDENTIFIED_NODE;
+    int mNodeID = CG_UNIDENTIFIED_NODE;
+    kCBStatus mExecutionStatus = kNewExecution;
 };
 
 template<typename IN, int inputSize,typename OUT, int outputSize>

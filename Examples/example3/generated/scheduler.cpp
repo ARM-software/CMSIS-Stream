@@ -186,11 +186,11 @@ uint32_t scheduler(int *error)
         for(; id < 25; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             switch(schedule[id])
             {
                 case 0:
                 {
+                    
                    
                   {
 
@@ -206,48 +206,56 @@ uint32_t scheduler(int *error)
 
                 case 1:
                 {
+                    
                    cgStaticError = audioOverlap.run();
                 }
                 break;
 
                 case 2:
                 {
+                    
                    cgStaticError = audioWin.run();
                 }
                 break;
 
                 case 3:
                 {
+                    
                    cgStaticError = cfft.run();
                 }
                 break;
 
                 case 4:
                 {
+                    
                    cgStaticError = icfft.run();
                 }
                 break;
 
                 case 5:
                 {
+                    
                    cgStaticError = sink.run();
                 }
                 break;
 
                 case 6:
                 {
+                    
                    cgStaticError = src.run();
                 }
                 break;
 
                 case 7:
                 {
+                    
                    cgStaticError = toCmplx.run();
                 }
                 break;
 
                 case 8:
                 {
+                    
                    cgStaticError = toReal.run();
                 }
                 break;

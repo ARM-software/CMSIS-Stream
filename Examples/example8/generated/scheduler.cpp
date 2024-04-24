@@ -161,47 +161,53 @@ uint32_t scheduler(int *error,int someVariable)
         for(; id < 7; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             switch(schedule[id])
             {
                 case 0:
                 {
+                    
                    cgStaticError = dup0.run();
                 }
                 break;
 
                 case 1:
                 {
+                    
                    cgStaticError = filter.run();
                 }
                 break;
 
                 case 2:
                 {
+                    
                    cgStaticError = sa.run();
                 }
                 break;
 
                 case 3:
                 {
+                    
                    cgStaticError = sb.run();
                 }
                 break;
 
                 case 4:
                 {
+                    
                    cgStaticError = sc.run();
                 }
                 break;
 
                 case 5:
                 {
+                    
                    cgStaticError = sd.run();
                 }
                 break;
 
                 case 6:
                 {
+                    
                    cgStaticError = source.run();
                 }
                 break;

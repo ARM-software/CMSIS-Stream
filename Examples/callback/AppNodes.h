@@ -58,9 +58,23 @@ public:
     // the input, the execution of this node will be skipped
     int prepareForRunning() final
     {
+
+        if (executionStatus() != kNewExecution)
+        {
+            printf("Resume sink in prepare step\n");
+        }
+
         if (this->willUnderflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+            //printf("skip sink\n");
+            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+            //return(CG_STOP_SCHEDULER);
+        }
+
+
+        if (!g_frame_available)
+        {
+            return(CG_PAUSED_SCHEDULER);
         }
 
         return(0);
@@ -75,10 +89,15 @@ public:
     {
         if (!g_frame_available)
         {
-            return(CG_PAUSE_SCHEDULER);
+            return(CG_PAUSED_SCHEDULER);
         }
 
         g_frame_available = 0;
+
+        if (executionStatus() != kNewExecution)
+        {
+            printf("Resume sink\n");
+        }
 
         IN *b=this->getReadBuffer();
         printf("Sink\n");
@@ -108,6 +127,7 @@ public:
     {
         if (this->willOverflow())
         {
+           printf("skip source\n");
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
@@ -179,6 +199,7 @@ public:
         if (this->willOverflow() ||
             this->willUnderflow())
         {
+            printf("skip processing\n");
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
