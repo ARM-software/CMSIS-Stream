@@ -91,6 +91,19 @@ static uint8_t schedule[7]=
 6,1,5,0,2,3,4,
 };
 
+/*
+
+Internal ID identification for the nodes
+
+*/
+#define DUP0_INTERNAL_ID 0
+#define FILTER_INTERNAL_ID 1
+#define SA_INTERNAL_ID 2
+#define SB_INTERNAL_ID 3
+#define SC_INTERNAL_ID 4
+#define SD_INTERNAL_ID 5
+#define SOURCE_INTERNAL_ID 6
+
 
 
 CG_BEFORE_FIFO_BUFFERS

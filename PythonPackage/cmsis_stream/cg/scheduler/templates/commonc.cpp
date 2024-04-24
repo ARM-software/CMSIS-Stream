@@ -50,7 +50,7 @@ Internal ID identification for the nodes
 */
 {% for nodeID in range(nbNodes) -%}
 {% if nodes[nodeID].hasState %}
-#define {{nodes[nodeID].typeName | upper}}_INTERNAL_ID {{nodeID}}
+#define {{nodes[nodeID].nodeName | upper}}_INTERNAL_ID {{nodeID}}
 {% endif %}
 {% endfor %}
 

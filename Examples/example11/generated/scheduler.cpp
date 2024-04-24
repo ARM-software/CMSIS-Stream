@@ -102,6 +102,24 @@ static uint8_t schedule[13]=
 11,12,6,1,8,0,7,2,3,4,5,9,10,
 };
 
+/*
+
+Internal ID identification for the nodes
+
+*/
+#define DEBUG_INTERNAL_ID 1
+#define DEBUG0_INTERNAL_ID 2
+#define DEBUG1_INTERNAL_ID 3
+#define DEBUG2_INTERNAL_ID 4
+#define DEBUG3_INTERNAL_ID 5
+#define DUP0_INTERNAL_ID 6
+#define DUP1_INTERNAL_ID 7
+#define PROC_INTERNAL_ID 8
+#define SINKA_INTERNAL_ID 9
+#define SINKB_INTERNAL_ID 10
+#define SOURCEEVEN_INTERNAL_ID 11
+#define SOURCEODD_INTERNAL_ID 12
+
 
 
 CG_BEFORE_FIFO_BUFFERS

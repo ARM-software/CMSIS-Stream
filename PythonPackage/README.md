@@ -14,6 +14,12 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.12.0:
+
+* Corrected issues with Duplicate node buffer optimizations
+* Added a new callback mode
+* Added new option for memory optimization (graph coloring algorithm to use)
+
 ## Version 1.11.0:
 
 * With memory optimization mode, the constraints on Duplicate nodes are relaxed to avoid copies as much as possible

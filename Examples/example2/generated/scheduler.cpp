@@ -98,6 +98,18 @@ static uint16_t schedule[302]=
 1,7,8,2,3,1,4,5,7,8,2,3,1,7,8,2,3,1,4,5,6,0,
 };
 
+/*
+
+Internal ID identification for the nodes
+
+*/
+#define TFLITE_INTERNAL_ID 0
+#define AUDIOWIN_INTERNAL_ID 4
+#define MFCC_INTERNAL_ID 5
+#define MFCCWIND_INTERNAL_ID 6
+#define SRC_INTERNAL_ID 7
+#define TOMONO_INTERNAL_ID 8
+
 
 
 CG_BEFORE_FIFO_BUFFERS

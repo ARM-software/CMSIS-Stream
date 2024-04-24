@@ -91,6 +91,20 @@ static uint8_t schedule[25]=
 6,2,0,7,3,4,8,1,6,2,0,7,3,4,8,1,5,2,0,7,3,4,8,1,5,
 };
 
+/*
+
+Internal ID identification for the nodes
+
+*/
+#define AUDIOOVERLAP_INTERNAL_ID 1
+#define AUDIOWIN_INTERNAL_ID 2
+#define CFFT_INTERNAL_ID 3
+#define ICFFT_INTERNAL_ID 4
+#define SINK_INTERNAL_ID 5
+#define SRC_INTERNAL_ID 6
+#define TOCMPLX_INTERNAL_ID 7
+#define TOREAL_INTERNAL_ID 8
+
 
 
 CG_BEFORE_FIFO_BUFFERS

@@ -92,6 +92,20 @@ static uint8_t schedule[44]=
 7,0,3,5,
 };
 
+/*
+
+Internal ID identification for the nodes
+
+*/
+#define DUP0_INTERNAL_ID 0
+#define FROMSOURCE_INTERNAL_ID 1
+#define PROCESSING_INTERNAL_ID 2
+#define SHAREDSINK_INTERNAL_ID 3
+#define SHAREDSOURCE_INTERNAL_ID 4
+#define SINK_INTERNAL_ID 5
+#define SOURCE_INTERNAL_ID 6
+#define TOSINK_INTERNAL_ID 7
+
 
 
 CG_BEFORE_FIFO_BUFFERS

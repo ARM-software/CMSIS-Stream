@@ -91,6 +91,17 @@ static uint8_t schedule[17]=
 4,0,1,2,3,3,4,0,1,2,3,3,0,1,2,3,3,
 };
 
+/*
+
+Internal ID identification for the nodes
+
+*/
+#define AUDIOWIN_INTERNAL_ID 0
+#define MFCC_INTERNAL_ID 1
+#define MFCCWIN_INTERNAL_ID 2
+#define SINK_INTERNAL_ID 3
+#define SRC_INTERNAL_ID 4
+
 
 
 CG_BEFORE_FIFO_BUFFERS
