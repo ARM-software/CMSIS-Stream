@@ -43,6 +43,17 @@ using namespace arm_cmsis_stream;
 {% block schedArray %}
 {% endblock %}
 
+/*
+
+Internal ID identification for the nodes
+
+*/
+{% for nodeID in range(nbNodes) -%}
+{% if nodes[nodeID].hasState %}
+#define {{nodes[nodeID].typeName | upper}}_INTERNAL_ID {{nodeID}}
+{% endif %}
+{% endfor %}
+
 {% if config.callback -%}
 /* For callback management */
 
