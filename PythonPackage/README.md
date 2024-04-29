@@ -14,6 +14,10 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.13.0:
+
+* New option to prevent a custom buffer from being shared
+
 ## Version 1.12.0:
 
 * Corrected issues with Duplicate node buffer optimizations
