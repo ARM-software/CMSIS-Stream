@@ -271,6 +271,9 @@ class Graph():
         # It prevents memory optimization from bein applied to
         # this FIFO
         self._FIFOCustomBuffer = {}
+        # If FIFO constraint is inherited from an IO then duplicate node
+        # can be inserted since we know how to reapply the constraint
+        self._InheritedFIFOConstraint = {}
         # Topological sorting of nodes
         # computed during topology matrix
         # and used for some scheduling
@@ -456,7 +459,10 @@ class Graph():
                             fifoWeak = self._FIFOWeak[(nodea,nodeb)]
 
                         if (nodea,nodeb) in self._FIFOCustomBuffer:
-                            raise CantHaveBufferConstraintOnFIFOWhenDuplicateIsInserted(nodea,nodeb)
+                            if not (nodea,nodeb) in self._InheritedFIFOConstraint or not self._InheritedFIFOConstraint[(nodea,nodeb)]:
+                               raise CantHaveBufferConstraintOnFIFOWhenDuplicateIsInserted(nodea,nodeb)
+                            #else:
+                            #    print(f"{nodea.owner.nodeName} -> {nodeb.owner.nodeName}")
 
                         if (nodea,nodeb) in self._delays:
                            delay = self._delays[(nodea,nodeb)]
@@ -491,6 +497,14 @@ class Graph():
                             del self._FIFOClasses[(nodea,nodeb)]
                         if (nodea,nodeb) in self._FIFOScale:
                             del self._FIFOScale[(nodea,nodeb)]
+
+                        # If we reach this line without an exception it means
+                        # the FIFO constraint is inherited from an IO
+                        # so it can be removed from the FIFO
+                        # and by connection of the nodes to the duplicate one
+                        # new constraints on new FIFOs will be created
+                        if (nodea,nodeb) in self._FIFOCustomBuffer:
+                            del self._FIFOCustomBuffer[(nodea,nodeb)]
 
                         if (nodea,nodeb) in self._FIFOAsyncLength:
                             del self._FIFOAsyncLength[(nodea,nodeb)]
@@ -570,11 +584,15 @@ class Graph():
                 self._FIFOWeak[(nodea,nodeb)] = weak
                 if not nodea._bufferConstraint is None:
                     self._FIFOCustomBuffer[(nodea,nodeb)] = nodea._bufferConstraint
+                    self._InheritedFIFOConstraint[(nodea,nodeb)] = True
+                    #print(f"{nodea.owner.nodeName} -> {nodeb.owner.nodeName}")
                 elif not nodeb._bufferConstraint is None:
                     self._FIFOCustomBuffer[(nodea,nodeb)] = nodeb._bufferConstraint
+                    self._InheritedFIFOConstraint[(nodea,nodeb)] = True
+                    #print(f"{nodea.owner.nodeName} -> {nodeb.owner.nodeName}")
                 elif not buffer is None:
                     self._FIFOCustomBuffer[(nodea,nodeb)] = BufferConstraint(name=buffer,mustBeArray=customBufferMustBeArray)
-                    
+                    self._InheritedFIFOConstraint[(nodea,nodeb)] = False
 
 
                 if not (nodea.owner in self._nodes):
@@ -771,20 +789,53 @@ class Graph():
             G = nx.Graph()
 
             for fifo in allFIFOs: 
+                    # FIFOs that are not array do not participate in the
+                    # memory optimization
                     if fifo.isArray:
                         G.add_node(fifo)
 
             # FIFO with an assigned external buffer
-            # are interfering 
+            # may be interfering with other FIFOs
+            # for reasons not related to the scheduling
             for fifo in allFIFOs: 
+                # Special interference constraints for FIFO having a specified
+                # an imposed buffer
                 if not fifo.customBuffer is None:
+                    #  If FIFO is not an array it does not participate in
+                    # the memory optimization
                     if fifo.isArray:
+                        current_length_in_bytes = fifo.theType.bytes * fifo.length
                         for other in allFIFOs:
-                            if other != fifo and other.isArray:
-                                if not G.has_edge(fifo,other) and not G.has_edge(other,fifo):
-                                   G.add_edge(fifo,other)
+                            other_length_in_bytes = other.theType.bytes * other.length
 
-            # Create the interference graph
+                            # If not used as an array the fifo is already interfering
+                            # so no need to add an edge
+                            # A FIFO also doesn't add an edge to itself
+                            if other != fifo and other.isArray:
+                                # In case of custom buffer, fifos are not interfering only if
+                                # they have same buffer size and other fifo is not using a custom buffer
+                                # or is using the same custom buffer and if the buffer
+                                # is not assigned by the node.
+                                # If it is assigned by the node, then other fifo would not have
+                                # access to this buffer.
+                                if  (
+                                        # If buffer allocated by node other fifos can't access it
+                                        # so we can't share this buffer
+                                        fifo.customBuffer.assignedByNode or
+                                        # If user does not want to share this buffer then we add interference 
+                                        not fifo.customBuffer.canBeShared 
+                                        # Assigned buffer cannot be resized so we only accept to share
+                                        # with buffers of same size
+                                        or (current_length_in_bytes != other_length_in_bytes) 
+                                        # If other fifo declare a constraint it must be the same buffer
+                                        or (other.customBuffer and (fifo.customBuffer != other.customBuffer))
+                                    ):
+                                    if not G.has_edge(fifo,other) and not G.has_edge(other,fifo):
+                                         # In any other case we add an interference edge
+                                         # The two FIFOs cannot share a buffer
+                                         G.add_edge(fifo,other)
+
+            # Create the interference graph due to scheduling constraints
 
             # Dictionary of active FIFOs at a given time.
             # The time is a scheduling step
@@ -830,11 +881,12 @@ class Graph():
                                        # in all cases
                                        if self.no_exception_for_duplicate(config,k,fifo):
                                           G.add_edge(k,fifo)
+                                          #print(f"{k.src.owner.nodeName} -> {k.dst.owner.nodeName} ; {fifo.src.owner.nodeName} -> {fifo.dst.owner.nodeName}")
                                 active[fifo]=True 
     
                 currentTime = currentTime + 1
 
-            # To debug and display the graph
+            # To debug and display the interference graph
             if False:
                import matplotlib.pyplot as plt
                labels={}
@@ -859,21 +911,42 @@ class Graph():
             # and keep track of the max color number
             # Since other buffers (for real FIFOs) will have their
             # numbering start after this one.
+            # In case of buffer constraint, buffer ID is not used
+            # and instead the custom buffer name is used
             
             # Remap to continuous buffer number starting from 0
             # since the Jinja templates assume that buffers are
             # continuous
             continuousNumber = 0
+            # May contain an integer when buffer allocated by CMSIS-Stream
+            # Otherwise contains a BufferConstraint when buffer is allocated
+            # outside of stream
             sharedToContinuous={}
+            # Scan first for custom buffers
+            for fifo in d:
+                if not fifo.customBuffer is None:
+                    if not d[fifo] in sharedToContinuous:
+                       sharedToContinuous[d[fifo]] = fifo.customBuffer
+                       fifo.sharedNB=sharedToContinuous[d[fifo]]
+
+            # Scan for other fifos
             for fifo in d:
                 if fifo.customBuffer is None:
                    if not d[fifo] in sharedToContinuous:
                        sharedToContinuous[d[fifo]] = continuousNumber
                        continuousNumber = continuousNumber + 1
-                   fifo.sharedNB=sharedToContinuous[d[fifo]]
-                   bufferID=max(bufferID,fifo.sharedNB)
-
-            # Compute the max size for each shared buffer
+                   
+                   # If this color ID is already in the dictionary and is an
+                   # int then we select the numbered buffer allocated by
+                   # CMSIS-STream
+                   if isinstance(sharedToContinuous[d[fifo]], int):
+                      fifo.sharedNB=sharedToContinuous[d[fifo]]
+                      bufferID=max(bufferID,fifo.sharedNB)
+                   # otherwise we select th custom buffer
+                   else:
+                      fifo.customBuffer = sharedToContinuous[d[fifo]]
+                   
+            # Compute the max size for each shared buffer allocated by CMSIS-Stream
             maxSizes={} 
             for fifo in d:
                 # No custom buffer assigned so can use a shared buffer
@@ -894,14 +967,16 @@ class Graph():
         for fifo in allFIFOs:
             # Use shared buffer if memory optimization
             if fifo.isArray and (config.memoryOptimization and not config.asynchronous and not config.fullyAsynchronous):
+                # If fifo is not using a custom buffer then it uses
+                # a buffer allocated by CMSIS-Stream
                 if fifo.customBuffer is None:
-                   fifo.buffer=allBuffers[fifo.sharedNB] 
-                   fifo.bufferID=fifo.sharedNB
+                      fifo.buffer=allBuffers[fifo.sharedNB] 
+                      fifo.bufferID=fifo.sharedNB
             # Create a new buffer for a real FIFO
             # Use bufferID which is starting after the numbers allocated
             # to shared buffers
             else:
-                # It applies wheh no memory optimization or when the
+                # It applies when no memory optimization or when the
                 # fifo is not used as an array and so was not handled
                 # in the buffer allocations above.
                 if fifo.customBuffer is None:
@@ -913,7 +988,8 @@ class Graph():
 
         allBuffers = allBuffers.values()
 
-        # Compute the total memory used in bytes
+        # Compute the total memory used in bytes (not including custom buffers
+        # that are not allocated by CMSIS-Stream)
         self._totalMemory = 0
         for buf in allBuffers:
             self._totalMemory = self._totalMemory + buf._theType.bytes * buf._length

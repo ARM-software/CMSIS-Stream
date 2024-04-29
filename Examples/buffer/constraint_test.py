@@ -10,6 +10,9 @@ from nodes import *
 
 from cmsis_stream.cg.yaml import *
 
+class DidNotFail(Exception):
+   pass
+
 floatType=CType(F32)
 
 
@@ -148,16 +151,80 @@ def test9(conf):
     g.connect(processing1.o,sink1.i,buffer="Test")
     return g
 
-TESTS=[[test1,False]
-      ,[test2,False]
-      ,[test3,False]
-      ,[test4,True]
-      ,[test5,True]
-      ,[test6,True]
-      ,[test7,False]
-      ,[test8,False]
-      ,[test9,True]
+# Use a duplicate node connected to a buffer constraint
+# but the buffer constraint is
+# inherited from io and it may be shared with buffers of same
+# size.
+# In this case, duplicate node is allowed and buffer
+# sharing is allowed
+def test10(conf):
+    conf.schedulerCFileName="cv_scheduler10"
+    # Buffer that must be array and be shared
+    src=SourceC3("source",floatType,5)
+    sink1=Sink("sink1",floatType,5)
+    sink2=Sink("sink2",floatType,5)
+    
+    g = Graph()
+    
+    g.connect(src.o,sink1.i)
+    g.connect(src.o,sink2.i)
+    return g
+
+# Similar to test10 but the buffer cannot be shared
+def test11(conf):
+    conf.schedulerCFileName="cv_scheduler11"
+    # Buffer that must be array and cannot be be shared
+    src=SourceC4("source",floatType,5)
+    sink1=Sink("sink1",floatType,5)
+    sink2=Sink("sink2",floatType,5)
+    
+    g = Graph()
+    
+    g.connect(src.o,sink1.i)
+    g.connect(src.o,sink2.i)
+    return g
+
+def test12(conf):
+    conf.schedulerCFileName="cv_scheduler12"
+    # Buffer that must be array and be shared
+    src=SourceC3("source",floatType,5)
+    sink=SinkC("sink",floatType,5)
+    
+    g = Graph()
+    
+    g.connect(src.o,sink.i)
+    return g
+
+
+def test13(conf):
+    conf.schedulerCFileName="cv_scheduler10"
+    # Buffer that must be array and be shared
+    src=SourceC3("source",floatType,5)
+    sink1=SinkC("sink1",floatType,5)
+    sink2=SinkC("sink2",floatType,5)
+    
+    g = Graph()
+    
+    g.connect(src.o,sink1.i)
+    g.connect(src.o,sink2.i)
+    return g
+# Test and mustFail status
+TESTS=[[1,test1,False]
+      ,[2,test2,False]
+      ,[3,test3,False]
+      ,[4,test4,True]
+      ,[5,test5,True]
+      ,[6,test6,True]
+      ,[7,test7,False]
+      ,[8,test8,False]
+      ,[9,test9,True]
+      ,[10,test10,False]
+      ,[11,test11,False]
+      ,[12,test12,False]
+      ,[13,test13,True]
   ]
+#  
+#TESTS =[[5,test5,True]]
 
 # Create a configuration object
 conf=Configuration()
@@ -170,7 +237,14 @@ conf.debugLimit=1
 conf.CMSISDSP = False
 conf.asynchronous = False
 conf.memoryOptimization=True
+#conf.memStrategy = 'largest_first'
+#conf.memStrategy = 'random_sequential'
+#conf.memStrategy = 'smallest_last'
 conf.memStrategy = 'independent_set'
+#conf.memStrategy = 'connected_sequential_bfs'
+#conf.memStrategy = 'connected_sequential_dfs'
+#conf.memStrategy = 'saturation_largest_first'
+#conf.memStrategy = 'largest_first'
 conf.bufferAllocation = True
 conf.cOptionalArgs=["uint8_t *myBuffer","uint8_t *myBufferB"]
 conf.prefix = "cv"
@@ -178,18 +252,18 @@ conf.prefix = "cv"
 
 
 def test(id,f,mustFail):
-    print(f"\nTest {id+1}")
+    print(f"\nTest {id}")
     try:
        g = f(conf)
 
-       export_graph(g,f"constraint_graph_{id+1}.yml")
-       export_config(conf,f"constraint_config{id+1}.yml")
+       export_graph(g,f"constraint_graph_{id}.yml")
+       export_config(conf,f"constraint_config{id}.yml")
 
-       testg = import_graph(f"constraint_graph_{id+1}.yml")
-       export_graph(testg,f"constraint_graph_b_{id+1}.yml")
+       testg = import_graph(f"constraint_graph_{id}.yml")
+       export_graph(testg,f"constraint_graph_b_{id}.yml")
 
-       confb = import_config(f"constraint_config{id+1}.yml")
-       export_config(confb,f"constraint_config_b{id+1}.yml")
+       confb = import_config(f"constraint_config{id}.yml")
+       export_config(confb,f"constraint_config_b{id}.yml")
    
        scheduling = g.computeSchedule(config=conf)
     
@@ -202,11 +276,14 @@ def test(id,f,mustFail):
        # Generate the C++ code for the static scheduler
        scheduling.ccode(".",conf)
 
-       testg = import_graph(f"constraint_graph_{id+1}.yml")
-       export_graph(testg,f"constraint_graph_b_{id+1}.yml")
+       testg = import_graph(f"constraint_graph_{id}.yml")
+       export_graph(testg,f"constraint_graph_b_{id}.yml")
 
-       confb = import_config(f"constraint_config{id+1}.yml")
-       export_config(confb,f"constraint_config_b{id+1}.yml")
+       confb = import_config(f"constraint_config{id}.yml")
+       export_config(confb,f"constraint_config_b{id}.yml")
+
+       if mustFail:
+          raise DidNotFail
 
     except FIFOWithCustomBufferMustBeUsedAsArray as e:
        print("Detected FIFOWithCustomBufferMustBeUsedAsArray")
@@ -232,5 +309,5 @@ def test(id,f,mustFail):
         raise e
     
 
-for i,v in enumerate(TESTS):
-    test(i,v[0],v[1])
+for v in TESTS:
+    test(v[0],v[1],v[2])

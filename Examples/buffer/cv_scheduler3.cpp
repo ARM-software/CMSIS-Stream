@@ -98,6 +98,17 @@ static uint8_t schedule[5]=
 4,1,0,2,3,
 };
 
+/*
+
+Internal ID identification for the nodes
+
+*/
+#define DUP0_INTERNAL_ID 0
+#define PROCESSING1_INTERNAL_ID 1
+#define SINK1_INTERNAL_ID 2
+#define SINK2_INTERNAL_ID 3
+#define SOURCE_INTERNAL_ID 4
+
 
 
 CG_BEFORE_FIFO_BUFFERS
@@ -155,14 +166,14 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
     */
     FIFO<float,FIFOSIZE0,1,0> fifo0(Test);
     FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf0);
-    FIFO<float,FIFOSIZE2,1,0> fifo2(buffers.buf0);
-    FIFO<float,FIFOSIZE3,1,0> fifo3(buffers.buf0);
+    FIFO<float,FIFOSIZE2,1,0> fifo2(Test);
+    FIFO<float,FIFOSIZE3,1,0> fifo3(Test);
 
     CG_BEFORE_NODE_INIT;
     /* 
     Create node objects
     */
-    Duplicate<float,5,float,5> dup0(fifo1,{}); /* Node ID = 0 */
+    Duplicate<float,5,float,5> dup0(fifo1,{&fifo2}); /* Node ID = 0 */
     ProcessingNodeCC<float,5,float,5> processing1(fifo0,fifo1); /* Node ID = 1 */
     Sink<float,5> sink1(fifo2,"sink1"); /* Node ID = 2 */
     Sink<float,5> sink2(fifo3,"sink2"); /* Node ID = 3 */

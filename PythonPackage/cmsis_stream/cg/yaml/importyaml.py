@@ -39,7 +39,10 @@ def _dataType(s,cstruct):
 def _addBufferConstraint(io_yaml,io):
     if 'buffer-constraint' in io_yaml:
         constraint = io_yaml['buffer-constraint']
-        io.setBufferConstraint(name=constraint["name"],mustBeArray=constraint["must-be-array"],assignedByNode=constraint["assigned-by-node"])
+        io.setBufferConstraint(name=constraint["name"],
+                               mustBeArray=constraint["must-be-array"],
+                               assignedByNode=constraint["assigned-by-node"],
+                               canBeShared=constraint['can-be-shared'])
       
 
 class _YamlSource(GenericSource):

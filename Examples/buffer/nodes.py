@@ -54,6 +54,18 @@ class Sink(GenericSink):
         """The name of the C++ class implementing this node"""
         return "Sink"
 
+class SinkC(GenericSink):
+    def __init__(self,name,theType,inLength):
+        GenericSink.__init__(self,name)
+        self.addInput("i",theType,inLength)
+        self.addLiteralArg(name)
+        self.i.setBufferConstraint(name="Test",mustBeArray=False,assignedByNode=False)
+
+    @property
+    def typeName(self):
+        """The name of the C++ class implementing this node"""
+        return "SinkC"
+
 class Source(GenericSource):
     def __init__(self,name,theType,outLength):
         GenericSource.__init__(self,name)
@@ -99,3 +111,15 @@ class SourceC3(GenericSource):
     def typeName(self):
         """The name of the C++ class implementing this node"""
         return "SourceC3"
+
+# Cannot be shared
+class SourceC4(GenericSource):
+    def __init__(self,name,theType,outLength):
+        GenericSource.__init__(self,name)
+        self.addOutput("o",theType,outLength)
+        self.o.setBufferConstraint(name="Test",mustBeArray=True,assignedByNode=False,canBeShared=False)
+
+    @property
+    def typeName(self):
+        """The name of the C++ class implementing this node"""
+        return "SourceC2"

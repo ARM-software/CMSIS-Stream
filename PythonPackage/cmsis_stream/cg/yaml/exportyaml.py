@@ -37,6 +37,7 @@ def _mkBufferConstraint(fifoCustomBuffer):
         buf["name"] = fifoCustomBuffer.name
     buf["must-be-array"] = fifoCustomBuffer.mustBeArray
     buf["assigned-by-node"] = fifoCustomBuffer.assignedByNode
+    buf["can-be-shared"] = fifoCustomBuffer.canBeShared
     return buf
 
 class _YAMLEdge():

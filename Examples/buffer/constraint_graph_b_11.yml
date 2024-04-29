@@ -3,7 +3,7 @@ graph:
   nodes:
   - node: source
     identified: true
-    kind: SourceC1
+    kind: SourceC2
     outputs:
     - output: o
       samples: 5
@@ -12,18 +12,7 @@ graph:
         name: Test
         must-be-array: true
         assigned-by-node: false
-        can-be-shared: true
-  - node: processing1
-    identified: true
-    kind: ProcessingNode
-    inputs:
-    - input: i
-      samples: 7
-      type: float
-    outputs:
-    - output: o
-      samples: 5
-      type: float
+        can-be-shared: false
   - node: sink1
     identified: true
     kind: Sink
@@ -47,16 +36,10 @@ graph:
       node: source
       output: o
     dst:
-      node: processing1
-      input: i
-  - src:
-      node: processing1
-      output: o
-    dst:
       node: sink1
       input: i
   - src:
-      node: processing1
+      node: source
       output: o
     dst:
       node: sink2

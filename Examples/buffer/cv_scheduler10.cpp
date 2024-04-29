@@ -13,7 +13,7 @@ The support classes and code are covered by CMSIS-Stream license.
 #include "cg_status.h"
 #include "GenericNodes.h"
 #include "AppNodes.h"
-#include "cv_scheduler1.h"
+#include "cv_scheduler10.h"
 
 #if !defined(CHECKERROR)
 #define CHECKERROR       if (cgStaticError < 0) \
@@ -93,9 +93,9 @@ using namespace arm_cmsis_stream;
 Description of the scheduling. 
 
 */
-static uint8_t schedule[5]=
+static uint8_t schedule[4]=
 { 
-4,1,0,2,3,
+3,0,1,2,
 };
 
 /*
@@ -104,10 +104,9 @@ Internal ID identification for the nodes
 
 */
 #define DUP0_INTERNAL_ID 0
-#define PROCESSING1_INTERNAL_ID 1
-#define SINK1_INTERNAL_ID 2
-#define SINK2_INTERNAL_ID 3
-#define SOURCE_INTERNAL_ID 4
+#define SINK1_INTERNAL_ID 1
+#define SINK2_INTERNAL_ID 2
+#define SOURCE_INTERNAL_ID 3
 
 
 
@@ -120,33 +119,19 @@ FIFO buffers
 #define FIFOSIZE0 5
 #define FIFOSIZE1 5
 #define FIFOSIZE2 5
-#define FIFOSIZE3 5
 
-typedef struct {
-uint8_t  *buf0;
-} buffers_t;
 
 CG_BEFORE_BUFFER
-static buffers_t buffers={0};
 
 int init_buffer_scheduler(uint8_t *myBuffer,
                               uint8_t *myBufferB)
 {
-    buffers.buf0 = (uint8_t *)CG_MALLOC(20 * sizeof(uint8_t));
-    if (buffers.buf0==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
     return(CG_SUCCESS);
 }
 
 void free_buffer_scheduler(uint8_t *myBuffer,
                               uint8_t *myBufferB)
 {
-    if (buffers.buf0!=NULL)
-    {
-        CG_FREE(buffers.buf0);
-    }
 }
 
 
@@ -165,19 +150,17 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
     Create FIFOs objects
     */
     FIFO<float,FIFOSIZE0,1,0> fifo0(Test);
-    FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf0);
+    FIFO<float,FIFOSIZE1,1,0> fifo1(Test);
     FIFO<float,FIFOSIZE2,1,0> fifo2(Test);
-    FIFO<float,FIFOSIZE3,1,0> fifo3(Test);
 
     CG_BEFORE_NODE_INIT;
     /* 
     Create node objects
     */
-    Duplicate<float,5,float,5> dup0(fifo1,{&fifo2}); /* Node ID = 0 */
-    ProcessingNode<float,5,float,5> processing1(fifo0,fifo1); /* Node ID = 1 */
-    Sink<float,5> sink1(fifo2,"sink1"); /* Node ID = 2 */
-    Sink<float,5> sink2(fifo3,"sink2"); /* Node ID = 3 */
-    SourceC1<float,5> source(fifo0); /* Node ID = 4 */
+    Duplicate<float,5,float,5> dup0(fifo0,{}); /* Node ID = 0 */
+    Sink<float,5> sink1(fifo1,"sink1"); /* Node ID = 1 */
+    Sink<float,5> sink2(fifo2,"sink2"); /* Node ID = 2 */
+    SourceC3<float,5> source(fifo0); /* Node ID = 3 */
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -186,7 +169,7 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
         /* Run a schedule iteration */
         CG_BEFORE_ITERATION;
         unsigned long id=0;
-        for(; id < 5; id++)
+        for(; id < 4; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
             switch(schedule[id])
@@ -201,25 +184,18 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
                 case 1:
                 {
                     
-                   cgStaticError = processing1.run();
+                   cgStaticError = sink1.run();
                 }
                 break;
 
                 case 2:
                 {
                     
-                   cgStaticError = sink1.run();
-                }
-                break;
-
-                case 3:
-                {
-                    
                    cgStaticError = sink2.run();
                 }
                 break;
 
-                case 4:
+                case 3:
                 {
                     
                    cgStaticError = source.run();

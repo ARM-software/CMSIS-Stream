@@ -19,6 +19,7 @@ graph:
         name: Test2
         must-be-array: true
         assigned-by-node: false
+        can-be-shared: true
     outputs:
     - output: o
       samples: 5
@@ -58,6 +59,7 @@ graph:
       name: Test
       must-be-array: true
       assigned-by-node: false
+      can-be-shared: true
   - src:
       node: processing1
       output: o

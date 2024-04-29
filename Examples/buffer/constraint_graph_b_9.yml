@@ -12,6 +12,7 @@ graph:
         name: Test
         must-be-array: true
         assigned-by-node: false
+        can-be-shared: true
   - node: processing1
     identified: true
     kind: ProcessingNode
@@ -49,4 +50,5 @@ graph:
       name: Test
       must-be-array: true
       assigned-by-node: false
+      can-be-shared: true
 

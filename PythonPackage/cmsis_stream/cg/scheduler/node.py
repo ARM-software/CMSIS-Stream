@@ -53,11 +53,17 @@ def joinit(iterable, delimiter):
 
 class BufferConstraint:
     """Constraints on a buffer that must be assigned to a FIFO"""
-    def __init__(self,name=None,mustBeArray=True,assignedByNode=False):
+    def __init__(self,name=None,mustBeArray=True,assignedByNode=False,canBeShared = True):
         self._name = name 
         self._mustBeArray = mustBeArray
         self._assignedByNode = assignedByNode
+        self._canBeShared = canBeShared
 
+    @property
+    def canBeShared(self):
+        return self._canBeShared
+    
+   
     @property
     def name(self):
         return self._name
@@ -79,7 +85,7 @@ class BufferConstraint:
         self.mustBeArray == other.mustBeArray)
 
     def __str__(self):
-        return f"BufferConstraint(name={self.name},mustBeArray={self.mustBeArray},assignedByNode={self.assignedByNode})"
+        return f"BufferConstraint(name={self.name},mustBeArray={self.mustBeArray},assignedByNode={self.assignedByNode},canBeShared={self.canBeShared})"
 
 class IO:
     """Class of input / outputs"""
@@ -100,8 +106,8 @@ class IO:
 
         self._bufferConstraint = None
 
-    def setBufferConstraint(self,name=None,mustBeArray=True,assignedByNode=True):
-        self._bufferConstraint = BufferConstraint(name=name,mustBeArray=mustBeArray,assignedByNode=assignedByNode)
+    def setBufferConstraint(self,name=None,mustBeArray=True,assignedByNode=True,canBeShared=True):
+        self._bufferConstraint = BufferConstraint(name=name,mustBeArray=mustBeArray,assignedByNode=assignedByNode,canBeShared = canBeShared)
 
     # For cyclo static scheduling we advance the position in the
     # cycle
