@@ -5,7 +5,7 @@
 Those methods must be applied to a graph object created with `Graph()`. The `Graph` class is defined inside `cmsis_stream.cg.scheduler` from the cmsis-stream Python package.
 
 ```python
-def connect(self,input_io,output_io,fifoClass=None,fifoScale = 1.0,fifoAsyncLength=0,buffer=None):
+def connect(self,input_io,output_io,fifoClass=None,fifoScale = 1.0,fifoAsyncLength=0,buffer=None,customBufferMustBeArray=True):
 ```
 
 Typically this method is used as:
@@ -24,9 +24,10 @@ There are few optional arguments for the `connect` function:
 * `fifoScale` : In asynchronous mode (deprecated), it is a scaling factor to increase the length of the FIFO compared to what has been computed by the synchronous approximation. This setting can also be set globally using the scheduler options. `fifoScale` is overriding the global setting. It must be a `float` (not an `int`).
 * `fifoAsyncLength` : In fully asynchronous mode. It is the size to use for the FIFO
 * `buffer`: Custom memory buffer to use for this FIFO. When a custom buffer is specified, the FIFO is no more participating to the memory optimization algorithm.
+* `customBufferMustBeArray`: True if the custom buffer must be used only as an array
 
 ```python
-def connectWithDelay(self,input_io,output_io,delay,fifoClass=None,fifoScale=1.0,fifoAsyncLength=0,buffer=None):  
+def connectWithDelay(self,input_io,output_io,delay,fifoClass=None,fifoScale=1.0,fifoAsyncLength=0,buffer=None,customBufferMustBeArray=True):  
 ```
 
 The only difference with the previous function is the `delay` argument. It could be used like:

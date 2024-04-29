@@ -121,6 +121,29 @@ def typeName(self):
 
 This method defines the name of the C++ class implementing the wrapper for this node.
 
+A FIFO constraint can come from an IO. Some software components may allocate the memory for the buffers they use for their inputs or outputs. Or they may have to use a specific memory buffer already defined in the system.
+
+It is possible to define those constraint on an input or on an output. The constraint will be inherited by the FIFO connected to this input or output. A buffer constraint can be defined with:
+
+```python
+def setBufferConstraint(self,name=None,mustBeArray=True,assignedByNode=True,canBeShared=True)
+```
+
+For instance you may define a constraint on an output by writing:
+
+```python
+self.o.setBufferConstraint(name="Test",mustBeArray=True,assignedByNode=False)
+```
+
+Any FIFO connected to this `o` output will have to use the `Test` buffer and will have to be scheduled in such a way that this buffer is used as an array.
+
+The meaning of the arguments is:
+
+* `name` : C code to access the buffer. It can be the name of a global variable. of a variable passed as argument of the scheduler, a function call returning an address ...
+* `mustBeArray` : True if the buffer can only be used as an array (and not as a real FIFO)
+* `assignedByNode` :True if buffer is allocated by the node during the node creation (in the node constructors). In that case, the `name` argument is useless. The FIFO will be initialized with a `nullptr` buffer when creating the scheduler. Then the node will set the FIFO buffer during its construction
+*  `canBeShared` True if the buffer may be shared with other FIFOs. The logic to decide if the buffer can really be shared is complex. It depends on the scheduling, the compatibility of this buffer with other ones etc ...
+
 ### 2.2 Datatypes
 
 Datatypes for the IOs are inheriting from `CGStaticType`.
