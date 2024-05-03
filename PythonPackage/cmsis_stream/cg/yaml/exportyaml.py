@@ -51,6 +51,7 @@ class _YAMLEdge():
         self._fifoWeak = fifoWeak
         self._constantEdge = constantEdge
         self._fifoCustomBuffer = fifoCustomBuffer
+        self._fifo_desc_for_code = None
 
     @property
     def src(self):
@@ -86,6 +87,13 @@ class _YAMLEdge():
     def constantEdge(self):
         return self._constantEdge
 
+    def _mk_fifo_desc(self):
+        if self._fifo_desc_for_code is None:
+            if isinstance(self.fifoClass,str):
+               raise FIFOClassCannotBeString(self.fifoClass)
+
+            self._fifo_desc_for_code = self.fifoClass(self.theType,self.length)
+
     def yaml(self):
         yaml_desc = {}
         srcNode = self.src.owner 
@@ -99,9 +107,12 @@ class _YAMLEdge():
           "node": dstNode.nodeID,
           "input":self.dst.name
         }
+
         if self.fifoClass:
-            if self.fifoClass != "FIFO":
-               yaml_desc["class"] = self.fifoClass
+            if isinstance(self.fifoClass,str):
+                raise FIFOClassCannotBeString(self.fifoClass)
+            if self.fifoClass != StreamFIFO:
+               yaml_desc["class"] = self.fifoClass.__name__
         if self.fifoScale:
             if self.fifoScale != 1.0:
                yaml_desc["scale"] = self.fifoScale
@@ -365,10 +376,10 @@ def export_graph(graph,filename):
     edges = [allEdges[x].yaml() for x in allEdges]
 
     options = None
-    if graph.defaultFIFOClass != 'FIFO' or graph.duplicateNodeClassName != "Duplicate":
+    if graph.defaultFIFOClass != StreamFIFO or graph.duplicateNodeClassName != "Duplicate":
        options = {}
-       if graph.defaultFIFOClass != 'FIFO':
-          options['FIFO'] = graph.defaultFIFOClass
+       if graph.defaultFIFOClass != StreamFIFO:
+          options['FIFO'] = graph.defaultFIFOClass.__name__
        if graph.duplicateNodeClassName != 'Duplicate':
           options['Duplicate'] = graph.duplicateNodeClassName
 
@@ -376,7 +387,7 @@ def export_graph(graph,filename):
     if len(structured_datatypes)>0:
         if options:
             yaml["graph"] = {
-             "options:" : options,
+             "options" : options,
              "custom-types" : structured_datatypes,
              "nodes":nodes,
              "edges":edges,
@@ -390,7 +401,7 @@ def export_graph(graph,filename):
     else:
         if options:
             yaml["graph"] = {
-              "options:" : options,
+              "options" : options,
               "nodes":nodes,
               "edges":edges,
             }

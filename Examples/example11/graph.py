@@ -71,7 +71,7 @@ g = Graph()
 # FIFO class can also be changed in the connect
 # function to change the class for a specific
 # connection
-g.defaultFIFOClass = "FIFO"
+g.defaultFIFOClass = StreamFIFO
 g.duplicateNodeClassName = "Duplicate"
 
 g.connect(odd.o,proc.ia,fifoAsyncLength=1)

@@ -152,7 +152,7 @@ CG_BEFORE_BUFFER
 {% if config.heapAllocation %}
 typedef struct {
 {% for id in range(nbFifos) %}
-{{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}> *fifo{{id}};
+{{fifos[id].fifo_class_str}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}> *fifo{{id}};
 {% endfor %}
 } fifos_t;
 
@@ -197,14 +197,14 @@ int init_{{config.schedName}}({{optionalargs(True)}})
 
     CG_BEFORE_FIFO_INIT;
 {% for id in range(nbFifos) %}
-{% if fifos[id].hasDelay %}
-    fifos.fifo{{id}} = new {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{fifos[id].bufName(config)}},{{fifos[id].delay}});
+{% if fifos[id].hasDelay or fifos[id].hasAdditionalArgs %}
+    fifos.fifo{{id}} = new {{fifos[id].fifo_class_str}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{fifos[id].bufName(config)}},{{fifos[id].delay}}{{fifos[id].fifo_additional_args}});
     if (fifos.fifo{{id}}==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
 {% else %}
-    fifos.fifo{{id}} = new {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{fifos[id].bufName(config)}});
+    fifos.fifo{{id}} = new {{fifos[id].fifo_class_str}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{fifos[id].bufName(config)}}{{fifos[id].fifo_additional_args}});
     if (fifos.fifo{{id}}==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
@@ -281,10 +281,10 @@ uint32_t {{config.schedName}}(int *error{{optionalargs(False)}})
     Create FIFOs objects
     */
 {% for id in range(nbFifos) %}
-{% if fifos[id].hasDelay %}
-    {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}> fifo{{id}}({{fifos[id].bufName(config)}},{{fifos[id].delay}});
+{% if fifos[id].hasDelay or fifos[id].hasAdditionalArgs %}
+    {{fifos[id].fifo_class_str}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}> fifo{{id}}({{fifos[id].bufName(config)}},{{fifos[id].delay}}{{fifos[id].fifo_additional_args}});
 {% else %}
-    {{fifos[id].fifoClass}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}> fifo{{id}}({{fifos[id].bufName(config)}});
+    {{fifos[id].fifo_class_str}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}> fifo{{id}}({{fifos[id].bufName(config)}}{{fifos[id].fifo_additional_args}});
 {% endif %}
 {% endfor %}
 

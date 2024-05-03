@@ -4,6 +4,15 @@ from yaml import safe_load
 # Include definitions from the Python package
 from ..scheduler import GenericNode,GenericSink,GenericSource
 
+class CannotFindClass(Exception):
+    def __init__(self,s):
+        self._s = s
+
+    def __str__(self):
+        return f"""
+Cannot find the Python class {self._s} to import the yaml.
+Did you forget the str_to_class argument ?"""
+
 def _dataType(s,cstruct):
     if s == 'float64_t':
         return(CType(F64,cmsis_dsp=True))
@@ -35,6 +44,15 @@ def _dataType(s,cstruct):
         return(CType(SINT8,cmsis_dsp=True))
     if s in cstruct:
         return(cstruct[s])
+
+def get_class_name(className,str_to_class):
+    if className == "StreamFIFO":
+        return StreamFIFO
+    else:
+        if className in str_to_class:
+            return str_to_class[className]
+        else:
+            raise CannotFindClass(className)
 
 def _addBufferConstraint(io_yaml,io):
     if 'buffer-constraint' in io_yaml:
@@ -274,7 +292,7 @@ def _identifyNodeKind(n):
         return(FROM_MANY_NODE)
     return(NODE)
 
-def import_graph(filename):
+def import_graph(filename,str_to_class={}):
     with open(filename,"r") as f:
         r = safe_load(f)
         if 'graph' in r:
@@ -284,7 +302,9 @@ def import_graph(filename):
             cstruct={} 
             if 'options' in g:
                 if 'FIFO' in g['options']:
-                    the_graph.defaultFIFOClass = g['options']['FIFO']
+                    className = g['options']['FIFO']
+                    the_graph.defaultFIFOClass = get_class_name(className,str_to_class)
+                    
                 if 'Duplicate' in g['options']:
                     the_graph.duplicateNodeClassName = g['options']['Duplicate']
             if 'custom-types' in g:
@@ -350,7 +370,8 @@ def import_graph(filename):
                     customBufferMustBeArray = True
     
                     if 'class' in e: 
-                        fifoClass = e['class']
+                        className = e['class']
+                        fifoClass = get_class_name(className,str_to_class)
     
                     if 'scale' in e:
                         fifoScale = e['scale']

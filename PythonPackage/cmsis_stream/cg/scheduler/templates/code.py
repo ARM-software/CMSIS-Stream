@@ -49,10 +49,10 @@ def {{config.schedName}}({{optionalargs()}}):
     #  Create FIFOs objects
     #
 {% for id in range(nbFifos) %}
-{% if fifos[id].hasDelay %}
-    fifo{{id}}={{fifos[id].fifoClass}}(FIFOSIZE{{id}},{{config.prefix}}buf{{id}},delay={{fifos[id].delay}})
+{% if fifos[id].hasDelay  or fifos[id].hasAdditionalArgs %}
+    fifo{{id}}={{fifos[id].fifo_class_str}}(FIFOSIZE{{id}},{{config.prefix}}buf{{id}},delay={{fifos[id].delay}}{{fifos[id].fifo_additional_args}})
 {% else %}
-    fifo{{id}}={{fifos[id].fifoClass}}(FIFOSIZE{{id}},{{config.prefix}}buf{{id}})
+    fifo{{id}}={{fifos[id].fifo_class_str}}(FIFOSIZE{{id}},{{config.prefix}}buf{{id}})
 {% endif %}
 {% endfor %}
 

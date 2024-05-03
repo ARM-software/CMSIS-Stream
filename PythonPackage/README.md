@@ -14,6 +14,12 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.14.0:
+
+* More customization possible for the FIFO class:
+  * It is no more described with a string but now uses a Python class to give the name of the C++ class implementing the FIFO and the additional arguments used by the C++ constructor of this FIFO.
+  * Having a custom FIFO with additional arguments may require to change the definitions in `GenericNodes.h`
+
 ## Version 1.13.0:
 
 * New option to prevent a custom buffer from being shared

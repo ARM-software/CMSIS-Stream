@@ -74,6 +74,18 @@ class CannotDelayConstantError(Exception):
 class TooManyNodesOnOutput(Exception):
     pass
 
+class FIFOClassCannotBeString(Exception):
+    def __init__(self,s):
+        self._s = s 
+
+    def __str__(self):
+        return f"""
+The FIFO class customization cannot be a string anymore. A Python class must 
+be provided.
+The Python class is used to describe the C++ FIFO (C++ class and additional
+constructor arguments). The Python class must follow API of StreamFIFO.
+The error occured when trying to use string "{self._s}" for a FIFO class"""
+
 # Trying to use a FIFO as a real FIFO (no array)
 # when a buffer is assigned to the FIFO and the buffer must be used
 # # as an array
@@ -129,7 +141,20 @@ class DupDestination:
         self.fifoWeak = fifoWeak 
 
 
+# Description of how to generate the FIFO in the C++ code 
+class StreamFIFO:
+    def __init__(self,the_type,length):
+        self._ctype = the_type
+        self._length = length 
+
+    @property
+    def cname(self):
+        return "FIFO"
     
+    @property
+    def args(self):
+        # No additional arguments by default
+        return []
 
 class FifoBuffer:
     """Buffer used by a FIFO"""
@@ -183,6 +208,23 @@ class FIFODesc:
         # arguments of the C duplicate node
         self._skip_for_duplicate = False
 
+        # FIFO class description used for code generation
+        # By default an instance of StreamFIFO
+        # Create and memoized when generating the C code from the
+        # Jinja template
+        self._fifo_desc_for_code = None
+
+
+    def _mk_fifo_desc(self):
+        if self._fifo_desc_for_code is None:
+            if isinstance(self.fifoClass,str):
+               raise FIFOClassCannotBeString(self.fifoClass)
+
+            self._fifo_desc_for_code = self.fifoClass(self.theType,self.length)
+
+
+    
+
     # For c code generation 
     @property
     def isArrayAsInt(self):
@@ -232,6 +274,28 @@ class FIFODesc:
         else:
            return(f"{config.prefix}buf{self.buffer._bufferID}")
 
+    @property
+    def fifo_class_str (self):
+        self._mk_fifo_desc()
+        return f"{self._fifo_desc_for_code.cname}"
+
+    @property
+    def fifo_additional_args (self):
+        self._mk_fifo_desc()
+        if not self._fifo_desc_for_code.args:
+            return ""
+        else:
+            r = ",".join(self._fifo_desc_for_code.args)
+            return f",{r}"
+
+    # When there are additional args, we need to generate
+    # the delay argument even when it has its default value of 0
+    # So, this is checked in the Jijna template
+    @property 
+    def hasAdditionalArgs(self):
+        self._mk_fifo_desc()
+        return len(self._fifo_desc_for_code.args)>0
+
 
 def analyzeStep(vec,allFIFOs,theTime):
     """Analyze an evolution step to know which FIFOs are read and written to"""
@@ -280,7 +344,7 @@ class Graph():
         # (prioritizing the scheduling of nodes
         # close to the graph output)
         self._topologicalSort=[]
-        self.defaultFIFOClass = "FIFO"
+        self.defaultFIFOClass = StreamFIFO
 
          # Prefix used to generate the class names
         # of the duplicate nodes like Duplicate2,
@@ -492,6 +556,7 @@ class Graph():
                         # cleaner way)
                         if self._g.has_edge(nodea.owner,nodeb.owner):
                            self._g.remove_edge(nodea.owner,nodeb.owner)
+
                         del self._edges[(nodea,nodeb)]
                         if (nodea,nodeb) in self._FIFOClasses:
                             del self._FIFOClasses[(nodea,nodeb)]

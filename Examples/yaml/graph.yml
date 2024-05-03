@@ -49,6 +49,7 @@ graph:
             name: Testi_processing
             must-be-array: false
             assigned-by-node: false
+            can-be-shared: true
       - input: ic
       - input: id
       - input: ie
@@ -62,6 +63,7 @@ graph:
             name: Testo_processing
             must-be-array: false
             assigned-by-node: false
+            can-be-shared: true
       - output: ob
       - output: oc
       - output: od
