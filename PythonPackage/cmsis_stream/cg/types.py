@@ -211,7 +211,7 @@ class CType(CGStaticType):
         elif self._id == F16:
            return(2)
         elif self._id == Q31:
-           return(7)
+           return(4)
         elif self._id == Q15:
            return(2)
         elif self._id == Q7:

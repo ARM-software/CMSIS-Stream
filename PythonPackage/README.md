@@ -14,6 +14,9 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 1.14.1:
+* Bug correction for issue #2
+
 ## Version 1.14.0:
 
 * More customization possible for the FIFO class:

@@ -45,7 +45,7 @@ scheduling.ccode(".",conf)
 generateGenericNodes(".")
 
 # cg_status.h is created in the folder "generated"
-generateCGStatus(".")
+#generateCGStatus(".")
 
 
 # Generate a graphviz representation of the graph

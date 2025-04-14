@@ -40,3 +40,5 @@ Examples/graphvizexample/features/
 Examples/eventrecorder/*.cbuild-idx.yml
 *.cbuild-idx.yml
 .clangd
+*.cbuild-pack.yml
+*.cbuild-set.yml
