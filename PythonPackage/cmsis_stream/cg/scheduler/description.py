@@ -7,7 +7,7 @@
 # Target Processor: Cortex-M and Cortex-A cores
 # -------------------------------------------------------------------- */
 # 
-# Copyright (C) 2021-2023 ARM Limited or its affiliates. All rights reserved.
+# Copyright (C) 2021-2025 ARM Limited or its affiliates. All rights reserved.
 # 
 # SPDX-License-Identifier: Apache-2.0
 # 
@@ -1204,7 +1204,11 @@ class Graph():
         intValues = [x * ppcm for x in result]
         # Convert intValues to the smallest possible values
         gcd = igcd(*intValues)
-        return([x // gcd for x in intValues])
+        res = [x // gcd for x in intValues]
+        # Convert SymPy Integer to Python int
+        res = np.array([int(x) for x in res],dtype=int)
+
+        return(res)
 
     @property
     def initEvolutionVector(self):
@@ -1513,8 +1517,8 @@ class Graph():
 
         schedule=[]
 
-        zeroVec = np.zeros(len(self._sortedNodes))
-        evolutionTime = 0
+        zeroVec = np.zeros(len(self._sortedNodes),dtype=int)
+        evolutionTime = 0        
         #print(self._sortedNodes)
         # While there are remaining node periods to schedule
         while (n != zeroVec).any():

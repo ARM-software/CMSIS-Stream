@@ -24,12 +24,11 @@ conf.eventRecorder = True
 
 The C++ code will contain calls to `EventRecord2`.
 
-The event recorder header must be included from the scheduler. In can be done, for instance, in the `custom.h` file that is included by default by the scheduler:
+The event recorder header must is included from the scheduler. 
+The following line is generated in the scheduler header file.
 
 ```c
-#if defined(RTE_Compiler_EventRecorder)
 #include "EventRecorder.h"
-#endif 
 ```
 
 The `EventRecord2` calls are using some constant to identify the events to generate. Those constants are generated in the header `scheduler.h`

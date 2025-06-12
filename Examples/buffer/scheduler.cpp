@@ -98,6 +98,19 @@ static uint8_t schedule[7]=
 6,1,0,5,2,3,4,
 };
 
+/*
+
+Internal ID identification for the nodes
+
+*/
+#define DUP0_INTERNAL_ID 0
+#define PROCESSING1_INTERNAL_ID 1
+#define PROCESSING2_INTERNAL_ID 2
+#define PROCESSING3_INTERNAL_ID 3
+#define SINK1_INTERNAL_ID 4
+#define SINK2_INTERNAL_ID 5
+#define SOURCE_INTERNAL_ID 6
+
 
 
 CG_BEFORE_FIFO_BUFFERS
@@ -115,7 +128,6 @@ FIFO buffers
 
 typedef struct {
 uint8_t  *buf0;
-uint8_t  *buf1;
 } buffers_t;
 
 CG_BEFORE_BUFFER
@@ -129,11 +141,6 @@ int init_buffer_scheduler(uint8_t *myBuffer,
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    buffers.buf1 = (uint8_t *)CG_MALLOC(20 * sizeof(uint8_t));
-    if (buffers.buf1==NULL)
-    {
-        return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
     return(CG_SUCCESS);
 }
 
@@ -143,10 +150,6 @@ void free_buffer_scheduler(uint8_t *myBuffer,
     if (buffers.buf0!=NULL)
     {
         CG_FREE(buffers.buf0);
-    }
-    if (buffers.buf1!=NULL)
-    {
-        CG_FREE(buffers.buf1);
     }
 }
 
@@ -166,17 +169,17 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
     Create FIFOs objects
     */
     FIFO<float,FIFOSIZE0,1,0> fifo0(myBuffer);
-    FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf1);
-    FIFO<float,FIFOSIZE2,1,0> fifo2(buffers.buf0);
+    FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf0);
+    FIFO<float,FIFOSIZE2,1,0> fifo2(myBuffer);
     FIFO<float,FIFOSIZE3,1,0> fifo3(buffers.buf0);
-    FIFO<float,FIFOSIZE4,1,0> fifo4(buffers.buf0);
-    FIFO<float,FIFOSIZE5,1,0> fifo5(buffers.buf0);
+    FIFO<float,FIFOSIZE4,1,0> fifo4(myBuffer);
+    FIFO<float,FIFOSIZE5,1,0> fifo5(myBuffer);
 
     CG_BEFORE_NODE_INIT;
     /* 
     Create node objects
     */
-    Duplicate<float,5,float,5> dup0(fifo3,{}); /* Node ID = 0 */
+    Duplicate<float,5,float,5> dup0(fifo3,{&fifo4}); /* Node ID = 0 */
     ProcessingNode<float,5,float,5> processing1(fifo0,fifo3); /* Node ID = 1 */
     ProcessingNode<float,5,float,5> processing2(fifo5,fifo1); /* Node ID = 2 */
     ProcessingNode<float,5,float,5> processing3(fifo1,fifo2); /* Node ID = 3 */
@@ -194,47 +197,53 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
         for(; id < 7; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             switch(schedule[id])
             {
                 case 0:
                 {
+                    
                    cgStaticError = dup0.run();
                 }
                 break;
 
                 case 1:
                 {
+                    
                    cgStaticError = processing1.run();
                 }
                 break;
 
                 case 2:
                 {
+                    
                    cgStaticError = processing2.run();
                 }
                 break;
 
                 case 3:
                 {
+                    
                    cgStaticError = processing3.run();
                 }
                 break;
 
                 case 4:
                 {
+                    
                    cgStaticError = sink1.run();
                 }
                 break;
 
                 case 5:
                 {
+                    
                    cgStaticError = sink2.run();
                 }
                 break;
 
                 case 6:
                 {
+                    
                    cgStaticError = source.run();
                 }
                 break;
