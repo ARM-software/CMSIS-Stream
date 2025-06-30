@@ -1,0 +1,4 @@
+version: 2.0.0
+code-generation-options:
+  debug-limit: 1
+
