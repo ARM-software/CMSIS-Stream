@@ -215,8 +215,10 @@ def generateGenericNodes(folder):
 
     ctemplate = env.get_template("GenericNodes.h")
     path=os.path.join(folder,"GenericNodes.h")
-    with open(path,"w") as f:
-        print(ctemplate.render(),file=f)
+
+    if not os.path.isfile(path):
+        with open(path,"w") as f:
+            print(ctemplate.render(),file=f)
 
 def generateCGStatus(folder):
     env = Environment(
@@ -227,8 +229,9 @@ def generateCGStatus(folder):
 
     ctemplate = env.get_template("cg_status.h")
     path=os.path.join(folder,"cg_status.h")
-    with open(path,"w") as f:
-        print(ctemplate.render(),file=f)
+    if not os.path.isfile(path):
+       with open(path,"w") as f:
+           print(ctemplate.render(),file=f)
 
 def createEmptyProject(project_name):
     env = Environment(
