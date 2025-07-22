@@ -10,7 +10,8 @@ The support classes and code are covered by CMSIS-Stream license.
 
 #include <cstdint>
 #include "custom.h"
-#include "cg_status.h"
+#include "cg_enums.h"
+#include "StreamNode.h"
 #include "GenericNodes.h"
 #include "AppNodes.h"
 #include "cv_scheduler7.h"
@@ -186,8 +187,8 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
     */
     FIFO<float,FIFOSIZE0,0,0> fifo0(Test);
     FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf2);
-    FIFO<float,FIFOSIZE2,1,0> fifo2(buffers.buf0);
-    FIFO<float,FIFOSIZE3,1,0> fifo3(buffers.buf1);
+    FIFO<float,FIFOSIZE2,1,0> fifo2(buffers.buf1);
+    FIFO<float,FIFOSIZE3,1,0> fifo3(buffers.buf0);
 
     CG_BEFORE_NODE_INIT;
     /* 
@@ -198,6 +199,11 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
     Sink<float,5> sink1(fifo2,"sink1"); /* Node ID = 2 */
     Sink<float,5> sink2(fifo3,"sink2"); /* Node ID = 3 */
     SourceC3<float,5> source(fifo0); /* Node ID = 4 */
+
+/* Subscribe nodes for the event system*/
+
+
+
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -256,9 +262,9 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
        CG_AFTER_ITERATION;
        nbSchedule++;
     }
-
 errorHandling:
     CG_AFTER_SCHEDULE;
     *error=cgStaticError;
     return(nbSchedule);
+    
 }

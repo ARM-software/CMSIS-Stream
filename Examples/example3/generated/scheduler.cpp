@@ -9,10 +9,12 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 #include "arm_math.h"
-#include "custom.h"
-#include "cg_status.h"
-#include "GenericNodes.h"
-#include "AppNodes.h"
+#include "custom.hpp"
+#include "cg_enums.h"
+#include "StreamNode.hpp"
+#include "EventQueue.hpp"
+#include "GenericNodes.hpp"
+#include "AppNodes.hpp"
 #include "scheduler.h"
 
 #if !defined(CHECKERROR)
@@ -107,6 +109,7 @@ Internal ID identification for the nodes
 
 
 
+
 CG_BEFORE_FIFO_BUFFERS
 /***********
 
@@ -189,6 +192,12 @@ uint32_t scheduler(int *error)
     FileSource<float,192> src(fifo0,"input_example3.txt"); /* Node ID = 6 */
     ToComplex<float32_t,256,float32_t,512> toCmplx(fifo2,fifo3); /* Node ID = 7 */
     ToReal<float32_t,512,float32_t,256> toReal(fifo5,fifo6); /* Node ID = 8 */
+
+/* Subscribe nodes for the event system*/
+
+
+
+
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -284,9 +293,9 @@ uint32_t scheduler(int *error)
        CG_AFTER_ITERATION;
        nbSchedule++;
     }
-
 errorHandling:
     CG_AFTER_SCHEDULE;
     *error=cgStaticError;
     return(nbSchedule);
+    
 }

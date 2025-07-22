@@ -15,7 +15,7 @@ With a dynamic flow and scheduling, there is no more any way to ensure that ther
 
 With dynamic flow, a node must implement the function `prepareForRunning` and decide what to do.
 
-3 error / status codes are reserved for this. They are defined in the header `cg_status.h`. This header is not included by default, but if you define you own error codes, they should be coherent with `cg_status` and use the same values for the 3 status / error codes which are used in dynamic mode:
+3 error / status codes are reserved for this. They are defined in the header `cg_enums.h`. This header is not included by default, but if you define you own error codes, they should be coherent with `cg_enums` and use the same values for the 3 status / error codes which are used in dynamic mode:
 
 * `CG_SUCCESS`  = 0 : Node can execute
 * `CG_SKIP_EXECUTION` = -5 : Node will skip the execution

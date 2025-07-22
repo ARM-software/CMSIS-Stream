@@ -137,21 +137,71 @@ int nbOfFreeSamplesInFIFO() const;
 ### Nodes
 
 All nodes are inheriting from the virtual class `NodeBase`:
+```C++
+class StreamNode
+{
+public:
+    virtual ~StreamNode() {};
+
+    StreamNode(){};
+
+    virtual void processEvent(int dstPort, const Event &evt) {};
+    virtual void processEvent(int dstPort, Event &&evt) {};
+
+    /* 
+    Nodes are fixed and not made to be copied or moved.
+    */
+    StreamNode(const StreamNode&) = delete;
+    StreamNode(StreamNode&&) = delete;
+    StreamNode& operator=(const StreamNode&) = delete;
+    StreamNode& operator=(StreamNode&&) = delete;
+
+    void setID(int id)   {mNodeID = id;};
+    int nodeID() const   {return(mNodeID);};
+
+private:
+    int mNodeID = CG_UNIDENTIFIED_NODE;
+};
+```
+
+`setID` and `nodeID` are used for node identification. It is optional and must be enabled in the Python code generation. When enabled, after creation of the object, the node ID is set by the scheduler initialization code.
+
+Nodes with an ID can be accessed from outside of the scheduler.
+
+`processEvent` methods are used for the event system of CMSIS-Stream. See the related documentation.
 
 ```C++
-class NodeBase
+class NodeBase:public StreamNode
 {
 public:
     virtual int run()=0;
     virtual int prepareForRunning()=0;
-    void setID(int id);
-    int nodeID() const;
+    virtual ~NodeBase() {};
+
+    NodeBase():StreamNode(){};
+
+    /* 
+    Nodes are fixed and not made to be copied or moved.
+    */
+    NodeBase(const NodeBase&) = delete;
+    NodeBase(NodeBase&&) = delete;
+    NodeBase& operator=(const NodeBase&) = delete;
+    NodeBase& operator=(NodeBase&&) = delete;
+
+    void setExecutionStatus(kCBStatus id)   {mExecutionStatus = id;};
+    kCBStatus executionStatus() const   {return(mExecutionStatus);};
+
+private:
+    kCBStatus mExecutionStatus = kNewExecution;
 };
 ```
+`NodeBase` is used for data streaming node and provides the `run` function.
 
-`setID` and 1`nodeID` are used for node identification. It is optional and must be enabled in the Python code generation. When enabled, after creation of the object, the node ID is set by the scheduler initialization code.
+`prepareForRunning` is used for the asynchronous scheduling mode.
 
-Nodes with an ID can be accessed from outside of the scheduler.
+`executionStatus` and `setExecutionStatus` are used by the generated scheduler when the callback mode is used.
+
+
 
 `GenericNode`, `GenericSource` and `GenericSink` are providing accesses to the FIFOs for each IO. The goal of those wrappers is to define the IOs (number of IO, their type and length) and hide the API to the FIFOs.
 

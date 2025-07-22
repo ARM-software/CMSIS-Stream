@@ -1,13 +1,13 @@
 /* ----------------------------------------------------------------------
- * Project:      CMSIS DSP Library
+ * Project:      CMSIS Stream Library
  * Title:        GenericNodes.h
- * Description:  C++ support templates for the compute graph with static scheduler
+ * Description:  C++ support templates for the CMSIS-Stream data flow nodes
  *
  *
  * Target Processor: Cortex-M and Cortex-A cores
  * -------------------------------------------------------------------- 
  *
- * Copyright (C) 2021-2023 ARM Limited or its affiliates. All rights reserved.
+ * Copyright (C) 2021-2025 ARM Limited or its affiliates. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -24,8 +24,9 @@
  * limitations under the License.
  */
 
-#ifndef _SCHEDGEN_H_
-#define _SCHEDGEN_H_
+#ifndef GENERIC_NODE_H_
+#define GENERIC_NODE_H_
+
 
 #include <vector>
 #include <cstring>
@@ -58,9 +59,7 @@ enum kCBStatus {
    kResumedExecution = 2
 };
 
-/* Node ID is -1 when nodes are not identified for the external
-world */
-#define CG_UNIDENTIFIED_NODE (-1)
+
 
 namespace arm_cmsis_stream {
 // FIFOS 
@@ -377,14 +376,15 @@ class FIFO<T,length,0,1>: public FIFOBase<T>
  * 
  **************/
 
-class NodeBase
+ // Node that are pure data processing nodes
+class NodeBase:public StreamNode
 {
 public:
     virtual int run()=0;
     virtual int prepareForRunning()=0;
     virtual ~NodeBase() {};
 
-    NodeBase(){};
+    NodeBase():StreamNode(){};
 
     /* 
     Nodes are fixed and not made to be copied or moved.
@@ -394,16 +394,13 @@ public:
     NodeBase& operator=(const NodeBase&) = delete;
     NodeBase& operator=(NodeBase&&) = delete;
 
-    void setID(int id)   {mNodeID = id;};
-    int nodeID() const   {return(mNodeID);};
-
     void setExecutionStatus(kCBStatus id)   {mExecutionStatus = id;};
     kCBStatus executionStatus() const   {return(mExecutionStatus);};
 
 private:
-    int mNodeID = CG_UNIDENTIFIED_NODE;
     kCBStatus mExecutionStatus = kNewExecution;
 };
+
 
 template<typename IN, int inputSize,typename OUT, int outputSize>
 class GenericNode:public NodeBase

@@ -25,11 +25,7 @@ def version_from_git_tag():
 # Copy GenericNode.h before calling setup
 # so that the right version is included in the templates
 
-shutil.copyfile(os.path.join("..","Include","cg","src","GenericNodes.h"), 
-                os.path.join("cmsis_stream","cg","scheduler","templates","GenericNodes.h"))
 
-shutil.copyfile(os.path.join("..","Include","cg","src","cg_status.h"), 
-                os.path.join("cmsis_stream","cg","scheduler","templates","cg_status.h"))
 setup (name = 'cmsis-stream',
        version = version_from_git_tag(),
        packages=["cmsis_stream",
@@ -40,12 +36,13 @@ setup (name = 'cmsis-stream',
                  "cmsis_stream.cg.nodes.host",
                  "cmsis_stream.cg.scheduler",
                  "cmsis_stream.cg.scheduler.templates",
+                 "cmsis_stream.cg.scheduler.templates.reference_code",
                  "cmsis_stream.cg.scheduler.example"],
        description = 'CMSIS-Stream graph description',
        long_description=open("README.md").read(),
        long_description_content_type='text/markdown',
        include_package_data=True,
-       author = 'Copyright (C) 2010-2023 ARM Limited or its affiliates. All rights reserved.',
+       author = 'Copyright (C) 2023-2025 ARM Limited or its affiliates. All rights reserved.',
        author_email = 'christophe.favergeon@arm.com',
        url="https://github.com/ARM-software/CMSIS-Stream",
        python_requires='>=3.7',

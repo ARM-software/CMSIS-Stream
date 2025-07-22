@@ -1,69 +1,9 @@
 # Python Nodes and classes
 
-Python implementation of the nodes to be run from a Python scheduler.
+DEPRECATED
 
-You don't need this if you're only working with C++ schedulers.
+It is to run a Python scheduler with Python implementation of the nodes.
 
-(DOCUMENTATION TO BE WRITTEN)
+It has NO relationship with the description of the node interfaces in Python.
 
-## Mandatory classes
-
-FIFO
-
-GenericNode
-
-GenericNode12
-
-GenericNode13
-
-GenericNode21
-
-GenericSource
-
-GenericSink
-
-OverlapAdd
-
-SlidingBuffer
-
-## Optional nodes
-
-CFFT
-
-CIFFT
-
-InterleavedStereoToMono
-
-MFCC
-
-NullSink
-
-ToComplex
-
-ToReal
-
-Unzip
-
-Zip
-
-Duplicate
-
-Duplicate2
-
-Duplicate3
-
-### Host
-
-FileSink
-
-FileSource
-
-WavSource
-
-WavSink 
-
-NumpySink
-
-VHTSource
-
-VHTSink
+It has a similar purpose to the C++ classes.

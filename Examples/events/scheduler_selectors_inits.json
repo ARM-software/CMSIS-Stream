@@ -1,0 +1,28 @@
+{
+  "ProcessingNode<float,7,float,7>": {
+    "isTemplate": true,
+    "selectors": [
+      "SEL_RESET_ID",
+      "SEL_INCREMENT_ID"
+    ]
+  },
+  "Sink<float,5>": {
+    "isTemplate": true,
+    "selectors": [
+      "SEL_INCREMENT_ID"
+    ]
+  },
+  "Source<float,5>": {
+    "isTemplate": true,
+    "selectors": [
+      "SEL_INCREMENT_ID"
+    ]
+  },
+  "EvtSink": {
+    "isTemplate": false,
+    "selectors": [
+      "SEL_INCREMENT_ID",
+      "SEL_VALUE_ID"
+    ]
+  }
+}

@@ -2,10 +2,10 @@
 CC = g++
 
 INCLUDES = -I.
-CFLAGS =  -std=c++11 $(INCLUDES)
+CFLAGS =  -pthread -fno-rtti -std=c++17 $(INCLUDES)
 
 all:
-	$(CC) -o simple $(CFLAGS) ./scheduler.cpp main.cpp
+	$(CC) -o simple $(CFLAGS) simple_scheduler.cpp  host_com.cpp cg_queue.cpp posix_thread.cpp  scheduler.cpp main.cpp
 
 clean:
 	rm -f ./simple

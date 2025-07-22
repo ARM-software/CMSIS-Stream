@@ -5,6 +5,9 @@ set(Python_FIND_REGISTRY "LAST")
 
 find_package (Python COMPONENTS Interpreter)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 function(dotdependency TARGET DOTNAME PRESCHEDULE SCRIPT)
     #set (DEPS ${ARGN})
     #list(TRANSFORM DEPS PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/)
@@ -74,10 +77,10 @@ endfunction()
 
 set(CGDIR ${CMAKE_CURRENT_SOURCE_DIR}/../Include/cg)
 
+
 set(DSP ${CMSISDSP})
 
 function(add_sdf_dir TARGET)
-    target_include_directories(${TARGET} PRIVATE ${CGDIR}/src)
     target_include_directories(${TARGET} PRIVATE ${CGDIR}/nodes/cpp)
     target_include_directories(${TARGET} PRIVATE ${DSP}/Include)
 endfunction()
@@ -108,8 +111,5 @@ add_subdirectory(callback bin_callback)
 
 
 # Python examples
-add_subdirectory(example4_python bin_example4_python)
-add_subdirectory(example5_python bin_example5_python)
-add_subdirectory(example7_python bin_example7_python)
 add_subdirectory(graphvizexample bin_graphvizexample)
 add_subdirectory(yaml bin_yaml)

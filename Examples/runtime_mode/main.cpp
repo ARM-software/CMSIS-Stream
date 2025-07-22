@@ -5,7 +5,7 @@
 #include <map>
 #include <cstdint>
 #include "runtime_sched.h"
-#include "AppNodes.h"
+#include "AppNodes.hpp"
 #include <fstream>
 
 using namespace arm_cmsis_stream;

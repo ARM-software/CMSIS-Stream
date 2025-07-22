@@ -4,6 +4,7 @@
 {% endblock %}
 
 {% block scheduleLoop %}
+{% if schedLen > 0 %}
     CG_BEFORE_SCHEDULE;
 {% if config.debug %}
     while((cgStaticError==0) && (debugCounter > 0))
@@ -18,11 +19,11 @@
        CG_BEFORE_ITERATION;
 {% for s in schedule %}
        {% if config.eventRecorder -%}
-       EventRecord2 (Evt_Node, {{nodes[s].codeID}}, 0);
+       EventRecord2 (Evt_Node, {{streamNodes[s].codeID}}, 0);
        {% endif -%}
-       CG_BEFORE_NODE_EXECUTION({{nodes[s].codeID}});
-       {{nodes[s].cRun(config)}}
-       CG_AFTER_NODE_EXECUTION({{nodes[s].codeID}});
+       CG_BEFORE_NODE_EXECUTION({{streamNodes[s].codeID}});
+       {{streamNodes[s].cRun(config)}}
+       CG_AFTER_NODE_EXECUTION({{streamNodes[s].codeID}});
        {% if config.eventRecorder -%}
        if (cgStaticError<0)
        {
@@ -31,8 +32,8 @@
        {% endif -%}
        CHECKERROR;
 {% if config.dumpFIFO %}
-{% for fifoID in sched.outputFIFOs(nodes[s]) %}
-       std::cout << "{{nodes[s].nodeName}}:{{fifoID[1]}}" << std::endl;
+{% for fifoID in sched.outputFIFOs(streamNodes[s]) %}
+       std::cout << "{{streamNodes[s].nodeName}}:{{fifoID[1]}}" << std::endl;
        fifo{{fifoID[0]}}.dump();
 {% endfor %}
 {% endif %}
@@ -45,4 +46,5 @@
        nbSchedule++;
     }
     
+{% endif %}
 {% endblock %}

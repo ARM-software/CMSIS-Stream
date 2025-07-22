@@ -72,8 +72,35 @@ class CGStaticType:
     def unique(self):
        return(self)
 
-    
-       
+class EventType(CGStaticType):
+   def __init__(self):
+        CGStaticType.__init__(self)
+        self._name="EVENT" 
+        # Not used for events that are not going through the data FIFOs
+        self._size_in_bytes=0
+
+   def __eq__(self, other):
+      return(CGStaticType.__eq__(self,other) and self._name == other._name)
+
+   @property
+   def fillValue(self):
+        return("None") 
+
+   @property
+   def bytes(self):
+       return(self._size_in_bytes)
+
+   @property
+   def ctype(self):
+      return("Event")
+
+   @property
+   def nptype(self):
+      return("object")
+
+   @property
+   def graphViztype(self):
+      return(escape(self._name))   
 
 class CStructType(CGStaticType):
    """A C structure

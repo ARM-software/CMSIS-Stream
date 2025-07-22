@@ -30,17 +30,57 @@ import os.path
 import pathlib
 from .config import *
 
-def mkNodeIdentifications(config,sched):
-   idents=[]
-   nb = 0
-   for n in sched.nodes:
-      if n.identified:
-         name = f"{config.prefix.upper()}{n.nodeName.upper()}_ID"
-         n.identificationName = name
-         idents.append((name,nb))
-         nb = nb + 1
+def selector_define_name(sel):
+    return f"SEL_{sel.upper()}_ID"
 
-   return(idents)
+def selectors_for_node(node):
+   r = []
+   for selector in node.selectors:
+      r.append(selector_define_name(selector))
+   return r 
+
+def init_args(sched,n):
+   args = n.args
+   if args:
+      return f"({args})"
+   else:
+      return ""
+   
+def mk_selector_inits(sched):
+   sels=dict(sched._selector_inits)
+   
+   l = []
+   for s in sels:
+      r = sels[s]
+      if r["selectors"]:
+         selString = ", ".join([str(x) for x in r["selectors"]])
+         if r["isTemplate"]:
+            l.append(f"template<>\nstd::array<uint16_t,{len(r["selectors"])}> {s}::selectors = {{{selString}}};")
+         else:
+            l.append(f"std::array<uint16_t,{len(r["selectors"])}> {s}::selectors = {{{selString}}};")
+   return "\n".join(l)
+   #print(sels)
+
+
+def selector_defines(sched):
+   r = []
+   for selector in sched.selectorsID:
+         name = selector_define_name(selector)
+         r.append(f"#define {name} {sched.selectorsID[selector]} ")
+   return "\n".join(r)
+
+def mkPublishers(config,sched):
+   p = []
+   n = {}
+   for id,node in enumerate(sched.allNodes):
+      n[node] = id 
+   
+   for event_edge in sched._eventConnections:
+      src_port = event_edge[0]
+      dst_port = event_edge[1]
+      src_node = src_port.owner
+      p.append(src_node)
+   return(n,p)
 
 
 def gencode(sched,directory,config):
@@ -77,14 +117,13 @@ def gencode(sched,directory,config):
     identifiedNodes = []
     if config.nodeIdentification:
        config.heapAllocation = True
-       r = mkNodeIdentifications(config,sched)
-       identifiedNodes = r
+       identifiedNodes = sched.nodeIdentification
 
     if config.switchCase:
        ctemplate = env.get_template("codeSwitch.cpp")
        nb = 0
        for s in sched.schedule:
-         schedDescription = schedDescription + ("%d," % sched.nodes[s].codeID)
+         schedDescription = schedDescription + ("%d," % sched.allNodes[s].codeID)
          nb = nb + 1
          if nb == 40:
             nb=0 
@@ -100,31 +139,46 @@ def gencode(sched,directory,config):
     nbFifos = len(sched._graph._allFIFOs)
 
     schedSwitchDataType = "uint16_t"
-    if len(sched.schedule) <=255:
+    if len(sched.schedule) <= 255:
        schedSwitchDataType = "uint8_t"
+
+    node_to_id,publishers = mkPublishers(config,sched)
+
+    selector_inits = mk_selector_inits(sched)
+
 
     with open(cfile,"w") as f:
          print(ctemplate.render(fifos=sched._graph._allFIFOs,
             nbFifos=nbFifos,
-            nbNodes=len(sched.nodes),
-            nodes=sched.nodes,
+            nbAllNodes=len(sched.allNodes),
+            nbStreamNodes=len(sched.streamNodes),
+            nbEventNodes=len(sched.eventNodes),
+            allNodes=sched.allNodes,
+            streamNodes=sched.streamNodes,
+            eventNodes=sched.eventNodes,
             schedule=sched.schedule,
             schedLen=len(sched.schedule),
             schedSwitchDataType=schedSwitchDataType,
             config=config,
             sched=sched,
             schedDescription=schedDescription,
-            identifiedNodes=identifiedNodes
+            identifiedNodes=identifiedNodes,
+            node_to_id=node_to_id,
+            publishers=publishers,
+            init_args=init_args,
+            selector_inits=selector_inits,
+            eventConnections=sched._eventConnections
             ),file=f)
 
     with open(hfile,"w") as f:
          print(htemplate.render(fifos=sched._graph._allFIFOs,
             nbFifos=nbFifos,
-            nodes=sched.nodes,
+            allNodes=sched.allNodes,
             schedule=sched.schedule,
             config=config,
             sched=sched,
-            identifiedNodes=identifiedNodes
+            identifiedNodes=identifiedNodes,
+            selector_defines=selector_defines(sched),
             ),file=f)
 
    

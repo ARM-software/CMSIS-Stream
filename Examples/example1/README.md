@@ -65,14 +65,23 @@ The C++ code generated in`scheduler.cpp` and `scheduler.h` in `generated` folder
 The generated code is first including the needed headers:
 
 ```C++
+#include <cstdint>
 #include "custom.h"
+#include "cg_status.h"
+#include "StreamNode.h"
+#if defined(CG_EVENTS)
+#include "EventQueue.h"
+#endif
 #include "GenericNodes.h"
 #include "AppNodes.h"
 #include "scheduler.h"
 ```
 
 - Custom definitions
-- Generic nodes from `GenericNodes.h`
+- Error codes
+- Root classes for all nodes
+- Optional event queue interface for the event system (disabled in this example)
+- Generic dataflow nodes from `GenericNodes.h`
 - Application nodes
 - scheduler API
 
@@ -139,7 +148,7 @@ In case of buffer sharing, a shared buffer will be defined with `int8_t` type. I
 #### Description of the schedule
 
 ```C++
-static unsigned int schedule[17]=
+static uint8_t schedule[17]=
 { 
 2,2,0,1,2,0,1,2,2,0,1,2,0,1,2,0,1,
 };

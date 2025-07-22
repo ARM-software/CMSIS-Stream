@@ -1,4 +1,4 @@
-# Python code generation
+# Python code generation (deprecated)
 
 ## API
 

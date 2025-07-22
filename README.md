@@ -1,6 +1,10 @@
 # CMSIS-Stream
 
-CMSIS-Stream is a Python package and small set of C++ headers that can be used on embedded devices to process streams of samples with :
+CMSIS-Stream is a Python package for source code generation and a set of C++ headers that can be used on embedded devices to process streams of samples and events.
+
+With CMSIS-Stream you can describe a graph of processing elements exchanging data streams and events.
+
+The processing of the data streams in this graph has:
 
 * low memory usage
 * minimal overhead
@@ -8,22 +12,29 @@ CMSIS-Stream is a Python package and small set of C++ headers that can be used o
 * modular design
 * graphical representation
 
-CMSIS-Stream makes it easier to build streaming solutions by connecting components into a graph and computing a scheduling of this graph at **build time** with several memory optimizations.
+CMSIS-Stream computes a scheduling of this streaming graph at **build time** with several memory optimizations. The scheduling is a state machine : it is deterministic.
 
 Stream of samples are processed by this graph as illustrated on the following animation:
 
 ![SDF_doc](Documentation/assets/SDF_doc.gif)
 
+Processing nodes in the graph can also communicate with events. An event is like a function call : it has a name and arguments. Processing elements can send and receive events.
+
 Python is used to:
 
-* Describe the graph
-* Generate a **static scheduling** of this graph that is computed **at build time** with several memory optimizations. 
+* Describe the graph (streaming graph and event graph)
+* Generate a **static scheduling** of the streaming graph that is computed **at build time** with several memory optimizations. 
 * Generate the code for this scheduler as a simple C++ file (with a C API).
   * The scheduler can be run on bare metal devices. There is no dependencies to any RTOS. The scheduler is a sequence of function calls
+* Connect all the nodes for events propagation in the graph of events
 
 * Generate a graphical representation of the graph
 
-C++ is only used for strong types and static typing (template). The only part of the C++ library that is used is the memory allocator to create the objects.
+For the streaming part, C++ is only used for strong and static typing (template). The only part of the C++ library that is used is the memory allocator to create the objects before the graph is started.
+
+For the event graph (which is optional), more C++ is used. See the section of the documentation about the event graph.
+
+
 
 ## License Terms
 
@@ -50,21 +61,24 @@ CMSIS-Stream is licensed under [Apache License 2.0](LICENSE).
 
    2. ### [C++ default nodes for C++ wrappers](Documentation/CPPNodes.md)
 
-   3. ### [Python default nodes for Python wrappers](Documentation/PythonNodes.md)
 
 5. ### [Memory optimizations](Documentation/Memory.md)
 
 6. ### [Integration in a system](Documentation/Integration.md)
 
-7. ### Extensions
+   1. #### [Node identification](Documentation/NodeIdent.md)
+
+7. ### [Graph of events](Documentation/Events.md)
+
+8. ### Extensions
 
    1. #### [Cyclo-static scheduling](Documentation/CycloStatic.md)
 
    2. #### [Dynamic / Asynchronous mode](Documentation/Async.md)
 
-8. ### [Maths principles](Documentation/MATHS.md)
+9. ### [Maths principles](Documentation/MATHS.md)
 
-9. ### [FAQs](Documentation/FAQ.md)
+10. ### [FAQs](Documentation/FAQ.md)
 
 
 

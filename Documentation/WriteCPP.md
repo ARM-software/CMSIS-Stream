@@ -230,9 +230,6 @@ There are only 2 files to compile:
 The directory to use for headers are:
 
 * `generated`
-* `../../Include/cg/src`
-  * For the `GenericNodes.h` header if you want to use the one from the CMSIS-Stream distribution. It is also possible to generate this file from the Python using `generateGenericNodes(destination_folder)`
-
 * `.` the current directory
 
 The headers required by the software are:
@@ -247,12 +244,21 @@ The headers required by the software are:
   
 * `custom.h`
 
-  * This is the first include in the `scheduler.cpp` and this file can contain whatever is needed or just be empty
+  * This is the first include in the `scheduler.cpp` and this file can contain whatever is needed or can just be empty
   
 * `GenericNodes.h` 
 
-  * It is coming from the `../../Include/cg/src` folder or generated from the Python with `generateGenericNodes(destination_folder)`
+  * It is coming from the Python script
   * It provides the basic definitions needed by the framework like `GenericNode`, `GenericSink`,`GenericSource`, `FIFO` ...
+
+* `StreamNode.h` 
+  
+  * It provides the root class for all nodes.
+
+* `cg_enums.h`
+
+  * Error codes : you can add application specific error codes
+  * Event ID : should not be modified (see documentation about events)
   
   
 

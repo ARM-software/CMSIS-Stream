@@ -9,10 +9,17 @@ You can install it with:
 Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-Stream) to learn how to:
 
 * Define new compute nodes
-* Connect them into a dataflow graph to process streams
-* Generate at build time a static C scheduler to run the graph on your target (no need of an RTOS)
+* Connect them into a dataflow graph to process realtime streams
+* Generate at build time a static C scheduler to run the graph on your target (no need of an RTOS - it is a deterministic state machine)
+* Implement events (remote procedure calls between nodes)
 
 # Change history
+
+## Version 2.0.0:
+* The header files have been restructured and new header files are required to build a CMSIS-Stream client (they can be generated from the Python script)
+* New event system : nodes can send / receive events in addition to processing data flow. Events are like remote procedure calls.
+* Events can be asynchronous and execute in different context from the data flow
+* Adaptation of old projects to this version should only require to change the naming of some files and regenerate the scheduler
 
 ## Version 1.14.2:
 * Bug correction for issue #3 : problem with sympy > 1.13.1

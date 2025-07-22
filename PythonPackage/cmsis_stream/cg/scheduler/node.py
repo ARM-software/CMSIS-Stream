@@ -31,12 +31,12 @@ import numpy as np
 
 from sympy.core.numbers import ilcm
 from .args import *
+from ..types import EventType
 
-class NoFunctionArrayInPython(Exception):
+class PythonSchedulerNoMoreSupported(Exception):
     pass
 
-class NoAsynchronousModeInPython(Exception):
-    pass
+
 
 def camelCase(st):
     output = ''.join(x for x in st.title() if x.isalnum())
@@ -89,7 +89,7 @@ class BufferConstraint:
 
 class IO:
     """Class of input / outputs"""
-    def __init__(self,owner,name,theType,nbSamples):
+    def __init__(self,owner,name,theType,nbSamples=0):
         self._theType = theType
         # For cycle static scheduling it may also be
         # a list of samples for each iteration of a cycle
@@ -224,6 +224,14 @@ class Output(IO):
      """Node output"""
      pass
 
+class EventInput(IO):
+     """Node event input"""
+     pass
+
+class EventOutput(IO):
+     """Node event output"""
+     pass
+
 ### Definition of the nodes types
 
 class Constant:
@@ -281,7 +289,7 @@ class BaseNode:
     """Root class for all Nodes of a dataflow graph.
        To define a new kind of node, inherit from this class"""
 
-    def __init__(self,name,identified=True):
+    def __init__(self,name,selectors=[],identified=True):
         """Create a new kind of Node.
 
         name :: The name of the node which is used as
@@ -290,6 +298,8 @@ class BaseNode:
         self._nodeID = name
         self._inputs={}
         self._outputs={}
+        self._eventInputs = []
+        self._eventOutputs = []
         # For code generations
         # The fifo args
         self._args=""
@@ -318,12 +328,19 @@ class BaseNode:
 
         self._identified = identified
 
+        self._selectors = selectors
+
     def __getattr__(self,name):
         """Present inputs / outputs as attributes"""
         if name in self._inputs:
            return(self._inputs[name])
         if name in self._outputs:
            return(self._outputs[name])
+        if (type(name)==int):
+           if name >=0 and name < len(self._eventInputs):
+              return(self._eventInputs[name])
+           if name >=0 and name < len(self._eventOutputs):
+              return(self._eventOutputs[name])
         raise AttributeError
 
     def __getitem__(self,name):
@@ -332,8 +349,18 @@ class BaseNode:
            return(self._inputs[name])
         if name in self._outputs:
            return(self._outputs[name])
+        if (type(name)==int):
+           if name >=0 and name < len(self._eventInputs):
+              return(self._eventInputs[name])
+           if name >=0 and name < len(self._eventOutputs):
+              return(self._eventOutputs[name])
         raise IndexError 
 
+    @property
+    def selectors(self):
+        """List of message selectors for this node"""
+        return self._selectors
+    
     @property
     def identified(self):
         return self._identified
@@ -341,6 +368,20 @@ class BaseNode:
     @identified.setter
     def identified(self, value):
         self._identified = value
+
+    def addEventInput(self,nb = 1):
+        id = len(self._eventInputs)
+        for k in range(nb):
+            self._eventInputs.append(EventInput(self,id+k,EventType()))
+
+    def addEventOutput(self,nb=1):
+        id = len(self._eventOutputs)
+        for k in range(nb):
+            self._eventOutputs.append(EventOutput(self,id+k,EventType()))
+
+    @property
+    def hasEventSlots(self):
+        return len(self._eventInputs)>0 or len(self._eventOutputs)>0
     
     # For cyclo static scheduling we need to compute
     # the cycle period for this node based upon the
@@ -528,6 +569,19 @@ class BaseNode:
                 m = np.max(x.nbSamples)
                 ios.append("%s,%d" % (x.ctype,m))
         return(ios)
+    
+    def _bracket(self,s):
+        return f"<{s}>"
+    
+    def _paren(self,s):
+        # Parens are now added in the ccode and take
+        # into account selectors.
+        # Selectors can only be generated once all
+        # nodes have been created
+        if s:
+           return f"{s}"
+        else:
+           return ""
 
     def ioTemplate(self):
         """Template arguments for C
@@ -536,11 +590,15 @@ class BaseNode:
 
            Some nodes may customize it
         """
-        ios=[] 
+        ios=[]
         ios += self.getCTemplateArgumentsFor(self.inputNames,self._inputs)
         ios += self.getCTemplateArgumentsFor(self.outputNames,self._outputs)
         
-        return("".join(joinit(ios,",")))
+        if ios:
+           return(self._bracket("".join(joinit(ios,","))))
+        else:
+            # No datatprocessing io. Only event ios
+            return ""
 
     def pythonIoTemplate(self):
         """Template arguments for Python
@@ -581,7 +639,7 @@ class BaseNode:
         if ctemplate:
            return (f"cgStaticError = {self.nodeVariable.access}run();")
         else:
-           return (f"cgStaticError = {self.nodeVariable.access}run()")
+           raise PythonSchedulerNoMoreSupported
 
     def cFunc(self,ctemplate=True):
         """Function call for code array scheduler
@@ -589,9 +647,9 @@ class BaseNode:
            Some nodes may customize it
         """
         if ctemplate:
-           return ("(runNode)&%s<%s>::run" % (self.typeName,self.ioTemplate()))
+           return ("(runNode)&%s%s::run" % (self.typeName,self.ioTemplate()))
         else:
-           raise NoFunctionArrayInPython
+           raise PythonSchedulerNoMoreSupported
     
     
     @property
@@ -609,7 +667,12 @@ class BaseNode:
         if self.schedArgs:
             for lit in self.schedArgs:
                 allArgs.append(lit.arg)
-        return "".join(joinit(allArgs,","))
+        if allArgs:
+           return self._paren("".join(joinit(allArgs,",")))
+        else:
+           # No data processing args. Only event args and no 
+           # additional specific args given
+           return ""
     
     def setArgsWith(self,fifoIDs,config):
         res=[]
@@ -665,7 +728,40 @@ class BaseNode:
     @property
     def outputNames(self):
         return sorted(list(self._outputs.keys()))
+    
+    @property
+    def eventInputNames(self):
+        return [str(x) for x in range(len(self._eventInputs))]
+    
+    @property
+    def eventGraphvizInputNames(self):
+        return ["ev"+str(x) for x in range(len(self._eventInputs))]
+    
+    @property
+    def slotInputNames(self):
+        return self.inputNames + self.eventInputNames
+    
+    @property
+    def slotGraphvizInputNames(self):
+        return self.inputNames + self.eventGraphvizInputNames
 
+    @property
+    def eventOutputNames(self):
+        return [str(x) for x in range(len(self._eventOutputs))]
+    
+    @property
+    def eventGraphvizOutputNames(self):
+        return ["ev"+str(x) for x in range(len(self._eventOutputs))]
+    
+    
+    @property
+    def slotOutputNames(self):
+        return self.outputNames + self.eventOutputNames
+    
+    @property
+    def slotGraphvizOutputNames(self):
+        return self.outputNames + self.eventGraphvizOutputNames
+    
     @property
     def hasManyInputs(self):
         return len(self._inputs.keys())>1
@@ -698,13 +794,24 @@ class BaseNode:
     def maxNbIOs(self):
         return max(len(self._inputs.keys()),len(self._outputs.keys()))
     
+    @property
+    def maxEvents(self):
+        return max(len(self._eventInputs),len(self._eventOutputs))
+    
+    @property
+    def maxSlots(self):
+        return self.maxNbIOs + self.maxEvents
+    
+    @property
+    def hasManySlots(self):
+        return (self.maxSlots > 1)
     
 
 class GenericSink(BaseNode):
     """A sink in the dataflow graph""" 
 
-    def __init__(self,name,identified=True):
-        BaseNode.__init__(self,name,identified=identified)
+    def __init__(self,name,selectors=[],identified=True):
+        BaseNode.__init__(self,name,selectors=selectors,identified=identified)
         self._isPureNode = False
     
     @property
@@ -722,8 +829,8 @@ class GenericSink(BaseNode):
 class GenericSource(BaseNode):
     """A source in the dataflow graph""" 
 
-    def __init__(self,name,identified=True):
-        BaseNode.__init__(self,name,identified=identified)
+    def __init__(self,name,selectors=[],identified=True):
+        BaseNode.__init__(self,name,selectors=selectors,identified=identified)
         self._isPureNode = False
     
     @property
@@ -740,8 +847,8 @@ class GenericSource(BaseNode):
 class GenericNode(BaseNode):
     """A source in the dataflow graph""" 
 
-    def __init__(self,name,identified=True):
-        BaseNode.__init__(self,name,identified=identified)
+    def __init__(self,name,selectors=[],identified=True):
+        BaseNode.__init__(self,name,selectors=selectors,identified=identified)
         # Pure node is for instance a 
         # CMSIS-DSP function.
         # It is not packaged into an object
@@ -765,8 +872,8 @@ class GenericNode(BaseNode):
 class GenericToManyNode(BaseNode):
     """A source in the dataflow graph""" 
 
-    def __init__(self,name,identified=True):
-        BaseNode.__init__(self,name,identified=identified)
+    def __init__(self,name,selectors=[],identified=True):
+        BaseNode.__init__(self,name,selectors=selectors,identified=identified)
         # Pure node is for instance a 
         # CMSIS-DSP function.
         # It is not packaged into an object
@@ -814,11 +921,17 @@ class GenericToManyNode(BaseNode):
         if self.schedArgs:
             for lit in self.schedArgs:
                 sched.append(lit.arg)
-        return "".join(joinit(ioInputs+ioOutputs+sched,","))
+        all_args = ioInputs + ioOutputs + sched
+        if all_args:
+           return self._paren("".join(joinit(ioInputs+ioOutputs+sched,",")))
+        else:
+            # Only event ios and no data processing
+            return ""
 
     def ioTemplate(self):
         """ioTemplate is different for window
         """
+        
         ios=[] 
         ios += self.getCTemplateArgumentsFor(self.inputNames,self._inputs)
        
@@ -829,14 +942,18 @@ class GenericToManyNode(BaseNode):
         else:
             nbOut = np.max(self._outputLength )
         ios.append("%s,%d" % (self._outputType.ctype,nbOut))
-        return("".join(joinit(ios,",")))
+        if ios:
+           return(self._bracket("".join(joinit(ios,","))))
+        else:
+           # No data processing ios. Only event ios
+           return ""
 
 
 class GenericFromManyNode(BaseNode):
     """A source in the dataflow graph""" 
 
-    def __init__(self,name,identified=True):
-        BaseNode.__init__(self,name,identified=identified)
+    def __init__(self,name,selectors=[],identified=True):
+        BaseNode.__init__(self,name,selectors=selectors,identified=identified)
         # Pure node is for instance a 
         # CMSIS-DSP function.
         # It is not packaged into an object
@@ -881,7 +998,12 @@ class GenericFromManyNode(BaseNode):
         if self.schedArgs:
             for lit in self.schedArgs:
                 sched.append(lit.arg)
-        return "".join(joinit(ioInputs+ioOutputs+sched,","))
+        all_args = ioInputs+ioOutputs+sched 
+        if all_args:
+           return self._paren("".join(joinit(ioInputs+ioOutputs+sched,",")))
+        else:
+            # only event ios and no data processing
+            return ""
 
     def ioTemplate(self):
         """ioTemplate is different for window
@@ -898,14 +1020,17 @@ class GenericFromManyNode(BaseNode):
         
         ios += self.getCTemplateArgumentsFor(self.outputNames,self._outputs)
 
-
-        return("".join(joinit(ios,",")))
+        if ios:
+           return(self._bracket("".join(joinit(ios,","))))
+        else:
+           # No data processing ios. Only event ios
+           return ""
 
 class GenericManyToManyNode(BaseNode):
     """A source in the dataflow graph""" 
 
-    def __init__(self,name,identified=True):
-        BaseNode.__init__(self,name,identified=identified)
+    def __init__(self,name,selectors=[],identified=True):
+        BaseNode.__init__(self,name,selectors=selectors,identified=identified)
         # Pure node is for instance a 
         # CMSIS-DSP function.
         # It is not packaged into an object
@@ -957,7 +1082,12 @@ class GenericManyToManyNode(BaseNode):
         if self.schedArgs:
             for lit in self.schedArgs:
                 sched.append(lit.arg)
-        return "".join(joinit(ioInputs+ioOutputs+sched,","))
+        all_args = ioInputs+ioOutputs+sched 
+        if all_args:
+           return self._paren("".join(joinit(ioInputs+ioOutputs+sched,",")))
+        else:
+            # Only event ios and no data processing
+            return ""
 
     def ioTemplate(self):
         """ioTemplate is different for window
@@ -979,8 +1109,11 @@ class GenericManyToManyNode(BaseNode):
             nbOut = np.max(self._outputLength )
         ios.append("%s,%d" % (self._outputType.ctype,nbOut))
         
-
-        return("".join(joinit(ios,",")))
+        if ios:
+           return(self._bracket("".join(joinit(ios,","))))
+        else:
+            # No data processing ios. Only event ios
+            return ""
        
 class SlidingBuffer(GenericNode):
 
@@ -996,7 +1129,7 @@ class SlidingBuffer(GenericNode):
         """
         theType=self._inputs[self.inputNames[0]].ctype  
         ios="%s,%d,%d" % (theType,self._length,self._overlap)
-        return(ios)
+        return(self._bracket(ios))
 
     def pythonIoTemplate(self):
         """ioTemplate is different for window
@@ -1024,7 +1157,7 @@ class OverlapAdd(GenericNode):
         """
         theType=self._inputs[self.inputNames[0]].ctype  
         ios="%s,%d,%d" % (theType,self._length,self._overlap)
-        return(ios)
+        return(self._bracket(ios))
 
     def pythonIoTemplate(self):
         """ioTemplate is different for window
@@ -1073,7 +1206,6 @@ class GenericFunction(GenericNode):
     CTEMPLATE = ENV.get_template("cmsis.cpp")
     CCHECKTEMPLATE = ENV.get_template("cmsisCheck.cpp")
 
-    PYTEMPLATE = ENV.get_template("cmsis.py")
 
     def __init__(self,funcname,argsDesc):
         if not (funcname in GenericFunction.NODEID):
@@ -1179,7 +1311,7 @@ class GenericFunction(GenericNode):
                if ctemplate:
                     the_type = ioObj.ctype
                else:
-                    the_type = ioObj.nptype
+                    raise PythonSchedulerNoMoreSupported
                # Argument is a buffer created from FIFO
                buf = "i%d" % theId
                ptrs.append((the_type,buf))
@@ -1196,7 +1328,7 @@ class GenericFunction(GenericNode):
             if ctemplate:
                 the_type = ioObj.ctype
             else:
-                the_type = ioObj.nptype
+                raise PythonSchedulerNoMoreSupported
             buf = "o%d" % theId
             ptrs.append((the_type,buf))
             outargs.append(buf)
@@ -1247,13 +1379,13 @@ class GenericFunction(GenericNode):
                  if ctemplate:
                     the_type = self._inputs[a.name].ctype
                  else:
-                    the_type = self._inputs[a.name].nptype
+                    raise PythonSchedulerNoMoreSupported
               if a.name in self._outputs:
                  nb = self._outputs[a.name].nbSamples
                  if ctemplate:
                     the_type = self._outputs[a.name].ctype
                  else:
-                    the_type = self._outputs[a.name].nptype
+                    raise PythonSchedulerNoMoreSupported
               
               if a.sample_unit:
                  args.append(f"{nb}")
@@ -1287,9 +1419,9 @@ class GenericFunction(GenericNode):
 
     # To clean
     def cRun(self,config,ctemplate=True):
-       params = self._prepareForCodeGen(ctemplate)
+        params = self._prepareForCodeGen(ctemplate)
 
-       if ctemplate:
+        if ctemplate:
               result=GenericFunction.CTEMPLATE.render(func=self._nodeName,
                ptrs = params["ptrs"],
                args = params["args"],
@@ -1297,17 +1429,10 @@ class GenericFunction(GenericNode):
                outputs=params["outputs"],
                node=self
                )
-       else:
-           result=GenericFunction.PYTEMPLATE.render(func=self._nodeName,
-            ptrs = params["ptrs"],
-            args = params["args"],
-            inArgs= params["inArgsStr"], 
-            outArgs= params["outArgsStr"], 
-            inputs=params["inputs"], 
-            outputs=params["outputs"],
-            node=self
-            )
-       return(result)
+        else:
+           raise PythonSchedulerNoMoreSupported
+       
+        return(result)
 
     
 class Unary(GenericFunction):

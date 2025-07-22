@@ -1,6 +1,6 @@
 # SDS Nodes
 
-- [SDS Nodes](#sds-nodes)
+- [SDS Nodes (experimental)](#sds-nodes)
   - [Introduction](#introduction)
   - [SDS Sensor](#sds-sensor)
     - [With drift compensation](#with-drift-compensation)

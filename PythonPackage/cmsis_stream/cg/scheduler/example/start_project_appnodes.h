@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+using namespace arm_cmsis_stream;
+
 template<typename IN, int inputSize>
 class Sink: public GenericSink<IN, inputSize>
 {
@@ -19,7 +21,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
    
@@ -29,7 +31,7 @@ public:
         (void)b;
         printf("Sink\n");
         // Do something here
-        return(0);
+        return(CG_SUCCESS);
     };
 
 };
@@ -49,7 +51,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
 
     int run() final{
@@ -57,7 +59,7 @@ public:
         (void)b;
         printf("Source\n");
         // Do something here
-        return(0);
+        return(CG_SUCCESS);
     };
 
 };
@@ -84,7 +86,7 @@ public:
            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
         }
 
-        return(0);
+        return(CG_SUCCESS);
     };
     
     
@@ -95,7 +97,7 @@ public:
         (void)a;
         (void)b;
         // Do something here
-        return(0);
+        return(CG_SUCCESS);
     };
 
 };

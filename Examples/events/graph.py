@@ -9,31 +9,24 @@ from nodes import *
 # example
 floatType=CType(F32)
 
-# Instantiate a Source node with a float datatype and
-# working with packet of 5 samples (each execution of the
-# source in the C code will generate 5 samples)
-# "source" is the name of the C variable that will identify
-# this node
-src=Source("source",floatType,5)
-# Instantiate a Processing node using a float data type for
-# both the input and output. The number of samples consumed
-# on the input and produced on the output is 7 each time
-# the node is executed in the C code
-# "processing" is the name of the C variable that will identify
-# this node
-processing=ProcessingNode("processing",floatType,7,7)
-# Instantiate a Sink node with a float datatype and consuming
-# 5 samples each time the node is executed in the C code
-# "sink" is the name of the C variable that will identify
-# this node
-sink=Sink("sink",floatType,5)
+def mkGraph(event_only=False):
+    the_graph = Graph()
 
-# Create a Graph object
-the_graph = Graph()
+    if event_only:
+        # If we only want to use events, we can use the
+        # event system to connect the nodes
+        src=EvtSource("source")
+        sink=EvtSink("sink")
+        the_graph.connect(src[0],sink[0])
+    else:
+        src=Source("source",floatType,5)
+        processing=ProcessingNode("processing",floatType,7,7)
+        sink=Sink("sink",floatType,5)
+        evtsink=EvtSink("evtsink")
+        the_graph.connect(src.o,processing.i)
+        the_graph.connect(processing.o,sink.i)
+        the_graph.connect(src[0],sink[0])
+        the_graph.connect(src[0],evtsink[0])
 
-# Connect the source to the processing node
-the_graph.connect(src.o,processing.i)
-# Connect the processing node to the sink
-the_graph.connect(processing.o,sink.i)
-
+    return the_graph
 

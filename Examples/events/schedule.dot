@@ -1,0 +1,81 @@
+
+
+
+
+digraph structs {
+    bgcolor = "white"
+    node [shape=plaintext,color="black",fontcolor="black",fontname="Times-Roman"]
+    rankdir=LR
+    edge [arrowsize="0.5",color="black",fontcolor="black",fontname="Times-Roman"]
+
+
+processing [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">processing<BR/>(ProcessingNode)</FONT></TD>
+  </TR>
+</TABLE>>];
+
+
+sink [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD PORT="i"><FONT POINT-SIZE="12.0" COLOR="black">i</FONT></TD>
+    <TD ALIGN="CENTER" ROWSPAN="2"><FONT COLOR="black" POINT-SIZE="14.0">sink<BR/>(Sink)</FONT></TD>
+    <TD></TD>
+  </TR>
+<TR>
+<TD PORT="0"><FONT POINT-SIZE="12.0" COLOR="black">ev0</FONT></TD>
+
+ 
+<TD></TD></TR>
+
+</TABLE>>];
+
+
+source [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD></TD>
+    <TD ALIGN="CENTER" ROWSPAN="2"><FONT COLOR="black" POINT-SIZE="14.0">source<BR/>(Source)</FONT></TD>
+    <TD PORT="o"><FONT POINT-SIZE="12.0" COLOR="black">o</FONT></TD>
+  </TR>
+<TR>
+ 
+<TD></TD>
+<TD PORT="0"><FONT POINT-SIZE="12.0" COLOR="black">ev0</FONT></TD>
+</TR>
+
+</TABLE>>];
+
+evtsink [label=<
+<TABLE color="black" bgcolor="none" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR>
+    <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="14.0">evtsink<BR/>(EvtSink)</FONT></TD>
+  </TR>
+</TABLE>>];
+
+
+
+source:o -> processing:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(11)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
+</TD></TR></TABLE>>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
+</TD></TR></TABLE>>]
+
+processing:i -> sink:i [style="solid",color="black",fontsize="12.0",fontcolor="black",label=<f32(11)>
+,headlabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >5</FONT>
+</TD></TR></TABLE>>
+,taillabel=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >7</FONT>
+</TD></TR></TABLE>>]
+
+
+
+source:0 -> sink:0 [style="dashed",color="black",fontsize="12.0",fontcolor="black",label=<>
+
+]
+source:0 -> evtsink:i [style="dashed",color="black",fontsize="12.0",fontcolor="black",label=<>
+
+]
+
+}

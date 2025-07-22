@@ -4,23 +4,8 @@ from cmsis_stream.cg.scheduler import GenericNode,GenericSink,GenericSource
 ### Define new types of Nodes 
 
 class ProcessingNode(GenericNode):
-    """
-    Definition of a ProcessingNode for the graph
-
-    Parameters
-    ----------
-    name : str
-         Name of the C variable identifying this node 
-         in the C code
-    theType : CGStaticType
-            The datatype for the input and output
-    inLength : int
-             The number of samples consumed by input
-    outLength : int 
-              The number of samples produced on output
-    """
     def __init__(self,name,theType,inLength,outLength):
-        GenericNode.__init__(self,name)
+        GenericNode.__init__(self,name,selectors=["reset","increment"])
         self.addInput("i",theType,inLength)
         self.addOutput("o",theType,outLength)
 
@@ -30,22 +15,10 @@ class ProcessingNode(GenericNode):
         return "ProcessingNode"
 
 class Sink(GenericSink):
-    """
-    Definition of a Sink node for the graph
-
-    Parameters
-    ----------
-    name : str
-         Name of the C variable identifying this node 
-         in the C code
-    theType : CGStaticType
-            The datatype for the input
-    inLength : int
-             The number of samples consumed by input
-    """
     def __init__(self,name,theType,inLength):
-        GenericSink.__init__(self,name)
+        GenericSink.__init__(self,name,selectors=["increment"])
         self.addInput("i",theType,inLength)
+        self.addEventInput()
 
     @property
     def typeName(self):
@@ -53,25 +26,35 @@ class Sink(GenericSink):
         return "Sink"
 
 class Source(GenericSource):
-    """
-    Definition of a Source node for the graph
-
-    Parameters
-    ----------
-    name : str
-         Name of the C variable identifying this node 
-         in the C code
-    theType : CGStaticType
-            The datatype for the output
-    outLength : int 
-              The number of samples produced on output
-    """
     def __init__(self,name,theType,outLength):
-        GenericSource.__init__(self,name)
+        GenericSource.__init__(self,name,selectors=["increment"])
         self.addOutput("o",theType,outLength)
+        self.addEventOutput()
 
     @property
     def typeName(self):
         """The name of the C++ class implementing this node"""
         return "Source"
 
+
+# Event only nodes with no data processing 
+
+class EvtSource(GenericSource):
+    def __init__(self,name):
+        GenericSource.__init__(self,name,selectors=["increment"])
+        self.addEventOutput()
+
+    @property
+    def typeName(self):
+        """The name of the C++ class implementing this node"""
+        return "EvtSource"
+    
+class EvtSink(GenericSink):
+    def __init__(self,name):
+        GenericSink.__init__(self,name,selectors=["increment","value"])
+        self.addEventInput()
+
+    @property
+    def typeName(self):
+        """The name of the C++ class implementing this node"""
+        return "EvtSink"

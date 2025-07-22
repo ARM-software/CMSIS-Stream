@@ -3,7 +3,13 @@ from nodes import *
 # Include definition of the graph
 from graph import * 
 
+import os 
+
 from cmsis_stream.cg.yaml import *
+
+def try_remove(path):
+    if os.path.isfile(path):
+        os.remove(path)
 
 # Create a configuration object
 conf=Configuration()
@@ -37,10 +43,28 @@ print("Memory usage %d bytes" % scheduling.memory)
 scheduling.ccode("generated",conf)
 
 # GenericNodes.h is created in the folder "generated"
-generateGenericNodes("generated")
+try_remove("generated/StreamNode.hpp")
+try_remove("generated/GenericNodes.hpp")
+try_remove("generated/EventQueue.hpp")
+try_remove("generated/cg_queue.hpp")
+try_remove("generated/cg_queue.cpp")
+try_remove("generated/cg_enums.h")
+try_remove("generated/posix_thread.cpp")
+try_remove("generated/posix_thread.hpp")
+try_remove("generated/cstream_node.h")
+try_remove("generated/IdentifiedNode.hpp")
+try_remove("generated/cg_pack.hpp")
 
-# cg_status.h is created in the folder "generated"
-generateCGStatus("generated")
+try_remove("generated/StreamNode.h")
+try_remove("generated/GenericNodes.h")
+try_remove("generated/EventQueue.h")
+try_remove("generated/cg_queue.h")
+try_remove("generated/cg_enums.h")
+try_remove("generated/posix_thread.h")
+try_remove("generated/cstream_node.h")
+try_remove("generated/IdentifiedNode.h")
+try_remove("generated/cg_pack.h")
+generateGenericNodes("generated")
 
 # Generate a graphviz representation of the graph
 with open("event_recorder.dot","w") as f:

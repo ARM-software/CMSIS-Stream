@@ -9,10 +9,12 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 #include <cstdint>
-#include "custom.h"
-#include "cg_status.h"
-#include "GenericNodes.h"
-#include "AppNodes.h"
+#include "custom.hpp"
+#include "cg_enums.h"
+#include "StreamNode.hpp"
+#include "EventQueue.hpp"
+#include "GenericNodes.hpp"
+#include "AppNodes.hpp"
 #include "scheduler.h"
 
 #if !defined(CHECKERROR)
@@ -119,6 +121,7 @@ Internal ID identification for the nodes
 #define SINKB_INTERNAL_ID 10
 #define SOURCEEVEN_INTERNAL_ID 11
 #define SOURCEODD_INTERNAL_ID 12
+
 
 
 
@@ -238,6 +241,12 @@ uint32_t scheduler(int *error)
     SinkAsync<int16_t,1> sinkb(fifo8); /* Node ID = 10 */
     SourceEven<int16_t,1> sourceEven(fifo0); /* Node ID = 11 */
     SourceOdd<int16_t,1> sourceOdd(fifo2); /* Node ID = 12 */
+
+/* Subscribe nodes for the event system*/
+
+
+
+
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -471,9 +480,9 @@ uint32_t scheduler(int *error)
        CG_AFTER_ITERATION;
        nbSchedule++;
     }
-
 errorHandling:
     CG_AFTER_SCHEDULE;
     *error=cgStaticError;
     return(nbSchedule);
+    
 }

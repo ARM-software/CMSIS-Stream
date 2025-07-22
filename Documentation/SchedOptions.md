@@ -28,9 +28,9 @@ Create the file `GenericNodes.h` in the folder `folder`. You can also use the `G
 def generateCGStatus(folder):
 ```
 
-Create the file `cg_status.h` in the folder `folder`. You can also use the `cg_status.h` from the CMSIS-Stream repository. But, to make it easier to start, it is included in the Python wrapper.
+Create the file `cg_enums.h` in the folder `folder`. You can also use the `cg_enums.h` from the CMSIS-Stream repository. But, to make it easier to start, it is included in the Python wrapper.
 
-`cg_status.h` contains error codes.
+`cg_enums.h` contains error codes.
 
 ## Options for the scheduling
 

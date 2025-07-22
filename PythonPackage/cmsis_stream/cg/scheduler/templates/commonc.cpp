@@ -17,8 +17,14 @@ The support classes and code are covered by CMSIS-Stream license.
 #include <cstdint>
 {% endif %}
 #include "{{config.customCName}}"
-#include "{{config.cgStatusCName}}"
-#include "{{config.genericNodeCName}}"
+#include "cg_enums.h"
+#include "StreamNode.hpp"
+{% if config.nodeIdentification -%}
+#include "{{config.cnodeAPI}}"
+#include "{{config.cnodeTemplate}}"
+{% endif %}
+#include "EventQueue.hpp"
+#include "GenericNodes.hpp"
 #include "{{config.appNodesCName}}"
 #include "{{config.schedulerCFileName}}.h"
 {% if config.postCustomCName -%}
@@ -48,11 +54,16 @@ using namespace arm_cmsis_stream;
 Internal ID identification for the nodes
 
 */
-{% for nodeID in range(nbNodes) -%}
-{% if nodes[nodeID].hasState %}
-#define {{nodes[nodeID].nodeName | upper}}_INTERNAL_ID {{nodeID}}
+{% for nodeID in range(nbAllNodes) -%}
+{% if allNodes[nodeID].hasState %}
+#define {{allNodes[nodeID].nodeName | upper}}_INTERNAL_ID {{nodeID}}
 {% endif %}
 {% endfor %}
+
+{% if selector_inits %}
+/* Initialize the selectors global IDs in each class */
+{{selector_inits}}
+{% endif %}
 
 {% if config.callback -%}
 /* For callback management */
@@ -82,15 +93,16 @@ static void init_cb_state()
 {% endif %}
 
 {% if config.nodeIdentification %}
+{% if identifiedNodes %}
 /***********
 
 Node identification
 
 ************/
-{% if config.CAPI -%}
-static void * identifiedNodes[{{config.prefix | upper}}NB_IDENTIFIED_NODES]={0};
+static {{config.cNodeStruct}} identifiedNodes[{{config.prefix | upper}}NB_IDENTIFIED_NODES]={0};
 {% else %}
-static NodeBase * identifiedNodes[{{config.prefix | upper}}NB_IDENTIFIED_NODES]={0};
+/* No identified nodes found so array is forced to length 1*/
+static {{config.cNodeStruct}} identifiedNodes[1]={0};
 {% endif %}
 {% endif %}
 
@@ -100,9 +112,11 @@ CG_BEFORE_FIFO_BUFFERS
 FIFO buffers
 
 ************/
+{% if fifos|length > 0 %}
 {% for fifo in fifos %}
 #define FIFOSIZE{{fifo.fifoID}} {{fifo.length}}
 {% endfor %}
+{% endif %}
 
 {% if config.bufferAllocation %}
 {% if sched._graph._allBuffers|length >0 %}
@@ -150,42 +164,41 @@ CG_BEFORE_BUFFER
 {% endif %}
 
 {% if config.heapAllocation %}
+{% if nbFifos > 0 %}
 typedef struct {
 {% for id in range(nbFifos) %}
 {{fifos[id].fifo_class_str}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}> *fifo{{id}};
 {% endfor %}
 } fifos_t;
+{% endif %}
 
 typedef struct {
-{% for node in nodes %}
+{% for node in allNodes %}
 {% if node.hasState %}
-    {{node.typeName}}<{{node.ioTemplate()}}> *{{node.nodeName}};
+    {{node.typeName}}{{node.ioTemplate()}} *{{node.nodeName}};
 {% endif %}
 {% endfor %}
 } nodes_t;
 
-CG_BEFORE_BUFFER
-static fifos_t fifos={0};
 
-CG_BEFORE_BUFFER
+{% if nbFifos > 0 %}
+static fifos_t fifos={0};
+{% endif %}
+
 static nodes_t nodes={0};
 
 {% if config.nodeIdentification %}
-{% if config.CAPI -%}
-void *get_{{config.schedName}}_node(int32_t nodeID)
-{% else %}
-NodeBase *get_{{config.schedName}}_node(int32_t nodeID)
-{% endif %}
+{{config.cNodeStruct}}* get_{{config.schedName}}_node(int32_t nodeID)
 {
     if (nodeID >= {{config.prefix | upper}}NB_IDENTIFIED_NODES)
     {
-        return(NULL);
+        return(nullptr);
     }
     if (nodeID < 0)
     {
-        return(NULL);
+        return(nullptr);
     }
-    return(identifiedNodes[nodeID]);
+    return(&identifiedNodes[nodeID]);
 }
 {% endif %}
 
@@ -198,13 +211,13 @@ int init_{{config.schedName}}({{optionalargs(True)}})
     CG_BEFORE_FIFO_INIT;
 {% for id in range(nbFifos) %}
 {% if fifos[id].hasDelay or fifos[id].hasAdditionalArgs %}
-    fifos.fifo{{id}} = new {{fifos[id].fifo_class_str}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{fifos[id].bufName(config)}},{{fifos[id].delay}}{{fifos[id].fifo_additional_args}});
+    fifos.fifo{{id}} = new (std::nothrow) {{fifos[id].fifo_class_str}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{fifos[id].bufName(config)}},{{fifos[id].delay}}{{fifos[id].fifo_additional_args}});
     if (fifos.fifo{{id}}==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
 {% else %}
-    fifos.fifo{{id}} = new {{fifos[id].fifo_class_str}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{fifos[id].bufName(config)}}{{fifos[id].fifo_additional_args}});
+    fifos.fifo{{id}} = new (std::nothrow) {{fifos[id].fifo_class_str}}<{{fifos[id].theType.ctype}},FIFOSIZE{{id}},{{fifos[id].isArrayAsInt}},{{async()}}>({{fifos[id].bufName(config)}}{{fifos[id].fifo_additional_args}});
     if (fifos.fifo{{id}}==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
@@ -213,25 +226,28 @@ int init_{{config.schedName}}({{optionalargs(True)}})
 {% endfor %}
 
     CG_BEFORE_NODE_INIT;
-{% for node in nodes %}
+
+{% for node in allNodes %}
 {% if node.hasState %}
-    nodes.{{node.nodeName}} = new {{node.typeName}}<{{node.ioTemplate()}}>({{node.args}});
+    nodes.{{node.nodeName}} = new (std::nothrow) {{node.typeName}}{{node.ioTemplate()}}{{init_args(sched,node)}};
     if (nodes.{{node.nodeName}}==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
 {% if config.nodeIdentification -%}
 {% if node.identified -%}
-{% if config.CAPI %}
-    identifiedNodes[{{node.identificationName}}]=(void*)nodes.{{node.nodeName}};
-{% else %}
-    identifiedNodes[{{node.identificationName}}]=nodes.{{node.nodeName}};
-{% endif %}
+    identifiedNodes[{{node.identificationName}}]={{config.cNodeStructCreation}}(*nodes.{{node.nodeName}});
     nodes.{{node.nodeName}}->setID({{node.identificationName}});
 {% endif %}
 {% endif %}
 {% endif %}
 {% endfor %}
+
+/* Subscribe nodes for the event system*/
+{% for event_edge in eventConnections %}
+    nodes.{{event_edge[0].owner.nodeName}}->subscribe({{event_edge[0].name}},*nodes.{{event_edge[1].owner.nodeName}},{{event_edge[1].name}});
+{% endfor %}
+
 
     return(CG_SUCCESS);
 
@@ -246,7 +262,7 @@ void free_{{config.schedName}}({{optionalargs(True)}})
     }
 {% endfor %}
 
-{% for node in nodes %}
+{% for node in allNodes %}
 {% if node.hasState %}
     if (nodes.{{node.nodeName}}!=NULL)
     {
@@ -261,6 +277,7 @@ void free_{{config.schedName}}({{optionalargs(True)}})
 CG_BEFORE_SCHEDULER_FUNCTION
 uint32_t {{config.schedName}}(int *error{{optionalargs(False)}})
 {
+{% if schedLen > 0 %}
     int cgStaticError=0;
     uint32_t nbSchedule=0;
 {% if config.debug %}
@@ -292,12 +309,21 @@ uint32_t {{config.schedName}}(int *error{{optionalargs(False)}})
     /* 
     Create node objects
     */
-{% for node in nodes %}
+{% for node in allNodes %}
 {% if node.hasState %}
-    {{node.typeName}}<{{node.ioTemplate()}}> {{node.nodeName}}({{node.args}}); /* Node ID = {{node.codeID}} */
+    {{node.typeName}}{{node.ioTemplate()}} {{node.nodeName}}{{init_args(sched,node)}}; /* Node ID = {{node.codeID}} */
 {% endif %}
 {% endfor %}
+
+/* Subscribe nodes for the event system*/
+{% for event_edge in eventConnections %}
+    {{event_edge[0].owner.nodeName}}.subscribe({{event_edge[0].name}},{{event_edge[1].owner.nodeName}},{{event_edge[1].name}});
+{% endfor %}
+
+
 {% endif %}
+
+
 
     /* Run several schedule iterations */
 {% block scheduleLoop %}
@@ -306,4 +332,29 @@ errorHandling:
     CG_AFTER_SCHEDULE;
     *error=cgStaticError;
     return(nbSchedule);
+    
+{% else %}
+{% if not config.heapAllocation %}
+    /* 
+    Create node objects
+    */
+{% for node in allNodes %}
+{% if node.hasState %}
+    {{node.typeName}}{{node.ioTemplate()}} {{node.nodeName}}{{init_args(sched,node)}}; /* Node ID = {{node.codeID}} */
+{% endif %}
+{% endfor %}
+/* Subscribe nodes for the event system*/
+{% for event_edge in eventConnections %}
+    {{event_edge[0].owner.nodeName}}.subscribe({{event_edge[0].name}},{{event_edge[1].owner.nodeName}},{{event_edge[1].name}});
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if schedLen == 0 %}
+    *error=CG_SUCCESS;
+    while(1){
+        // To have possibility to process the event queue
+        CG_BEFORE_ITERATION;
+    };
+    return(0);
+{% endif %}
 }

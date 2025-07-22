@@ -1,5 +1,12 @@
 from cmsis_stream.cg.scheduler import *
+import os 
+
 from cmsis_stream.cg.yaml import *
+
+def try_remove(path):
+    if os.path.isfile(path):
+        os.remove(path)
+        
 from create import mkGraph
 
 sharedPtr=CCustomType("std::shared_ptr<buffer>",8)
@@ -31,3 +38,10 @@ sched.ccode("dynamic",conf)
 with open("dynamic.dot","w") as f:
     sched.graphviz(f)
 
+try_remove("StreamNode.h")
+try_remove("GenericNodes.h")
+try_remove("EventQueue.h")
+try_remove("cstream_node.h")
+try_remove("IdentifiedNode.h")
+try_remove("cg_enums.h")
+generateGenericNodes(".")

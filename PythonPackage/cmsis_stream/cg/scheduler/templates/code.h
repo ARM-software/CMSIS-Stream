@@ -33,15 +33,21 @@ extern "C"
 {% endif %}
 
 {% if config.nodeIdentification %}
+/* Node identifiers */
 #define {{config.prefix | upper}}NB_IDENTIFIED_NODES {{identifiedNodes|length}}
 {% for node in identifiedNodes %}
 #define {{node[0]}} {{node[1]}}
 {% endfor %}
 
+{% if selector_defines %}
+/* Selectors global identifiers */
+{{ selector_defines}}
+{% endif %}
+
 {% if config.CAPI -%}
-extern void *get_{{config.schedName}}_node(int32_t nodeID);
+extern {{config.cNodeStruct}}* get_{{config.schedName}}_node(int32_t nodeID);
 {% else %}
-extern NodeBase *get_{{config.schedName}}_node(int32_t nodeID);
+extern StreamNode *get_{{config.schedName}}_node(int32_t nodeID);
 {% endif %}
 {% endif %}
 

@@ -9,10 +9,14 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 #include <cstdint>
-#include "custom.h"
-#include "cg_status.h"
-#include "GenericNodes.h"
-#include "AppNodes.h"
+#include "custom.hpp"
+#include "cg_enums.h"
+#include "StreamNode.hpp"
+#if defined(CG_EVENTS)
+#include "EventQueue.hpp"
+#endif
+#include "GenericNodes.hpp"
+#include "AppNodes.hpp"
 #include "scheduler.h"
 
 #if !defined(CHECKERROR)
@@ -107,6 +111,7 @@ Internal ID identification for the nodes
 #define SINK_INTERNAL_ID 2
 #define SOURCE_INTERNAL_ID 3
 
+
 /* For callback management */
 
 #define CG_PAUSED_SCHEDULER_ID 1
@@ -168,10 +173,9 @@ typedef struct {
     Source<float,5> *source;
 } nodes_t;
 
-CG_BEFORE_BUFFER
+
 static fifos_t fifos={0};
 
-CG_BEFORE_BUFFER
 static nodes_t nodes={0};
 
 
@@ -180,38 +184,42 @@ int init_scheduler(int *someVariable)
 init_cb_state();
 
     CG_BEFORE_FIFO_INIT;
-    fifos.fifo0 = new FIFO<float,FIFOSIZE0,0,0>(buf0);
+    fifos.fifo0 = new (std::nothrow) FIFO<float,FIFOSIZE0,0,0>(buf0);
     if (fifos.fifo0==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo1 = new FIFO<float,FIFOSIZE1,1,0>(buf1);
+    fifos.fifo1 = new (std::nothrow) FIFO<float,FIFOSIZE1,1,0>(buf1);
     if (fifos.fifo1==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    fifos.fifo2 = new FIFO<float,FIFOSIZE2,0,0>(buf2);
+    fifos.fifo2 = new (std::nothrow) FIFO<float,FIFOSIZE2,0,0>(buf2);
     if (fifos.fifo2==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
 
     CG_BEFORE_NODE_INIT;
-    nodes.processing = new ProcessingNode<float,7,float,7>(*(fifos.fifo0),*(fifos.fifo1));
+
+    nodes.processing = new (std::nothrow) ProcessingNode<float,7,float,7>(*(fifos.fifo0),*(fifos.fifo1));
     if (nodes.processing==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    nodes.sink = new Sink<float,5>(*(fifos.fifo2));
+    nodes.sink = new (std::nothrow) Sink<float,5>(*(fifos.fifo2));
     if (nodes.sink==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    nodes.source = new Source<float,5>(*(fifos.fifo0));
+    nodes.source = new (std::nothrow) Source<float,5>(*(fifos.fifo0));
     if (nodes.source==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
+
+/* Subscribe nodes for the event system*/
+
 
     return(CG_SUCCESS);
 
@@ -258,6 +266,8 @@ if (cb_state.status==CG_PAUSED_SCHEDULER_ID)
       nbSchedule = cb_state.nbSched;
 
    }
+
+
 
 
     /* Run several schedule iterations */
@@ -333,9 +343,9 @@ CG_RESTORE_STATE_MACHINE_STATE;
        CG_AFTER_ITERATION;
        nbSchedule++;
     }
-
 errorHandling:
     CG_AFTER_SCHEDULE;
     *error=cgStaticError;
     return(nbSchedule);
+    
 }

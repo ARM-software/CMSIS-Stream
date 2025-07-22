@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Prebuilt Executable",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/Examples/events/simple.exe",  // Change this path
+      "args": [],                                         // Add any command line arguments here
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "console": "externalTerminal",                      // or "integratedTerminal"
+      "symbolSearchPath": "",                            // Optionally add .pdb search paths
+      "logging": {
+        "engineLogging": false
+      }
+    }
+  ]
+}

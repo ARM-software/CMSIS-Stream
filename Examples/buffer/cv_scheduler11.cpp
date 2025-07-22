@@ -10,7 +10,8 @@ The support classes and code are covered by CMSIS-Stream license.
 
 #include <cstdint>
 #include "custom.h"
-#include "cg_status.h"
+#include "cg_enums.h"
+#include "StreamNode.h"
 #include "GenericNodes.h"
 #include "AppNodes.h"
 #include "cv_scheduler11.h"
@@ -175,6 +176,11 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
     Sink<float,5> sink2(fifo2,"sink2"); /* Node ID = 2 */
     SourceC2<float,5> source(fifo0); /* Node ID = 3 */
 
+/* Subscribe nodes for the event system*/
+
+
+
+
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
     while((cgStaticError==0) && (debugCounter > 0))
@@ -225,9 +231,9 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
        CG_AFTER_ITERATION;
        nbSchedule++;
     }
-
 errorHandling:
     CG_AFTER_SCHEDULE;
     *error=cgStaticError;
     return(nbSchedule);
+    
 }

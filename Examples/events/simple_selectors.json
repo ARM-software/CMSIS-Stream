@@ -1,0 +1,11 @@
+{
+  "reset": 100,
+  "increment": 101,
+  "value": 6,
+  "do": 1,
+  "pause": 2,
+  "resume": 3,
+  "getparam": 5,
+  "stopgraph": 7,
+  "debug": 8
+}

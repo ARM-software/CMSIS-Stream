@@ -1,7 +1,7 @@
 {% macro io(node,theio) -%}
 {% if node.isDuplicateNode %} 
 {{node.nodeName}}{% else %}
-{% if not node.hasManyIOs %}{{node.nodeID}}:i{% else %}{{node.nodeID}}:{{theio.name}}{% endif %}
+{% if not node.hasManySlots %}{{node.nodeID}}:i{% else %}{{node.nodeID}}:{{theio.name}}{% endif %}
 {% endif %}
 {%- endmacro %}
 
@@ -41,7 +41,7 @@ digraph structs {
 {% if item.isDuplicateNode %}
 {{item.nodeID}} [shape=point,label="{{item.nodeName}}"]
 {% else %}
-{% if not item.hasManyIOs %}
+{% if not item.hasManySlots %}
 {{item.nodeID}} [label=<
 <TABLE color="{{style.node_boundary_color(item)}}" bgcolor="{{style.node_color(item)}}" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
@@ -55,23 +55,23 @@ digraph structs {
 {{item.nodeID}} [label=<
 <TABLE color="{{style.node_boundary_color(item)}}" bgcolor="{{style.node_color(item)}}" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-    {% for id in range(0,item.maxNbIOs) -%}
-    {% if item.inputNames[id] -%}
-    {% set input %}{{item.inputNames[id]}}{% endset %}
-    <TD PORT="{{input}}"><FONT POINT-SIZE="{{style.port_font_size(item,id,input=True)}}" COLOR="{{style.port_font_color(item,id,input=True)}}">{{input}}</FONT></TD>
+    {% for id in range(0,item.maxSlots) -%}
+    {% if item.slotInputNames[id] -%}
+    {% set input %}{{item.slotInputNames[id]}}{% endset %}
+    <TD PORT="{{input}}"><FONT POINT-SIZE="{{style.port_font_size(item,id,input=True)}}" COLOR="{{style.port_font_color(item,id,input=True)}}">{{item.slotGraphvizInputNames[id]}}</FONT></TD>
     {% else %}
     <TD></TD>
     {%- endif %}
     {%- endfor %}
   </TR>
   <TR>
-    <TD ALIGN="CENTER" COLSPAN="{{item.maxNbIOs}}"><FONT COLOR="{{style.node_label_color(item)}}" POINT-SIZE="{{style.node_label_size(item)}}">{{ style.node_label(item) }}</FONT></TD>
+    <TD ALIGN="CENTER" COLSPAN="{{item.maxSlots}}"><FONT COLOR="{{style.node_label_color(item)}}" POINT-SIZE="{{style.node_label_size(item)}}">{{ style.node_label(item) }}</FONT></TD>
   </TR>
   <TR>
-    {% for id in range(0,item.maxNbIOs) -%}
-    {% if item.outputNames[id] -%}
-    {% set output %}{{item.outputNames[id]}}{% endset %}
-    <TD PORT="{{output}}"><FONT POINT-SIZE="{{style.port_font_size(item,id)}}" COLOR="{{style.port_font_color(item,id)}}">{{output}}</FONT></TD>
+    {% for id in range(0,item.maxSlots) -%}
+    {% if item.slotOutputNames[id] -%}
+    {% set output %}{{item.slotOutputNames[id]}}{% endset %}
+    <TD PORT="{{output}}"><FONT POINT-SIZE="{{style.port_font_size(item,id)}}" COLOR="{{style.port_font_color(item,id)}}">{{item.slotGraphvizOutputNames[id]}}</FONT></TD>
     {% else %}
     <TD></TD>
     {%- endif %}
@@ -82,30 +82,30 @@ digraph structs {
 {{item.nodeID}} [label=<
 <TABLE color="{{style.node_boundary_color(item)}}" bgcolor="{{style.node_color(item)}}" BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
   <TR>
-{% if item.inputNames[0] is defined %}
-    <TD PORT="{{item.inputNames[0]}}"><FONT POINT-SIZE="{{style.port_font_size(item,0,input=True)}}" COLOR="{{style.port_font_color(item,0,input=True)}}">{{item.inputNames[0]}}</FONT></TD>
+{% if item.slotInputNames[0] is defined %}
+    <TD PORT="{{item.slotInputNames[0]}}"><FONT POINT-SIZE="{{style.port_font_size(item,0,input=True)}}" COLOR="{{style.port_font_color(item,0,input=True)}}">{{item.slotGraphvizInputNames[0]}}</FONT></TD>
 {% else %}
     <TD></TD>
 {% endif %}
-    <TD ALIGN="CENTER" ROWSPAN="{{item.maxNbIOs}}"><FONT COLOR="{{style.node_label_color(item)}}" POINT-SIZE="{{style.node_label_size(item)}}">{{ style.node_label(item) }}</FONT></TD>
-{% if item.outputNames[0] is defined %}
-    <TD PORT="{{item.outputNames[0]}}"><FONT POINT-SIZE="{{style.port_font_size(item,0)}}" COLOR="{{style.port_font_color(item,0)}}">{{item.outputNames[0]}}</FONT></TD>
+    <TD ALIGN="CENTER" ROWSPAN="{{item.maxSlots}}"><FONT COLOR="{{style.node_label_color(item)}}" POINT-SIZE="{{style.node_label_size(item)}}">{{ style.node_label(item) }}</FONT></TD>
+{% if item.slotOutputNames[0] is defined %}
+    <TD PORT="{{item.slotOutputNames[0]}}"><FONT POINT-SIZE="{{style.port_font_size(item,0)}}" COLOR="{{style.port_font_color(item,0)}}">{{item.slotGraphvizOutputNames[0]}}</FONT></TD>
 {% else %}
     <TD></TD>
 {% endif %}
   </TR>
-{% for id in range(1,item.maxNbIOs) -%}
+{% for id in range(1,item.maxSlots) -%}
 <TR>
-{% if item.inputNames[id] -%}
-{% set input %}{{item.inputNames[id]}}{% endset %}
-<TD PORT="{{input}}"><FONT POINT-SIZE="{{style.port_font_size(item,id,input=True)}}" COLOR="{{style.port_font_color(item,id,input=True)}}">{{input}}</FONT></TD>
+{% if item.slotInputNames[id] -%}
+{% set input %}{{item.slotInputNames[id]}}{% endset %}
+<TD PORT="{{input}}"><FONT POINT-SIZE="{{style.port_font_size(item,id,input=True)}}" COLOR="{{style.port_font_color(item,id,input=True)}}">{{item.slotGraphvizInputNames[id]}}</FONT></TD>
 {% else %} 
 <TD></TD>
 {%- endif %}
 
-{% if item.outputNames[id] -%}
-{% set output %}{{item.outputNames[id]}}{% endset %}
-<TD PORT="{{output}}"><FONT POINT-SIZE="{{style.port_font_size(item,id)}}" COLOR="{{style.port_font_color(item,id)}}">{{output}}</FONT></TD>
+{% if item.slotOutputNames[id] -%}
+{% set output %}{{item.slotOutputNames[id]}}{% endset %}
+<TD PORT="{{output}}"><FONT POINT-SIZE="{{style.port_font_size(item,id)}}" COLOR="{{style.port_font_color(item,id)}}">{{item.slotGraphvizOutputNames[id]}}</FONT></TD>
 {% else %} 
 <TD></TD>
 {%- endif %}
@@ -159,4 +159,11 @@ digraph structs {
 {% for edgeID in range(nbConstEdges) %}
 {{constEdges[edgeID][0].name}}:i -> {{constdst(edgeID)}} [style="{{style.const_edge_style(constEdges[edgeID][0].name,constEdges[edgeID][1])}}",color="{{style.const_edge_color(constEdges[edgeID][0].name,constEdges[edgeID][1])}}"]
 {% endfor %}
+
+{% for id in range(nbEventEdges) %}
+{{io(events[id][0].owner,events[id][0])}} -> {{io(events[id][1].owner,events[id][1])}} [style="{{style.event_edge_style(events[id])}}",color="{{style.edge_color(events[id])}}",fontsize="{{style.event_edge_label_size(events[id])}}",fontcolor="{{style.event_edge_label_color(events[id])}}",label=<{{style.event_edge_label(events[id])}}>
+{{edgelabel(events[id][1],"headlabel")}}
+{{edgelabel(events[id][0],"taillabel")}}]
+{% endfor %}
+
 }

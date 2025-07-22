@@ -53,6 +53,17 @@ This will generate the following files:
 * `scheduler.h`
 * `simple.dot` (the [graphviz](https://graphviz.org/) representation of the graph)
 
+It will also generate supports files if they are not already present:
+* `cg_status.h`
+* `StreamNode.h`
+* `cstream_node.h`
+* `IdentifiedNode.h`
+* `EventQueue.h`
+* `custom.h`
+
+For this example, only `custom.h`, `cg_status.h`, `StreamNode.h` and `GenericNode.h` are used.
+
+
 A graphical representation of the graph is generated in [graphviz](https://graphviz.org/) dot format. If you have [graphviz](https://graphviz.org/) installed, you can generate a `png` file representing the graph with:
 
 `dot -Tpng -o simple.png simple.dot`

@@ -6,13 +6,18 @@
 Description of the scheduling. 
 
 */
+{% if schedLen > 0 %}
+{% if schedSwitchDataType %}
 static {{schedSwitchDataType}} schedule[{{schedLen}}]=
 { 
 {{schedDescription}}
 };
+{% endif %}
+{% endif %}
 {% endblock %}
 
 {% block scheduleLoop %}
+{% if schedLen > 0 %}
     CG_BEFORE_SCHEDULE;
 {% if config.callback -%}
     CG_RESTORE_STATE_MACHINE_STATE;
@@ -47,20 +52,20 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
             CG_ASYNC_BEFORE_NODE_CHECK(schedule[id]);
             switch(schedule[id])
             {
-                {% for nodeID in range(nbNodes) -%}
+                {% for nodeID in range(nbStreamNodes) -%}
                 case {{nodeID}}:
                 {
-                    {% if not nodes[nodeID].isPureNode -%}
+                    {% if not streamNodes[nodeID].isPureNode -%}
                     {%- if not config.heapAllocation -%}
-                    cgStaticError = {{nodes[nodeID].nodeName}}.prepareForRunning();
+                    cgStaticError = {{streamNodes[nodeID].nodeName}}.prepareForRunning();
                     {%- else -%}
                     {% if config.callback -%}
-                    nodes.{{nodes[nodeID].nodeName}}->setExecutionStatus(cb_state.running);
+                    nodes.{{streamNodes[nodeID].nodeName}}->setExecutionStatus(cb_state.running);
                     {% endif -%}
-                    cgStaticError = nodes.{{nodes[nodeID].nodeName}}->prepareForRunning();
+                    cgStaticError = nodes.{{streamNodes[nodeID].nodeName}}->prepareForRunning();
                     {%- endif -%}
                     {%- else -%}
-                    {{nodes[nodeID].cCheck(config.asyncDefaultSkip)}}
+                    {{streamNodes[nodeID].cCheck(config.asyncDefaultSkip)}}
                     {%- endif %}
 
                 }
@@ -106,21 +111,21 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
 
             switch(schedule[id])
             {
-                {% for nodeID in range(nbNodes) -%}
+                {% for nodeID in range(nbStreamNodes) -%}
                 case {{nodeID}}:
                 {
                     {% if config.callback -%}
-                    {% if not nodes[nodeID].isPureNode -%}
-                    nodes.{{nodes[nodeID].nodeName}}->setExecutionStatus(cb_state.running);
+                    {% if not streamNodes[nodeID].isPureNode -%}
+                    nodes.{{streamNodes[nodeID].nodeName}}->setExecutionStatus(cb_state.running);
                     {%- endif -%}
                     {% endif %}
 
-                   {{nodes[nodeID].cRun(config)}}
+                   {{streamNodes[nodeID].cRun(config)}}
 
                    {%- if config.dumpFIFO %}
-                   {%- for fifoID in sched.outputFIFOs(nodes[nodeID]) %}
+                   {%- for fifoID in sched.outputFIFOs(streamNodes[nodeID]) %}
                    
-                   std::cout << "{{nodes[nodeID].nodeName}}:{{fifoID[1]}}" << std::endl;
+                   std::cout << "{{streamNodes[nodeID].nodeName}}:{{fifoID[1]}}" << std::endl;
                    fifo{{fifoID[0]}}.dump();
                    {%- endfor %}
                    {%- endif %}
@@ -159,5 +164,6 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
        CG_AFTER_ITERATION;
        nbSchedule++;
     }
-
+{% endif %}
 {% endblock %}
+

@@ -1,0 +1,8 @@
+{
+  "EvtSource": {
+    "isTemplate": false,
+    "selectors": [
+      "SEL_INCREMENT_ID"
+    ]
+  }
+}

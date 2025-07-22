@@ -128,8 +128,11 @@ This setting implies `heapAllocation`. When it is true, a new API is generated t
 
 A node named `mynode` will be identified with a number `MYNODE_ID` that is defined as a macro. The node can be accessed with :
 
-* `void *get_scheduler_node(int32_t nodeID);` in `C` mode API
-* `NodeBase *get_scheduler_node(int32_t nodeID);` in `CPP` mode API
+* `CStreamNode get_scheduler_node(int32_t nodeID)`
+
+This `get_scheduler_node` function and its return type can be totally customized. The default implementation rely on file `cstream_node.h` and `IdentifiedNode.h`.
+See the documentation about node identification
+
 
 `schedulerCFileName` is used to customize the name of the function (The `scheduler` part is replaced by what you have defined).
 

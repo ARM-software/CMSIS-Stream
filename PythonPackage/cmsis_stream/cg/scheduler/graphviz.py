@@ -27,7 +27,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 import pathlib
 import os.path
 
-
+from .node import EventInput, EventOutput
 
 class Style:
     _DEFAULT_STYLE = {
@@ -53,9 +53,13 @@ class Style:
 
     # Edge settings
     ,"edge_color"            : "black"       # Color of any edge
+    ,"event_edge_color"      : "gray"       # Color of any event edge
     ,"edge_label_size"       : "12.0"        # Font size of any edge label
+    ,"event_edge_label_size"       : "12.0"        # Font size of any event edge label
     ,"edge_label_color"      : "black"       # Color of any edge label
+    ,"event_edge_label_color"      : "black"       # Color of any event edge label
     ,"edge_style"            : "solid"       # Edge style (dashed, dotted ...)
+    ,"event_edge_style"      : "dashed"      # Event edge style (dashed, dotted ...)
     ,"arrow_size"            : 0.5           # Arrow size at end of edge
 
     }
@@ -263,18 +267,34 @@ class Style:
     # edge color
     def edge_color(self,edge):
         return(self["edge_color"])
+    
+    # event edge color
+    def event_edge_color(self,edge_pair):
+        return(self["event_edge_color"])
 
     # edge label color
     def edge_label_color(self,edge):
         return(self["edge_label_color"])
+    
+    # event_edge label color
+    def event_edge_label_color(self,edge_pair):
+        return(self["event_edge_label_color"])
 
     # edge label font size
     def edge_label_size(self,edge):
         return(self["edge_label_size"])
+    
+    # event edge label font size
+    def event_edge_label_size(self,edge_pair):
+        return(self["event_edge_label_size"])
 
     # edge style (dashed, dotted ...)
     def edge_style(self,edge):
         return(self["edge_style"])
+    
+    # edge style (dashed, dotted ...)
+    def event_edge_style(self,edge_pair):
+        return(self["event_edge_style"])
 
     # Label on the edge
     # (By default datatype and number of samples)
@@ -283,6 +303,9 @@ class Style:
            return f"{typeName}({length})"
         else:
            return f"{typeName}"
+        
+    def event_edge_label(self,edge_pair):
+        return ""
 
     ############################
     #
@@ -312,6 +335,9 @@ class Style:
     def const_edge_style(self,name,dstPort):
         return(self["edge_style"])
 
+def _isEvent(n):
+    return isinstance(n,EventInput) or isinstance(n,EventOutput)
+
 # Generate a graph before schedule computation
 # It is working with a graph that ha sno FIFOs but only
 # edges (pair of input / output ports)
@@ -326,17 +352,22 @@ def gen_precompute_graph(g,f,config,style=Style.default_style()):
     template = env.get_template("precompute_dot_template.dot")
 
     nbFifos = len(g.edges)
+    event_edges = list(g._eventConnections.keys())
+
 
     print(template.render(style=style,
       graph=g,
       nodes=g.nodes,
       edges=g.edges,
       fifos=g.edges,
+      events=event_edges,
       nbFifos=nbFifos,
       constEdges=g.constantEdges,
       nbConstEdges=len(g.constantEdges),
+      nbEventEdges=len(event_edges),
       constObjs=constObjs,
-      config=config
+      config=config,
+      isEvent=_isEvent
       ),file=f)
 
 # Work with a graph after schedule computation
@@ -354,14 +385,19 @@ def gengraph(sched,f,config,style=Style.default_style()):
 
     nbFifos = len(sched._graph._allFIFOs)
 
+    event_edges = list(sched._eventConnections.keys())
+
     print(template.render(style=style,
       graph=sched,
-      nodes=sched.nodes,
+      nodes=sched.allNodes,
       edges=sched.edges,
       fifos=sched._graph._allFIFOs,
+      events=event_edges,
+      nbEventEdges=len(event_edges),
       nbFifos=nbFifos,
       constEdges=sched.constantEdges,
       nbConstEdges=len(sched.constantEdges),
       constObjs=constObjs,
-      config=config
+      config=config,
+      isEvent=_isEvent
       ),file=f)

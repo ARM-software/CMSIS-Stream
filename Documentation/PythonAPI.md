@@ -14,15 +14,15 @@ When you describe a graph and generate a scheduler there are 4 mandatory steps a
 
 3. ## [Schedule computation and generation](SchedOptions.md)
 
-4. ## [SDS Nodes](PythonSDS.md)
+4. ## [SDS Nodes (experimental)](PythonSDS.md)
 
 5. ## Generation
 
    1. #### [C++ Code generation](CCodeGen.md)
 
-   2. #### [Python code generation](PythonGen.md)
+   2. #### [Python code generation (deprecated)](PythonGen.md)
 
-   3. #### [Graphviz representation](GraphvizGen.md)
+   3. #### [Graphviz generation](GraphvizGen.md)
 
    4. #### [Common options for all generators](CodegenOptions.md)
 

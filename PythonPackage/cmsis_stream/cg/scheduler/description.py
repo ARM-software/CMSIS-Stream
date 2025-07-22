@@ -28,13 +28,14 @@
 import networkx as nx
 import numpy as np 
 import math 
+import json 
+import os.path
 
 from sympy import Matrix
 from sympy.core.numbers import ilcm,igcd
 
 from .graphviz import gengraph,gen_precompute_graph,Style
 from .ccode import gencode as c_gencode
-from .pythoncode import gencode as p_gencode
 
 from .node import *
 from .config import *
@@ -315,14 +316,17 @@ class Graph():
 
     def __init__(self):
         self._nodes={}
+        self._pureEventNodes={}
         self._edges={}
         self._delays={}
         self._constantEdges={}
         self._g = nx.Graph()
         self._sortedNodes=None
+        self._sortedEventNodes=None
         self._totalMemory=0
         self._allFIFOs = None 
         self._allBuffers = None
+        self._eventConnections = {}
         self._FIFOClasses = {}
         # In async mode, scaling factor for a given
         # FIFO to override the global scaling factor
@@ -352,6 +356,11 @@ class Graph():
         self.duplicateNodeClassName = "Duplicate"
 
 
+    def _has_streaming(self,n):
+        if not n._inputs and not n._outputs:
+            return(False)
+        return(True)
+        
     def graphviz(self,f,config=Configuration(),style=Style.default_style()):
         """Write graphviz into file f""" 
         gen_precompute_graph(self,f,config,style=style)
@@ -450,8 +459,8 @@ class Graph():
         # ensure that an output is connected to only one input
         dupNb = 0
         # Scan all nodes
-        allNodes = list(self._g)
-        for n in allNodes:
+        _allNodes = list(self._g)
+        for n in _allNodes:
             # For each nodes, get the IOs
             for k in n._outputs.keys():
                 output = n._outputs[k]
@@ -606,7 +615,18 @@ class Graph():
                         
 
                
-
+    def _isEvent(self,a):
+        return isinstance(a,EventInput) or isinstance(a,EventOutput)
+    
+    def _connectEvents(self,porta,portb):
+        if porta.compatible(portb):
+            pass
+        else:
+            raise IncompatibleIO(porta.owner.nodeName,
+                                 portb.owner.nodeName,
+                                 porta.name,portb.name,
+                                 porta.theType,portb.theType)
+    
     def connect(self,nodea,nodeb,
         dupAllowed=True,
         fifoClass=None,
@@ -615,6 +635,43 @@ class Graph():
         weak=False,
         buffer=None,
         customBufferMustBeArray=True):
+        # Event can be connected only to event
+        # So both ports must be events
+        if self._isEvent(nodea) and self._isEvent(nodeb):
+            # If one of the node is an event, we do not connect
+            # it to a FIFO but to an event
+            self._connectEvents(nodea,nodeb)
+            self._eventConnections[(nodea,nodeb)] = True
+
+            # Now we check if the node is pure event or has some
+            # streaming capabilities.
+            # If it has some streaming, it is put in _nodes
+            # otherwise it is put in pureEventNodes
+            # to avoid disturbing the scheduling computations
+            if self._has_streaming(nodea.owner):
+                if not (nodea.owner in self._nodes):
+                   self._nodes[nodea.owner]=True
+            else:
+                if not (nodea.owner in self._pureEventNodes):
+                   self._pureEventNodes[nodea.owner]=True
+            if self._has_streaming(nodeb.owner):
+               if not (nodeb.owner in self._nodes):
+                      self._nodes[nodeb.owner]=True
+            else:
+                 if not (nodeb.owner in self._pureEventNodes):
+                      self._pureEventNodes[nodeb.owner]=True
+            return
+        
+        # If the or is true and we reach here then
+        # it means that not both are true.
+        # So we are trying to connect an event
+        # to a streaming port. It is an error.
+        if self._isEvent(nodea) or self._isEvent(nodeb):
+            raise IncompatibleIO(nodea.owner.nodeName,
+                                 nodeb.owner.nodeName,
+                                 nodea.name,nodeb.name,
+                                 nodea.theType,nodeb.theType)
+        
         if fifoClass is None:
             fifoClass = self.defaultFIFOClass
         # When connecting to a constant node we do nothing
@@ -1112,6 +1169,10 @@ class Graph():
     @property
     def nodes(self):
         return list(self._nodes.keys())
+    
+    @property
+    def eventOnlyNodes(self):
+        return list(self._pureEventNodes.keys())
 
     @property
     def edges(self):
@@ -1130,17 +1191,21 @@ class Graph():
     def checkGraph(self):
         if not nx.is_connected(self._g):
             raise GraphIsNotConnected
+        
+    
 
     def topologyMatrix(self):
         self.checkGraph()
         # For cyclo static scheduling : compute the node periods
         for n in self.nodes:
-            n.computeCyclePeriod()
+            if self._has_streaming(n):
+               n.computeCyclePeriod()
 
         rows=[]
         # This is used in schedule generation
         # and all functions must use the same node ordering
         self._sortedNodes = sorted(self.nodes, key=lambda x: x.nodeID)
+        self._sortedEventNodes = sorted(self._pureEventNodes, key=lambda x: x.nodeID)
         # Arbitrary order but used for now
         self._sortedEdges = self.edges.copy()
         #for x in self._sorted:
@@ -1166,6 +1231,10 @@ class Graph():
             
             node.nbInputsForTopologicalSort = node.nbInputsForTopologicalSort - nbWeak 
 
+            nID = nID + 1
+
+        for node in self._sortedEventNodes:
+            node.sortedNodeID = nID
             nID = nID + 1
 
         for edge in self._sortedEdges: 
@@ -1381,7 +1450,7 @@ class Graph():
             evolutionTime = evolutionTime + 1
         return(schedule)
 
-    def _computeFullyAsynchronousSchedule(self,config):
+    def _computeFullyAsynchronousSchedule(self,config,oldSelectorsInit):
         # First we must rewrite the graph and insert duplication
         # nodes when an ouput is connected to several inputs.
         # After this transform, each output should be connected to
@@ -1418,14 +1487,27 @@ class Graph():
         self._allFIFOs = allFIFOs 
         self._allBuffers = allBuffers
 
-        return(Schedule(self,self._sortedNodes,self._sortedEdges,schedule,config))
+        return(Schedule(self,schedule,config,oldSelectorsInit))
 
 
 
 
-    def computeSchedule(self,config=Configuration()):
+    def computeSchedule(self,config=Configuration(),oldSelectorsInit=[]):
+        # We have no data processing nodes but we do have
+        # event nodes
+        if not self._edges and self._eventConnections:
+            schedule = []
+            self._sortedNodes = sorted(self.nodes, key=lambda x: x.nodeID)
+            self._sortedEventNodes = sorted(self.eventOnlyNodes, key=lambda x: x.nodeID)
+            self._sortedEdges = []
+            self._edgeToFIFO = {}
+            self._allFIFOs=[] 
+            self._allBuffers=[]
+
+            return(Schedule(self,schedule,config,oldSelectorsInit))
+            
         if config.fullyAsynchronous:
-            return(self._computeFullyAsynchronousSchedule(config))
+            return(self._computeFullyAsynchronousSchedule(config,oldSelectorsInit))
         # First we must rewrite the graph and insert duplication
         # nodes when an ouput is connected to several inputs.
         # After this transform, each output should be connected to
@@ -1617,17 +1699,60 @@ class Graph():
             for nodeID in schedule:
                 print(self._sortedNodes[nodeID].nodeName)
             print("")
-        return(Schedule(self,self._sortedNodes,self._sortedEdges,schedule,config))
+        return(Schedule(self,schedule,config,oldSelectorsInit))
 
+def _selector_define_name(sel):
+    return f"SEL_{sel.upper()}_ID"
+
+
+def _selectors_for_node(node):
+   r = []
+   for selector in node.selectors:
+      r.append(_selector_define_name(selector))
+   return r 
+
+def _compute_selector_inits(nodes,json_files = []):
+    olds = {}
+    for path in json_files:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            for key, value in data.items():
+                if key in olds:
+                    if olds[key] != value:
+                        raise ValueError(f"Conflict in selector initialization for {key}: {olds[key]} vs {value}")
+                else:
+                    olds[key] = value
+
+    sels={}
+    for node in nodes:
+      if node.hasState:
+         theClass =f"{node.typeName}{node.ioTemplate()}"
+         # We don't initialize class selectors that have
+         # been initialized in other graphs.
+         if not (theClass in olds):
+            if node.ioTemplate():
+               isTemplate = True
+            else:
+               isTemplate = False
+            if not (theClass in sels):
+               sels[theClass] = {
+                   "isTemplate":isTemplate,
+                   "selectors":_selectors_for_node(node)
+               }
+    return sels
 
 class Schedule:
-    def __init__(self,g,sortedNodes,sortedEdges,schedule,config):
-        self._sortedNodes=sortedNodes
-        self._sortedEdges=sortedEdges
+    def __init__(self,g,schedule,config,oldSelectorsInit):
+        self._sortedNodes=g._sortedNodes
+        self._sortedEventNodes = g._sortedEventNodes
+        self._sortedEdges=g._sortedEdges
         self._schedule = schedule 
         self._graph = g
         self._config = config
         self._edgeToFIFO = g._edgeToFIFO
+        self._eventConnections = g._eventConnections
+        self._nodeIdentification = []
+        self._selector_inits = _compute_selector_inits(self.allNodes,json_files=oldSelectorsInit)
         # Nodes containing pure functions (no state) like some
         # CMSIS-DSP functions.
         
@@ -1641,10 +1766,23 @@ class Schedule:
            config.switchCase = True
            config.heapAllocation = True
 
+        if config.nodeIdentification:
+           config.heapAllocation = True
 
-        for n in self.nodes:
+
+        self.selectorsID = config.selectorsID.copy()
+        # IDs before 100 are reserved for CMSIS Stream
+        selectorID = 100
+        for n in self.allNodes:
             n.codeID = nodeCodeID
             nodeCodeID = nodeCodeID + 1
+            if n.selectors:
+                # If the node has selectors, we assign a selector ID
+                # to each selector and store it in the node
+                for s in n.selectors:
+                    if not s in self.selectorsID:
+                        self.selectorsID[s] = selectorID
+                        selectorID = selectorID + 1
             # Constant nodes are ignored since they have
             # no arcs, and are connected to no FIFOs
             
@@ -1653,6 +1791,30 @@ class Schedule:
 
             
 
+    @property 
+    def nodeIdentification(self):
+        if not self._config.nodeIdentification:
+           return []
+        if len(self._nodeIdentification) == 0:
+            idents=[]
+            nb = 0
+            for n in self.allNodes:
+               if n.identified:
+                  name = f"{self._config.prefix.upper()}{n.nodeName.upper()}_ID"
+                  n.identificationName = name
+                  idents.append((name,nb,n.nodeName,n))
+                  nb = nb + 1
+            self._nodeIdentification = idents
+        return self._nodeIdentification
+    
+    @property
+    def _jsonIdentificationStr(self):
+        j={} 
+        for n in self.nodeIdentification:
+            j[n[2]] = n[1]
+        return (json.dumps(j, indent=2))
+        
+        
     def hasDelay(self,edge):
         return(self._graph.hasDelay(edge))
 
@@ -1665,8 +1827,16 @@ class Schedule:
         return self._graph.constantEdges
 
     @property
-    def nodes(self):
+    def streamNodes(self):
         return self._sortedNodes
+    
+    @property
+    def eventNodes(self):
+        return self._sortedEventNodes
+    
+    @property
+    def allNodes(self):
+        return self._sortedNodes + self._sortedEventNodes
 
     @property
     def edges(self):
@@ -1706,6 +1876,36 @@ class Schedule:
             outs.append(fifo)
             
         return(outs)
+
+    def genJsonIdentification(self,directory,config=Configuration()):
+        """Write graphviz into file f""" 
+        s = self._jsonIdentificationStr
+        jfile=os.path.join(directory,"%s_ident.json" % config.schedName)
+        with open(jfile,"w") as f:
+            f.write(s)
+
+    def genJsonSelectorsInit(self,directory,config=Configuration()):
+        s = dict(self._selector_inits)
+        jfile=os.path.join(directory,"%s_selectors_inits.json" % config.schedName)
+        with open(jfile,"w") as f:
+            f.write(json.dumps(s, indent=2))
+
+    
+    def genJsonSelectors(self,directory,config=Configuration()):
+        """Write graphviz into file f""" 
+        s = dict(self.selectorsID)
+        # Add the default selectors
+        s["do"] = 1
+        s["pause"] = 2
+        s["resume"] = 3
+        s["getparam"] = 5
+        s["value"] = 6
+        s["stopgraph"] = 7
+        s["debug"] = 8
+        jfile=os.path.join(directory,"%s_selectors.json" % config.schedName)
+        with open(jfile,"w") as f:
+            f.write(json.dumps(s, indent=2))
+        
 
     def ccode(self,directory,config=Configuration()):
         """Write graphviz into file f""" 

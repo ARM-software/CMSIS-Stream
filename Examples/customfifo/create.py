@@ -3,7 +3,13 @@ from nodes import *
 # Include definition of the graph
 from graph import * 
 
+import os 
+
 from cmsis_stream.cg.yaml import *
+
+def try_remove(path):
+    if os.path.isfile(path):
+        os.remove(path)
 
 # Create a configuration object
 conf=Configuration()
@@ -40,7 +46,7 @@ print("Memory usage %d bytes" % scheduling.memory)
 scheduling.ccode(".",conf)
 
 # The generated code is including GenericNodes.h and 
-# cg_status.h
+# cg_enums.h
 # Those files can either be used from the CMSIS-Stream 
 # repository or they can be generated from the Python 
 # package so that it is easier to start using CMSIS-Stream
@@ -48,10 +54,30 @@ scheduling.ccode(".",conf)
 # GenericNodes.h is created in the folder "generated"
 # GenericNodes.h has been changed so we do not overwrite it
 # with the default implementation
-#generateGenericNodes(".")
+try_remove("StreamNode.hpp")
+try_remove("GenericNodes.hpp")
+try_remove("EventQueue.hpp")
+try_remove("cg_queue.hpp")
+try_remove("cg_queue.cpp")
+try_remove("cg_enums.h")
+try_remove("posix_thread.cpp")
+try_remove("posix_thread.hpp")
+try_remove("cstream_node.h")
+try_remove("IdentifiedNode.hpp")
+try_remove("cg_pack.hpp")
 
-# cg_status.h is created in the folder "generated"
-#generateCGStatus(".")
+try_remove("StreamNode.h")
+try_remove("GenericNodes.h")
+try_remove("EventQueue.h")
+try_remove("cg_queue.h")
+try_remove("cg_enums.h")
+try_remove("posix_thread.h")
+try_remove("cstream_node.h")
+try_remove("IdentifiedNode.h")
+try_remove("cg_pack.h")
+generateGenericNodes(".")
+
+
 
 
 # Generate a graphviz representation of the graph

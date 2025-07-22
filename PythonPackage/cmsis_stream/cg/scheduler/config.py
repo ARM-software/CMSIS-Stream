@@ -119,21 +119,50 @@ class Configuration:
         self.eventRecorder = False
 
         # Name of AppNode file
-        self.appNodesCName = "AppNodes.h"
+        self.appNodesCName = "AppNodes.hpp"
         self.appNodesPythonName = "appnodes"
 
         # Name of custom file
-        self.customCName = "custom.h"
+        self.customCName = "custom.hpp"
         self.customPythonName = "custom"
 
         # Name of post custom files
         self.postCustomCName = ""
 
-        # Name of generic nodes headers
-        self.genericNodeCName = "GenericNodes.h"
+        # Name of generic stream node header file
+        # Deprecated and no more used
+        self.genericStreamNodeName = "StreamNode.hpp"
 
-        # Name of cg_status header for error codes
-        self.cgStatusCName = "cg_status.h"
+        # Name of generic nodes headers
+        # Deprecated and no more used
+        self.genericNodeCName = "GenericNodes.hpp"
+
+        # Name of event queue headers for event system
+        # deprecated and no more used
+        self.eventQueueCName = "EventQueue.hpp"
+
+        # Name of cg_enums header for error codes and other enums
+        # Deprecated and no more used
+        self.cgEnumCName = "cg_enums.h"
+
+        # Default file name for node identification
+        # Node identification cannot rely on RTTI and must be usable from C
+        # so we provide a C API and C++ template to show how to
+        # create type erasure and a specified C callable interface.
+        # The implementation can be customized or replaced 
+        # that's why the name is not fixed.
+
+        # Name of C API
+        self.cnodeAPI = "cstream_node.h"
+
+        # Templates for creating node C APIs 
+        self.cnodeTemplate = "IdentifiedNode.hpp"
+
+        # Struct to use for the C API of the nodes
+        self.cNodeStruct = "CStreamNode"
+        self.cNodeStructCreation = "createStreamNode"
+
+
 
         # Name of scheduler source and header files
         self.schedulerCFileName = "scheduler"
@@ -198,6 +227,11 @@ class Configuration:
         # 'saturation_largest_first'
         self.memStrategy = "largest_first"
 
+        # Those definitions will be reused 
+        # Usefult to share ID between different
+        # graphs
+        self.selectorsID = {}
+
         
 
        
@@ -206,32 +240,60 @@ class Configuration:
         return (self.debugLimit > 0)
     
 
-def generateGenericNodes(folder):
-    env = Environment(
-       loader=PackageLoader("cmsis_stream.cg.scheduler"),
-       autoescape=select_autoescape(),
-       trim_blocks=True
-    )
-
-    ctemplate = env.get_template("GenericNodes.h")
-    path=os.path.join(folder,"GenericNodes.h")
+def _copy_file(dstfolder,env,name,dst,msg=None,display_message=True):
+    ctemplate = env.get_template(name)
+    path=os.path.join(dstfolder,dst)
 
     if not os.path.isfile(path):
         with open(path,"w") as f:
             print(ctemplate.render(),file=f)
+    else:
+        if display_message:
+           print(f"File {path} already exists, not overwriting it")
+           if (msg is not None):
+               print("  "+msg)
+           print("")
 
-def generateCGStatus(folder):
+def generateGenericNodes(folder,display_message=True):
+    """Generate the headers file required to implement any node in the graph"""
     env = Environment(
-       loader=PackageLoader("cmsis_stream.cg.scheduler"),
+       loader=PackageLoader("cmsis_stream.cg.scheduler","templates/reference_code"),
        autoescape=select_autoescape(),
        trim_blocks=True
     )
 
-    ctemplate = env.get_template("cg_status.h")
-    path=os.path.join(folder,"cg_status.h")
-    if not os.path.isfile(path):
-       with open(path,"w") as f:
-           print(ctemplate.render(),file=f)
+    _copy_file(folder,env,"custom.hpp","custom.hpp","Macro customizations for mutex, events and memory allocators.",display_message=display_message)
+    _copy_file(folder,env,"StreamNode.hpp","StreamNode.hpp",display_message=display_message)
+    _copy_file(folder,env,"cstream_node.h","cstream_node.h",display_message=display_message)
+    _copy_file(folder,env,"IdentifiedNode.hpp","IdentifiedNode.hpp",display_message=display_message)
+    _copy_file(folder,env,"GenericNodes.hpp","GenericNodes.hpp",display_message=display_message)
+    _copy_file(folder,env,"EventQueue.hpp","EventQueue.hpp",display_message=display_message)
+    _copy_file(folder,env,"cg_enums.h","cg_enums.h",display_message=display_message)
+    _copy_file(folder,env,"cg_pack.hpp","cg_pack.hpp",display_message=display_message)
+
+def generateEventSystemExample(folder,display_message=True):
+    """Generate the headers file required to implement the event system"""
+    env = Environment(
+       loader=PackageLoader("cmsis_stream.cg.scheduler","templates/reference_code"),
+       autoescape=select_autoescape(),
+       trim_blocks=True
+    )
+
+    _copy_file(folder,env,"cg_queue.cpp","cg_queue.cpp","It is an example implementation of the event queue using std::queue",display_message=display_message)
+    _copy_file(folder,env,"cg_queue.hpp","cg_queue.hpp","It is an example implementation of the event queue using std::queue",display_message=display_message)
+    _copy_file(folder,env,"posix_thread.hpp","posix_thread.hpp","It is an example implementation of the event system using Posix threads",display_message=display_message)
+    _copy_file(folder,env,"posix_thread.cpp","posix_thread.cpp","It is an example implementation of the event system using Posix threads",display_message=display_message)
+
+def generateExamplePosixMain(folder,display_message=True):
+    """Generate the default main file for a scheduler with the event system"""
+    env = Environment(
+       loader=PackageLoader("cmsis_stream.cg.scheduler","templates/reference_code"),
+       autoescape=select_autoescape(),
+       trim_blocks=True
+    )
+    _copy_file(folder,env,"main.cpp","main.cpp","The main.cpp demonstrate how to define a multi-threaded event system using Posix threads",display_message=display_message)
+    _copy_file(folder,env,"config_events.h","config_events.h","It is an example configuration file to enable/disable multi thread implementation",display_message=display_message)
+
 
 def createEmptyProject(project_name):
     env = Environment(
@@ -244,8 +306,8 @@ def createEmptyProject(project_name):
     except Exception as e:
         pass
 
-    all_files={"start_project_appnodes.h":"AppNodes.h"
-              ,"start_project_custom.h":"custom.h"
+    all_files={"start_project_appnodes.h":"AppNodes.hpp"
+              ,"start_project_custom.h":"custom.hpp"
               ,"start_project_main.c":"main_host.c"
               ,"start_project_graph.py":"graph.py"
               ,"Makefile.linux":"Makefile.linux"

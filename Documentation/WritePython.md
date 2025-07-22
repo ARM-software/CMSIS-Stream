@@ -81,7 +81,15 @@ scheduling.ccode("generated",conf)
 
 `"generated" ` is the name of the folder where the files are generated (relative to the working directory of the script). It is possible to customize the naming of the generated files using the `Configuration` object `conf` .
 
-We can also generated a `graphviz` file that can then be processed with the `dot` tool to generate a picture of the graph:
+The generated C++ implementation rely on some headers. They can be generated with:
+
+`generateGenericNodes(".")`
+
+6 headers are generated. Most of them can be customized according to your needs.
+
+In this example, only 4 headers are used : error code, default classes for data flow nodes and a `custom.h` header that can be used to customize some hooks in the generated scheduler.
+
+We can also generate a `graphviz` file that can then be processed with the `dot` tool to generate a picture of the graph:
 
 ```python
 with open("simple.dot","w") as f:

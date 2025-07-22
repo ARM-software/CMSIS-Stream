@@ -9,10 +9,12 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 #include <cstdint>
-#include "custom.h"
-#include "cg_status.h"
-#include "GenericNodes.h"
-#include "AppNodes.h"
+#include "custom.hpp"
+#include "cg_enums.h"
+#include "StreamNode.hpp"
+#include "EventQueue.hpp"
+#include "GenericNodes.hpp"
+#include "AppNodes.hpp"
 #include "scheduler.h"
 
 #if !defined(CHECKERROR)
@@ -102,6 +104,7 @@ Internal ID identification for the nodes
 
 
 
+
 CG_BEFORE_FIFO_BUFFERS
 /***********
 
@@ -143,6 +146,12 @@ uint32_t scheduler(int *error)
     ProcessingNode<float,7,float,7> processing(fifo0,fifo1); /* Node ID = 0 */
     Sink<float,5> sink(fifo1); /* Node ID = 1 */
     Source<float,3> source(fifo0); /* Node ID = 2 */
+
+/* Subscribe nodes for the event system*/
+
+
+
+
 
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
@@ -187,9 +196,9 @@ uint32_t scheduler(int *error)
        CG_AFTER_ITERATION;
        nbSchedule++;
     }
-
 errorHandling:
     CG_AFTER_SCHEDULE;
     *error=cgStaticError;
     return(nbSchedule);
+    
 }

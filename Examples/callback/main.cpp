@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdint>
 #include "scheduler.h"
-#include "cg_status.h"
+#include "cg_enums.h"
 
 extern "C" {
     extern int g_frame_available;

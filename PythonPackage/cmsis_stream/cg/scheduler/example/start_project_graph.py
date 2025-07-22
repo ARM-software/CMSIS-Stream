@@ -60,8 +60,6 @@ scheduling.ccode(".",conf)
 # GenericNodes.h is created in the folder "generated"
 generateGenericNodes(".")
 
-# cg_status.h is created in the folder "generated"
-generateCGStatus(".")
 
 # Generate a graphviz representation of the graph
 with open("simple.dot","w") as f:

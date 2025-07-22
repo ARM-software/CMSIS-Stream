@@ -1,12 +1,29 @@
 build:
-  generated-by: csolution version 2.0.0
+  generated-by: csolution version 2.8.0
   solution: example_ac6.csolution.yml
   project: eventrecorder.cproject.yml
   context: eventrecorder.CommandLine+VHT-Corstone-300
   compiler: AC6
   device: ARM::SSE-300-MPS3
+  device-pack: ARM::V2M_MPS3_SSE_300_BSP@1.3.0
+  device-books:
+    - name: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Documents/arm_corstone_sse-300_example_subsystem_technical_reference_manual_101773_0001_03_en.pdf
+      title: Arm® SSE-300 - Technical Reference Manual
+    - name: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Documents/corstone_300_foundation_ip_technical_overview_101772_0000_01_en.pdf
+      title: Arm® Corstone™-300 Foundation IP Technical Overview
+    - name: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Documents/SSE_300_MPS3_BSP_Pack_User_Guide.pdf
+      title: Arm® SSE-300 MPS3 BSP Pack User Guide
+    - name: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Documents/DAI0552C_SSE300_with_M55_and_U55_FPGA_for_mps3.pdf
+      title: "Arm® Corstone™ SSE-300 with Cortex®-M55 and Ethos™-U55: Example Subsystem for MPS3 - Application Note AN552"
+  dbgconf:
+    - file: RTE/Device/SSE-300-MPS3/CM55.dbgconf
+      version: 0.0.0
+      status: missing file
   processor:
-    fpu: on
+    dsp: on
+    fpu: dp
+    mve: fp
+    core: Cortex-M55
   packs:
     - pack: ARM::CMSIS@5.9.0
       path: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0
@@ -59,6 +76,8 @@ build:
   define:
     - COMMAND_LINE
     - _RTE_
+  define-asm:
+    - _RTE_
   add-path:
     - generated
     - .
@@ -74,8 +93,21 @@ build:
     - ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Device/Include
     - ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver
     - ${CMSIS_PACK_ROOT}/Keil/ARM_Compiler/1.7.2/Include
+  add-path-asm:
+    - RTE/Device/SSE-300-MPS3
+    - RTE/CMSIS
+    - RTE/Compiler
+    - RTE/_CommandLine_VHT-Corstone-300
+    - ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Core/Include
+    - ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/Include
+    - ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Include
+    - ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Board/Device_Definition
+    - ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Board/Platform
+    - ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Device/Include
+    - ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver
+    - ${CMSIS_PACK_ROOT}/Keil/ARM_Compiler/1.7.2/Include
   output-dirs:
-    intdir: tmp/eventrecorder/VHT-Corstone-300/CommandLine
+    intdir: tmp
     outdir: out/eventrecorder/VHT-Corstone-300/CommandLine
     rtedir: RTE
   output:
@@ -86,41 +118,131 @@ build:
       condition: ARMv6_7_8-M Device
       from-pack: ARM::CMSIS@5.9.0
       selected-by: ARM::CMSIS:CORE
+      files:
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Core/Include
+          category: include
+          version: 5.6.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Core/Include/tz_context.h
+          category: header
+          version: 5.6.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Core/Template/ARMv8-M/main_s.c
+          category: sourceC
+          attr: template
+          version: 1.1.1
+          select: Secure mode 'main' module for ARMv8-M
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Core/Template/ARMv8-M/tz_context.c
+          category: sourceC
+          attr: template
+          version: 1.1.1
+          select: RTOS Context Management (TrustZone for ARMv8-M)
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Documentation/Core/html/index.html
+          category: doc
+          version: 5.6.0
     - component: ARM::CMSIS:RTOS2:Keil RTX5&Source@5.5.4
       condition: RTOS2 RTX5
       from-pack: ARM::CMSIS@5.9.0
       selected-by: ARM::CMSIS:RTOS2:Keil RTX5&Source@5.5.4
+      implements: CMSIS:RTOS2@2.1.3
       files:
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Documentation/RTOS2/html/rtx5_impl.html
+          category: doc
+          version: 5.5.4
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Include/rtx_os.h
+          category: header
+          version: 5.5.4
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/RTX5.scvd
+          category: other
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/GCC/irq_armv8mml.S
           category: source
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/rtx_delay.c
           category: source
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/rtx_evflags.c
           category: source
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/rtx_evr.c
           category: source
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/rtx_kernel.c
           category: source
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/rtx_lib.c
           category: source
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/rtx_memory.c
           category: source
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/rtx_mempool.c
           category: source
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/rtx_msgqueue.c
           category: source
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/rtx_mutex.c
           category: source
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/rtx_semaphore.c
           category: source
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/rtx_system.c
           category: source
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/rtx_thread.c
           category: source
+          version: 5.5.4
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Source/rtx_timer.c
           category: source
+          version: 5.5.4
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Template/Events.c
+          category: source
+          attr: template
+          version: 2.0.0
+          select: CMSIS-RTOS2 Events
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Template/MemPool.c
+          category: source
+          attr: template
+          version: 2.0.0
+          select: CMSIS-RTOS2 Memory Pool
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Template/MsgQueue.c
+          category: source
+          attr: template
+          version: 2.0.0
+          select: CMSIS-RTOS2 Message Queue
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Template/Mutex.c
+          category: source
+          attr: template
+          version: 2.0.0
+          select: CMSIS-RTOS2 Mutex
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Template/Semaphore.c
+          category: source
+          attr: template
+          version: 2.0.0
+          select: CMSIS-RTOS2 Semaphore
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Template/Thread.c
+          category: source
+          attr: template
+          version: 2.0.0
+          select: CMSIS-RTOS2 Thread
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Template/Timer.c
+          category: source
+          attr: template
+          version: 2.0.1
+          select: CMSIS-RTOS2 Timer
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Template/main.c
+          category: source
+          attr: template
+          version: 2.1.0
+          select: CMSIS-RTOS2 'main' function
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/RTX/Template/svc_user.c
+          category: source
+          attr: template
+          version: 1.0.0
+          select: CMSIS-RTOS2 SVC User Table
         - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/Source/os_systick.c
           category: source
+          version: 5.5.4
         - file: RTE/CMSIS/RTX_Config.c
           category: source
           attr: config
@@ -136,6 +258,22 @@ build:
       files:
         - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Board/Device_Definition/device_definition.c
           category: source
+          version: 1.1.1
+        - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Board/Device_Definition/device_definition.h
+          category: header
+          version: 1.1.1
+        - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Board/Platform
+          category: include
+          version: 1.2.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Board/Platform/platform_description.h
+          category: header
+          version: 1.1.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Device/Include
+          category: include
+          version: 1.2.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver
+          category: include
+          version: 1.2.0
         - file: RTE/Device/SSE-300-MPS3/platform_base_address.h
           category: header
           attr: config
@@ -145,18 +283,22 @@ build:
       from-pack: ARM::V2M_MPS3_SSE_300_BSP@1.3.0
       selected-by: ARM::Device:Startup&Baremetal
       files:
-        - file: RTE/Device/SSE-300-MPS3/cmsis_driver_config.h
-          category: header
-          attr: config
-          version: 1.1.1
         - file: RTE/Device/SSE-300-MPS3/RTE_Device.h
           category: header
           attr: config
           version: 1.1.0
+        - file: RTE/Device/SSE-300-MPS3/cmsis_driver_config.h
+          category: header
+          attr: config
+          version: 1.1.1
         - file: RTE/Device/SSE-300-MPS3/device_cfg.h
           category: header
           attr: config
           version: 1.1.3
+        - file: RTE/Device/SSE-300-MPS3/fvp_sse300_mps3_s.sct
+          category: linkerScript
+          attr: config
+          version: 1.1.0
         - file: RTE/Device/SSE-300-MPS3/region_defs.h
           category: header
           attr: config
@@ -165,20 +307,16 @@ build:
           category: header
           attr: config
           version: 1.0.0
-        - file: RTE/Device/SSE-300-MPS3/system_SSE300MPS3.h
-          category: header
-          attr: config
-          version: 1.1.1
-        - file: RTE/Device/SSE-300-MPS3/fvp_sse300_mps3_s.sct
-          category: linkerScript
-          attr: config
-          version: 1.1.0
         - file: RTE/Device/SSE-300-MPS3/startup_fvp_sse300_mps3.c
           category: source
           attr: config
           version: 1.1.1
         - file: RTE/Device/SSE-300-MPS3/system_SSE300MPS3.c
           category: source
+          attr: config
+          version: 1.1.1
+        - file: RTE/Device/SSE-300-MPS3/system_SSE300MPS3.h
+          category: header
           attr: config
           version: 1.1.1
     - component: ARM::Native Driver:SysCounter@1.1.0
@@ -188,8 +326,22 @@ build:
       files:
         - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver/syscounter_armv8-m_cntrl_drv.c
           category: source
+          version: 1.1.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver/syscounter_armv8-m_cntrl_drv.h
+          category: header
+          version: 1.1.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver/syscounter_armv8-m_cntrl_reg_map.h
+          category: header
+          version: 1.1.0
         - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver/syscounter_armv8-m_read_drv.c
           category: source
+          version: 1.1.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver/syscounter_armv8-m_read_drv.h
+          category: header
+          version: 1.1.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver/syscounter_armv8-m_read_reg_map.h
+          category: header
+          version: 1.1.0
     - component: ARM::Native Driver:SysTimer@1.1.0
       condition: SSE-300-MPS3 Device
       from-pack: ARM::V2M_MPS3_SSE_300_BSP@1.3.0
@@ -197,6 +349,13 @@ build:
       files:
         - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver/systimer_armv8-m_drv.c
           category: source
+          version: 1.1.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver/systimer_armv8-m_drv.h
+          category: header
+          version: 1.1.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver/systimer_armv8-m_reg_map.h
+          category: header
+          version: 1.1.0
     - component: ARM::Native Driver:Timeout@1.0.0
       condition: SSE-300-MPS3 Systimer Syscounter
       from-pack: ARM::V2M_MPS3_SSE_300_BSP@1.3.0
@@ -204,17 +363,42 @@ build:
       files:
         - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver/systimer_armv8-m_timeout.c
           category: source
+          version: 1.0.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Native_Driver/timeout.h
+          category: header
+          version: 1.0.0
     - component: Keil::Compiler&ARM Compiler:Event Recorder&Semihosting@1.5.1
       condition: Cortex-M Device
       from-pack: Keil::ARM_Compiler@1.7.2
       selected-by: Keil::Compiler&ARM Compiler:Event Recorder&Semihosting@1.5.1
       files:
+        - file: ${CMSIS_PACK_ROOT}/Keil/ARM_Compiler/1.7.2/Doc/EventRecorder/html/index.html
+          category: doc
+          version: 1.5.1
+        - file: ${CMSIS_PACK_ROOT}/Keil/ARM_Compiler/1.7.2/EventRecorder.scvd
+          category: other
+          version: 1.5.1
+        - file: ${CMSIS_PACK_ROOT}/Keil/ARM_Compiler/1.7.2/Include/EventRecorder.h
+          category: header
+          version: 1.5.1
         - file: ${CMSIS_PACK_ROOT}/Keil/ARM_Compiler/1.7.2/Source/EventRecorder.c
           category: source
+          version: 1.5.1
         - file: RTE/Compiler/EventRecorderConf.h
           category: header
           attr: config
           version: 1.1.0
+  apis:
+    - api: CMSIS:RTOS2@2.1.3
+      from-pack: ARM::CMSIS@5.9.0
+      implemented-by: ARM::CMSIS:RTOS2:Keil RTX5&Source@5.5.4
+      files:
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/Documentation/RTOS2/html/index.html
+          category: doc
+          version: 2.1.3
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/5.9.0/CMSIS/RTOS2/Include/cmsis_os2.h
+          category: header
+          version: 2.1.3
   linker:
     script: RTE/Device/SSE-300-MPS3/fvp_sse300_mps3_s.sct
   groups:
@@ -227,3 +411,25 @@ build:
   constructed-files:
     - file: RTE/_CommandLine_VHT-Corstone-300/RTE_Components.h
       category: header
+  licenses:
+    - license: <unknown>
+      packs:
+        - pack: ARM::CMSIS@5.9.0
+      components:
+        - component: ARM::CMSIS:CORE@5.6.0
+        - component: ARM::CMSIS:RTOS2:Keil RTX5&Source@5.5.4
+        - component: CMSIS:RTOS2(API)
+    - license: <unknown>
+      packs:
+        - pack: ARM::V2M_MPS3_SSE_300_BSP@1.3.0
+      components:
+        - component: ARM::Device:Definition@1.2.0
+        - component: ARM::Device:Startup&Baremetal@1.2.0
+        - component: ARM::Native Driver:SysCounter@1.1.0
+        - component: ARM::Native Driver:SysTimer@1.1.0
+        - component: ARM::Native Driver:Timeout@1.0.0
+    - license: <unknown>
+      packs:
+        - pack: Keil::ARM_Compiler@1.7.2
+      components:
+        - component: Keil::Compiler&ARM Compiler:Event Recorder&Semihosting@1.5.1
