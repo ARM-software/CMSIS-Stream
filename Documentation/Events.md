@@ -431,7 +431,14 @@ There is an additional argument to the lambda : `bool isShared`.
 It is true if the buffer is shared : if there are several references to the buffer.
 
 The events are passed by rvalue reference to the handler (`processEvent` in a node or the application handler).
-The reason is related to the ref count : using `const Event&` would introduce an untracked sharing that would not be reflected in the ref count.
+The reason is related to the ref count : using `const Event&` would introduce an untracked sharing that would not be reflected in the ref count. 
+
+Events only need to be copied when they are sent to many nodes. It is done by the `EventOutput` object. In the application code, events don't have generally a reason to be copied.
+
+You may need to __copy__ the event if you need to pass it to a function for read only processing (like displaying on stdout with iostream).
+
+__Never pass the event by reference or pointer.__
+
 
 # Integrate the events in your application
 

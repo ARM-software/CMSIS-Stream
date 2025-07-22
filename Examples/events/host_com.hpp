@@ -9,9 +9,9 @@
 extern void listen_to_host();
 extern void close_host();
 extern void send_data_to_host(int nodeid, const char *data, int size);
-extern void send_event_to_host(int nodeid,const arm_cmsis_stream::Event &evt);
+extern void send_event_to_host(int nodeid,arm_cmsis_stream::Event &&evt);
 
-extern std::ostream &operator<<(std::ostream &os, const arm_cmsis_stream::Event &obj);
+extern std::ostream &operator<<(std::ostream &os, arm_cmsis_stream::Event obj);
 
 struct Host
 {

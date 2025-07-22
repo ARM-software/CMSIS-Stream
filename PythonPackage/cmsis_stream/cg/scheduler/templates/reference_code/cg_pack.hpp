@@ -67,7 +67,7 @@ namespace arm_cmsis_stream
 
         const std::vector<uint8_t> &vector() const { return serialized_object; }
 
-        void pack(uint32_t nodeid, const Event &evt)
+        void pack(uint32_t nodeid, Event &&evt)
         {
             write_value((uint32_t)nodeid);
             write_value((uint32_t)evt.event_id);

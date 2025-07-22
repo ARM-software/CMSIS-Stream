@@ -73,13 +73,13 @@ void send_data_to_host(const char *data, std::size_t size)
     CG_EXIT_CRITICAL_SECTION(queue_mutex, error);
 }
 
-void send_event_to_host(int nodeid, const Event &evt)
+void send_event_to_host(int nodeid, Event &&evt)
 {
     Pack packer;
     // event id, valued id, value
     // value can be normal value
     // or combined value
-    packer.pack(nodeid, evt);
+    packer.pack(nodeid, std::move(evt));
 
     std::vector<uint8_t> d = packer.vector();
     // for(const uint8_t &byte : d)
@@ -425,7 +425,7 @@ std::ostream &operator<<(std::ostream &os, const ListValue &obj)
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const Event &obj)
+std::ostream &operator<<(std::ostream &os, Event obj)
 {
     os << "Event: event_id=" << obj.event_id
        << ", priority=" << obj.priority;
@@ -651,6 +651,7 @@ void listen_to_host()
         int flags = fcntl(client_socket, F_GETFL, 0);
         fcntl(client_socket, F_SETFL, flags | O_NONBLOCK);
 #endif
+        std::cout << "Client connected\n";
 
         MessageReceiver receiver(client_socket);
         while (receiver.receiveMessages())

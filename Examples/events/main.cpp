@@ -78,21 +78,23 @@ void debug()
     printf("Buffer size %zd\n", sizeof(BufferPtr));
     printf("Tensor size %zd\n", sizeof(TensorPtr<double>));
 
-#if 0
+    Event evt;
+
+#if 1
     Pack pack;
 
 
     
-    Tensor t;
-    t.nb_dims = 2;
-    t.dims[0] = 2;
-    t.dims[1] = 3;
-    std::shared_ptr<float[]> p(new float[6]);
+    UniquePtr<float> p(6);
+    
     for(int i=0;i<6;i++)
     {
         p[i]=(float)i+0.1;
     }
-    t.data = std::move(p);
+    TensorPtr<float> t = TensorPtr<float>::create_with((uint8_t)2,
+                                                       cg_tensor_dims_t{2,3},
+                                                       std::move(p));
+            
 
 
     pack.pack(0, Event(1, kNormalPriority,std::move(t)));
@@ -106,7 +108,7 @@ void debug()
     
     Unpack unpack(pack.vector().data(), pack.vector().size());
     uint32_t nodeid;
-    Event evt = unpack.unpack(nodeid);
+    evt = unpack.unpack(nodeid);
     std::cout << "Unpacked event ID: " << evt.event_id << std::endl;
     std::cout << "Unpacked event " << evt << std::endl;
 #endif
@@ -115,7 +117,7 @@ void debug()
     // If cbv pool is deleted before "pointer" to it are
     // released then it will crash because the pointer will
     // be released after the pool has been deleted.
-    Event evt(0, kNormalPriority, 1.0f,int32_t(2));
+    evt = Event(0, kNormalPriority, 1.0f,int32_t(2));
     MyObj obj{4};
 
     if (evt.wellFormed<float, int32_t>())
@@ -153,8 +155,8 @@ bool app_handler(void *data,Event &&evt)
 
 int main(int argc, char const *argv[])
 {
-    // debug();
-    // exit(0);
+    //debug();
+    //exit(0);
 #if 1
     int err = init_scheduler();
     if (err == CG_MEMORY_ALLOCATION_FAILURE)
