@@ -372,7 +372,7 @@ Buffers (raw buffer or tensor) can be shared between several events because we d
 
 As consequence, those datatype must be accessed through a `std::shared_ptr` that will manage a reference count to know how many events are referencing the buffer.
 
-In some platforms, the events can be managed in an asynchronous way using thread. As consequence, those buffer can be accessed from different thread and the access must be protected with mutexes.
+In some platforms, the events can be managed in an asynchronous way using threads. As consequence, those buffers can be accessed from different thread and the access must be protected with mutexes.
 
 It is also important to protect the ref count.
 
@@ -429,6 +429,9 @@ t.lock([](CG_MUTEX_ERROR_TYPE error,bool isShared, Tensor<float> &tensor)
 There is an additional argument to the lambda : `bool isShared`.
 
 It is true if the buffer is shared : if there are several references to the buffer.
+
+The events are passed by rvalue reference to the handler (`processEvent` in a node or the application handler).
+The reason is related to the ref count : using `const Event&` would introduce an untracked sharing that would not be reflected in the ref count.
 
 # Integrate the events in your application
 

@@ -101,7 +101,7 @@ public:
         value = v;
     }
 
-    void processEvent(int dstPort,const Event &evt) final
+    void processEvent(int dstPort,Event &&evt) final
     {
              //std::cout << evt.event_id << std::endl;
         if (evt.event_id == kStopGraph)
@@ -330,7 +330,7 @@ public:
     // Implementation of this Sink constructor is doing nothing
     EvtSink():StreamNode(),eventCount(0){};
 
-    void processEvent(int dstPort,const Event &evt) final
+    void processEvent(int dstPort,Event &&evt) final
     {
         eventCount++;
         

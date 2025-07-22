@@ -104,12 +104,12 @@ void MyQueue::execute()
         {
             if (msg.dst)
             {
-                msg.dst->processEvent(msg.dstPort, msg.event);
+                msg.dst->processEvent(msg.dstPort, std::move(msg.event));
             }
             else
             {
                 // Application handler
-                this->callHandler(msg.event);
+                this->callHandler(std::move(msg.event));
             }
         }
     }

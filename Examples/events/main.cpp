@@ -145,7 +145,7 @@ void debug()
     }
 }
 
-bool app_handler(void *data,const Event &evt)
+bool app_handler(void *data,Event &&evt)
 {
       printf("App received event with id %d\n", evt.event_id);
       return true;
