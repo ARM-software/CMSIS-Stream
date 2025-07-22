@@ -56,7 +56,7 @@ namespace arm_cmsis_stream
     class EventQueue
     {
     public:
-        using AppHandler = bool (*)(void *data, const Event &evt);
+        using AppHandler = bool (*)(void *data, Event &&evt);
 
 #if defined(CG_EVENTS)
         /* There is a global event queue for all the graphs that may be
@@ -81,11 +81,11 @@ namespace arm_cmsis_stream
         // Set an application handler.
         // Events sent to a null node are sent to the application
         // data is any additional data needed by the handler.
-        bool callHandler(const arm_cmsis_stream::Event &evt)
+        bool callHandler(arm_cmsis_stream::Event &&evt)
         {
             if (this->handler)
             {
-                return (this->handler(this->handlerData, evt));
+                return (this->handler(this->handlerData, std::move(evt)));
             }
             return false;
         };
@@ -134,7 +134,7 @@ namespace arm_cmsis_stream
                 else
                 {
                     // If not async, we call the processEvent directly
-                    std::get<0>(pair)->processEvent(std::get<1>(pair), evt);
+                    std::get<0>(pair)->processEvent(std::get<1>(pair), Event(evt));
                 }
             }
 
@@ -211,7 +211,7 @@ namespace arm_cmsis_stream
             if (mode == kAsync)
             {
 
-                Message msg = {nullptr, 0, evt};
+                Message msg = {nullptr, 0, std::move(evt)};
                 if (!EventQueue::cg_eventQueue->push(std::move(msg)))
                 {
                     // If the queue is full, we return false
@@ -222,7 +222,7 @@ namespace arm_cmsis_stream
             else
             {
 
-                return EventQueue::cg_eventQueue->callHandler(evt);
+                return EventQueue::cg_eventQueue->callHandler(std::move(evt));
             }
 #else
             return false; // No event queue available

@@ -1310,7 +1310,7 @@ namespace arm_cmsis_stream
 
         StreamNode() {};
 
-        virtual void processEvent(int dstPort, const Event &evt) {};
+        virtual void processEvent(int dstPort, Event &&evt) {};
         virtual bool needsAsynchronousInit() const {return false;};
         virtual void subscribe(int outputPort,StreamNode &dst,int dstPort){};
 
