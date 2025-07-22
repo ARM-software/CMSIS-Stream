@@ -31,7 +31,7 @@ Refer to the `events` example in `Examples` folder to see a full example with:
 
 # Working with events
 
-## Define event inputs / outputs in Python
+## Python description
 
 Event inputs and outputs are defined in a similar way to the data flow inputs and outputs. The differences are:
 
@@ -61,7 +61,7 @@ self.addEventOutput()
 self.addEventOutput(4)
 ```
 
-## Define event outputs in C++
+## C++ definition
 
 For each event output that you have defined in Python, you need to define a member variable of type `EventOutput`. This object tracks the nodes connected to the ouput.
 
@@ -87,8 +87,9 @@ void subscribe(int outputPort,StreamNode &dst,int dstPort)
     }
 }
 ```
+## Receiving and sending events in C++
 
-## Process event inputs in C++
+### Receiving events 
 
 When an event is received, the function `processEvent` is used. It is defined in the CMSIS-Stream root class `StreamNode` and it must be overriden in your implementation.
 
@@ -121,7 +122,7 @@ The `apply` functions takes a pointer to a member function and the current objec
 
 Note that the function `apply` is using `std::get<T>` from `std::variant` and will throw (if exceptions are enabled) if the type can't be found in the event. `wellFormed` should always be used before trying to use `apply`.
 
-## Publishing events
+### Sending events
 
 If you send an event from the `processEvent` function you can send it in a synchronous way. It will be executed immediately by another `processEvent` function in some other nodes.
 
@@ -366,7 +367,7 @@ For instance, `cg_any_tensor` contains `TensorPtr<float>`.
 
 Read the section about `ProtectedBuffer` to know how to allocate raw buffers and tensors.
 
-## ProtectedBuffer
+### ProtectedBuffer
 
 Buffers (raw buffer or tensor) can be shared between several events because we do not want to have to copy big buffers.
 
@@ -442,7 +443,9 @@ __Never pass the event by reference or pointer.__
 
 # Integrate the events in your application
 
-## Event queue
+## Event queue processing
+
+### Event queue
 
 The events should not disrupt the data flow of CMSIS Stream.
 
@@ -501,7 +504,7 @@ The event queue is a static variable of the class `EventQueue` and is the same f
 
 You can also install an event handler in the `EventQueue` for application events.
 
-## Threading
+### Event queue with threads
 
 The queue execution can rely on threads and thread pool.
 
@@ -522,7 +525,7 @@ If the events are not flushed, they may act on a node that has been destroyed si
 
 Using the python `generateExamplePosixMain(".")` you can generate an example implementation.
 
-### Macros
+#### Macros
 
 For portability between different platforms, the thread and mutex implementation is provided with macros that can be defined in your `custom.hpp` file.
 
@@ -584,7 +587,7 @@ In this case there is no difference between `CG_ENTER_CRITICAL_SECTION` and `CG_
 
 
 
-## Bare metal
+### Event queue with bare metal
 
 In case of a bare metal systems, there are other possibilities without threads.
 
@@ -610,7 +613,7 @@ Memory allocations are occuring in 4 cases:
 - Mutexes
 - Content of raw buffer, tensor or std::string
 
-## List of values
+### List of values
 
 The maximum number of elements in a list is defined by the macro `CG_MAX_VALUES` that can be redefined. Its default value is 8. 
 
@@ -649,7 +652,7 @@ It is difficult to know in a portable way what is the size of this control block
 
 On a Cortex-M55, it was measured to be `16` bytes so the memory pool block size is `sizeof(ListValue) + 16`.
 
-## Description for buffers and tensors
+### Description for buffers and tensors
 
 Buffer and tensors are using a `ProtectedBuffer`. This protected buffer is allocating a `std::shared_ptr` to the underlying object descriptor.
 
@@ -661,13 +664,13 @@ The macro used is `CG_MK_PROTECTED_BUF_ALLOCATOR` and it can be used like in the
 
 In case of a stateless memory allocator, a different class must be used. `CMSISEventPoolAllocator` cannot be reused since a different memory pool with a different block size must be used.
 
-## Mutexes
+### Mutexes
 
 `ProtectedBuffer` are allocating a `std::shared_ptr` to a mutex to be able to ensure that the `std::shared_ptr` to the data is protected (including the ref count).
 
 Those memory blocks are much smaller and use a different memory allocator : `CG_MK_PROTECTED_MUTEX_ALLOCATOR`.
 
-## Content of buffer, tensor and strings
+### Content of buffer, tensor and strings
 
 Contrary to the prevous datastructure where the size of the data is always the same, the content of buffers is variable.
 
@@ -681,7 +684,7 @@ By default, a `UniquePtr` created with a number of bytes or a `T*` will use the 
 
 If a `const T*` is used, no deleter is used by default.
 
-## Memory allocation conclusion
+### Memory allocation conclusion
 
 With the use of the three custom memory allocators, it is possible to only use memory pools for the event system : so no fragmentation and deterministic allocations.
 
