@@ -579,33 +579,90 @@ With C++ thread and mutexes, you could define:
 
 The previous implementation assume that an error is fatal : it will throw. So the ERROR variable is just used to have a macro API similar the one for RTOS systems.
 
-With CMSIS ROTS2 you could define:
+With CMSIS RTOS2 you could define:
 
 ```C++
-#define CG_MUTEX osMutexId_t
+class CMSISMutex
+{
+public:
+    CMSISMutex()
+    {
+        mutex_id = osMutexNew(NULL);
+    }
+
+    ~CMSISMutex()
+    {
+        if (mutex_id != nullptr)
+        {
+            // Ensure the mutex is deleted only if it was created successfully
+            osMutexDelete(mutex_id);
+        }
+    }
+
+    osMutexId_t id() const
+    {
+        return mutex_id;
+    }
+
+protected:
+    osMutexId_t mutex_id;
+};
+
+class CMSISLock
+{
+public:
+    CMSISLock(CMSISMutex &mutex) : mutex(mutex)
+    {
+    }
+
+    osStatus_t acquire()
+    {
+        error = osMutexAcquire(mutex.id(), 0);
+        return error;
+    }
+
+    ~CMSISLock()
+    {
+        if (error == osOK)
+        {
+            error = osMutexRelease(mutex.id());
+        }
+    }
+
+    osStatus_t getError() const
+    {
+        return error;
+    }
+
+protected:
+    CMSISMutex &mutex;
+    osStatus_t error;
+};
+
+#define CG_MUTEX CMSISMutex
 #define CG_MUTEX_ERROR_TYPE osStatus_t
-#define CG_INIT_MUTEX(MUTEX) MUTEX = osMutexNew(NULL)
-#define CG_MUTEX_DELETE(MUTEX, ERROR) ERROR = osMutexDelete(MUTEX)
 
 #define CG_MUTEX_HAS_ERROR(ERROR) (ERROR != osOK)
 
-#define CG_ENTER_CRITICAL_SECTION(MUTEX, ERROR) ERROR = osMutexAcquire((MUTEX), 0)
+#define CG_ENTER_CRITICAL_SECTION(MUTEX, ERROR) \
+    {                                           \
+        CMSISLock lock((MUTEX));                \
+        ERROR = lock.acquire();
+
 #define CG_EXIT_CRITICAL_SECTION(MUTEX, ERROR) \
-    if (ERROR == osOK)                         \
-    {                                          \
-        ERROR = osMutexRelease((MUTEX));       \
     }
 
-#define CG_ENTER_READ_CRITICAL_SECTION(MUTEX, ERROR) ERROR = osMutexAcquire((MUTEX), 0)
+#define CG_ENTER_READ_CRITICAL_SECTION(MUTEX, ERROR) \
+    {                                                \
+        CMSISLock lock((MUTEX));                     \
+        ERROR = lock.acquire();
+
 #define CG_EXIT_READ_CRITICAL_SECTION(MUTEX, ERROR) \
-    if (ERROR == osOK)                              \
-    {                                               \
-        ERROR = osMutexRelease((MUTEX));            \
     }
 
 ```
-In this case there is no difference between `CG_ENTER_CRITICAL_SECTION` and `CG_ENTER_READ_CRITICAL_SECTION`
 
+The mutex must be a C++ class because it is created and initialized through `std::shared_ptr::allocate_shared`.
 
 
 ### Event queue with bare metal
@@ -687,7 +744,7 @@ In case of a stateless memory allocator, a different class must be used. `CMSISE
 
 ### Mutexes
 
-`ProtectedBuffer` are allocating a `std::shared_ptr` to a mutex to be able to ensure that the `std::shared_ptr` to the data is protected (including the ref count).
+`ProtectedBuffer` are allocating a `std::shared_ptr` to a mutex. It is used to ensure that the `std::shared_ptr` to the data is protected (including the ref count).
 
 Those memory blocks are much smaller and use a different memory allocator : `CG_MK_PROTECTED_MUTEX_ALLOCATOR`.
 
