@@ -291,10 +291,12 @@ Some events are standardized:
         kValue = 6,
         kStopGraph = 7,
         kDebug = 8,
-        kStartNodeInitialization = 9,
-        kNodeWasInitialized = 10,
+        kStartNodeInitialization = 9,     
+        kNodeWasInitialized = 10,    
         kNodeWillBeDestroyed = 11,
-        kNodeReadyToBeDestroyed = 12,
+        kNodeReadyToBeDestroyed = 12, 
+        kError = 13,
+        kLongRun = 14,     
         // Node selectors are starting at 100
         kSelector = 100
     };
@@ -312,7 +314,8 @@ The first selector ID is 100. Values before 100 are reserved for CMSIS-Stream.
 - `kDebug` : Any debug action that may be implemented by the node
 
 In generate, nodes are initialized in their C++ constructors.
-Some nodes may require more complex initializations that could fail.
+Some nodes may require more complex initializations that could fail and should do those initializations with `init` method if possible.
+When the initializations may take too much time, it is possible to use events to do an asynchronous initialization with some nodes.
 
 Some events have been defined to handle this:
 
@@ -321,13 +324,17 @@ Some events have been defined to handle this:
   - Ask a node to start a complex initialization in asynchronous way
 
 - `kNodeWasInitialized`:
-  - Event sent by a node when its initialization is finished. The event should contain two values : the node ID as an `uint32_t` and an error code as an `int32_t`. The error code should be zero in case the initialization succeeded
+  - Event sent by a node when its initialization is finished. The event should contain one value : the node ID as an `uint32_t`. If an error occurred,
+  the 'kError' event should be sent with the node ID as `uint32_t` and an error code as an `int32_t`.
 - `kNodeWillBeDestroyed`:
   - If a node was initialized with the previous process, the C++ destructor cannot be called before the node has had the chance to undo what has been done during the initialization. This event signals a node that its C++ destructor is going to be used
 - `kNodeReadyToBeDestroyed`:
   - When the node is ready to be destroyed and the C++ destructor can be called, it should signal it.
 
 The application can check if a node needs an asynchronous initialization using the API `bool needsAsynchronousInit()`.
+
+- `kLongRun`:
+   This event is used by a node when the node needs a thread to run a long (or forever) task. This event should be sent by the node to itself in an asynchronous way. Like that, the event handler will be executed on the thread pool managing the event queue. A long running task should use the event queue method `mustEnd` to know if the tasks must end.
 
 **A node is free to ignore any events.**
 
@@ -439,6 +446,20 @@ Events only need to be copied when they are sent to many nodes. It is done by th
 You may need to __copy__ the event if you need to pass it to a function for read only processing (like displaying on stdout with iostream).
 
 __Never pass the event by reference or pointer.__
+
+## Sharing buffers between processes 
+
+When some nodes in the graph are communicating with different processes, it is possible (when supported by the platform) to avoid copying buffers and use shared memory instead.
+
+The `TensorPtr` and `RawBuffer` should use a `SharedBuffer` instead of a `UniquePtr`.
+
+The `SharedBuffer` is a unique reference to a shared buffer.
+
+It contains a platform dependent descriptor, a `global_id` that is used to identify the buffer, the size of the buffer in bytes and a pointer to the data.
+
+The pointer to the data may be a `nullptr` if the buffer has not been mapped in the CMSIS-Stream process. As consequence, a CMSIS Stream node do not always have to map the buffer if it is just controlling an hardware accelerator.
+
+For more details about how to integrate this feature in your platform, see the section IPC.
 
 
 # Integrate the events in your application
@@ -764,6 +785,47 @@ scheduling.genJsonSelectors(".",conf)
 ```
 
 This generates a JSON file mapping json selector names to their ID for a given graph.
+
+## IPC 
+
+Sharing buffers without copy between processes relies on several APIs that must be implemented for your platform. 
+
+### MemServer 
+
+Shared buffers are managed by a server. Communication with this server is done through the `MemServer` API. You must provide an implementation of this API (and of the corresponding server).
+
+The server is tracking access to the shared buffers : reference counting and locking.
+
+All CMSIS Stream nodes must use the `MemServer` to access shared buffers. Having a global view of all the shared buffers used by all the processes involved in a CMSIS Stream graph is required for the nodes to know if in-place modification of a buffer is possible or not.
+
+`MemServer` APIs return a `Descriptor`. This class is used to identify a shared buffer on client side. It is the only way to use a shared buffer in CMSIS Stream nodes : you first get a `Descriptor` from the `MemServer` and then you create a `SharedBuffer` object from the `Descriptor` object.
+
+### Descriptor
+
+You must provide an implementation of `Descriptor`. 
+`Descriptor` is used to map / unmap a buffer or close the corresponding `NativeHandle`.
+
+`Descriptor` must not be used directly but only though a `SharedBuffer` that is the unique owner of a `Descriptor`.
+
+`Descriptor` is using the `NativeHandle` datatype.
+
+`NativeHandle` is the datatype used to represent a shared buffer on your platform. It is `int` on Unix like systems (file descriptor) and it is `void *` on Windows.
+
+### IPC
+
+`IPC` is the API that must be implemented to exchange events with another process.
+The `SharedBuffer` are represented by a `global_id` and only the `global_id` is transmitted by the `IPC`.
+The receiving process uses the `global_id` and the `MemServer` to get a `Descriptor` for this memory buffer.
+
+`IPC` implementation is not transmitting any file descriptor.
+
+If you're not using `SharedBuffer` but `UniquePtr`, then the buffer will be serialized before being transmitted.
+
+Serialization / Unserialization of events is done with the class in `cg_pack.hpp`.
+
+Not that those classes can also be used to send the event on the network to a machine using the same endianism.
+In case of transmission to the network, `SharedBuffers` are ignored and you must specify to the `pack` function that you are packing for network by setting the network argument to `true`.
+
 
 # Details
 
