@@ -48,7 +48,10 @@ CStreamNode createStreamNode(T &obj)
                 static_cast<T *>(self)->subscribe(outputPort, 
                     *static_cast<arm_cmsis_stream::StreamNode*>(dst->obj), 
                     dstPort);
-            }
+            },
+            [](void *self) -> cg_status {
+                return(static_cast<T *>(self)->init());
+            },
         };
         return CStreamNode{&obj, &stream_intf};
     }

@@ -1,6 +1,14 @@
 import struct 
 import numpy as np
+import os 
+import weakref 
+import mmap 
 
+class Priority:
+    kLowPriority = 0
+    kNormalPriority = 1
+    kHighPriority = 2
+   
 class DataType:
     kNone = 0
     kInt8 = 1
@@ -18,6 +26,56 @@ class DataType:
     kTensor = 13
     kCombined = 14
 
+class BufferType:
+    kCopyBuffer = 0
+    kSharedBuffer = 1
+
+
+class SharedBuffer:
+    def __init__(self,fd,size,global_id,memserver):
+        self.fd = fd
+        self.size = size
+        self.data = None
+        self.global_id = global_id;
+        self.memserver = memserver
+        self_ref = weakref.ref(self)
+        self._finalizer = weakref.finalize(self, SharedBuffer._cleanup, self_ref)
+
+    def map(self):
+        if self.data is None:
+           self.data = mmap.mmap(self.fd, self.size, access=mmap.ACCESS_WRITE)
+
+    def close(self):
+        SharedBuffer._cleanup(self) 
+   
+   
+    @staticmethod
+    def _cleanup(self):
+        if self.data:
+            self.data.close()
+            self.data = None
+        if self.fd:
+           os.close(self.fd)
+           self.fd = -1
+           if self.memserver is not None:
+               if self.global_id != -1:
+                  self.memserver.release(self.global_id)
+           self.global_id = -1
+
+    
+class MappedArray:
+    def __init__(self,shared,dims,dtype):
+        self.shared = shared 
+        shared.map()
+        self.numpy = np.frombuffer(shared.data, dtype=dtype).reshape(dims)
+
+    def close(self):
+        self.numpy = None
+        if self.shared is not None:
+            self.shared.close()
+            self.shared = None
+        
+
 class Event:
     def __init__(self, event_id, priority,data=None):
         self.event_id = event_id
@@ -29,8 +87,9 @@ class Event:
 
 
 class Pack:
-    def __init__(self):
+    def __init__(self,memserver=None):
         self.data = bytearray()
+        self.memserver = memserver
 
     def write_int8(self, value):
         self.data.extend(struct.pack('<b', value))
@@ -92,7 +151,20 @@ class Pack:
     def bytes(self):
         return self.data
     
-    def _pack(self,value):
+    def _write_shared_buffer(self,value,network):
+        self.write_uint8(DataType.kInt8)
+        self.write_uint8(BufferType.kSharedBuffer)
+        if value.shared.fd is not None:
+            self.write_uint32(value.numpy.nbytes)
+            # global ID
+            self.write_int32(value.shared.global_id)
+            if not network and self.memserver is not None:
+               self.memserver.acquire(value.shared.global_id)
+        else:
+            self.write_uint32(0)
+            self.write_int32(-1)
+    
+    def _pack(self,id,value,network):
         if value is None:
             self.write_uint8(DataType.kNone)
         elif isinstance(value, int):
@@ -117,7 +189,45 @@ class Pack:
                 self.write_array_uint8(b)
         elif isinstance(value, bytes):
                 self.write_uint8(DataType.kAny)
+                self.write_uint8(BufferType.kCopyBuffer)
                 self.write_array_uint8(value)
+        elif isinstance(value, SharedBuffer):
+                self.write_uint8(DataType.kAny)
+                self.write_uint8(BufferType.kSharedBuffer)
+                if value.fd is not None:
+                    self.write_uint32(value.size)
+                    self.write_int32(value.global_id)
+                    if not network and self.memserver is not None:
+                       self.memserver.acquire(value.global_id)
+                else:
+                    self.write_uint32(0)
+                    self.write_int32(-1)
+        elif isinstance(value,MappedArray):
+            self.write_uint8(DataType.kTensor)
+            self.write_uint8(len(value.numpy.shape))
+            s = list(value.numpy.shape)
+            s += [0] * (4 - len(s))
+            self.write_array_uint32(s)
+            if value.numpy.dtype == np.int8:
+                self._write_shared_buffer(DataType.kInt8,value,network)
+            if value.numpy.dtype == np.int16:
+                self._write_shared_buffer(DataType.kInt16,value,network)
+            if value.numpy.dtype == np.int32:
+                self._write_shared_buffer(DataType.kInt32,value,network)
+            if value.numpy.dtype == np.int64:
+                self._write_shared_buffer(DataType.kInt64,value,network)
+            if value.numpy.dtype == np.float32:
+                self._write_shared_buffer(DataType.kFloat,value,network)
+            if value.numpy.dtype == np.float64:
+                self._write_shared_buffer(DataType.kDouble,value,network)
+            if value.numpy.dtype == np.uint8:
+                self._write_shared_buffer(DataType.kUInt8,value,network)
+            if value.numpy.dtype == np.uint16:
+                self._write_shared_buffer(DataType.kUInt16,value,network)
+            if value.numpy.dtype == np.uint32:
+                self._write_shared_buffer(DataType.kUInt32,value,network)
+            if value.numpy.dtype == np.uint64:
+                self._write_shared_buffer(DataType.kUInt64,value,network)
         elif isinstance(value, np.ndarray):
                 self.write_uint8(DataType.kTensor)
                 self.write_uint8(len(value.shape))
@@ -126,36 +236,46 @@ class Pack:
                 self.write_array_uint32(s)
                 if value.dtype == np.int8:
                     self.write_uint8(DataType.kInt8)
+                    self.write_uint8(BufferType.kCopyBuffer)
                     self.write_array_int8(value.flatten())
                 elif value.dtype == np.int16:
                     self.write_uint8(DataType.kInt16)
+                    self.write_uint8(BufferType.kCopyBuffer)
                     self.write_array_int16(value.flatten())
                 elif value.dtype == np.int32:
                     self.write_uint8(DataType.kInt32)
+                    self.write_uint8(BufferType.kCopyBuffer)
                     self.write_array_int32(value.flatten())
                 elif value.dtype == np.int64:
                     self.write_uint8(DataType.kInt64)
+                    self.write_uint8(BufferType.kCopyBuffer)
                     self.write_array_int64(value.flatten())
                 elif value.dtype == np.float32:
                     self.write_uint8(DataType.kFloat)
+                    self.write_uint8(BufferType.kCopyBuffer)
                     self.write_array_float(value.flatten())
                 elif value.dtype == np.float64:
                     self.write_uint8(DataType.kDouble)
+                    self.write_uint8(BufferType.kCopyBuffer)
                     self.write_array_double(value.flatten())
                 elif value.dtype == np.uint8:
                     self.write_uint8(DataType.kUInt8)
+                    self.write_uint8(BufferType.kCopyBuffer)
                     self.write_array_uint8(value.flatten())
                 elif value.dtype == np.uint16:
                     self.write_uint8(DataType.kUInt16)
+                    self.write_uint8(BufferType.kCopyBuffer)
                     self.write_array_uint16(value.flatten())
                 elif value.dtype == np.uint32:
                     self.write_uint8(DataType.kUInt32)
+                    self.write_uint8(BufferType.kCopyBuffer)
                     self.write_array_uint32(value.flatten())
                 elif value.dtype == np.uint64:
                     self.write_uint8(DataType.kUInt64)
+                    self.write_uint8(BufferType.kCopyBuffer)
                     self.write_array_uint64(value.flatten())
 
-    def pack(self,nodeid,event):
+    def pack(self,nodeid,event,network=False):
         self.write_uint32(nodeid)
         self.write_uint32(event.event_id)
         self.write_uint8(event.priority)
@@ -167,17 +287,18 @@ class Pack:
         if not isinstance(event.data, list):
             # Value not combined
             self.write_uint8(0)
-            self._pack(event.data)
+            self._pack(0,event.data,network)
         else:
             self.write_uint8(1)
             self.write_uint32(len(event.data))
-            for e in event.data:
-                self._pack(e)
+            for k,e in enumerate(event.data):
+                self._pack(k,e,network)
             
 
 class Unpack:
-    def __init__(self,data):
+    def __init__(self,data,memserver=None):
         self.data = data
+        self.memserver = memserver
 
     def read_int8(self):
         value = struct.unpack('<b', self.data[:1])[0]
@@ -224,7 +345,7 @@ class Unpack:
     
     def read_array_int8(self,nb=None):
         if nb is None:
-           nb = self.read_uint32
+           nb = self.read_uint32()
         values = struct.unpack(f"<{nb}b", self.data[:nb])
         self.data = self.data[nb:]
         return values
@@ -289,6 +410,72 @@ class Unpack:
         self.data = self.data[nb*8:]
         return values
     
+    def _read_maybe_shared_tensor(self,dims,dtype):
+        buf_type = self.read_uint8()
+        if buf_type == BufferType.kCopyBuffer:
+            if dtype == np.int8:
+               tensor_data = self.read_array_int8()
+               return np.array(tensor_data, dtype=np.int8).reshape(dims)
+            if dtype == np.int16:
+               tensor_data = self.read_array_int16()
+               return np.array(tensor_data, dtype=np.int16).reshape(dims)
+            if dtype == np.int32:
+               tensor_data = self.read_array_int32()
+               return np.array(tensor_data, dtype=np.int32).reshape(dims)
+            if dtype == np.int64:
+               tensor_data = self.read_array_int64()
+               return np.array(tensor_data, dtype=np.int64).reshape(dims)
+            if dtype == np.float32:
+               tensor_data = self.read_array_float()
+               return np.array(tensor_data, dtype=np.float32).reshape(dims)
+            if dtype == np.float64:
+               tensor_data = self.read_array_double()
+               return np.array(tensor_data, dtype=np.float64).reshape(dims)
+            if dtype == np.uint8:
+               tensor_data = self.read_array_uint8()
+               return np.array(tensor_data, dtype=np.uint8).reshape(dims)
+            if dtype == np.uint16:
+               tensor_data = self.read_array_uint16()
+               return np.array(tensor_data, dtype=np.uint16).reshape(dims)
+            if dtype == np.uint32:
+               tensor_data = self.read_array_uint32()
+               return np.array(tensor_data, dtype=np.uint32).reshape(dims)
+            if dtype == np.uint64:
+               tensor_data = self.read_array_uint64()
+               return np.array(tensor_data, dtype=np.uint64).reshape(dims)
+            return None
+        else:
+            str_size = self.read_uint32()
+            global_id = self.read_int32()
+            if self.memserver is None:
+                return None
+            if str_size == 0:
+                return None 
+            s = self.memserver.get_buffer(global_id)
+            self.memserver.release(global_id)
+            
+            m = MappedArray(s,dims,dtype)
+            return s
+           
+            
+    def _read_maybe_shared_bytestream(self):
+        buf_type = self.read_uint8()
+        if buf_type == BufferType.kCopyBuffer:
+           str_size = self.read_uint32()
+           value = self.data[:str_size-1]
+           self.data = self.data[str_size:]
+           return value
+        else:
+           str_size = self.read_uint32()
+           global_id = self.read_int32()
+           if self.memserver is None:
+                return None
+           if str_size == 0:
+                return None 
+           s = self.memserver.get_buffer(global_id)
+           self.memserver.release(global_id)
+           return s
+    
     def maybe(self,k):
         if self.data:
             if int(self.data[0]) == k:
@@ -325,46 +512,33 @@ class Unpack:
             self.data = self.data[str_size:]
             return value
         elif self.maybe(DataType.kAny):
-            str_size = self.read_uint32()
-            value = self.data[:str_size-1]
-            self.data = self.data[str_size:]
-            return value
+            return self._read_maybe_shared_bytestream()
+
         elif self.maybe(DataType.kTensor):
             nbdims = self.read_uint8()
             dims = self.read_array_uint32()
             dims = dims[:nbdims]
-            tensor_data = []
+            
             if self.maybe(DataType.kInt8):
-                tensor_data = self.read_array_int8()
-                return np.array(tensor_data, dtype=np.int8).reshape(dims)
+                return self._read_maybe_shared_tensor(dims,np.int8)
             elif self.maybe(DataType.kInt16):
-                tensor_data = self.read_array_int16()
-                return np.array(tensor_data, dtype=np.int16).reshape(dims)
+                return self._read_maybe_shared_tensor(dims,np.int16)
             elif self.maybe(DataType.kInt32):
-                tensor_data = self.read_array_int32()
-                return np.array(tensor_data, dtype=np.int32).reshape(dims)
+                return self._read_maybe_shared_tensor(dims,np.int32)
             elif self.maybe(DataType.kInt64):
-                tensor_data = self.read_array_int64()
-                return np.array(tensor_data, dtype=np.int64).reshape(dims)
+                return self._read_maybe_shared_tensor(dims,np.int64)
             elif self.maybe(DataType.kFloat):
-                tensor_data = self.read_array_float()
-                return np.array(tensor_data, dtype=np.float32).reshape(dims)
+                return self._read_maybe_shared_tensor(dims,np.float32)
             elif self.maybe(DataType.kDouble):
-                tensor_data = self.read_array_double()
-                return np.array(tensor_data, dtype=np.double).reshape(dims)
+                return self._read_maybe_shared_tensor(dims,np.double)
             elif self.maybe(DataType.kUInt8):
-                tensor_data = self.read_array_uint8()
-                return np.array(tensor_data, dtype=np.uint8).reshape(dims)
+                return self._read_maybe_shared_tensor(dims,np.uint8)
             elif self.maybe(DataType.kUInt16):
-                tensor_data = self.read_array_uint16()
-                return np.array(tensor_data, dtype=np.uint16).reshape(dims)
+                return self._read_maybe_shared_tensor(dims,np.uint16)
             elif self.maybe(DataType.kUInt32):
-                tensor_data = self.read_array_uint32()
-                return np.array(tensor_data, dtype=np.uint32).reshape(dims)
+                return self._read_maybe_shared_tensor(dims,np.uint32)
             elif self.maybe(DataType.kUInt64):
-                tensor_data = self.read_array_uint64()
-                return np.array(tensor_data, dtype=np.uint64).reshape(dims)
-
+                return self._read_maybe_shared_tensor(dims,np.uint64)
             return None
 
         return None 

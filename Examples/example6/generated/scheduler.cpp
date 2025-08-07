@@ -157,11 +157,37 @@ uint32_t scheduler(int *error,arm_mfcc_instance_f32 *mfccConfig)
     /* 
     Create node objects
     */
+   cgStaticError = CG_SUCCESS;
     SlidingBuffer<float,256,128> audioWin(fifo0,fifo1); /* Node ID = 0 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = audioWin.init();
+    }
     MFCC<float,256,float,13> mfcc(fifo1,fifo2,mfccConfig); /* Node ID = 1 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = mfcc.init();
+    }
     SlidingBuffer<float,26,13> mfccWin(fifo2,fifo3); /* Node ID = 2 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = mfccWin.init();
+    }
     FileSink<float,13> sink(fifo3,"output_example6.txt"); /* Node ID = 3 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = sink.init();
+    }
     FileSource<float,192> src(fifo0,"input_example6.txt"); /* Node ID = 4 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = src.init();
+    }
+
+   if (cgStaticError != CG_SUCCESS)
+   {
+       goto errorHandling;
+   }
 
 /* Subscribe nodes for the event system*/
 

@@ -12,9 +12,7 @@ The support classes and code are covered by CMSIS-Stream license.
 #include "custom.hpp"
 #include "cg_enums.h"
 #include "StreamNode.hpp"
-#if defined(CG_EVENTS)
 #include "EventQueue.hpp"
-#endif
 #include "GenericNodes.hpp"
 #include "AppNodes.hpp"
 #include "scheduler.h"
@@ -201,22 +199,42 @@ init_cb_state();
     }
 
     CG_BEFORE_NODE_INIT;
+    cg_status initError;
+
 
     nodes.processing = new (std::nothrow) ProcessingNode<float,7,float,7>(*(fifos.fifo0),*(fifos.fifo1));
     if (nodes.processing==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
+    initError = nodes.processing->init();
+    if (initError != CG_SUCCESS)
+    {
+        return(initError);
+    }
+
     nodes.sink = new (std::nothrow) Sink<float,5>(*(fifos.fifo2));
     if (nodes.sink==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
+    initError = nodes.sink->init();
+    if (initError != CG_SUCCESS)
+    {
+        return(initError);
+    }
+
     nodes.source = new (std::nothrow) Source<float,5>(*(fifos.fifo0));
     if (nodes.source==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
+    initError = nodes.source->init();
+    if (initError != CG_SUCCESS)
+    {
+        return(initError);
+    }
+
 
 /* Subscribe nodes for the event system*/
 

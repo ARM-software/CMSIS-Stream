@@ -3,7 +3,7 @@ import struct
 import json
 import time
 import numpy as np
-from events import *
+from cmsis_stream.cg.events import *
 
 class EventID:
       kNoEvent = 0
@@ -14,6 +14,12 @@ class EventID:
       kValue = 6
       kStopGraph = 7
       kDebug = 8
+      kStartNodeInitialization = 9   
+      kNodeWasInitialized = 10  
+      kNodeWillBeDestroyed = 11
+      kNodeReadyToBeDestroyed = 12
+      kError = 13
+      kLongRun = 14      
       kSelector = 100
 
 

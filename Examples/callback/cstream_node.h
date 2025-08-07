@@ -7,7 +7,7 @@
  * Target Processor: Cortex-M and Cortex-A cores
  * -------------------------------------------------------------------- 
  *
- * Copyright (C) 2021-2025 ARM Limited or its affiliates. All rights reserved.
+ * Copyright (C) 2023-2025 ARM Limited or its affiliates. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -26,14 +26,21 @@
 #ifndef C_STREAM_NODE_H
 #define C_STREAM_NODE_H
 
+#include "cg_enums.h"
+
 #ifdef   __cplusplus
 extern "C"
 {
 #endif
 
+struct CStreamNode;
+
 struct StreamNodeInterface
 {
     int (*nodeID)(const void *self);
+    int (*needsAsynchronousInit)(const void *self);
+    void (*subscribe)(void *self,int outputPort,CStreamNode *dst,int dstPort);
+    cg_status (*init)(void *self);
 };
 
 struct CStreamNode

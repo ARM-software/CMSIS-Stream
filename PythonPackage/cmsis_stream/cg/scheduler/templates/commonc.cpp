@@ -226,6 +226,7 @@ int init_{{config.schedName}}({{optionalargs(True)}})
 {% endfor %}
 
     CG_BEFORE_NODE_INIT;
+    cg_status initError;
 
 {% for node in allNodes %}
 {% if node.hasState %}
@@ -234,13 +235,19 @@ int init_{{config.schedName}}({{optionalargs(True)}})
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
+    initError = nodes.{{node.nodeName}}->init();
+    if (initError != CG_SUCCESS)
+    {
+        return(initError);
+    }
 {% if config.nodeIdentification -%}
-{% if node.identified -%}
+{% if node.identified %}
     identifiedNodes[{{node.identificationName}}]={{config.cNodeStructCreation}}(*nodes.{{node.nodeName}});
     nodes.{{node.nodeName}}->setID({{node.identificationName}});
 {% endif %}
 {% endif %}
 {% endif %}
+
 {% endfor %}
 
 /* Subscribe nodes for the event system*/
@@ -309,11 +316,21 @@ uint32_t {{config.schedName}}(int *error{{optionalargs(False)}})
     /* 
     Create node objects
     */
+   cgStaticError = CG_SUCCESS;
 {% for node in allNodes %}
 {% if node.hasState %}
     {{node.typeName}}{{node.ioTemplate()}} {{node.nodeName}}{{init_args(sched,node)}}; /* Node ID = {{node.codeID}} */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = {{node.nodeName}}.init();
+    }
 {% endif %}
 {% endfor %}
+
+   if (cgStaticError != CG_SUCCESS)
+   {
+       goto errorHandling;
+   }
 
 /* Subscribe nodes for the event system*/
 {% for event_edge in eventConnections %}

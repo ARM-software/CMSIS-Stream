@@ -60,7 +60,7 @@ public:
 };
 
 template<typename OUT,int outputSize>
-class Source: GenericSource<OUT,outputSize>
+class Source: public GenericSource<OUT,outputSize>
 {
 public:
     Source(FIFOBase<OUT> &dst):GenericSource<OUT,outputSize>(dst),mCounter(0){};

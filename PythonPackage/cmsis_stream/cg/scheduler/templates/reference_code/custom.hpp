@@ -29,7 +29,6 @@
 // (enabled, multi-threaded, etc.)
 //#include "config_events.h"
 
-#if defined(CG_EVENTS)
 
 #if defined(CG_EVENTS_MULTI_THREAD)
 // Define macros for the mutex handling here
@@ -53,6 +52,5 @@
   {                                                       \
     arm_cmsis_stream::EventQueue::cg_eventQueue->clear(); \
   }
-#endif
 
 // You may define macros to customize the memory allocators here

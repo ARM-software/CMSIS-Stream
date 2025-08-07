@@ -59,7 +59,7 @@ public:
 };
 
 template<typename OUT,int outputSize>
-class BufferSource: GenericSource<OUT,outputSize>
+class BufferSource: public GenericSource<OUT,outputSize>
 {
 public:
     BufferSource(FIFOBase<OUT> &dst):GenericSource<OUT,outputSize>(dst){};

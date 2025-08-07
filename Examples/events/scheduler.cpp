@@ -186,35 +186,60 @@ int init_scheduler()
     }
 
     CG_BEFORE_NODE_INIT;
+    cg_status initError;
 
     nodes.processing = new (std::nothrow) ProcessingNode<float,7,float,7>(*(fifos.fifo0),*(fifos.fifo1));
     if (nodes.processing==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-identifiedNodes[PROCESSING_ID]=createStreamNode(*nodes.processing);
+    initError = nodes.processing->init();
+    if (initError != CG_SUCCESS)
+    {
+        return(initError);
+    }
+    identifiedNodes[PROCESSING_ID]=createStreamNode(*nodes.processing);
     nodes.processing->setID(PROCESSING_ID);
+
     nodes.sink = new (std::nothrow) Sink<float,5>(*(fifos.fifo1));
     if (nodes.sink==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-identifiedNodes[SINK_ID]=createStreamNode(*nodes.sink);
+    initError = nodes.sink->init();
+    if (initError != CG_SUCCESS)
+    {
+        return(initError);
+    }
+    identifiedNodes[SINK_ID]=createStreamNode(*nodes.sink);
     nodes.sink->setID(SINK_ID);
+
     nodes.source = new (std::nothrow) Source<float,5>(*(fifos.fifo0));
     if (nodes.source==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-identifiedNodes[SOURCE_ID]=createStreamNode(*nodes.source);
+    initError = nodes.source->init();
+    if (initError != CG_SUCCESS)
+    {
+        return(initError);
+    }
+    identifiedNodes[SOURCE_ID]=createStreamNode(*nodes.source);
     nodes.source->setID(SOURCE_ID);
+
     nodes.evtsink = new (std::nothrow) EvtSink;
     if (nodes.evtsink==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-identifiedNodes[EVTSINK_ID]=createStreamNode(*nodes.evtsink);
+    initError = nodes.evtsink->init();
+    if (initError != CG_SUCCESS)
+    {
+        return(initError);
+    }
+    identifiedNodes[EVTSINK_ID]=createStreamNode(*nodes.evtsink);
     nodes.evtsink->setID(EVTSINK_ID);
+
 
 /* Subscribe nodes for the event system*/
     nodes.source->subscribe(0,*nodes.sink,0);

@@ -53,9 +53,7 @@ public:
     
 
 private:
-#if defined(CG_EVENTS) && defined(CG_EVENTS_MULTI_THREAD)
     CG_MUTEX queue_mutex;
-#endif
     std::queue<arm_cmsis_stream::Message> queue;
     uint32_t nb_elems=0;
     

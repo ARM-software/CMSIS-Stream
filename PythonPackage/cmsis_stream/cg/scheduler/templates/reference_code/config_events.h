@@ -1,11 +1,10 @@
 #ifndef CONFIG_EVENTS_H_
 #define CONFIG_EVENTS_H_
 
-
-// Enable CG_EVENTS to use the event system
-// When disabled, events are not sent
+// Enable event system
+// Can be used in your main app to set the event queue or
+// keep it to a nullptr value
 #define CG_EVENTS
-
 
 // Enable threaded events
 // Posix implementation provided as example

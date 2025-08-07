@@ -1,13 +1,13 @@
 /* ----------------------------------------------------------------------
  * Project:      CMSIS Stream Library
- * Title:        IdentifiedNode.h
+ * Title:        IdentifiedNode.hpp
  * Description:  Example C++ template to create a C interface to a C++ object
  *
  *
  * Target Processor: Cortex-M and Cortex-A cores
  * -------------------------------------------------------------------- 
  *
- * Copyright (C) 2021-2025 ARM Limited or its affiliates. All rights reserved.
+ * Copyright (C) 2023-2025 ARM Limited or its affiliates. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -39,7 +39,20 @@ CStreamNode createStreamNode(T &obj)
         static const StreamNodeInterface stream_intf = {
             [](const void *self) -> int {
                 return(static_cast<const T *>(self)->nodeID());
-            }};
+            }
+            ,
+            [](const void *self) -> int {
+                return(static_cast<const T *>(self)->needsAsynchronousInit());
+            },
+            [](void *self, int outputPort, CStreamNode *dst, int dstPort) {
+                static_cast<T *>(self)->subscribe(outputPort, 
+                    *static_cast<arm_cmsis_stream::StreamNode*>(dst->obj), 
+                    dstPort);
+            },
+            [](void *self) -> cg_status {
+                return(static_cast<T *>(self)->init());
+            },
+        };
         return CStreamNode{&obj, &stream_intf};
     }
     else

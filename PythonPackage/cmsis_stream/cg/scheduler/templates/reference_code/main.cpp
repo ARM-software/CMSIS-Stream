@@ -41,7 +41,6 @@
 #include <iostream>
 
 // When event system is enabled, we provide a global event queue
-#if defined(CG_EVENTS)
 
 // When event multi-threading is enabled, we define a thread to process the event queue
 #if defined(CG_EVENTS_MULTI_THREAD)
@@ -52,7 +51,6 @@ bool cg_eventThreadDone = false;
 #endif // CG_MULTI_THREAD
 
 
-#endif // CG_EVENTS
 
 using namespace arm_cmsis_stream;
 

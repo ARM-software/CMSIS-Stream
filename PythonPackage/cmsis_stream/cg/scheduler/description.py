@@ -1898,10 +1898,17 @@ class Schedule:
         s["do"] = 1
         s["pause"] = 2
         s["resume"] = 3
-        s["getparam"] = 5
+        s["getParam"] = 5
         s["value"] = 6
-        s["stopgraph"] = 7
+        s["stopGraph"] = 7
         s["debug"] = 8
+        s["startNodeInitialization"] = 9     
+        s["nodeWasInitialized"] = 10   
+        s["nodeWillBeDestroyed"] = 11
+        s["nodeReadyToBeDestroyed"] = 12 
+        s["error"] = 13
+        s["longRun"] = 14   
+
         jfile=os.path.join(directory,"%s_selectors.json" % config.schedName)
         with open(jfile,"w") as f:
             f.write(json.dumps(s, indent=2))

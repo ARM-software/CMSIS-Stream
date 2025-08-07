@@ -65,14 +65,6 @@
 #define CG_MUTEX int
 #endif
 
-#ifndef CG_INIT_MUTEX
-#define CG_INIT_MUTEX(MUTEX)
-#endif
-
-#ifndef CG_MUTEX_DELETE
-#define CG_MUTEX_DELETE(MUTEX, ERROR)
-#endif
-
 #ifndef CG_MUTEX_ERROR_TYPE
 #define CG_MUTEX_ERROR_TYPE int
 #endif
@@ -102,8 +94,7 @@
 #define CG_MAX_VALUES 8
 #endif
 
-/* Node ID is -1 when nodes are not identified for the external
-world */
+/* Node ID is -1 when nodes are not identified for the external world */
 #define CG_UNIDENTIFIED_NODE (-1)
 
 namespace arm_cmsis_stream
@@ -115,6 +106,299 @@ namespace arm_cmsis_stream
         {
             Fn(static_cast<T *>(p));
         }
+    };
+
+    class Descriptor;
+
+    using NativeHandle =
+#ifdef _WIN32
+        void *;
+#else
+        int;
+#endif
+
+    class MemServer
+    {
+    public:
+        virtual ~MemServer() = default;
+        inline static MemServer *mem_server = nullptr;
+
+        // Write locks
+        // Changes to refcount are blocked while a write lock
+        // is held
+        virtual int lock(int32_t offset) const = 0;
+        virtual int unlock(int32_t offset) const = 0;
+
+        // Read locks
+        virtual int read_lock(int32_t offset) const = 0;
+        virtual int read_unlock(int32_t offset) const = 0;
+
+        // Acquire the buffer
+        virtual int acquire(int32_t offset) const = 0;
+        // Release the buffer when no more needed by a process
+        virtual int release(int32_t offset) const = 0;
+
+        // This function is not locking
+        // If you want to prevent the refcount change,
+        // you should use the ipc_lock that locks the full table
+        virtual int32_t refcount(int32_t offset) const = 0;
+
+        // Buffer has refcount 1 after creation
+        virtual Descriptor *new_buffer(size_t size) const = 0;
+        // Get buffer increases the refcount by 1.
+        virtual Descriptor *get_buffer(int32_t global_id) const = 0;
+        // The buffer has refcount 1 after registration.
+        virtual Descriptor *register_buffer(size_t size, NativeHandle fd) const = 0;
+    };
+
+    /*
+
+    It is used directly in cg_pack.hpp  and
+    in code transmitting a file descriptor on a socket.
+    Any other use should go through the SharedBuffer API only
+    SharedBuffer is the unique owner of a Descriptor in the application.
+    */
+    class Descriptor
+    {
+    public:
+        virtual ~Descriptor() {};
+
+        Descriptor() = delete;
+
+        inline static Descriptor *(*mk_new_descriptor)(NativeHandle, size_t, int32_t) = nullptr;
+
+        virtual void mapDescriptor() = 0;
+
+        virtual NativeHandle fd() const noexcept = 0;
+
+        // Check if descriptor is valid
+        // but not if it is mapped
+        virtual explicit operator bool() const noexcept = 0;
+
+        size_t bytes() const noexcept
+        {
+            return size_;
+        }
+
+        void *data() noexcept
+        {
+            return data_;
+        }
+
+        const void *data() const noexcept
+        {
+            return data_;
+        }
+
+        void *operator->() { return data_; }
+
+        // Use to lock access to corresponding mapped buffer
+        // using the mem server
+        int lock() const
+        {
+            if (MemServer::mem_server != nullptr)
+            {
+                return -1; // Error: IPCLock not used
+            }
+            if (global_id_ == -1)
+            {
+                fprintf(stderr, "Global id not set.\n");
+                return -1; // Error: Lock offset not set
+            }
+            return MemServer::mem_server->lock(global_id_);
+        }
+
+        int read_lock() const
+        {
+            if (MemServer::mem_server != nullptr)
+            {
+                return -1; // Error: IPCLock not used
+            }
+            if (global_id_ == -1)
+            {
+                fprintf(stderr, "Global id not set.\n");
+                return -1; // Error: Lock offset not set
+            }
+            return MemServer::mem_server->read_lock(global_id_);
+        }
+
+        int unlock() const
+        {
+            if (MemServer::mem_server != nullptr)
+            {
+                return -1; // Error: IPCLock not initialized or not used
+            }
+            if (global_id_ == -1)
+            {
+                fprintf(stderr, "Global id is not set.\n");
+                return -1; // Error: Lock offset not set
+            }
+            return MemServer::mem_server->unlock(global_id_);
+        }
+
+        int read_unlock() const
+        {
+            if (MemServer::mem_server != nullptr)
+            {
+                return -1; // Error: IPCLock not initialized or not used
+            }
+            if (global_id_ == -1)
+            {
+                fprintf(stderr, "Global id is not set.\n");
+                return -1; // Error: Lock offset not set
+            }
+            return MemServer::mem_server->read_unlock(global_id_);
+        }
+
+        int32_t refcount() const
+        {
+            if (MemServer::mem_server != nullptr)
+            {
+                return -1; // Error: IPCLock not initialized or not used
+            }
+            if (global_id_ == -1)
+            {
+                return -1; // Error: Lock offset not set
+            }
+            return MemServer::mem_server->refcount(global_id_);
+        }
+
+        int32_t global_id() const { return global_id_; }
+
+    protected:
+        Descriptor(size_t size, int32_t global_id) : data_(nullptr),
+                                                     size_(size),
+                                                     global_id_(global_id){};
+
+        
+        // When getting a shared lock, the API below returns a const
+        // but we may still want to map the buffer to read it.
+        mutable void *data_;
+        size_t size_;
+        int32_t global_id_;
+    };
+
+    // It should be the only owner of the Descriptor
+    // So copy constructor are disabled
+    template <typename T>
+    class SharedBuffer
+    {
+    public:
+        SharedBuffer(Descriptor *fd) : fd_(fd) {}
+
+        SharedBuffer(const SharedBuffer &other) = delete;
+        SharedBuffer(SharedBuffer &&other) noexcept
+            : fd_(std::move(other.fd_))
+        {
+            other.fd_ = nullptr;
+        }
+
+        SharedBuffer &operator=(const SharedBuffer &other) = delete;
+
+        SharedBuffer &operator=(SharedBuffer &&other) noexcept
+        {
+            if (this != &other)
+            {
+                fd_ = std::move(other.fd_);
+                other.fd_ = nullptr;
+            }
+            return *this;
+        }
+
+        ~SharedBuffer()
+        {
+            delete fd_;
+        }
+
+        bool operator==(std::nullptr_t) const noexcept { return fd_->data() == nullptr; }
+        bool operator!=(std::nullptr_t) const noexcept { return fd_->data() != nullptr; }
+
+        T *get() noexcept { return static_cast<T *>(fd_->data()); }
+        const T *get() const noexcept { return static_cast<const T *>(fd_->data()); }
+
+        template <typename R>
+        R *as() noexcept { return static_cast<R *>(fd_->data()); }
+
+        template <typename R>
+        const R *as() const noexcept { return static_cast<const R *>(fd_->data()); }
+
+        T &operator[](std::size_t i) { return (static_cast<T *>(fd_->data()))[i]; }
+
+        explicit operator bool() const noexcept { return fd_->data() != nullptr; }
+
+        size_t bytes() const noexcept { return fd_->bytes(); }
+
+        bool validFd() const noexcept
+        {
+            return ((fd_ != nullptr) && (*fd_));
+        }
+
+        const Descriptor *getDescriptor() const noexcept
+        {
+            return fd_;
+        }
+
+        Descriptor *getDescriptor() noexcept
+        {
+            return fd_;
+        }
+
+        int lock() const
+        {
+            int err = -1;
+            if (fd_)
+            {
+                err = fd_->lock();
+            }
+            return (err);
+        }
+
+        int read_lock() const
+        {
+            int err = -1;
+            if (fd_)
+            {
+                err = fd_->read_lock();
+            }
+            return (err);
+        }
+
+        int unlock() const
+        {
+            int err = -1;
+            if (fd_)
+            {
+                err = fd_->unlock();
+            }
+            return (err);
+        }
+
+        int read_unlock() const
+        {
+            int err = -1;
+            if (fd_)
+            {
+                err = fd_->read_unlock();
+            }
+            return (err);
+        }
+
+        void mapBuffer() const
+        {
+            fd_->mapDescriptor();
+        }
+
+        int32_t ipc_refcount() const
+        {
+            if (fd_)
+            {
+                return fd_->refcount();
+            }
+            return (-1);
+        }
+
+    protected:
+        Descriptor *fd_;
     };
 
     template <typename T>
@@ -195,7 +479,8 @@ namespace arm_cmsis_stream
             }
         }
 
-        T *get() const noexcept { return static_cast<T *>(ptr_); }
+        T *get() noexcept { return static_cast<T *>(ptr_); }
+        const T *get() const noexcept { return static_cast<const T *>(ptr_); }
 
         template <typename R>
         R *as() noexcept { return static_cast<R *>(ptr_); }
@@ -203,9 +488,7 @@ namespace arm_cmsis_stream
         template <typename R>
         const R *as() const noexcept { return static_cast<const R *>(ptr_); }
 
-        T *operator->() { return static_cast<T *>(ptr_); }
 
-        T &operator*() { return *(static_cast<T *>(ptr_)); }
 
         T &operator[](std::size_t i) { return (static_cast<T *>(ptr_))[i]; }
 
@@ -277,8 +560,8 @@ namespace arm_cmsis_stream
                     CG_ENTER_CRITICAL_SECTION(*mutex, error);
                     if (obj)
                     {
-                       bool isShared = obj.use_count() > 1;
-                       f(error, isShared, *obj);
+                        bool isShared = obj.use_count() > 1;
+                        f(error, isShared, *obj);
                     }
 
                     CG_EXIT_CRITICAL_SECTION(*mutex, error);
@@ -295,8 +578,8 @@ namespace arm_cmsis_stream
                     CG_ENTER_CRITICAL_SECTION(*mutex, error);
                     if (obj)
                     {
-                       bool isShared = obj.use_count() > 1;
-                       r = f(error, isShared, *obj);
+                        bool isShared = obj.use_count() > 1;
+                        r = f(error, isShared, *obj);
                     }
 
                     CG_EXIT_CRITICAL_SECTION(*mutex, error);
@@ -319,7 +602,7 @@ namespace arm_cmsis_stream
 
                     if (obj)
                     {
-                       f(error, *obj);
+                        f(error, *obj);
                     }
                     CG_EXIT_READ_CRITICAL_SECTION(*mutex, error);
                 }
@@ -336,7 +619,7 @@ namespace arm_cmsis_stream
 
                     if (obj)
                     {
-                       r = f(error, *obj);
+                        r = f(error, *obj);
                     }
 
                     CG_EXIT_CRITICAL_SECTION(*mutex, error);
@@ -561,20 +844,32 @@ namespace arm_cmsis_stream
     struct RawBuffer
     {
         uint32_t buf_size;
-        UniquePtr<std::byte> data;
+        std::variant<UniquePtr<std::byte>, SharedBuffer<std::byte>> data;
 
-        explicit RawBuffer(uint32_t size, UniquePtr<std::byte> &&buf_data) noexcept : buf_size(size), data(std::move(buf_data))
+        explicit RawBuffer(uint32_t size, UniquePtr<std::byte> &&buf_data) noexcept : buf_size(size)
         {
-            if (data == nullptr)
+            if (buf_data == nullptr)
             {
                 buf_size = 0; // Reset size if data is null
             }
+            data = std::move(buf_data);
         }
+
+        explicit RawBuffer(SharedBuffer<std::byte> &&buf_data) noexcept
+        {
+            // We don't test for nullptr since the
+            // buffer may not be mapped
+            // The descriptor inside sharedbuffer is tracking
+            // the size of the buffer
+            buf_size = buf_data.bytes();
+
+            data = std::move(buf_data);
+        }
+
         RawBuffer(const RawBuffer &other) = delete;
         RawBuffer(RawBuffer &&other) noexcept : buf_size(other.buf_size), data(std::move(other.data))
         {
-            other.buf_size = 0;   // Reset the moved-from object
-            other.data = nullptr; // Reset the moved-from object
+            other.buf_size = 0; // Reset the moved-from object
         }
         RawBuffer &operator=(const RawBuffer &other) = delete;
 
@@ -584,8 +879,7 @@ namespace arm_cmsis_stream
             {
                 buf_size = other.buf_size;
                 data = std::move(other.data);
-                other.buf_size = 0;   // Reset the moved-from object
-                other.data = nullptr; // Reset the moved-from object
+                other.buf_size = 0; // Reset the moved-from object
             }
             return *this;
         }
@@ -600,17 +894,31 @@ namespace arm_cmsis_stream
         // rows, columns etc ..
         cg_tensor_dims_t dims;
         // Data is columns then row etc ...
-        UniquePtr<T> data;
+        std::variant<UniquePtr<T>, SharedBuffer<T>> data;
 
         explicit Tensor(uint8_t dimensions,
                         const cg_tensor_dims_t &dimensions_array,
-                        UniquePtr<T> tensor_data) noexcept
-            : nb_dims(dimensions), dims(dimensions_array), data(std::move(tensor_data))
+                        UniquePtr<T> &&tensor_data) noexcept
+            : nb_dims(dimensions), dims(dimensions_array)
         {
-            if (data == nullptr)
+            if (tensor_data == nullptr)
             {
                 nb_dims = 0; // Reset dimensions if data is null or size is zero
             }
+            data = std::move(tensor_data);
+        }
+
+        explicit Tensor(uint8_t dimensions,
+                        const cg_tensor_dims_t &dimensions_array,
+                        SharedBuffer<T> &&tensor_data) noexcept
+            : nb_dims(dimensions), dims(dimensions_array)
+        {
+            if (tensor_data == nullptr)
+            {
+                nb_dims = 0; // Reset dimensions if data is null or size is zero
+            }
+
+            data = std::move(tensor_data);
         }
 
         Tensor(const Tensor &other) = delete;
@@ -618,8 +926,7 @@ namespace arm_cmsis_stream
         Tensor(Tensor &&other) noexcept
             : nb_dims(other.nb_dims), dims(other.dims), data(std::move(other.data))
         {
-            other.nb_dims = 0;    // Reset the moved-from object
-            other.data = nullptr; // Reset the moved-from object
+            other.nb_dims = 0; // Reset the moved-from object
         }
 
         Tensor &operator=(const Tensor &other) = delete;
@@ -630,8 +937,7 @@ namespace arm_cmsis_stream
                 nb_dims = other.nb_dims;
                 dims = other.dims;
                 data = std::move(other.data);
-                other.nb_dims = 0;    // Reset the moved-from object
-                other.data = nullptr; // Reset the moved-from object
+                other.nb_dims = 0; // Reset the moved-from object
             }
             return *this;
         }
@@ -706,6 +1012,8 @@ namespace arm_cmsis_stream
         ~cg_value()
         {
         }
+
+        explicit operator bool() const noexcept { return !std::holds_alternative<std::monostate>(value); }
 
         cg_value(const cg_value &other) noexcept
         {
@@ -1302,6 +1610,18 @@ namespace arm_cmsis_stream
         };
     };
 
+    /* Exchange messages with another process */
+    class IPC
+    {
+    public:
+        virtual ~IPC() {};
+
+        virtual void send_message(int dstPort, Event &&evt) = 0;
+        virtual Event receive_message() = 0;
+
+        inline static IPC *(*mk_new_ipc)(NativeHandle) = nullptr;
+    };
+
     /* CMSIS Stream Node : event and streaming inherit from this class */
     class StreamNode
     {
@@ -1311,9 +1631,9 @@ namespace arm_cmsis_stream
         StreamNode() {};
 
         virtual void processEvent(int dstPort, Event &&evt) {};
-        virtual bool needsAsynchronousInit() const {return false;};
-        virtual void subscribe(int outputPort,StreamNode &dst,int dstPort){};
-
+        virtual bool needsAsynchronousInit() const { return false; };
+        virtual void subscribe(int outputPort, StreamNode &dst, int dstPort) {};
+        virtual cg_status init() {return CG_SUCCESS;};
 
         /*
         Nodes are fixed and not made to be copied or moved.

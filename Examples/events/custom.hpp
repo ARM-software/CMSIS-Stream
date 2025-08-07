@@ -29,8 +29,6 @@
 // (enabled, multi-threaded, etc.)
 #include "config_events.h"
 
-#if defined(CG_EVENTS)
-
 #if defined(CG_EVENTS_MULTI_THREAD)
 #define CG_MUTEX std::shared_mutex
 #define CG_INIT_MUTEX(MUTEX)
@@ -72,8 +70,6 @@
     arm_cmsis_stream::EventQueue::cg_eventQueue->clear(); \
   }
 #endif
-
-#endif // CG_EVENTS
 
 #include <mutex>
 #include <shared_mutex>

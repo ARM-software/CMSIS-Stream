@@ -91,7 +91,6 @@ namespace arm_cmsis_stream
         void sendEventToAllNodes(Event &&evt, 
                                  bool async = false)
         {
-#if defined(CG_EVENTS)
             if ((evt.event_id == kNoEvent) || (cg_eventQueue == nullptr))
             {
                 return; // No event to send
@@ -130,7 +129,6 @@ namespace arm_cmsis_stream
                     }
                 }
           }
-#endif
         };
 
     public:

@@ -23,6 +23,7 @@ def mkGraph(event_only=False):
         processing=ProcessingNode("processing",floatType,7,7)
         sink=Sink("sink",floatType,5)
         evtsink=EvtSink("evtsink")
+
         the_graph.connect(src.o,processing.i)
         the_graph.connect(processing.o,sink.i)
         the_graph.connect(src[0],sink[0])

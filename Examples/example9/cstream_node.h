@@ -26,6 +26,8 @@
 #ifndef C_STREAM_NODE_H
 #define C_STREAM_NODE_H
 
+#include "cg_enums.h"
+
 #ifdef   __cplusplus
 extern "C"
 {
@@ -38,7 +40,7 @@ struct StreamNodeInterface
     int (*nodeID)(const void *self);
     int (*needsAsynchronousInit)(const void *self);
     void (*subscribe)(void *self,int outputPort,CStreamNode *dst,int dstPort);
-
+    cg_status (*init)(void *self);
 };
 
 struct CStreamNode

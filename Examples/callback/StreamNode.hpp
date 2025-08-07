@@ -1,6 +1,6 @@
 /* ----------------------------------------------------------------------
  * Project:      CMSIS Stream Library
- * Title:        StreamNode.h
+ * Title:        StreamNode.hpp
  * Description:  Main classes and templates for CMSIS-Stream nodes.
  *               All nodes must inherit from StreamNode.
  *               Dataflow nodes must inherit from NodeBase.
@@ -8,7 +8,7 @@
  * Target Processor: Cortex-M and Cortex-A cores
  * --------------------------------------------------------------------
  *
- * Copyright (C) 2021-2025 ARM Limited or its affiliates. All rights reserved.
+ * Copyright (C) 2023-2025 ARM Limited or its affiliates. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -40,31 +40,29 @@
 
 #define CG_TENSOR_NB_DIMS 8
 
+// Used for ListValue
 #ifndef CG_MK_LIST_EVENT_ALLOCATOR
-#define CG_MK_LIST_EVENT_ALLOCATOR(T) std::allocator<T>{}
+#define CG_MK_LIST_EVENT_ALLOCATOR(T) \
+    std::allocator<T> {}
 #endif
 
-#ifndef CG_PROTECTED_BUF_ALLOCATOR_TYPE
-#define CG_PROTECTED_BUF_ALLOCATOR_TYPE(T) std::allocator<T>
-#endif
-
+// Used for RawBuffer and Tensors
 #ifndef CG_MK_PROTECTED_BUF_ALLOCATOR
-#define CG_MK_PROTECTED_BUF_ALLOCATOR(T) std::allocator<T>{}
+#define CG_MK_PROTECTED_BUF_ALLOCATOR(T) \
+    std::allocator<T> {}
 #endif
 
-// We create a compilation error is used and not defined
-// the compilation error will occur only when built with
-// CG_EVENTS_MULTI_THREAD
+// Used for mutexes used to protect access to the buffers
+// since they are allocated in a shared_ptr
+#ifndef CG_MK_PROTECTED_MUTEX_ALLOCATOR
+#define CG_MK_PROTECTED_MUTEX_ALLOCATOR(T) \
+    std::allocator<T> {}
+#endif
+
+// Used only when CG_EVENTS_MULTI_THREAD is ON
+// but a definition is needed to build
 #ifndef CG_MUTEX
-#define CG_MUTEX void
-#endif
-
-#ifndef CG_INIT_MUTEX
-#define CG_INIT_MUTEX(MUTEX)
-#endif
-
-#ifndef CG_MUTEX_DELETE
-#define CG_MUTEX_DELETE(MUTEX, ERROR)
+#define CG_MUTEX int
 #endif
 
 #ifndef CG_MUTEX_ERROR_TYPE
@@ -96,8 +94,7 @@
 #define CG_MAX_VALUES 8
 #endif
 
-/* Node ID is -1 when nodes are not identified for the external
-world */
+/* Node ID is -1 when nodes are not identified for the external world */
 #define CG_UNIDENTIFIED_NODE (-1)
 
 namespace arm_cmsis_stream
@@ -109,6 +106,299 @@ namespace arm_cmsis_stream
         {
             Fn(static_cast<T *>(p));
         }
+    };
+
+    class Descriptor;
+
+    using NativeHandle =
+#ifdef _WIN32
+        void *;
+#else
+        int;
+#endif
+
+    class MemServer
+    {
+    public:
+        virtual ~MemServer() = default;
+        inline static MemServer *mem_server = nullptr;
+
+        // Write locks
+        // Changes to refcount are blocked while a write lock
+        // is held
+        virtual int lock(int32_t offset) const = 0;
+        virtual int unlock(int32_t offset) const = 0;
+
+        // Read locks
+        virtual int read_lock(int32_t offset) const = 0;
+        virtual int read_unlock(int32_t offset) const = 0;
+
+        // Acquire the buffer
+        virtual int acquire(int32_t offset) const = 0;
+        // Release the buffer when no more needed by a process
+        virtual int release(int32_t offset) const = 0;
+
+        // This function is not locking
+        // If you want to prevent the refcount change,
+        // you should use the ipc_lock that locks the full table
+        virtual int32_t refcount(int32_t offset) const = 0;
+
+        // Buffer has refcount 1 after creation
+        virtual Descriptor *new_buffer(size_t size) const = 0;
+        // Get buffer increases the refcount by 1.
+        virtual Descriptor *get_buffer(int32_t global_id) const = 0;
+        // The buffer has refcount 1 after registration.
+        virtual Descriptor *register_buffer(size_t size, NativeHandle fd) const = 0;
+    };
+
+    /*
+
+    It is used directly in cg_pack.hpp  and
+    in code transmitting a file descriptor on a socket.
+    Any other use should go through the SharedBuffer API only
+    SharedBuffer is the unique owner of a Descriptor in the application.
+    */
+    class Descriptor
+    {
+    public:
+        virtual ~Descriptor() {};
+
+        Descriptor() = delete;
+
+        inline static Descriptor *(*mk_new_descriptor)(NativeHandle, size_t, int32_t) = nullptr;
+
+        virtual void mapDescriptor() = 0;
+
+        virtual NativeHandle fd() const noexcept = 0;
+
+        // Check if descriptor is valid
+        // but not if it is mapped
+        virtual explicit operator bool() const noexcept = 0;
+
+        size_t bytes() const noexcept
+        {
+            return size_;
+        }
+
+        void *data() noexcept
+        {
+            return data_;
+        }
+
+        const void *data() const noexcept
+        {
+            return data_;
+        }
+
+        void *operator->() { return data_; }
+
+        // Use to lock access to corresponding mapped buffer
+        // using the mem server
+        int lock() const
+        {
+            if (MemServer::mem_server != nullptr)
+            {
+                return -1; // Error: IPCLock not used
+            }
+            if (global_id_ == -1)
+            {
+                fprintf(stderr, "Global id not set.\n");
+                return -1; // Error: Lock offset not set
+            }
+            return MemServer::mem_server->lock(global_id_);
+        }
+
+        int read_lock() const
+        {
+            if (MemServer::mem_server != nullptr)
+            {
+                return -1; // Error: IPCLock not used
+            }
+            if (global_id_ == -1)
+            {
+                fprintf(stderr, "Global id not set.\n");
+                return -1; // Error: Lock offset not set
+            }
+            return MemServer::mem_server->read_lock(global_id_);
+        }
+
+        int unlock() const
+        {
+            if (MemServer::mem_server != nullptr)
+            {
+                return -1; // Error: IPCLock not initialized or not used
+            }
+            if (global_id_ == -1)
+            {
+                fprintf(stderr, "Global id is not set.\n");
+                return -1; // Error: Lock offset not set
+            }
+            return MemServer::mem_server->unlock(global_id_);
+        }
+
+        int read_unlock() const
+        {
+            if (MemServer::mem_server != nullptr)
+            {
+                return -1; // Error: IPCLock not initialized or not used
+            }
+            if (global_id_ == -1)
+            {
+                fprintf(stderr, "Global id is not set.\n");
+                return -1; // Error: Lock offset not set
+            }
+            return MemServer::mem_server->read_unlock(global_id_);
+        }
+
+        int32_t refcount() const
+        {
+            if (MemServer::mem_server != nullptr)
+            {
+                return -1; // Error: IPCLock not initialized or not used
+            }
+            if (global_id_ == -1)
+            {
+                return -1; // Error: Lock offset not set
+            }
+            return MemServer::mem_server->refcount(global_id_);
+        }
+
+        int32_t global_id() const { return global_id_; }
+
+    protected:
+        Descriptor(size_t size, int32_t global_id) : data_(nullptr),
+                                                     size_(size),
+                                                     global_id_(global_id){};
+
+        
+        // When getting a shared lock, the API below returns a const
+        // but we may still want to map the buffer to read it.
+        mutable void *data_;
+        size_t size_;
+        int32_t global_id_;
+    };
+
+    // It should be the only owner of the Descriptor
+    // So copy constructor are disabled
+    template <typename T>
+    class SharedBuffer
+    {
+    public:
+        SharedBuffer(Descriptor *fd) : fd_(fd) {}
+
+        SharedBuffer(const SharedBuffer &other) = delete;
+        SharedBuffer(SharedBuffer &&other) noexcept
+            : fd_(std::move(other.fd_))
+        {
+            other.fd_ = nullptr;
+        }
+
+        SharedBuffer &operator=(const SharedBuffer &other) = delete;
+
+        SharedBuffer &operator=(SharedBuffer &&other) noexcept
+        {
+            if (this != &other)
+            {
+                fd_ = std::move(other.fd_);
+                other.fd_ = nullptr;
+            }
+            return *this;
+        }
+
+        ~SharedBuffer()
+        {
+            delete fd_;
+        }
+
+        bool operator==(std::nullptr_t) const noexcept { return fd_->data() == nullptr; }
+        bool operator!=(std::nullptr_t) const noexcept { return fd_->data() != nullptr; }
+
+        T *get() noexcept { return static_cast<T *>(fd_->data()); }
+        const T *get() const noexcept { return static_cast<const T *>(fd_->data()); }
+
+        template <typename R>
+        R *as() noexcept { return static_cast<R *>(fd_->data()); }
+
+        template <typename R>
+        const R *as() const noexcept { return static_cast<const R *>(fd_->data()); }
+
+        T &operator[](std::size_t i) { return (static_cast<T *>(fd_->data()))[i]; }
+
+        explicit operator bool() const noexcept { return fd_->data() != nullptr; }
+
+        size_t bytes() const noexcept { return fd_->bytes(); }
+
+        bool validFd() const noexcept
+        {
+            return ((fd_ != nullptr) && (*fd_));
+        }
+
+        const Descriptor *getDescriptor() const noexcept
+        {
+            return fd_;
+        }
+
+        Descriptor *getDescriptor() noexcept
+        {
+            return fd_;
+        }
+
+        int lock() const
+        {
+            int err = -1;
+            if (fd_)
+            {
+                err = fd_->lock();
+            }
+            return (err);
+        }
+
+        int read_lock() const
+        {
+            int err = -1;
+            if (fd_)
+            {
+                err = fd_->read_lock();
+            }
+            return (err);
+        }
+
+        int unlock() const
+        {
+            int err = -1;
+            if (fd_)
+            {
+                err = fd_->unlock();
+            }
+            return (err);
+        }
+
+        int read_unlock() const
+        {
+            int err = -1;
+            if (fd_)
+            {
+                err = fd_->read_unlock();
+            }
+            return (err);
+        }
+
+        void mapBuffer() const
+        {
+            fd_->mapDescriptor();
+        }
+
+        int32_t ipc_refcount() const
+        {
+            if (fd_)
+            {
+                return fd_->refcount();
+            }
+            return (-1);
+        }
+
+    protected:
+        Descriptor *fd_;
     };
 
     template <typename T>
@@ -189,7 +479,8 @@ namespace arm_cmsis_stream
             }
         }
 
-        T *get() const noexcept { return static_cast<T *>(ptr_); }
+        T *get() noexcept { return static_cast<T *>(ptr_); }
+        const T *get() const noexcept { return static_cast<const T *>(ptr_); }
 
         template <typename R>
         R *as() noexcept { return static_cast<R *>(ptr_); }
@@ -197,9 +488,7 @@ namespace arm_cmsis_stream
         template <typename R>
         const R *as() const noexcept { return static_cast<const R *>(ptr_); }
 
-        T *operator->() { return static_cast<T *>(ptr_); }
 
-        T &operator*() { return *(static_cast<T *>(ptr_)); }
 
         T &operator[](std::size_t i) { return (static_cast<T *>(ptr_))[i]; }
 
@@ -234,56 +523,48 @@ namespace arm_cmsis_stream
     {
     public:
         using value_type = T;
-        using allocator_type = CG_PROTECTED_BUF_ALLOCATOR_TYPE(T);
 
     private:
-        struct ControlBlock
-        {
-            T object;
-#if defined(CG_EVENTS_MULTI_THREAD)
-            mutable CG_MUTEX mutex;
-#endif
-            template <typename... Args>
-            ControlBlock(Args &&...args) : object{std::forward<Args>(args)...}
-            {
-                CG_INIT_MUTEX(mutex);
-            }
-
-            ~ControlBlock()
-            {
-                CG_MUTEX_ERROR_TYPE error;
-                CG_MUTEX_DELETE(mutex, error);
-            }
-        };
-
-        using BlockAllocator = typename std::allocator_traits<allocator_type>::template rebind_alloc<ControlBlock>;
-        std::shared_ptr<ControlBlock> control;
+        std::shared_ptr<T> obj;
+        std::shared_ptr<CG_MUTEX> mutex;
 
     public:
         // Create with custom allocator and arguments for T
         template <typename... Args>
         static ProtectedBuffer create_with(Args &&...args)
         {
-            BlockAllocator block_alloc(CG_MK_PROTECTED_BUF_ALLOCATOR(T));
-            auto ptr = std::allocate_shared<typename ControlBlock>(block_alloc, std::forward<Args>(args)...);
-            return ProtectedBuffer(ptr);
+            auto mtx = std::allocate_shared<CG_MUTEX>(CG_MK_PROTECTED_MUTEX_ALLOCATOR(CG_MUTEX));
+            // If mutex is nullptr then the object is also nullptr
+            // But we can have a mutex and obj is nullptr
+            if (mtx)
+            {
+                auto ptr = std::allocate_shared<T>(CG_MK_PROTECTED_BUF_ALLOCATOR(T), std::forward<Args>(args)...);
+                return ProtectedBuffer(ptr, mtx);
+            }
+            else
+            {
+                return ProtectedBuffer{};
+            }
         }
 
         // Exclusive (write) access
         template <typename Func>
-        auto lock(Func &&f) -> decltype(f(CG_MUTEX_ERROR_TYPE(), std::declval<T &>()))
+        auto lock(Func &&f) -> decltype(f(CG_MUTEX_ERROR_TYPE(), false, std::declval<T &>()))
         {
-            using R = decltype(f(CG_MUTEX_ERROR_TYPE(), std::declval<T &>()));
+            using R = decltype(f(CG_MUTEX_ERROR_TYPE(), false, std::declval<T &>()));
             if constexpr (std::is_void_v<R>)
             {
-                CG_MUTEX_ERROR_TYPE error;
-                CG_ENTER_CRITICAL_SECTION(control->mutex, error);
-
-                f(error, control->object);
-
-                if (!CG_MUTEX_HAS_ERROR(error))
+                if (mutex)
                 {
-                    CG_EXIT_CRITICAL_SECTION(control->mutex, error);
+                    CG_MUTEX_ERROR_TYPE error;
+                    CG_ENTER_CRITICAL_SECTION(*mutex, error);
+                    if (obj)
+                    {
+                        bool isShared = obj.use_count() > 1;
+                        f(error, isShared, *obj);
+                    }
+
+                    CG_EXIT_CRITICAL_SECTION(*mutex, error);
                 }
 
                 return;
@@ -291,14 +572,17 @@ namespace arm_cmsis_stream
             else
             {
                 R r{};
-                CG_MUTEX_ERROR_TYPE error;
-                CG_ENTER_CRITICAL_SECTION(control->mutex, error);
-
-                r = f(error, control->object);
-
-                if (!CG_MUTEX_HAS_ERROR(error))
+                if (mutex)
                 {
-                    CG_EXIT_CRITICAL_SECTION(control->mutex, error);
+                    CG_MUTEX_ERROR_TYPE error;
+                    CG_ENTER_CRITICAL_SECTION(*mutex, error);
+                    if (obj)
+                    {
+                        bool isShared = obj.use_count() > 1;
+                        r = f(error, isShared, *obj);
+                    }
+
+                    CG_EXIT_CRITICAL_SECTION(*mutex, error);
                 }
                 return r;
             }
@@ -311,42 +595,248 @@ namespace arm_cmsis_stream
             using R = decltype(f(CG_MUTEX_ERROR_TYPE(), std::declval<const T &>()));
             if constexpr (std::is_void_v<R>)
             {
-                CG_MUTEX_ERROR_TYPE error;
-                CG_ENTER_READ_CRITICAL_SECTION(control->mutex, error);
-
-                f(error, control->object);
-
-                if (!CG_MUTEX_HAS_ERROR(error))
+                if (mutex)
                 {
-                    CG_EXIT_READ_CRITICAL_SECTION(control->mutex, error);
+                    CG_MUTEX_ERROR_TYPE error;
+                    CG_ENTER_READ_CRITICAL_SECTION(*mutex, error);
+
+                    if (obj)
+                    {
+                        f(error, *obj);
+                    }
+                    CG_EXIT_READ_CRITICAL_SECTION(*mutex, error);
                 }
+
                 return;
             }
             else
             {
                 R r{};
-                CG_MUTEX_ERROR_TYPE error;
-                CG_ENTER_READ_CRITICAL_SECTION(control->mutex, error);
-
-                r = f(error, control->object);
-
-                if (!CG_MUTEX_HAS_ERROR(error))
+                if (mutex)
                 {
-                    CG_EXIT_CRITICAL_SECTION(control->mutex, error);
+                    CG_MUTEX_ERROR_TYPE error;
+                    CG_ENTER_READ_CRITICAL_SECTION(*mutex, error);
+
+                    if (obj)
+                    {
+                        r = f(error, *obj);
+                    }
+
+                    CG_EXIT_CRITICAL_SECTION(*mutex, error);
                 }
+
                 return r;
             }
         }
 
         // Copyable and shareable
         ProtectedBuffer() = default;
-        ProtectedBuffer(const ProtectedBuffer &) = default;
-        ProtectedBuffer(ProtectedBuffer &&) noexcept = default;
-        ProtectedBuffer &operator=(const ProtectedBuffer &) = default;
-        ProtectedBuffer &operator=(ProtectedBuffer &&) noexcept = default;
+        ProtectedBuffer(const ProtectedBuffer &other)
+        {
+            bool wasCopied = false;
+            if (!other.mutex)
+            {
+                obj = nullptr;
+                mutex = nullptr;
+                return;
+            }
+
+            CG_MUTEX_ERROR_TYPE error;
+            CG_ENTER_CRITICAL_SECTION(*other.mutex, error);
+            if (!CG_MUTEX_HAS_ERROR(error))
+            {
+                wasCopied = true;
+                obj = other.obj;
+            }
+            CG_EXIT_CRITICAL_SECTION(*other.mutex, error);
+
+            if (!wasCopied)
+            {
+                mutex = nullptr;
+                obj = nullptr;
+            }
+            else
+            {
+                mutex = other.mutex;
+            }
+        };
+
+        ProtectedBuffer(ProtectedBuffer &&other) noexcept
+        {
+            bool wasMoved = false;
+            if (!other.mutex)
+            {
+                obj = nullptr;
+                mutex = nullptr;
+                return;
+            }
+
+            CG_MUTEX_ERROR_TYPE error;
+            CG_ENTER_CRITICAL_SECTION(*other.mutex, error);
+            if (!CG_MUTEX_HAS_ERROR(error))
+            {
+                wasMoved = true;
+                obj = std::move(other.obj);
+            }
+            CG_EXIT_CRITICAL_SECTION(*other.mutex, error);
+
+            if (!wasMoved)
+            {
+                mutex = nullptr;
+                obj = nullptr;
+            }
+            else
+            {
+                mutex = std::move(other.mutex);
+            }
+        };
+        ProtectedBuffer &operator=(const ProtectedBuffer &other)
+        {
+            if (this != &other)
+            {
+                if ((mutex) && (other.mutex))
+                {
+                    bool wasCopied = false;
+                    CG_MUTEX_ERROR_TYPE error_src;
+                    CG_MUTEX_ERROR_TYPE error_dst;
+                    CG_ENTER_CRITICAL_SECTION(*other.mutex, error_src);
+                    CG_ENTER_CRITICAL_SECTION(*mutex, error_dst);
+
+                    if (!CG_MUTEX_HAS_ERROR(error_src) && !CG_MUTEX_HAS_ERROR(error_dst))
+                    {
+                        // If no error, copy the object
+                        wasCopied = true;
+                        obj = other.obj;
+                    }
+
+                    CG_EXIT_CRITICAL_SECTION(*mutex, error_dst);
+                    CG_EXIT_CRITICAL_SECTION(*other.mutex, error_src);
+                    if (wasCopied)
+                    {
+                        mutex = other.mutex; // Share the mutex
+                    }
+                }
+                else if ((mutex) && (!other.mutex))
+                {
+                    bool wasReset = false;
+                    CG_MUTEX_ERROR_TYPE error_dst;
+                    CG_ENTER_CRITICAL_SECTION(*mutex, error_dst);
+
+                    if (!CG_MUTEX_HAS_ERROR(error_dst))
+                    {
+                        // If no error, reset the object
+                        wasReset = true;
+                        obj = nullptr;
+                    }
+
+                    CG_EXIT_CRITICAL_SECTION(*mutex, error_dst);
+                    if (wasReset)
+                    {
+                        mutex = nullptr; // Reset the mutex if no error
+                    }
+                }
+                else if ((!mutex) && (other.mutex))
+                {
+                    bool wasCopied = false;
+                    CG_MUTEX_ERROR_TYPE error_src;
+                    CG_ENTER_CRITICAL_SECTION(*other.mutex, error_src);
+
+                    if (!CG_MUTEX_HAS_ERROR(error_src))
+                    {
+                        // If no error, copy the object
+                        wasCopied = true;
+                        obj = other.obj;
+                    }
+
+                    CG_EXIT_CRITICAL_SECTION(*other.mutex, error_src);
+                    if (wasCopied)
+                    {
+                        mutex = other.mutex; // Share the mutex
+                    }
+                }
+                else
+                {
+                    obj = nullptr;
+                    mutex = nullptr;
+                }
+            }
+            return *this;
+        };
+        ProtectedBuffer &operator=(ProtectedBuffer &&other) noexcept
+        {
+            if (this != &other)
+            {
+                if ((mutex) && (other.mutex))
+                {
+                    bool wasMoved = false;
+                    CG_MUTEX_ERROR_TYPE error_src;
+                    CG_MUTEX_ERROR_TYPE error_dst;
+                    CG_ENTER_CRITICAL_SECTION(*other.mutex, error_src);
+                    CG_ENTER_CRITICAL_SECTION(*mutex, error_dst);
+
+                    if (!CG_MUTEX_HAS_ERROR(error_src) && !CG_MUTEX_HAS_ERROR(error_dst))
+                    {
+                        // If no error, copy the object
+                        wasMoved = true;
+                        obj = std::move(other.obj);
+                    }
+
+                    CG_EXIT_CRITICAL_SECTION(*mutex, error_dst);
+                    CG_EXIT_CRITICAL_SECTION(*other.mutex, error_src);
+                    if (wasMoved)
+                    {
+                        mutex = std::move(other.mutex); // Share the mutex
+                    }
+                }
+                else if ((mutex) && (!other.mutex))
+                {
+                    bool wasReset = false;
+                    CG_MUTEX_ERROR_TYPE error_dst;
+                    CG_ENTER_CRITICAL_SECTION(*mutex, error_dst);
+
+                    if (!CG_MUTEX_HAS_ERROR(error_dst))
+                    {
+                        // If no error, copy the object
+                        wasReset = true;
+                        obj = nullptr;
+                    }
+
+                    CG_EXIT_CRITICAL_SECTION(*mutex, error_dst);
+                    if (wasReset)
+                    {
+                        mutex = nullptr; // Reset the mutex if no error
+                    }
+                }
+                else if ((!mutex) && (other.mutex))
+                {
+                    bool wasMoved = false;
+                    CG_MUTEX_ERROR_TYPE error_src;
+                    CG_ENTER_CRITICAL_SECTION(*other.mutex, error_src);
+
+                    if (!CG_MUTEX_HAS_ERROR(error_src))
+                    {
+                        // If no error, copy the object
+                        wasMoved = true;
+                        obj = std::move(other.obj);
+                    }
+
+                    CG_EXIT_CRITICAL_SECTION(*other.mutex, error_src);
+                    if (wasMoved)
+                    {
+                        mutex = std::move(other.mutex); // Share the mutex
+                    }
+                }
+                else
+                {
+                    obj = nullptr;
+                    mutex = nullptr;
+                }
+            }
+            return *this;
+        };
 
     private:
-        explicit ProtectedBuffer(std::shared_ptr<ControlBlock> c) : control(std::move(c)) {}
+        explicit ProtectedBuffer(std::shared_ptr<T> c, std::shared_ptr<CG_MUTEX> mtx) : obj(std::move(c)), mutex(std::move(mtx)) {}
     };
 
     /* Made to be used from a ProtectedBuffer and contained in a
@@ -354,20 +844,32 @@ namespace arm_cmsis_stream
     struct RawBuffer
     {
         uint32_t buf_size;
-        UniquePtr<std::byte> data;
+        std::variant<UniquePtr<std::byte>, SharedBuffer<std::byte>> data;
 
-        explicit RawBuffer(uint32_t size, UniquePtr<std::byte> &&buf_data) noexcept : buf_size(size), data(std::move(buf_data))
+        explicit RawBuffer(uint32_t size, UniquePtr<std::byte> &&buf_data) noexcept : buf_size(size)
         {
-            if (data == nullptr)
+            if (buf_data == nullptr)
             {
                 buf_size = 0; // Reset size if data is null
             }
+            data = std::move(buf_data);
         }
+
+        explicit RawBuffer(SharedBuffer<std::byte> &&buf_data) noexcept
+        {
+            // We don't test for nullptr since the
+            // buffer may not be mapped
+            // The descriptor inside sharedbuffer is tracking
+            // the size of the buffer
+            buf_size = buf_data.bytes();
+
+            data = std::move(buf_data);
+        }
+
         RawBuffer(const RawBuffer &other) = delete;
         RawBuffer(RawBuffer &&other) noexcept : buf_size(other.buf_size), data(std::move(other.data))
         {
-            other.buf_size = 0;   // Reset the moved-from object
-            other.data = nullptr; // Reset the moved-from object
+            other.buf_size = 0; // Reset the moved-from object
         }
         RawBuffer &operator=(const RawBuffer &other) = delete;
 
@@ -377,8 +879,7 @@ namespace arm_cmsis_stream
             {
                 buf_size = other.buf_size;
                 data = std::move(other.data);
-                other.buf_size = 0;   // Reset the moved-from object
-                other.data = nullptr; // Reset the moved-from object
+                other.buf_size = 0; // Reset the moved-from object
             }
             return *this;
         }
@@ -393,17 +894,31 @@ namespace arm_cmsis_stream
         // rows, columns etc ..
         cg_tensor_dims_t dims;
         // Data is columns then row etc ...
-        UniquePtr<T> data;
+        std::variant<UniquePtr<T>, SharedBuffer<T>> data;
 
         explicit Tensor(uint8_t dimensions,
                         const cg_tensor_dims_t &dimensions_array,
-                        UniquePtr<T> tensor_data) noexcept
-            : nb_dims(dimensions), dims(dimensions_array), data(std::move(tensor_data))
+                        UniquePtr<T> &&tensor_data) noexcept
+            : nb_dims(dimensions), dims(dimensions_array)
         {
-            if (data == nullptr)
+            if (tensor_data == nullptr)
             {
                 nb_dims = 0; // Reset dimensions if data is null or size is zero
             }
+            data = std::move(tensor_data);
+        }
+
+        explicit Tensor(uint8_t dimensions,
+                        const cg_tensor_dims_t &dimensions_array,
+                        SharedBuffer<T> &&tensor_data) noexcept
+            : nb_dims(dimensions), dims(dimensions_array)
+        {
+            if (tensor_data == nullptr)
+            {
+                nb_dims = 0; // Reset dimensions if data is null or size is zero
+            }
+
+            data = std::move(tensor_data);
         }
 
         Tensor(const Tensor &other) = delete;
@@ -411,8 +926,7 @@ namespace arm_cmsis_stream
         Tensor(Tensor &&other) noexcept
             : nb_dims(other.nb_dims), dims(other.dims), data(std::move(other.data))
         {
-            other.nb_dims = 0;    // Reset the moved-from object
-            other.data = nullptr; // Reset the moved-from object
+            other.nb_dims = 0; // Reset the moved-from object
         }
 
         Tensor &operator=(const Tensor &other) = delete;
@@ -423,8 +937,7 @@ namespace arm_cmsis_stream
                 nb_dims = other.nb_dims;
                 dims = other.dims;
                 data = std::move(other.data);
-                other.nb_dims = 0;    // Reset the moved-from object
-                other.data = nullptr; // Reset the moved-from object
+                other.nb_dims = 0; // Reset the moved-from object
             }
             return *this;
         }
@@ -499,6 +1012,8 @@ namespace arm_cmsis_stream
         ~cg_value()
         {
         }
+
+        explicit operator bool() const noexcept { return !std::holds_alternative<std::monostate>(value); }
 
         cg_value(const cg_value &other) noexcept
         {
@@ -835,9 +1350,6 @@ namespace arm_cmsis_stream
     class Event
     {
     protected:
-
-        
-
         void setPriority(enum cg_event_priority evtPriority) noexcept
         {
             switch (evtPriority)
@@ -1098,6 +1610,18 @@ namespace arm_cmsis_stream
         };
     };
 
+    /* Exchange messages with another process */
+    class IPC
+    {
+    public:
+        virtual ~IPC() {};
+
+        virtual void send_message(int dstPort, Event &&evt) = 0;
+        virtual Event receive_message() = 0;
+
+        inline static IPC *(*mk_new_ipc)(NativeHandle) = nullptr;
+    };
+
     /* CMSIS Stream Node : event and streaming inherit from this class */
     class StreamNode
     {
@@ -1106,7 +1630,10 @@ namespace arm_cmsis_stream
 
         StreamNode() {};
 
-        virtual void processEvent(int dstPort, const Event &evt) {};
+        virtual void processEvent(int dstPort, Event &&evt) {};
+        virtual bool needsAsynchronousInit() const { return false; };
+        virtual void subscribe(int outputPort, StreamNode &dst, int dstPort) {};
+        virtual cg_status init() {return CG_SUCCESS;};
 
         /*
         Nodes are fixed and not made to be copied or moved.

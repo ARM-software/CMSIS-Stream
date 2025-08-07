@@ -7,7 +7,7 @@
  * Target Processor: Cortex-M and Cortex-A cores
  * --------------------------------------------------------------------
  *
- * Copyright (C) 2021-2025 ARM Limited or its affiliates. All rights reserved.
+ * Copyright (C) 2023-2025 ARM Limited or its affiliates. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -54,6 +54,7 @@ extern "C"
         CG_PAUSED_SCHEDULER = -9           /**< Pause scheduler in callback mode */
     } cg_status;
 
+    // genJsonSelectors must be updated in description.py for any new default selector
     enum cg_standard_event
     {
         kNoEvent = 0,
@@ -64,6 +65,12 @@ extern "C"
         kValue = 6,
         kStopGraph = 7,
         kDebug = 8,
+        kStartNodeInitialization = 9,     
+        kNodeWasInitialized = 10,    
+        kNodeWillBeDestroyed = 11,
+        kNodeReadyToBeDestroyed = 12, 
+        kError = 13,
+        kLongRun = 14,     
         // Node selectors are starting at 100
         kSelector = 100
     };

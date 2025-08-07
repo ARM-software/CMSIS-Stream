@@ -45,10 +45,8 @@ bool MyQueue::push(arm_cmsis_stream::Message &&event)
     CG_EXIT_CRITICAL_SECTION(queue_mutex, err);
     if (res)
     {
-#if defined(CG_EVENTS) && defined(CG_EVENTS_MULTI_THREAD)
         if (cg_eventThread)
             cg_eventThread->wakeup(); // Notify the thread to process the queue
-#endif
     }
     return res;
     // std::cout << "Event pushed to queue: " << event.event.event_id << std::endl;

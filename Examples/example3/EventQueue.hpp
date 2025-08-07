@@ -35,6 +35,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <atomic>
 
 #include "StreamNode.hpp"
 
@@ -58,12 +59,11 @@ namespace arm_cmsis_stream
     public:
         using AppHandler = bool (*)(void *data, Event &&evt);
 
-#if defined(CG_EVENTS)
         /* There is a global event queue for all the graphs that may be
            contained in the application
         */
         inline static EventQueue *cg_eventQueue = nullptr;
-#endif
+
         EventQueue() {};
         virtual ~EventQueue() {};
 
@@ -78,14 +78,32 @@ namespace arm_cmsis_stream
         // this should sleep when no more any event are available
         virtual void execute() = 0;
 
+        bool mustEnd() const noexcept
+        {
+            return (mustEnd_);
+        };
+
+        void end() noexcept
+        {
+            mustEnd_ = true;
+        };
+
         // Set an application handler.
-        // Events sent to a null node are sent to the application
+        // Events sent to a null node are sent to the application handler.
         // data is any additional data needed by the handler.
         bool callHandler(arm_cmsis_stream::Event &&evt)
         {
-            if (this->handler)
+            if (mustEnd_)
             {
-                return (this->handler(this->handlerData, std::move(evt)));
+                return false; // Do not call the handler if we are ending
+            }
+            if (handlerReady_)
+            {
+                if (this->handler)
+                {
+                    return (this->handler(this->handlerData, std::move(evt)));
+                }
+                return false;
             }
             return false;
         };
@@ -94,11 +112,14 @@ namespace arm_cmsis_stream
         {
             handlerData = data;
             this->handler = handler;
+            handlerReady_ = true;
         };
 
     protected:
         void *handlerData = nullptr;
         AppHandler handler = nullptr;
+        std::atomic<bool> mustEnd_ = false;
+        std::atomic<bool> handlerReady_ = false;
     };
 
     class EventOutput
@@ -113,8 +134,12 @@ namespace arm_cmsis_stream
         bool sendEventToAllNodes(Event &&evt,
                                  EventMode mode = kSync)
         {
-#if defined(CG_EVENTS)
-            if ((evt.event_id == kNoEvent) || (EventQueue::cg_eventQueue == nullptr))
+            if ((mode == kAsync) && ((EventQueue::cg_eventQueue == nullptr) || EventQueue::cg_eventQueue->mustEnd()))
+            {
+                return false; 
+            }
+
+            if (evt.event_id == kNoEvent) 
             {
                 return true; // No event to send
             }
@@ -139,9 +164,6 @@ namespace arm_cmsis_stream
             }
 
             return true; // Event sent successfully
-#else
-            return false;
-#endif
         };
 
     public:
@@ -164,6 +186,12 @@ namespace arm_cmsis_stream
                        Args &&...args)
         {
             return sendCombinedValue(priority, kAsync, selector, std::forward<Args>(args)...);
+        }
+
+        template <typename... Args>
+        bool sendAsync(Event &&evt)
+        {
+            return sendEventToAllNodes(std::move(evt), kAsync);
         }
 
         template <typename... Args>
@@ -201,16 +229,15 @@ namespace arm_cmsis_stream
                               uint32_t selector,
                               Args &&...args)
         {
-            // When more than one value
-            // we create a combined event
-#if defined(CG_EVENTS)
-            if (!EventQueue::cg_eventQueue)
-                return false;
+            
+            if ((mode == kAsync) && ((EventQueue::cg_eventQueue == nullptr) || EventQueue::cg_eventQueue->mustEnd()))
+            {
+                return false; 
+            }
 
             Event evt(selector, priority, std::forward<Args>(args)...);
             if (mode == kAsync)
             {
-
                 Message msg = {nullptr, 0, std::move(evt)};
                 if (!EventQueue::cg_eventQueue->push(std::move(msg)))
                 {
@@ -224,9 +251,6 @@ namespace arm_cmsis_stream
 
                 return EventQueue::cg_eventQueue->callHandler(std::move(evt));
             }
-#else
-            return false; // No event queue available
-#endif
         };
 
         std::vector<std::pair<StreamNode *, int>> mNodes;

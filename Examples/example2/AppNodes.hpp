@@ -64,7 +64,7 @@ public:
 };
 
 template<typename OUT,int outputSize>
-class StereoSource: GenericSource<OUT,outputSize>
+class StereoSource: public GenericSource<OUT,outputSize>
 {
 public:
     StereoSource(FIFOBase<OUT> &dst):GenericSource<OUT,outputSize>(dst),mCounter(0){};

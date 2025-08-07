@@ -15,6 +15,10 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 2.1.0:
+* Added interprocess communication and buffer sharing API
+* See documentation about IPC
+
 ## Version 2.0.0:
 * The header files have been restructured and new header files are required to build a CMSIS-Stream client (they can be generated from the Python script)
 * New event system : nodes can send / receive events in addition to processing data flow. Events are like remote procedure calls.

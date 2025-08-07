@@ -1,13 +1,13 @@
 /* ----------------------------------------------------------------------
  * Project:      CMSIS Stream Library
- * Title:        GenericNodes.h
+ * Title:        GenericNodes.hpp
  * Description:  C++ support templates for the CMSIS-Stream data flow nodes
  *
  *
  * Target Processor: Cortex-M and Cortex-A cores
  * --------------------------------------------------------------------
  *
- * Copyright (C) 2021-2025 ARM Limited or its affiliates. All rights reserved.
+ * Copyright (C) 2023-2025 ARM Limited or its affiliates. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *

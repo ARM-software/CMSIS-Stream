@@ -54,6 +54,7 @@ extern "C"
         CG_PAUSED_SCHEDULER = -9           /**< Pause scheduler in callback mode */
     } cg_status;
 
+    // genJsonSelectors must be updated in description.py for any new default selector
     enum cg_standard_event
     {
         kNoEvent = 0,
@@ -67,7 +68,9 @@ extern "C"
         kStartNodeInitialization = 9,     
         kNodeWasInitialized = 10,    
         kNodeWillBeDestroyed = 11,
-        kNodeReadyToBeDestroyed = 12,      
+        kNodeReadyToBeDestroyed = 12, 
+        kError = 13,
+        kLongRun = 14,     
         // Node selectors are starting at 100
         kSelector = 100
     };

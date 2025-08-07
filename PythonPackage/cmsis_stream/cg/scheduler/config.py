@@ -270,6 +270,7 @@ def generateGenericNodes(folder,display_message=True):
     _copy_file(folder,env,"EventQueue.hpp","EventQueue.hpp",display_message=display_message)
     _copy_file(folder,env,"cg_enums.h","cg_enums.h",display_message=display_message)
     _copy_file(folder,env,"cg_pack.hpp","cg_pack.hpp",display_message=display_message)
+    _copy_file(folder,env,"EventDisplay.hpp","EventDisplay.hpp",display_message=display_message)
 
 def generateEventSystemExample(folder,display_message=True):
     """Generate the headers file required to implement the event system"""

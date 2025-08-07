@@ -1,5 +1,5 @@
 build:
-  generated-by: csolution version 2.8.0
+  generated-by: csolution version 2.10.0
   solution: example_ac6.csolution.yml
   project: eventrecorder.cproject.yml
   context: eventrecorder.CommandLine+VHT-Corstone-300
@@ -16,7 +16,7 @@ build:
     - name: ${CMSIS_PACK_ROOT}/ARM/V2M_MPS3_SSE_300_BSP/1.3.0/Documents/DAI0552C_SSE300_with_M55_and_U55_FPGA_for_mps3.pdf
       title: "Arm® Corstone™ SSE-300 with Cortex®-M55 and Ethos™-U55: Example Subsystem for MPS3 - Application Note AN552"
   dbgconf:
-    - file: RTE/Device/SSE-300-MPS3/CM55.dbgconf
+    - file: .cmsis/example_ac6+VHT-Corstone-300.dbgconf
       version: 0.0.0
       status: missing file
   processor:

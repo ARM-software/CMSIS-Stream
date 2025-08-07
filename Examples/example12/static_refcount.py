@@ -60,6 +60,7 @@ try_remove("posix_thread.hpp")
 try_remove("cstream_node.h")
 try_remove("IdentifiedNode.hpp")
 try_remove("cg_pack.hpp")
+try_remove("EventDisplay.hpp")
 
 try_remove("StreamNode.h")
 try_remove("GenericNodes.h")

@@ -184,14 +184,52 @@ uint32_t scheduler(int *error)
     /* 
     Create node objects
     */
+   cgStaticError = CG_SUCCESS;
     OverlapAdd<float32_t,256,128> audioOverlap(fifo6,fifo7); /* Node ID = 1 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = audioOverlap.init();
+    }
     SlidingBuffer<float32_t,256,128> audioWin(fifo0,fifo1); /* Node ID = 2 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = audioWin.init();
+    }
     CFFT<float32_t,512,float32_t,512> cfft(fifo3,fifo4); /* Node ID = 3 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = cfft.init();
+    }
     ICFFT<float32_t,512,float32_t,512> icfft(fifo4,fifo5); /* Node ID = 4 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = icfft.init();
+    }
     FileSink<float,192> sink(fifo7,"output_example3.txt"); /* Node ID = 5 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = sink.init();
+    }
     FileSource<float,192> src(fifo0,"input_example3.txt"); /* Node ID = 6 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = src.init();
+    }
     ToComplex<float32_t,256,float32_t,512> toCmplx(fifo2,fifo3); /* Node ID = 7 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = toCmplx.init();
+    }
     ToReal<float32_t,512,float32_t,256> toReal(fifo5,fifo6); /* Node ID = 8 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = toReal.init();
+    }
+
+   if (cgStaticError != CG_SUCCESS)
+   {
+       goto errorHandling;
+   }
 
 /* Subscribe nodes for the event system*/
 

@@ -178,14 +178,52 @@ uint32_t static_scheduler(int *error)
     /* 
     Create node objects
     */
+   cgStaticError = CG_SUCCESS;
     BufferSource<Shared<buffer,false>,1> buf1(fifo4); /* Node ID = 0 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = buf1.init();
+    }
     BufferSource<Shared<buffer,false>,1> buf2(fifo0); /* Node ID = 1 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = buf2.init();
+    }
     BufferCopy<Shared<buffer,true>,1,Shared<buffer,false>,1> bufCopy(fifo6,fifo1); /* Node ID = 2 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = bufCopy.init();
+    }
     Duplicate<Shared<buffer,false>,1,Shared<buffer,true>,1> dup0(fifo4,{&fifo5,&fifo6}); /* Node ID = 3 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = dup0.init();
+    }
     InPlace<Shared<buffer,false>,1,Shared<buffer,false>,1> inplace(fifo1,fifo3); /* Node ID = 4 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = inplace.init();
+    }
     Processing<Shared<buffer,false>,1,Shared<buffer,true>,1,Shared<buffer,false>,1> processing(fifo0,fifo5,fifo2); /* Node ID = 5 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = processing.init();
+    }
     BufferSink<Shared<buffer,false>,1> sinkA(fifo2); /* Node ID = 6 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = sinkA.init();
+    }
     BufferSink<Shared<buffer,false>,1> sinkB(fifo3); /* Node ID = 7 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = sinkB.init();
+    }
+
+   if (cgStaticError != CG_SUCCESS)
+   {
+       goto errorHandling;
+   }
 
 /* Subscribe nodes for the event system*/
 

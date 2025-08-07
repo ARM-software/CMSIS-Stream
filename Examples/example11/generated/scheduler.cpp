@@ -229,18 +229,72 @@ uint32_t scheduler(int *error)
     /* 
     Create node objects
     */
+   cgStaticError = CG_SUCCESS;
     NullSink<int16_t,1> debug(fifo4); /* Node ID = 1 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = debug.init();
+    }
     NullSink<int16_t,1> debug0(fifo9); /* Node ID = 2 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = debug0.init();
+    }
     NullSink<int16_t,1> debug1(fifo10); /* Node ID = 3 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = debug1.init();
+    }
     NullSink<int16_t,1> debug2(fifo11); /* Node ID = 4 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = debug2.init();
+    }
     NullSink<int16_t,1> debug3(fifo12); /* Node ID = 5 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = debug3.init();
+    }
     Duplicate<int16_t,1,int16_t,1> dup0(fifo2,{&fifo3,&fifo4}); /* Node ID = 6 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = dup0.init();
+    }
     Duplicate<int16_t,1,int16_t,1> dup1(fifo5,{&fifo6,&fifo7,&fifo8,&fifo9,&fifo10,&fifo11,&fifo12}); /* Node ID = 7 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = dup1.init();
+    }
     ProcessingOddEven<int16_t,1,int16_t,1,int16_t,1,int16_t,1> proc(fifo3,fifo0,fifo6,fifo1); /* Node ID = 8 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = proc.init();
+    }
     SinkAsync<int16_t,1> sinka(fifo7); /* Node ID = 9 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = sinka.init();
+    }
     SinkAsync<int16_t,1> sinkb(fifo8); /* Node ID = 10 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = sinkb.init();
+    }
     SourceEven<int16_t,1> sourceEven(fifo0); /* Node ID = 11 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = sourceEven.init();
+    }
     SourceOdd<int16_t,1> sourceOdd(fifo2); /* Node ID = 12 */
+    if (cgStaticError == CG_SUCCESS)
+    {
+        cgStaticError = sourceOdd.init();
+    }
+
+   if (cgStaticError != CG_SUCCESS)
+   {
+       goto errorHandling;
+   }
 
 /* Subscribe nodes for the event system*/
 

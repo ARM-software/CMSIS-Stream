@@ -147,21 +147,34 @@ int init_simple()
     CG_BEFORE_FIFO_INIT;
 
     CG_BEFORE_NODE_INIT;
+    cg_status initError;
 
     nodes.sink = new (std::nothrow) EvtSink;
     if (nodes.sink==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-identifiedNodes[SINK_ID]=createStreamNode(*nodes.sink);
+    initError = nodes.sink->init();
+    if (initError != CG_SUCCESS)
+    {
+        return(initError);
+    }
+    identifiedNodes[SINK_ID]=createStreamNode(*nodes.sink);
     nodes.sink->setID(SINK_ID);
+
     nodes.source = new (std::nothrow) EvtSource;
     if (nodes.source==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-identifiedNodes[SOURCE_ID]=createStreamNode(*nodes.source);
+    initError = nodes.source->init();
+    if (initError != CG_SUCCESS)
+    {
+        return(initError);
+    }
+    identifiedNodes[SOURCE_ID]=createStreamNode(*nodes.source);
     nodes.source->setID(SOURCE_ID);
+
 
 /* Subscribe nodes for the event system*/
     nodes.source->subscribe(0,*nodes.sink,0);

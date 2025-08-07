@@ -63,7 +63,7 @@ template<typename OUT,int outputSize>
 class Source;
 
 template<int outputSize>
-class Source<complex,outputSize>: GenericSource<complex,outputSize>
+class Source<complex,outputSize>: public GenericSource<complex,outputSize>
 {
 public:
     Source(FIFOBase<complex> &dst):GenericSource<complex,outputSize>(dst),mCounter(0){};
