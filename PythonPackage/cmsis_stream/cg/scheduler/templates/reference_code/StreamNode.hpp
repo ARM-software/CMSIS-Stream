@@ -1413,6 +1413,8 @@ namespace arm_cmsis_stream
             data = cg_value();
         }
 
+        explicit operator bool() const noexcept { return event_id != kNoEvent; }
+
         Event(uint32_t id,
               std::shared_ptr<ListValue> cv,
               enum cg_event_priority evtPriority) noexcept : event_id(id)
@@ -1616,8 +1618,8 @@ namespace arm_cmsis_stream
     public:
         virtual ~IPC() {};
 
-        virtual void send_message(int dstPort, Event &&evt) = 0;
-        virtual Event receive_message() = 0;
+        virtual void send_message(int dstPortOrNodeId, Event &&evt) = 0;
+        virtual Event receive_message(uint32_t &nodeId) = 0;
 
         inline static IPC *(*mk_new_ipc)(NativeHandle) = nullptr;
     };
