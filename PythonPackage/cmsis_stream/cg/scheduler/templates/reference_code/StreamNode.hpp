@@ -861,7 +861,7 @@ namespace arm_cmsis_stream
             // buffer may not be mapped
             // The descriptor inside sharedbuffer is tracking
             // the size of the buffer
-            buf_size = buf_data.bytes();
+            buf_size = (uint32_t)buf_data.bytes();
 
             data = std::move(buf_data);
         }

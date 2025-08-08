@@ -80,12 +80,12 @@ namespace arm_cmsis_stream
 
         bool mustEnd() const noexcept
         {
-            return (mustEnd_);
+            return (mustEnd_.load());
         };
 
         void end() noexcept
         {
-            mustEnd_ = true;
+            mustEnd_.store(true);
         };
 
         // Set an application handler.

@@ -368,10 +368,12 @@ errorHandling:
 {% endif %}
 {% if schedLen == 0 %}
     *error=CG_SUCCESS;
+#if !defined(CG_EVENTS_MULTI_THREAD)
     while(1){
         // To have possibility to process the event queue
         CG_BEFORE_ITERATION;
     };
+#endif
     return(0);
 {% endif %}
 }
