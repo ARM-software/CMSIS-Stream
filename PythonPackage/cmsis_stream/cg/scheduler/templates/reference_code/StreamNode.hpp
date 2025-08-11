@@ -120,7 +120,7 @@ namespace arm_cmsis_stream
     class MemServer
     {
     public:
-        virtual ~MemServer() = default;
+        virtual ~MemServer() {};
         inline static MemServer *mem_server = nullptr;
 
         // Write locks
