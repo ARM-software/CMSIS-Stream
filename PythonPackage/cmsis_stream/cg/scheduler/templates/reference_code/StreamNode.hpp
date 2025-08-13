@@ -147,8 +147,19 @@ namespace arm_cmsis_stream
         virtual Descriptor *new_buffer(size_t size) const = 0;
         // Get buffer increases the refcount by 1.
         virtual Descriptor *get_buffer(int32_t global_id) const = 0;
-        // The buffer has refcount 1 after registration.
-        virtual Descriptor *register_buffer(size_t size, NativeHandle fd) const = 0;
+        // The descriptor use a copy of the descriptor fd
+        // The original descriptor could be used to recycle the
+        // buffer when it is no more used by any process.
+        // Buffer has refcount 1 after registering although
+        // two NativeHandle are tracking it on client side.
+        virtual Descriptor *register_buffer(size_t size, 
+                                            NativeHandle fd,
+                                            int32_t node_id,
+                                            int32_t local_id) const = 0;
+        // Acknowledge a notification received from the server
+        // the notification should contain
+        // node_id, local_id and global_id
+        virtual void ack_notification() const = 0;
     };
 
     /*

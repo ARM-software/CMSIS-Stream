@@ -74,8 +74,10 @@ namespace arm_cmsis_stream
         virtual bool isEmpty() = 0;
         virtual void clear() = 0;
 
+
         // In case of a threaded implementation
         // this should sleep when no more any event are available
+        // and wakeup when notified from push or end
         virtual void execute() = 0;
 
         bool mustEnd() const noexcept
@@ -83,7 +85,9 @@ namespace arm_cmsis_stream
             return (mustEnd_.load());
         };
 
-        void end() noexcept
+        // In case of multi-threaded implementation
+        // this should wakeup the thread
+        virtual void end() noexcept
         {
             mustEnd_.store(true);
         };
