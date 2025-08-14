@@ -235,17 +235,17 @@ int init_{{config.schedName}}({{optionalargs(True)}})
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    initError = nodes.{{node.nodeName}}->init();
-    if (initError != CG_SUCCESS)
-    {
-        return(initError);
-    }
 {% if config.nodeIdentification -%}
 {% if node.identified %}
     identifiedNodes[{{node.identificationName}}]={{config.cNodeStructCreation}}(*nodes.{{node.nodeName}});
     nodes.{{node.nodeName}}->setID({{node.identificationName}});
 {% endif %}
 {% endif %}
+    initError = nodes.{{node.nodeName}}->init();
+    if (initError != CG_SUCCESS)
+    {
+        return(initError);
+    }
 {% endif %}
 
 {% endfor %}

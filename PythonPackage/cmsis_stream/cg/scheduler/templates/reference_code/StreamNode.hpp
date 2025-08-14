@@ -354,7 +354,7 @@ namespace arm_cmsis_stream
             return fd_;
         }
 
-        int lock() const
+        int process_lock() const
         {
             int err = -1;
             if (fd_)
@@ -364,7 +364,7 @@ namespace arm_cmsis_stream
             return (err);
         }
 
-        int read_lock() const
+        int process_read_lock() const
         {
             int err = -1;
             if (fd_)
@@ -374,7 +374,7 @@ namespace arm_cmsis_stream
             return (err);
         }
 
-        int unlock() const
+        int process_unlock() const
         {
             int err = -1;
             if (fd_)
@@ -384,7 +384,7 @@ namespace arm_cmsis_stream
             return (err);
         }
 
-        int read_unlock() const
+        int process_read_unlock() const
         {
             int err = -1;
             if (fd_)
@@ -399,7 +399,7 @@ namespace arm_cmsis_stream
             fd_->mapDescriptor();
         }
 
-        int32_t ipc_refcount() const
+        int32_t process_refcount() const
         {
             if (fd_)
             {
