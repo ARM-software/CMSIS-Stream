@@ -128,7 +128,7 @@ public:
         {
             std::cout << "Sink value = " << value << std::endl;
         }
-        EventOutput::sendAsyncToApp(kNormalPriority,kDo,1.0f,2.0f);
+        EventOutput::sendAsyncToApp(this->nodeID(),kNormalPriority,kDo,1.0f,2.0f);
 
         std::cout << "Sink received direct event on port " << dstPort << ": evt id " 
                << evt.event_id << " val = " << eventCount << "  " << std::endl;
@@ -334,7 +334,7 @@ public:
     {
         eventCount++;
         
-        EventOutput::sendAsyncToApp(kNormalPriority,kDo,1.0f,2.0f);
+        EventOutput::sendAsyncToApp(this->nodeID(),kNormalPriority,kDo,1.0f,2.0f);
 
         // Display the event received from another node
         std::cout << "Sink received event on port " << dstPort << ": evt id " 

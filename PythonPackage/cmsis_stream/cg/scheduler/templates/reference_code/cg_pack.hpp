@@ -62,6 +62,14 @@ namespace arm_cmsis_stream
         kSharedBuffer = 1 // File descriptor to send
     };
 
+    /*
+    
+    Below implementations could be made more efficient if they were
+    integrating directly with the mechanism used to transmit / receive
+    on networks. Some copies could be avoided.
+    
+    */
+
     class Pack
     {
     public:

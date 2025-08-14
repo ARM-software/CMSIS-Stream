@@ -42,12 +42,24 @@
 namespace arm_cmsis_stream
 {
 
-    struct Message
+    /* Same computer */
+    struct LocalDestination
     {
         /* Destination node */
         StreamNode *dst;
         /* Destination port */
         int dstPort;
+    };
+
+    /* To network if supported by the application callback */
+    struct DistantDestination 
+    {
+        int32_t src_node_id;
+    };
+
+    struct Message
+    {
+        std::variant<LocalDestination, DistantDestination> destination;
         /* Event */
         Event event;
     };
@@ -57,7 +69,7 @@ namespace arm_cmsis_stream
     class EventQueue
     {
     public:
-        using AppHandler = bool (*)(void *data, Event &&evt);
+        using AppHandler = bool (*)(int src_node_id,void *data, Event &&evt);
 
         /* There is a global event queue for all the graphs that may be
            contained in the application
@@ -95,7 +107,7 @@ namespace arm_cmsis_stream
         // Set an application handler.
         // Events sent to a null node are sent to the application handler.
         // data is any additional data needed by the handler.
-        bool callHandler(arm_cmsis_stream::Event &&evt)
+        bool callHandler(int node_id,arm_cmsis_stream::Event &&evt)
         {
             if (mustEnd_)
             {
@@ -105,7 +117,7 @@ namespace arm_cmsis_stream
             {
                 if (this->handler)
                 {
-                    return (this->handler(this->handlerData, std::move(evt)));
+                    return (this->handler(node_id,this->handlerData, std::move(evt)));
                 }
                 return false;
             }
@@ -148,12 +160,12 @@ namespace arm_cmsis_stream
                 return true; // No event to send
             }
 
-            for (std::pair<StreamNode *, int> pair : mNodes)
+            for (LocalDestination destination : mNodes)
             {
                 if (mode == kAsync)
                 {
                     // If async, we just push the event to the queue
-                    Message msg = {std::get<0>(pair), std::get<1>(pair), evt};
+                    Message msg = {destination, evt};
                     if (!EventQueue::cg_eventQueue->push(std::move(msg)))
                     {
                         // If the queue is full, we return false
@@ -163,7 +175,7 @@ namespace arm_cmsis_stream
                 else
                 {
                     // If not async, we call the processEvent directly
-                    std::get<0>(pair)->processEvent(std::get<1>(pair), Event(evt));
+                    destination.dst->processEvent(destination.dstPort, Event(evt));
                 }
             }
 
@@ -173,7 +185,7 @@ namespace arm_cmsis_stream
     public:
         void subscribe(StreamNode &node, int dstPort = 0)
         {
-            mNodes.push_back(std::make_pair(&node, dstPort));
+            mNodes.push_back(LocalDestination{&node, dstPort});
         };
 
         template <typename... Args>
@@ -199,19 +211,21 @@ namespace arm_cmsis_stream
         }
 
         template <typename... Args>
-        static void sendSyncToApp(enum cg_event_priority priority,
+        static void sendSyncToApp(int node_id,
+                                  enum cg_event_priority priority,
                                   uint32_t selector,
                                   Args &&...args)
         {
-            sendToApp(priority, kSync, selector, std::forward<Args>(args)...);
+            sendToApp(node_id,priority, kSync, selector, std::forward<Args>(args)...);
         }
 
         template <typename... Args>
-        static bool sendAsyncToApp(enum cg_event_priority priority,
+        static bool sendAsyncToApp(int node_id,
+                                   enum cg_event_priority priority,
                                    uint32_t selector,
                                    Args &&...args)
         {
-            return sendToApp(priority, kAsync, selector, std::forward<Args>(args)...);
+            return sendToApp(node_id,priority, kAsync, selector, std::forward<Args>(args)...);
         }
 
     protected:
@@ -228,7 +242,8 @@ namespace arm_cmsis_stream
         };
 
         template <typename... Args>
-        static bool sendToApp(enum cg_event_priority priority,
+        static bool sendToApp(int node_id,
+                              enum cg_event_priority priority,
                               EventMode mode,
                               uint32_t selector,
                               Args &&...args)
@@ -242,7 +257,7 @@ namespace arm_cmsis_stream
             Event evt(selector, priority, std::forward<Args>(args)...);
             if (mode == kAsync)
             {
-                Message msg = {nullptr, 0, std::move(evt)};
+                Message msg = {DistantDestination{node_id}, std::move(evt)};
                 if (!EventQueue::cg_eventQueue->push(std::move(msg)))
                 {
                     // If the queue is full, we return false
@@ -253,11 +268,11 @@ namespace arm_cmsis_stream
             else
             {
 
-                return EventQueue::cg_eventQueue->callHandler(std::move(evt));
+                return EventQueue::cg_eventQueue->callHandler(node_id,std::move(evt));
             }
         };
 
-        std::vector<std::pair<StreamNode *, int>> mNodes;
+        std::vector<LocalDestination> mNodes;
     };
 
 } // end cmsis stream namespace
