@@ -282,7 +282,7 @@ class MyStyle(Style):
         return f"{typeName}<BR/>({length})"
 
 
-myStyle = MyStyle(style)
+myStyle = MyStyle()
 #myStyle=Style.dark_style()
 #myStyle=Style.default_style()
 

@@ -336,11 +336,6 @@ class BaseNode:
            return(self._inputs[name])
         if name in self._outputs:
            return(self._outputs[name])
-        if (type(name)==int):
-           if name >=0 and name < len(self._eventInputs):
-              return(self._eventInputs[name])
-           if name >=0 and name < len(self._eventOutputs):
-              return(self._eventOutputs[name])
         raise AttributeError
 
     def __getitem__(self,name):
@@ -349,11 +344,11 @@ class BaseNode:
            return(self._inputs[name])
         if name in self._outputs:
            return(self._outputs[name])
-        if (type(name)==int):
-           if name >=0 and name < len(self._eventInputs):
-              return(self._eventInputs[name])
-           if name >=0 and name < len(self._eventOutputs):
-              return(self._eventOutputs[name])
+        if (name[:3] == "iev") or (name[:3] == "oev"):
+           if (name[:3] == "iev"):
+              return(self._eventInputs[int(name[3:])])
+           else:
+              return(self._eventOutputs[int(name[3:])])
         raise IndexError 
 
     @property
@@ -731,11 +726,11 @@ class BaseNode:
     
     @property
     def eventInputNames(self):
-        return [str(x) for x in range(len(self._eventInputs))]
+        return ["iev"+str(x) for x in range(len(self._eventInputs))]
     
     @property
     def eventGraphvizInputNames(self):
-        return ["ev"+str(x) for x in range(len(self._eventInputs))]
+        return ["iev"+str(x) for x in range(len(self._eventInputs))]
     
     @property
     def slotInputNames(self):
@@ -747,11 +742,11 @@ class BaseNode:
 
     @property
     def eventOutputNames(self):
-        return [str(x) for x in range(len(self._eventOutputs))]
+        return ["oev"+str(x) for x in range(len(self._eventOutputs))]
     
     @property
     def eventGraphvizOutputNames(self):
-        return ["ev"+str(x) for x in range(len(self._eventOutputs))]
+        return ["oev"+str(x) for x in range(len(self._eventOutputs))]
     
     
     @property

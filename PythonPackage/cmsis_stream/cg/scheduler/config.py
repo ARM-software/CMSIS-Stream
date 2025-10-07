@@ -272,19 +272,25 @@ def generateGenericNodes(folder,display_message=True):
     _copy_file(folder,env,"cg_pack.hpp","cg_pack.hpp",display_message=display_message)
     _copy_file(folder,env,"EventDisplay.hpp","EventDisplay.hpp",display_message=display_message)
 
-def generateEventSystemExample(folder,display_message=True):
+def generateEventSystemExample(folder,display_message=True,posix=True):
     """Generate the headers file required to implement the event system"""
     env = Environment(
        loader=PackageLoader("cmsis_stream.cg.scheduler","templates/reference_code"),
        autoescape=select_autoescape(),
        trim_blocks=True
     )
-
-    _copy_file(folder,env,"cg_queue.cpp","cg_queue.cpp","It is an example implementation of the event queue using std::queue",display_message=display_message)
-    _copy_file(folder,env,"cg_queue.hpp","cg_queue.hpp","It is an example implementation of the event queue using std::queue",display_message=display_message)
-    _copy_file(folder,env,"posix_thread.hpp","posix_thread.hpp","It is an example implementation of the event system using Posix threads",display_message=display_message)
-    _copy_file(folder,env,"posix_thread.cpp","posix_thread.cpp","It is an example implementation of the event system using Posix threads",display_message=display_message)
-
+    if posix:
+       _copy_file(folder,env,"posix/cg_queue.cpp","cg_queue.cpp","It is an example implementation of the event queue using std::queue",display_message=display_message)
+       _copy_file(folder,env,"posix/cg_queue.hpp","cg_queue.hpp","It is an example implementation of the event queue using std::queue",display_message=display_message)
+       _copy_file(folder,env,"posix/posix_thread.hpp","posix_thread.hpp","It is an example implementation of the event system using Posix threads",display_message=display_message)
+       _copy_file(folder,env,"posix/posix_thread.cpp","posix_thread.cpp","It is an example implementation of the event system using Posix threads",display_message=display_message)
+       _copy_file(folder,env,"posix/custom.hpp","custom.hpp","It is an example implementation of the event system using Posix threads",display_message=display_message)
+    else:
+       _copy_file(folder,env,"cmsis/cg_queue.cpp","cg_queue.cpp","It is an example implementation of the event system using CMSIS-RTOS2 API",display_message=display_message)
+       _copy_file(folder,env,"cmsis/cg_queue.hpp","cg_queue.hpp","It is an example implementation of the event system using CMSIS-RTOS2 API",display_message=display_message)
+       _copy_file(folder,env,"cmsis/cmsis_allocator.hpp","cmsis_allocator.hpp","It is an example implementation of the event system using CMSIS-RTOS2 API",display_message=display_message)
+       _copy_file(folder,env,"cmsis/custom.hpp","custom.hpp","It is an example implementation of the event system using CMSIS-RTOS2 API",display_message=display_message)
+  
 def generateExamplePosixMain(folder,display_message=True):
     """Generate the default main file for a scheduler with the event system"""
     env = Environment(
@@ -292,8 +298,8 @@ def generateExamplePosixMain(folder,display_message=True):
        autoescape=select_autoescape(),
        trim_blocks=True
     )
-    _copy_file(folder,env,"main.cpp","main.cpp","The main.cpp demonstrate how to define a multi-threaded event system using Posix threads",display_message=display_message)
-    _copy_file(folder,env,"config_events.h","config_events.h","It is an example configuration file to enable/disable multi thread implementation",display_message=display_message)
+    _copy_file(folder,env,"posix/main.cpp","main.cpp","The main.cpp demonstrate how to define a multi-threaded event system using Posix threads",display_message=display_message)
+    _copy_file(folder,env,"posix/config_events.h","config_events.h","It is an example configuration file to enable/disable multi thread implementation",display_message=display_message)
 
 
 def createEmptyProject(project_name):

@@ -94,14 +94,6 @@
 #define CG_MAX_VALUES 8
 #endif
 
-#ifndef DEBUG_PRINT
-#define DEBUG_PRINT(...) //printf(__VA_ARGS__)
-#endif
-
-#ifndef ERROR_PRINT
-#define ERROR_PRINT(...) //printf(__VA_ARGS__)
-#endif
-
 /* Node ID is -1 when nodes are not identified for the external world */
 #define CG_UNIDENTIFIED_NODE (-1)
 
@@ -213,7 +205,7 @@ namespace arm_cmsis_stream
             }
             if (global_id_ == -1)
             {
-                ERROR_PRINT("Global id not set.\n");
+                fprintf(stderr, "Global id not set.\n");
                 return -1; // Error: Lock offset not set
             }
             return MemServer::mem_server->lock(global_id_);
@@ -227,7 +219,7 @@ namespace arm_cmsis_stream
             }
             if (global_id_ == -1)
             {
-                ERROR_PRINT("Global id not set.\n");
+                fprintf(stderr, "Global id not set.\n");
                 return -1; // Error: Lock offset not set
             }
             return MemServer::mem_server->read_lock(global_id_);
@@ -241,7 +233,7 @@ namespace arm_cmsis_stream
             }
             if (global_id_ == -1)
             {
-                ERROR_PRINT("Global id is not set.\n");
+                fprintf(stderr, "Global id is not set.\n");
                 return -1; // Error: Lock offset not set
             }
             return MemServer::mem_server->unlock(global_id_);
@@ -255,7 +247,7 @@ namespace arm_cmsis_stream
             }
             if (global_id_ == -1)
             {
-                ERROR_PRINT("Global id is not set.\n");
+                fprintf(stderr, "Global id is not set.\n");
                 return -1; // Error: Lock offset not set
             }
             return MemServer::mem_server->read_unlock(global_id_);
@@ -486,9 +478,6 @@ namespace arm_cmsis_stream
         T *get() noexcept { return static_cast<T *>(ptr_); }
         const T *get() const noexcept { return static_cast<const T *>(ptr_); }
 
-        T *operator->() { return get(); }
-        const T *operator->() const { return get(); }
-
         template <typename R>
         R *as() noexcept { return static_cast<R *>(ptr_); }
 
@@ -536,45 +525,6 @@ namespace arm_cmsis_stream
         std::shared_ptr<CG_MUTEX> mutex;
 
     public:
-
-        explicit operator bool() const noexcept { return (obj != nullptr) ; }
-        bool operator==(std::nullptr_t) const noexcept { return obj == nullptr; }
-        bool operator!=(std::nullptr_t) const noexcept { return (obj != nullptr); }
-
-        void reset() noexcept
-        {
-            if (mutex)
-            {
-                bool wasReset = false;
-                CG_MUTEX_ERROR_TYPE error;
-                CG_ENTER_CRITICAL_SECTION(*mutex, error);
-                if (!CG_MUTEX_HAS_ERROR(error))
-                {
-                    obj = nullptr;
-                    wasReset = true;
-                }
-                
-                CG_EXIT_CRITICAL_SECTION(*mutex, error);
-                if (wasReset)
-                {
-                    mutex = nullptr;
-                }
-            }
-            else
-            {
-                obj = nullptr;
-            }
-        }
-
-        
-        long use_count() const noexcept
-        {
-            if (obj)
-            {
-                return obj.use_count();
-            }
-            return 0;
-        }
         // Create with custom allocator and arguments for T
         template <typename... Args>
         static ProtectedBuffer create_with(Args &&...args)
@@ -593,12 +543,11 @@ namespace arm_cmsis_stream
             }
         }
 
-        
         // Exclusive (write) access
-        template <typename Func,typename Z=T>
-        auto lock(Func &&f) -> decltype(f(CG_MUTEX_ERROR_TYPE(), false, std::declval<Z &>()))
+        template <typename Func>
+        auto lock(Func &&f) -> decltype(f(CG_MUTEX_ERROR_TYPE(), false, std::declval<T &>()))
         {
-            using R = decltype(f(CG_MUTEX_ERROR_TYPE(), false, std::declval<Z &>()));
+            using R = decltype(f(CG_MUTEX_ERROR_TYPE(), false, std::declval<T &>()));
             if constexpr (std::is_void_v<R>)
             {
                 if (mutex)
@@ -636,10 +585,10 @@ namespace arm_cmsis_stream
         }
 
         // Shared (read) access
-        template <typename Func,typename Z=T>
-        auto lock_shared(Func &&f) const -> decltype(f(CG_MUTEX_ERROR_TYPE(), std::declval<const Z &>()))
+        template <typename Func>
+        auto lock_shared(Func &&f) const -> decltype(f(CG_MUTEX_ERROR_TYPE(), std::declval<const T &>()))
         {
-            using R = decltype(f(CG_MUTEX_ERROR_TYPE(), std::declval<const Z &>()));
+            using R = decltype(f(CG_MUTEX_ERROR_TYPE(), std::declval<const T &>()));
             if constexpr (std::is_void_v<R>)
             {
                 if (mutex)
@@ -881,7 +830,6 @@ namespace arm_cmsis_stream
             }
             return *this;
         };
-
 
     private:
         explicit ProtectedBuffer(std::shared_ptr<T> c, std::shared_ptr<CG_MUTEX> mtx) : obj(std::move(c)), mutex(std::move(mtx)) {}
@@ -1149,7 +1097,7 @@ namespace arm_cmsis_stream
     // unique_ptr is not used because we do not want the type of the
     // deleter to be part of the variant type
     // Perhaps UniquePtr may be used ...
-    using EventData = std::variant<cg_value, UniquePtr<ListValue>>;
+    using EventData = std::variant<cg_value, std::shared_ptr<ListValue>>;
 
     template <typename T>
     struct ValueParse
@@ -1168,13 +1116,6 @@ namespace arm_cmsis_stream
             return T(); // Default value if not found
         }
     };
-
-    template <typename T>
-void PrintType(void)
-{
-    //T t;
-    std::cout << __PRETTY_FUNCTION__ << "\r\n";
-};
 
     template <typename T>
     struct ValueParse<TensorPtr<T>>
@@ -1437,24 +1378,7 @@ void PrintType(void)
         void copyFrom(const Event &other) noexcept
         {
             event_id = other.event_id;
-            if (std::holds_alternative<UniquePtr<ListValue>>(other.data))
-            {
-                UniquePtr<ListValue> new_lv = make_new_list_value();
-                const UniquePtr<ListValue> &lv = std::get<UniquePtr<ListValue>>(other.data);
-                if (new_lv)
-                {
-                    for (uint32_t i = 0; i < lv->nb_values; ++i)
-                    {
-                        new_lv->values[i] = lv->values[i];
-                    }
-                    new_lv->nb_values = lv->nb_values;
-                }
-                data = std::move(new_lv);
-            }
-            else
-            {
-                data = std::get<cg_value>(other.data);
-            }
+            data = other.data;
             priority = other.priority;
         }
 
@@ -1482,23 +1406,15 @@ void PrintType(void)
         Event clone() const noexcept
         {
             Event evt;
-            evt.copyFrom(*this);
+            evt.event_id = this->event_id;
+            evt.data = this->data;
+            evt.priority = this->priority;
             return evt;
         }
 
-        static void list_value_deleter(void *p) noexcept
+        static std::shared_ptr<ListValue> make_new_list_value()
         {
-            ListValue *lv = static_cast<ListValue *>(p);
-            lv->~ListValue();
-            CG_MK_LIST_EVENT_ALLOCATOR(ListValue).deallocate(static_cast<ListValue *>(p), 1);
-        }
-
-        static UniquePtr<ListValue> make_new_list_value()
-        {
-            void *p= CG_MK_LIST_EVENT_ALLOCATOR(ListValue).allocate(1);
-            ListValue *val = new (p) ListValue();
-
-            return UniquePtr<ListValue>(val, Event::list_value_deleter);
+            return std::allocate_shared<ListValue>(CG_MK_LIST_EVENT_ALLOCATOR(ListValue));
         }
 
         Event() noexcept : event_id(kNoEvent), priority(kNormalPriority)
@@ -1509,7 +1425,7 @@ void PrintType(void)
         explicit operator bool() const noexcept { return event_id != kNoEvent; }
 
         Event(uint32_t id,
-              UniquePtr<ListValue> &&cv,
+              std::shared_ptr<ListValue> cv,
               enum cg_event_priority evtPriority) noexcept : event_id(id)
         {
             data = std::move(cv);
@@ -1535,7 +1451,7 @@ void PrintType(void)
             }
             else if constexpr (sizeof...(Args) > 1)
             {
-                UniquePtr<ListValue> cbv = make_new_list_value();
+                std::shared_ptr<ListValue> cbv = make_new_list_value();
                 if (cbv)
                 {
                     cbv->nb_values = sizeof...(Args);
@@ -1622,9 +1538,9 @@ void PrintType(void)
             else if constexpr (sizeof...(Args) > 1)
             {
 
-                if (std::holds_alternative<UniquePtr<ListValue>>(data))
+                if (std::holds_alternative<std::shared_ptr<ListValue>>(data))
                 {
-                    const UniquePtr<ListValue> &cbv = std::get<UniquePtr<ListValue>>(data);
+                    std::shared_ptr<ListValue> cbv = std::get<std::shared_ptr<ListValue>>(data);
                     if (cbv && cbv->nb_values > 0)
                     {
                         if (sizeof...(Args) != cbv->nb_values)
@@ -1647,7 +1563,7 @@ void PrintType(void)
         };
 
         template <typename... Args, typename F, typename O>
-        bool apply(F &&f, O &&o)
+        bool apply(F &&f, O &&o) const
         {
             if constexpr (sizeof...(Args) == 0)
             {
@@ -1669,10 +1585,10 @@ void PrintType(void)
             else if constexpr (sizeof...(Args) > 1)
             {
 
-                if (std::holds_alternative<UniquePtr<ListValue>>(data))
+                if (std::holds_alternative<std::shared_ptr<ListValue>>(data))
                 {
 
-                    UniquePtr<ListValue> cbv = std::get<UniquePtr<ListValue>>(std::move(data));
+                    std::shared_ptr<ListValue> cbv = std::get<std::shared_ptr<ListValue>>(std::move(data));
                     if (cbv && cbv->nb_values > 0)
                     {
                         if (sizeof...(Args) != cbv->nb_values)

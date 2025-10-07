@@ -17,7 +17,7 @@ def mkGraph(event_only=False):
         # event system to connect the nodes
         src=EvtSource("source")
         sink=EvtSink("sink")
-        the_graph.connect(src[0],sink[0])
+        the_graph.connect(src["oev0"],sink["iev0"])
     else:
         src=Source("source",floatType,5)
         processing=ProcessingNode("processing",floatType,7,7)
@@ -26,8 +26,8 @@ def mkGraph(event_only=False):
 
         the_graph.connect(src.o,processing.i)
         the_graph.connect(processing.o,sink.i)
-        the_graph.connect(src[0],sink[0])
-        the_graph.connect(src[0],evtsink[0])
+        the_graph.connect(src["oev0"],sink["iev0"])
+        the_graph.connect(src["oev0"],evtsink["iev0"])
 
     return the_graph
 

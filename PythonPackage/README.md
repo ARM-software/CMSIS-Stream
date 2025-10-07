@@ -15,6 +15,11 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 2.2.0:
+* Improved Event management to avoid introducing unwanted buffer sharing
+* Changed naming of event ports in Python API when connecting nodes
+* `init` for nodes is called after events have been connected
+
 ## Version 2.1.0:
 * Added interprocess communication and buffer sharing API
 * See documentation about IPC

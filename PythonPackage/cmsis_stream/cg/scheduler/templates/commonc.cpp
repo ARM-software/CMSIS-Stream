@@ -241,11 +241,6 @@ int init_{{config.schedName}}({{optionalargs(True)}})
     nodes.{{node.nodeName}}->setID({{node.identificationName}});
 {% endif %}
 {% endif %}
-    initError = nodes.{{node.nodeName}}->init();
-    if (initError != CG_SUCCESS)
-    {
-        return(initError);
-    }
 {% endif %}
 
 {% endfor %}
@@ -254,6 +249,17 @@ int init_{{config.schedName}}({{optionalargs(True)}})
 {% for event_edge in eventConnections %}
     nodes.{{event_edge[0].owner.nodeName}}->subscribe({{event_edge[0].name}},*nodes.{{event_edge[1].owner.nodeName}},{{event_edge[1].name}});
 {% endfor %}
+
+    initError = CG_SUCCESS;
+{% for node in allNodes %}
+{% if node.hasState %}
+    initError = nodes.{{node.nodeName}}->init();
+    if (initError != CG_SUCCESS)
+        return(initError);
+    
+{% endif %}
+{% endfor %}
+   
 
 
     return(CG_SUCCESS);
@@ -316,27 +322,31 @@ uint32_t {{config.schedName}}(int *error{{optionalargs(False)}})
     /* 
     Create node objects
     */
-   cgStaticError = CG_SUCCESS;
+
+
 {% for node in allNodes %}
 {% if node.hasState %}
     {{node.typeName}}{{node.ioTemplate()}} {{node.nodeName}}{{init_args(sched,node)}}; /* Node ID = {{node.codeID}} */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = {{node.nodeName}}.init();
-    }
 {% endif %}
 {% endfor %}
 
-   if (cgStaticError != CG_SUCCESS)
-   {
-       goto errorHandling;
-   }
 
 /* Subscribe nodes for the event system*/
 {% for event_edge in eventConnections %}
     {{event_edge[0].owner.nodeName}}.subscribe({{event_edge[0].name}},{{event_edge[1].owner.nodeName}},{{event_edge[1].name}});
 {% endfor %}
 
+    cgStaticError = CG_SUCCESS;
+{% for node in allNodes %}
+{% if node.hasState %}
+    cgStaticError = {{node.nodeName}}.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+{% endif %}
+{% endfor %}
 
 {% endif %}
 

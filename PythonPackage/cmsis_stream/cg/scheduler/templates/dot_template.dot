@@ -5,6 +5,14 @@
 {% endif %}
 {%- endmacro %}
 
+{% macro ievio(node,theio) -%}
+{{node.nodeID}}:iev{{theio.name}}
+{%- endmacro %}
+
+{% macro oevio(node,theio) -%}
+{{node.nodeID}}:oev{{theio.name}}
+{%- endmacro %}
+
 {% macro edgelabel(ioport,name) -%}
 {% if not ioport.owner.isDuplicateNode and ioport.hasMoreThanOneSample %}
 ,{{name}}=<<TABLE BORDER="0" CELLPADDING="4"><TR><TD><FONT COLOR="{{style.port_sample_color(ioport.nbSamples)}}" POINT-SIZE="{{style.port_sample_font_size(ioport.nbSamples)}}" >{{ioport.nbSamples}}</FONT>
@@ -161,7 +169,7 @@ digraph structs {
 {% endfor %}
 
 {% for id in range(nbEventEdges) %}
-{{io(events[id][0].owner,events[id][0])}} -> {{io(events[id][1].owner,events[id][1])}} [style="{{style.event_edge_style(events[id])}}",color="{{style.edge_color(events[id])}}",fontsize="{{style.event_edge_label_size(events[id])}}",fontcolor="{{style.event_edge_label_color(events[id])}}",label=<{{style.event_edge_label(events[id])}}>
+{{oevio(events[id][0].owner,events[id][0])}} -> {{ievio(events[id][1].owner,events[id][1])}} [style="{{style.event_edge_style(events[id])}}",color="{{style.edge_color(events[id])}}",fontsize="{{style.event_edge_label_size(events[id])}}",fontcolor="{{style.event_edge_label_color(events[id])}}",label=<{{style.event_edge_label(events[id])}}>
 {{edgelabel(events[id][1],"headlabel")}}
 {{edgelabel(events[id][0],"taillabel")}}]
 {% endfor %}

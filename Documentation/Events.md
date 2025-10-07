@@ -491,7 +491,8 @@ With an OS, the queue can be processed with a thread or a thread pool.
 
 The event queue interface is declared in `StreamNode.h`. You should define an implementation.
 
-If you use the python `generateEventSystemExample(".")` you will get a default implementation of the queue using C++ standard libraries.
+If you use the python `generateEventSystemExample(".",posix=True)` you will get a default implementation of the queue using C++ standard libraries.
+With `posix=False` you'll get an example `CMSIS RTOS2 API` implementation.
 
 ```C++
 class EventQueue
