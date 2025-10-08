@@ -39,6 +39,14 @@
 
 #include "StreamNode.hpp"
 
+#ifndef CG_TIME_STAMP_TYPE
+#define CG_TIME_STAMP_TYPE uint32_t
+#endif
+
+#ifndef CG_GET_TIME_STAMP
+#define CG_GET_TIME_STAMP() (0)    
+#endif 
+
 namespace arm_cmsis_stream
 {
 
@@ -62,6 +70,8 @@ struct Message
     std::variant<LocalDestination, DistantDestination> destination;
     /* Event */
     Event event;
+    /* Timestamp */
+    CG_TIME_STAMP_TYPE timestamp;
 };
 
 // In case of a threaded implementation
@@ -76,13 +86,28 @@ class EventQueue
     */
     inline static EventQueue *cg_eventQueue = nullptr;
 
+    bool push(LocalDestination dest, Event &&evt)
+    {
+        Message msg{
+            std::move(dest),
+            std::move(evt),
+            CG_GET_TIME_STAMP()};
+        return (cg_eventQueue->push(std::move(msg)));
+    };
+
+    bool push(DistantDestination dest, Event &&evt)
+    {
+        Message msg{
+            std::move(dest),
+            std::move(evt),
+            CG_GET_TIME_STAMP()};
+        return (cg_eventQueue->push(std::move(msg)));
+    };
+
     EventQueue() {};
     virtual ~EventQueue() {};
 
-    // In case of a threaded implementation
-    // this should wakeup the thread
-    // Return false in case of queue overflow
-    virtual bool push(Message &&message) = 0;
+    
     virtual bool isEmpty() = 0;
     virtual void clear() = 0;
 
@@ -131,6 +156,11 @@ class EventQueue
     };
 
   protected:
+    // In case of a threaded implementation
+    // this should wakeup the thread
+    // Return false in case of queue overflow
+    virtual bool push(Message &&message) = 0;
+
     void *handlerData = nullptr;
     AppHandler handler = nullptr;
     std::atomic<bool> mustEnd_ = false;
@@ -165,8 +195,7 @@ class EventOutput
             if (mode == kAsync)
             {
                 // If async, we just push the event to the queue
-                Message msg = {destination, std::move(evt)};
-                if (!EventQueue::cg_eventQueue->push(std::move(msg)))
+                if (!EventQueue::cg_eventQueue->push(destination, std::move(evt)))
                 {
                     // If the queue is full, we return false
                     return false;
@@ -186,8 +215,7 @@ class EventOutput
                 if (mode == kAsync)
                 {
                     // If async, we just push the event to the queue
-                    Message msg = {destination, evt.clone()};
-                    if (!EventQueue::cg_eventQueue->push(std::move(msg)))
+                    if (!EventQueue::cg_eventQueue->push(destination, evt.clone()))
                     {
                         // If the queue is full, we return false
                         return false;
@@ -214,7 +242,7 @@ class EventOutput
                   uint32_t selector,
                   Args &&...args)
     {
-        sendCombinedValue(priority, kSync, selector, std::forward<Args>(args)...);
+        sendCombinedValue(priority, kSync, selector, 0, std::forward<Args>(args)...);
     }
 
     template <typename... Args>
@@ -222,7 +250,16 @@ class EventOutput
                    uint32_t selector,
                    Args &&...args)
     {
-        return sendCombinedValue(priority, kAsync, selector, std::forward<Args>(args)...);
+        return sendCombinedValue(priority, kAsync, selector, 0, std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    bool sendAsyncWithTTL(enum cg_event_priority priority,
+                   uint32_t selector,
+                   uint32_t ttl,
+                   Args &&...args)
+    {
+        return sendCombinedValue(priority, kAsync, selector, ttl, std::forward<Args>(args)...);
     }
 
     template <typename... Args>
@@ -254,11 +291,16 @@ class EventOutput
     bool sendCombinedValue(enum cg_event_priority priority,
                            EventMode mode,
                            uint32_t selector,
+                           uint32_t ttl,
                            Args &&...args)
     {
         // When more than one value
         // we create a combined event
         Event evt(selector, priority, std::forward<Args>(args)...);
+        if (ttl != 0)
+        {
+            evt.setTTL(ttl);
+        }
         return sendEventToAllNodes(std::move(evt), mode);
     };
 
@@ -278,8 +320,7 @@ class EventOutput
         Event evt(selector, priority, std::forward<Args>(args)...);
         if (mode == kAsync)
         {
-            Message msg = {DistantDestination{node_id}, std::move(evt)};
-            if (!EventQueue::cg_eventQueue->push(std::move(msg)))
+            if (!EventQueue::cg_eventQueue->push(DistantDestination{node_id}, std::move(evt)))
             {
                 // If the queue is full, we return false
                 return false;

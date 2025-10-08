@@ -38,6 +38,7 @@ extern "C"
 #include "custom.hpp"
 #include "StreamNode.hpp"
 #include "EventQueue.hpp"
+#include <utility>
 
 #ifndef MY_QUEUE_MAX_ELEMS
 #define MY_QUEUE_MAX_ELEMS 20

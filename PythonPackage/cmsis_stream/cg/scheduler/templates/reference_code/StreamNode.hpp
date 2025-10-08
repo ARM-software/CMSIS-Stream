@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <initializer_list>
 #include <memory>
 #include <cstdint>
 #include <cstring>
@@ -35,6 +36,8 @@
 #include <variant>
 #include <array>
 #include <string>
+
+#include <iostream>
 
 #include "cg_enums.h"
 
@@ -93,6 +96,7 @@
 #ifndef CG_MAX_VALUES
 #define CG_MAX_VALUES 8
 #endif
+
 
 #ifndef DEBUG_PRINT
 #define DEBUG_PRINT(...) //printf(__VA_ARGS__)
@@ -178,7 +182,7 @@ namespace arm_cmsis_stream
 
         inline static Descriptor *(*mk_new_descriptor)(NativeHandle, size_t, int32_t) = nullptr;
 
-        virtual void mapDescriptor() = 0;
+        virtual void mapDescriptor() const = 0;
 
         virtual NativeHandle fd() const noexcept = 0;
 
@@ -596,19 +600,24 @@ namespace arm_cmsis_stream
         
         // Exclusive (write) access
         template <typename Func,typename Z=T>
-        auto lock(Func &&f) -> decltype(f(CG_MUTEX_ERROR_TYPE(), false, std::declval<Z &>()))
+        auto lock(bool &lockError,Func &&f) -> decltype(f(false, std::declval<Z &>()))
         {
-            using R = decltype(f(CG_MUTEX_ERROR_TYPE(), false, std::declval<Z &>()));
+            lockError = false;
+            using R = decltype(f(false, std::declval<Z &>()));
             if constexpr (std::is_void_v<R>)
             {
                 if (mutex)
                 {
                     CG_MUTEX_ERROR_TYPE error;
                     CG_ENTER_CRITICAL_SECTION(*mutex, error);
-                    if (obj)
+                    if (CG_MUTEX_HAS_ERROR(error))
+                    {
+                        lockError = true;
+                    }
+                    else if (obj)
                     {
                         bool isShared = obj.use_count() > 1;
-                        f(error, isShared, *obj);
+                        f(isShared, *obj);
                     }
 
                     CG_EXIT_CRITICAL_SECTION(*mutex, error);
@@ -623,10 +632,14 @@ namespace arm_cmsis_stream
                 {
                     CG_MUTEX_ERROR_TYPE error;
                     CG_ENTER_CRITICAL_SECTION(*mutex, error);
-                    if (obj)
+                    if (CG_MUTEX_HAS_ERROR(error))
+                    {
+                        lockError = true;
+                    }
+                    else if (obj)
                     {
                         bool isShared = obj.use_count() > 1;
-                        r = f(error, isShared, *obj);
+                        r = f(isShared, *obj);
                     }
 
                     CG_EXIT_CRITICAL_SECTION(*mutex, error);
@@ -637,9 +650,10 @@ namespace arm_cmsis_stream
 
         // Shared (read) access
         template <typename Func,typename Z=T>
-        auto lock_shared(Func &&f) const -> decltype(f(CG_MUTEX_ERROR_TYPE(), std::declval<const Z &>()))
+        auto lock_shared(bool &lockError,Func &&f) const -> decltype(f( std::declval<const Z &>()))
         {
-            using R = decltype(f(CG_MUTEX_ERROR_TYPE(), std::declval<const Z &>()));
+            lockError = false;
+            using R = decltype(f(std::declval<const Z &>()));
             if constexpr (std::is_void_v<R>)
             {
                 if (mutex)
@@ -647,9 +661,13 @@ namespace arm_cmsis_stream
                     CG_MUTEX_ERROR_TYPE error;
                     CG_ENTER_READ_CRITICAL_SECTION(*mutex, error);
 
-                    if (obj)
+                    if (CG_MUTEX_HAS_ERROR(error))
                     {
-                        f(error, *obj);
+                        lockError = true;
+                    }
+                    else if (obj)
+                    {
+                        f(*obj);
                     }
                     CG_EXIT_READ_CRITICAL_SECTION(*mutex, error);
                 }
@@ -664,9 +682,13 @@ namespace arm_cmsis_stream
                     CG_MUTEX_ERROR_TYPE error;
                     CG_ENTER_READ_CRITICAL_SECTION(*mutex, error);
 
-                    if (obj)
+                    if (CG_MUTEX_HAS_ERROR(error))
                     {
-                        r = f(error, *obj);
+                        lockError = true;
+                    }
+                    else if (obj)
+                    {
+                        r = f(*obj);
                     }
 
                     CG_EXIT_CRITICAL_SECTION(*mutex, error);
@@ -894,6 +916,38 @@ namespace arm_cmsis_stream
         uint32_t buf_size;
         std::variant<UniquePtr<std::byte>, SharedBuffer<std::byte>> data;
 
+        std::byte* buffer()  noexcept 
+        {
+            if (std::holds_alternative<UniquePtr<std::byte>>(data))
+            {
+                UniquePtr<std::byte> &b = std::get<UniquePtr<std::byte>>(data);
+                return b.get();
+            }
+            else if (std::holds_alternative<SharedBuffer<std::byte>>(data))
+            {
+                SharedBuffer<std::byte> &s = std::get<SharedBuffer<std::byte>>(data);
+                s.mapBuffer();
+                return s.get();
+            }
+            return nullptr;
+        }
+
+        const std::byte* buffer()  const noexcept 
+        {
+            if (std::holds_alternative<UniquePtr<std::byte>>(data))
+            {
+                const UniquePtr<std::byte> &b = std::get<UniquePtr<std::byte>>(data);
+                return b.get();
+            }
+            else if (std::holds_alternative<SharedBuffer<std::byte>>(data))
+            {
+                const SharedBuffer<std::byte> &s = std::get<SharedBuffer<std::byte>>(data);
+                s.mapBuffer();
+                return s.get();
+            }
+            return nullptr;
+        }
+
         explicit RawBuffer(uint32_t size, UniquePtr<std::byte> &&buf_data) noexcept : buf_size(size)
         {
             if (buf_data == nullptr)
@@ -944,6 +998,50 @@ namespace arm_cmsis_stream
         // Data is columns then row etc ...
         std::variant<UniquePtr<T>, SharedBuffer<T>> data;
 
+        const T* buffer() const noexcept 
+        {
+            if (std::holds_alternative<UniquePtr<T>>(data))
+            {
+                const UniquePtr<T> &b = std::get<UniquePtr<T>>(data);
+                return b.get();
+            }
+            else if (std::holds_alternative<SharedBuffer<T>>(data))
+            {
+                const SharedBuffer<T> &s = std::get<SharedBuffer<T>>(data);
+                s.mapBuffer();
+                return s.get();
+            }
+            return nullptr;
+        }
+
+        T* buffer() noexcept 
+        {
+            if (std::holds_alternative<UniquePtr<T>>(data))
+            {
+                UniquePtr<T> &b = std::get<UniquePtr<T>>(data);
+                return b.get();
+            }
+            else if (std::holds_alternative<SharedBuffer<T>>(data))
+            {
+                SharedBuffer<T> &s = std::get<SharedBuffer<T>>(data);
+                s.mapBuffer();
+                return s.get();
+            }
+            return nullptr;
+        }
+
+        /* 1D tensor */
+        explicit Tensor(unsigned int dimensions,
+                        UniquePtr<T> &&tensor_data) noexcept
+            : nb_dims(1), dims({dimensions})
+        {
+            if (tensor_data == nullptr)
+            {
+                nb_dims = 0; // Reset dimensions if data is null or size is zero
+            }
+            data = std::move(tensor_data);
+        }
+
         explicit Tensor(uint8_t dimensions,
                         const cg_tensor_dims_t &dimensions_array,
                         UniquePtr<T> &&tensor_data) noexcept
@@ -969,6 +1067,7 @@ namespace arm_cmsis_stream
             data = std::move(tensor_data);
         }
 
+        
         Tensor(const Tensor &other) = delete;
 
         Tensor(Tensor &&other) noexcept
@@ -1431,12 +1530,15 @@ void PrintType(void)
             event_id = other.event_id;
             data = std::move(other.data);
             priority = other.priority;
+            ttl = other.ttl;
             other.event_id = kNoEvent;
+            other.ttl = 0;
         }
 
         void copyFrom(const Event &other) noexcept
         {
             event_id = other.event_id;
+            ttl = other.ttl;
             if (std::holds_alternative<UniquePtr<ListValue>>(other.data))
             {
                 UniquePtr<ListValue> new_lv = make_new_list_value();
@@ -1478,6 +1580,8 @@ void PrintType(void)
         uint32_t event_id;
         uint32_t priority;
         EventData data;
+        /* Time to live in ms. 0 means infinite */
+        uint32_t ttl;
 
         Event clone() const noexcept
         {
@@ -1501,7 +1605,7 @@ void PrintType(void)
             return UniquePtr<ListValue>(val, Event::list_value_deleter);
         }
 
-        Event() noexcept : event_id(kNoEvent), priority(kNormalPriority)
+        Event() noexcept : event_id(kNoEvent), priority(kNormalPriority),ttl(0)
         {
             data = cg_value();
         }
@@ -1510,7 +1614,7 @@ void PrintType(void)
 
         Event(uint32_t id,
               UniquePtr<ListValue> &&cv,
-              enum cg_event_priority evtPriority) noexcept : event_id(id)
+              enum cg_event_priority evtPriority) noexcept : event_id(id),ttl(0)
         {
             data = std::move(cv);
             setPriority(evtPriority);
@@ -1519,7 +1623,7 @@ void PrintType(void)
         template <typename... Args>
         Event(uint32_t selector,
               enum cg_event_priority evtPriority,
-              Args &&...args) : event_id(selector)
+              Args &&...args) : event_id(selector),ttl(0)
         {
             static_assert(sizeof...(Args) <= CG_MAX_VALUES, "Too many arguments for combined value");
 
@@ -1560,6 +1664,8 @@ void PrintType(void)
         {
             moveFrom(std::move(other));
         }
+
+        void setTTL(uint32_t ms) noexcept { ttl = ms; };
 
         /*Event &operator=(const Event &other) noexcept
         {

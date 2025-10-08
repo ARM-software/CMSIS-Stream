@@ -33,28 +33,8 @@ extern "C"
 #include CMSIS_device_header
 #include "cmsis_os2.h"
 #include "config.h"
-#include "arm_math_types.h"
 }
 
-struct cf32 {
-    float real;
-    float imag;
-};
-
-struct sf32 {
-    float left;
-    float right;
-};
-
-struct cq15 {
-    q15_t real;
-    q15_t imag;
-};
-
-struct sq15 {
-    q15_t left;
-    q15_t right;
-};
 
 class CMSISMutex
 {
@@ -150,27 +130,7 @@ class CMSISLock
 // Queue implementation for events
 #include "cg_queue.hpp"
 
-#include "rtos_events.hpp"
-
 // Because memory optimization is enabled
 #define CG_BEFORE_BUFFER __ALIGNED(16)
-
-#define CG_BEFORE_SCHEDULE \
-  uint32_t errorFlags = 0;
-
-#define CG_BEFORE_NODE_EXECUTION(ID)                                                                             \
-{                                                                                                                \
-    errorFlags = osThreadFlagsWait(AUDIO_SINK_UNDERFLOW_EVENT | AUDIO_SOURCE_OVERFLOW_EVENT, osFlagsWaitAny, 0); \
-    if (errorFlags & AUDIO_SINK_UNDERFLOW_EVENT)                                                                 \
-    {                                                                                                            \
-        cgStaticError = CG_BUFFER_UNDERFLOW;                                                                     \
-        goto errorHandling;                                                                                      \
-    }                                                                                                            \
-    if (errorFlags & AUDIO_SOURCE_OVERFLOW_EVENT)                                                                \
-    {                                                                                                            \
-        cgStaticError = CG_BUFFER_OVERFLOW;                                                                      \
-        goto errorHandling;                                                                                      \
-    }                                                                                                            \
-}
 
 #endif

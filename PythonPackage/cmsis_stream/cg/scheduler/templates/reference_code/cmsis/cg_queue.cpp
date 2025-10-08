@@ -71,7 +71,8 @@ bool MyQueue::push(arm_cmsis_stream::Message &&event)
         }
         if (nb_elems[p] < MY_QUEUE_MAX_ELEMS)
         {
-            //DEBUG_PRINT("Push event %d\n", event.event.event_id);
+            // DEBUG_PRINT("Push event %d\n", event.event.event_id);
+            uint32_t timestamp = osKernelGetTickCount();
             queue[p][write[p]++] = std::move(event);
             if (write[p] == MY_QUEUE_MAX_ELEMS)
             {
@@ -81,7 +82,8 @@ bool MyQueue::push(arm_cmsis_stream::Message &&event)
             nb_elems[p]++;
             ok = true;
         }
-        else {
+        else
+        {
             ERROR_PRINT("Event queue overflow for priority %d\n", p);
         }
     }
@@ -181,24 +183,40 @@ void MyQueue::execute()
             // Process event with no lock held
             if (messageWasReceived)
             {
-                osThreadId_t tid = osThreadGetId();
-                int p = msg.event.priority;
-                if (p >= nb_priorities)
+                bool eventExpired = false;
+                if (msg.event.ttl != 0)
                 {
-                    p = nb_priorities - 1; // Highest priority
+                    uint32_t startMs = (msg.timestamp / osKernelGetTickFreq()) / 1000;
+                    uint32_t limitMs = startMs + msg.event.ttl;
+                    uint32_t nowMs = (osKernelGetTickCount() / osKernelGetTickFreq()) / 1000;
+                    if (nowMs > limitMs)
+                    {
+                        // Event expired
+                        eventExpired = true;
+                    }
                 }
-                osThreadSetPriority(tid, priorities[p]);
-                if (std::holds_alternative<LocalDestination>(msg.destination))
+                if (!eventExpired)
                 {
-                    LocalDestination &local = std::get<LocalDestination>(msg.destination);
-                    local.dst->processEvent(local.dstPort, std::move(msg.event));
+
+                    osThreadId_t tid = osThreadGetId();
+                    int p = msg.event.priority;
+                    if (p >= nb_priorities)
+                    {
+                        p = nb_priorities - 1; // Highest priority
+                    }
+                    osThreadSetPriority(tid, priorities[p]);
+                    if (std::holds_alternative<LocalDestination>(msg.destination))
+                    {
+                        LocalDestination &local = std::get<LocalDestination>(msg.destination);
+                        local.dst->processEvent(local.dstPort, std::move(msg.event));
+                    }
+                    else if (std::holds_alternative<DistantDestination>(msg.destination))
+                    {
+                        DistantDestination &dist = std::get<DistantDestination>(msg.destination);
+                        this->callHandler(dist.src_node_id, std::move(msg.event));
+                    }
+                    osThreadSetPriority(tid, priorities[nb_priorities - 1]); // Back to highest priority
                 }
-                else if (std::holds_alternative<DistantDestination>(msg.destination))
-                {
-                    DistantDestination &dist = std::get<DistantDestination>(msg.destination);
-                    this->callHandler(dist.src_node_id, std::move(msg.event));
-                }
-                osThreadSetPriority(tid, priorities[nb_priorities - 1]); // Back to highest priority
             }
         }
         if (this->mustEnd())
