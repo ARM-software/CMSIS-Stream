@@ -6,11 +6,11 @@
 {%- endmacro %}
 
 {% macro ievio(node,theio) -%}
-{{node.nodeID}}:iev{{theio.name}}
+{% if not node.hasManySlots %}{{node.nodeID}}:i{% else %}{{node.nodeID}}:iev{{theio.name}}{% endif %}
 {%- endmacro %}
 
 {% macro oevio(node,theio) -%}
-{{node.nodeID}}:oev{{theio.name}}
+{% if not node.hasManySlots %}{{node.nodeID}}:i{% else %}{{node.nodeID}}:oev{{theio.name}}{% endif %}
 {%- endmacro %}
 
 {% macro edgelabel(ioport,name) -%}
