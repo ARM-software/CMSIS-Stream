@@ -154,11 +154,6 @@ int init_simple()
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    initError = nodes.sink->init();
-    if (initError != CG_SUCCESS)
-    {
-        return(initError);
-    }
     identifiedNodes[SINK_ID]=createStreamNode(*nodes.sink);
     nodes.sink->setID(SINK_ID);
 
@@ -167,17 +162,23 @@ int init_simple()
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    initError = nodes.source->init();
-    if (initError != CG_SUCCESS)
-    {
-        return(initError);
-    }
     identifiedNodes[SOURCE_ID]=createStreamNode(*nodes.source);
     nodes.source->setID(SOURCE_ID);
 
 
 /* Subscribe nodes for the event system*/
     nodes.source->subscribe(0,*nodes.sink,0);
+
+    initError = CG_SUCCESS;
+    initError = nodes.sink->init();
+    if (initError != CG_SUCCESS)
+        return(initError);
+    
+    initError = nodes.source->init();
+    if (initError != CG_SUCCESS)
+        return(initError);
+    
+   
 
 
     return(CG_SUCCESS);
@@ -201,10 +202,12 @@ void free_simple()
 CG_BEFORE_SCHEDULER_FUNCTION
 uint32_t simple(int *error)
 {
-    *error=CG_SUCCESS;
+    *error=CG_STOP_SCHEDULER;
+#if !defined(CG_EVENTS_MULTI_THREAD)
     while(1){
         // To have possibility to process the event queue
         CG_BEFORE_ITERATION;
     };
+#endif
     return(0);
 }

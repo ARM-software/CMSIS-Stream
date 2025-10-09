@@ -142,25 +142,27 @@ uint32_t scheduler(int *error)
     /* 
     Create node objects
     */
-   cgStaticError = CG_SUCCESS;
-    Sink<float32_t,5> sink(fifo1); /* Node ID = 1 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = sink.init();
-    }
-    Source<float32_t,5> source(fifo0); /* Node ID = 2 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = source.init();
-    }
 
-   if (cgStaticError != CG_SUCCESS)
-   {
-       goto errorHandling;
-   }
+
+    Sink<float32_t,5> sink(fifo1); /* Node ID = 1 */
+    Source<float32_t,5> source(fifo0); /* Node ID = 2 */
+
 
 /* Subscribe nodes for the event system*/
 
+    cgStaticError = CG_SUCCESS;
+    cgStaticError = sink.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = source.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
 
 
 

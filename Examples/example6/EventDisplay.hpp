@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <iostream>
 #include <variant>
-
+#include "StreamNode.hpp"
 
 using namespace arm_cmsis_stream;
 
@@ -28,7 +28,8 @@ void disp_array(std::ostream &os, const T *obj, std::size_t nb)
 template <typename T>
 std::ostream &operator<<(std::ostream &os, const TensorPtr<T> &obj)
 {
-    obj.lock_shared([&os](CG_MUTEX_ERROR_TYPE error, const Tensor<T> &t)
+    bool lockError;
+    obj.lock_shared(lockError,[&os](const Tensor<T> &t)
                     {
 
             os << "Tensor[";
@@ -249,7 +250,8 @@ std::ostream &operator<<(std::ostream &os, const cg_value &obj)
 
     if (std::holds_alternative<BufferPtr>(obj.value))
     {
-        std::get<BufferPtr>(obj.value).lock_shared([&os](CG_MUTEX_ERROR_TYPE error, const RawBuffer &buf)
+        bool lockError;
+        std::get<BufferPtr>(obj.value).lock_shared(lockError,[&os]( const RawBuffer &buf)
                                                    { os << "Buffer(size=" << buf.buf_size << ")"; });
         return os;
     }
@@ -294,9 +296,9 @@ std::ostream &operator<<(std::ostream &os, Event obj)
     {
         os << ", data=" << std::get<cg_value>(obj.data);
     }
-    else if (std::holds_alternative<std::shared_ptr<ListValue>>(obj.data))
+    else if (std::holds_alternative<UniquePtr<ListValue>>(obj.data))
     {
-        os << ", combined_data=" << *std::get<std::shared_ptr<ListValue>>(obj.data);
+        os << ", combined_data=" << *std::get<UniquePtr<ListValue>>(obj.data).get();
     }
     else
     {

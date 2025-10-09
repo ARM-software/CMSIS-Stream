@@ -31,126 +31,191 @@
  *
  **************/
 
-#include <cstdint>
-#include <vector>
-#include <string>
-#include <memory>
 #include <atomic>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "StreamNode.hpp"
+
+#ifndef CG_TIME_STAMP_TYPE
+#define CG_TIME_STAMP_TYPE uint32_t
+#endif
+
+#ifndef CG_GET_TIME_STAMP
+#define CG_GET_TIME_STAMP() (0)    
+#endif 
 
 namespace arm_cmsis_stream
 {
 
-    struct Message
+/* Same computer */
+struct LocalDestination
+{
+    /* Destination node */
+    StreamNode *dst;
+    /* Destination port */
+    int dstPort;
+};
+
+/* To network if supported by the application callback */
+struct DistantDestination
+{
+    int32_t src_node_id;
+};
+
+struct Message
+{
+    std::variant<LocalDestination, DistantDestination> destination;
+    /* Event */
+    Event event;
+    /* Timestamp */
+    CG_TIME_STAMP_TYPE timestamp;
+};
+
+// In case of a threaded implementation
+// an implementation of this API should be thread safe
+class EventQueue
+{
+  public:
+    using AppHandler = bool (*)(int src_node_id, void *data, Event &&evt);
+
+    /* There is a global event queue for all the graphs that may be
+       contained in the application
+    */
+    inline static EventQueue *cg_eventQueue = nullptr;
+
+    bool push(LocalDestination dest, Event &&evt)
     {
-        /* Destination node */
-        StreamNode *dst;
-        /* Destination port */
-        int dstPort;
-        /* Event */
-        Event event;
+        Message msg{
+            std::move(dest),
+            std::move(evt),
+            CG_GET_TIME_STAMP()};
+        return (cg_eventQueue->push(std::move(msg)));
     };
+
+    bool push(DistantDestination dest, Event &&evt)
+    {
+        Message msg{
+            std::move(dest),
+            std::move(evt),
+            CG_GET_TIME_STAMP()};
+        return (cg_eventQueue->push(std::move(msg)));
+    };
+
+    EventQueue() {};
+    virtual ~EventQueue() {};
+
+    
+    virtual bool isEmpty() = 0;
+    virtual void clear() = 0;
 
     // In case of a threaded implementation
-    // an implementation of this API should be thread safe
-    class EventQueue
+    // this should sleep when no more any event are available
+    // and wakeup when notified from push or end
+    virtual void execute() = 0;
+
+    bool mustEnd() const noexcept
     {
-    public:
-        using AppHandler = bool (*)(void *data, Event &&evt);
-
-        /* There is a global event queue for all the graphs that may be
-           contained in the application
-        */
-        inline static EventQueue *cg_eventQueue = nullptr;
-
-        EventQueue() {};
-        virtual ~EventQueue() {};
-
-        // In case of a threaded implementation
-        // this should wakeup the thread
-        // Return false in case of queue overflow
-        virtual bool push(Message &&message) = 0;
-        virtual bool isEmpty() = 0;
-        virtual void clear() = 0;
-
-        // In case of a threaded implementation
-        // this should sleep when no more any event are available
-        virtual void execute() = 0;
-
-        bool mustEnd() const noexcept
-        {
-            return (mustEnd_);
-        };
-
-        void end() noexcept
-        {
-            mustEnd_ = true;
-        };
-
-        // Set an application handler.
-        // Events sent to a null node are sent to the application handler.
-        // data is any additional data needed by the handler.
-        bool callHandler(arm_cmsis_stream::Event &&evt)
-        {
-            if (mustEnd_)
-            {
-                return false; // Do not call the handler if we are ending
-            }
-            if (handlerReady_)
-            {
-                if (this->handler)
-                {
-                    return (this->handler(this->handlerData, std::move(evt)));
-                }
-                return false;
-            }
-            return false;
-        };
-
-        void setHandler(void *data, AppHandler handler)
-        {
-            handlerData = data;
-            this->handler = handler;
-            handlerReady_ = true;
-        };
-
-    protected:
-        void *handlerData = nullptr;
-        AppHandler handler = nullptr;
-        std::atomic<bool> mustEnd_ = false;
-        std::atomic<bool> handlerReady_ = false;
+        return (mustEnd_.load());
     };
 
-    class EventOutput
+    // In case of multi-threaded implementation
+    // this should wakeup the thread
+    virtual void end() noexcept
     {
-    protected:
-        enum EventMode
+        mustEnd_.store(true);
+    };
+
+    // Set an application handler.
+    // Events sent to a null node are sent to the application handler.
+    // data is any additional data needed by the handler.
+    bool callHandler(int node_id, arm_cmsis_stream::Event &&evt)
+    {
+        if (mustEnd_)
         {
-            kSync,
-            kAsync
-        };
-
-        bool sendEventToAllNodes(Event &&evt,
-                                 EventMode mode = kSync)
+            return false; // Do not call the handler if we are ending
+        }
+        if (handlerReady_)
         {
-            if ((mode == kAsync) && ((EventQueue::cg_eventQueue == nullptr) || EventQueue::cg_eventQueue->mustEnd()))
+            if (this->handler)
             {
-                return false; 
+                return (this->handler(node_id, this->handlerData, std::move(evt)));
             }
+            return false;
+        }
+        return false;
+    };
 
-            if (evt.event_id == kNoEvent) 
+    void setHandler(void *data, AppHandler handler)
+    {
+        handlerData = data;
+        this->handler = handler;
+        handlerReady_ = true;
+    };
+
+  protected:
+    // In case of a threaded implementation
+    // this should wakeup the thread
+    // Return false in case of queue overflow
+    virtual bool push(Message &&message) = 0;
+
+    void *handlerData = nullptr;
+    AppHandler handler = nullptr;
+    std::atomic<bool> mustEnd_ = false;
+    std::atomic<bool> handlerReady_ = false;
+};
+
+class EventOutput
+{
+  protected:
+    enum EventMode
+    {
+        kSync,
+        kAsync
+    };
+
+    bool sendEventToAllNodes(Event &&evt,
+                             EventMode mode = kSync)
+    {
+        if ((mode == kAsync) && ((EventQueue::cg_eventQueue == nullptr) || EventQueue::cg_eventQueue->mustEnd()))
+        {
+            return false;
+        }
+
+        if (evt.event_id == kNoEvent)
+        {
+            return true; // No event to send
+        }
+
+        if (mNodes.size() == 1)
+        {
+            LocalDestination destination = mNodes[0];
+            if (mode == kAsync)
             {
-                return true; // No event to send
+                // If async, we just push the event to the queue
+                if (!EventQueue::cg_eventQueue->push(destination, std::move(evt)))
+                {
+                    // If the queue is full, we return false
+                    return false;
+                }
             }
+            else
+            {
+                // If not async, we call the processEvent directly
+                destination.dst->processEvent(destination.dstPort, std::move(evt));
+            }
+        }
+        else
+        {
 
-            for (std::pair<StreamNode *, int> pair : mNodes)
+            for (LocalDestination destination : mNodes)
             {
                 if (mode == kAsync)
                 {
                     // If async, we just push the event to the queue
-                    Message msg = {std::get<0>(pair), std::get<1>(pair), evt};
-                    if (!EventQueue::cg_eventQueue->push(std::move(msg)))
+                    if (!EventQueue::cg_eventQueue->push(destination, evt.clone()))
                     {
                         // If the queue is full, we return false
                         return false;
@@ -159,101 +224,117 @@ namespace arm_cmsis_stream
                 else
                 {
                     // If not async, we call the processEvent directly
-                    std::get<0>(pair)->processEvent(std::get<1>(pair), Event(evt));
+                    destination.dst->processEvent(destination.dstPort, std::move(evt.clone()));
                 }
             }
-
-            return true; // Event sent successfully
-        };
-
-    public:
-        void subscribe(StreamNode &node, int dstPort = 0)
-        {
-            mNodes.push_back(std::make_pair(&node, dstPort));
-        };
-
-        template <typename... Args>
-        void sendSync(enum cg_event_priority priority,
-                      uint32_t selector,
-                      Args &&...args)
-        {
-            sendCombinedValue(priority, kSync, selector, std::forward<Args>(args)...);
         }
-
-        template <typename... Args>
-        bool sendAsync(enum cg_event_priority priority,
-                       uint32_t selector,
-                       Args &&...args)
-        {
-            return sendCombinedValue(priority, kAsync, selector, std::forward<Args>(args)...);
-        }
-
-        template <typename... Args>
-        bool sendAsync(Event &&evt)
-        {
-            return sendEventToAllNodes(std::move(evt), kAsync);
-        }
-
-        template <typename... Args>
-        static void sendSyncToApp(enum cg_event_priority priority,
-                                  uint32_t selector,
-                                  Args &&...args)
-        {
-            sendToApp(priority, kSync, selector, std::forward<Args>(args)...);
-        }
-
-        template <typename... Args>
-        static bool sendAsyncToApp(enum cg_event_priority priority,
-                                   uint32_t selector,
-                                   Args &&...args)
-        {
-            return sendToApp(priority, kAsync, selector, std::forward<Args>(args)...);
-        }
-
-    protected:
-        template <typename... Args>
-        bool sendCombinedValue(enum cg_event_priority priority,
-                               EventMode mode,
-                               uint32_t selector,
-                               Args &&...args)
-        {
-            // When more than one value
-            // we create a combined event
-            Event evt(selector, priority, std::forward<Args>(args)...);
-            return sendEventToAllNodes(std::move(evt), mode);
-        };
-
-        template <typename... Args>
-        static bool sendToApp(enum cg_event_priority priority,
-                              EventMode mode,
-                              uint32_t selector,
-                              Args &&...args)
-        {
-            
-            if ((mode == kAsync) && ((EventQueue::cg_eventQueue == nullptr) || EventQueue::cg_eventQueue->mustEnd()))
-            {
-                return false; 
-            }
-
-            Event evt(selector, priority, std::forward<Args>(args)...);
-            if (mode == kAsync)
-            {
-                Message msg = {nullptr, 0, std::move(evt)};
-                if (!EventQueue::cg_eventQueue->push(std::move(msg)))
-                {
-                    // If the queue is full, we return false
-                    return false;
-                }
-                return true;
-            }
-            else
-            {
-
-                return EventQueue::cg_eventQueue->callHandler(std::move(evt));
-            }
-        };
-
-        std::vector<std::pair<StreamNode *, int>> mNodes;
+        return true; // Event sent successfully
     };
 
-} // end cmsis stream namespace
+  public:
+    void subscribe(StreamNode &node, int dstPort = 0)
+    {
+        mNodes.push_back(LocalDestination{&node, dstPort});
+    };
+
+    template <typename... Args>
+    void sendSync(enum cg_event_priority priority,
+                  uint32_t selector,
+                  Args &&...args)
+    {
+        sendCombinedValue(priority, kSync, selector, 0, std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    bool sendAsync(enum cg_event_priority priority,
+                   uint32_t selector,
+                   Args &&...args)
+    {
+        return sendCombinedValue(priority, kAsync, selector, 0, std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    bool sendAsyncWithTTL(enum cg_event_priority priority,
+                   uint32_t selector,
+                   uint32_t ttl,
+                   Args &&...args)
+    {
+        return sendCombinedValue(priority, kAsync, selector, ttl, std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    bool sendAsync(Event &&evt)
+    {
+        return sendEventToAllNodes(std::move(evt), kAsync);
+    }
+
+    template <typename... Args>
+    static void sendSyncToApp(int node_id,
+                              enum cg_event_priority priority,
+                              uint32_t selector,
+                              Args &&...args)
+    {
+        sendToApp(node_id, priority, kSync, selector, std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    static bool sendAsyncToApp(int node_id,
+                               enum cg_event_priority priority,
+                               uint32_t selector,
+                               Args &&...args)
+    {
+        return sendToApp(node_id, priority, kAsync, selector, std::forward<Args>(args)...);
+    }
+
+  protected:
+    template <typename... Args>
+    bool sendCombinedValue(enum cg_event_priority priority,
+                           EventMode mode,
+                           uint32_t selector,
+                           uint32_t ttl,
+                           Args &&...args)
+    {
+        // When more than one value
+        // we create a combined event
+        Event evt(selector, priority, std::forward<Args>(args)...);
+        if (ttl != 0)
+        {
+            evt.setTTL(ttl);
+        }
+        return sendEventToAllNodes(std::move(evt), mode);
+    };
+
+    template <typename... Args>
+    static bool sendToApp(int node_id,
+                          enum cg_event_priority priority,
+                          EventMode mode,
+                          uint32_t selector,
+                          Args &&...args)
+    {
+
+        if ((mode == kAsync) && ((EventQueue::cg_eventQueue == nullptr) || EventQueue::cg_eventQueue->mustEnd()))
+        {
+            return false;
+        }
+
+        Event evt(selector, priority, std::forward<Args>(args)...);
+        if (mode == kAsync)
+        {
+            if (!EventQueue::cg_eventQueue->push(DistantDestination{node_id}, std::move(evt)))
+            {
+                // If the queue is full, we return false
+                return false;
+            }
+            return true;
+        }
+        else
+        {
+
+            return EventQueue::cg_eventQueue->callHandler(node_id, std::move(evt));
+        }
+    };
+
+    std::vector<LocalDestination> mNodes;
+};
+
+} // namespace arm_cmsis_stream

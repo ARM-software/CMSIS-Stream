@@ -104,14 +104,15 @@ namespace arm_cmsis_stream
                 write_value(uint8_t(0));
                 pack(std::get<cg_value>(evt.data),network);
             }
-            else if (std::holds_alternative<std::shared_ptr<ListValue>>(evt.data))
+            else if (std::holds_alternative<UniquePtr<ListValue>>(evt.data))
             {
                 write_value(uint8_t(1));
-                const ListValue &cv = *std::get<std::shared_ptr<ListValue>>(evt.data);
-                write_value(cv.nb_values);
-                for (uint32_t i = 0; i < cv.nb_values; ++i)
+                UniquePtr<ListValue> &uv = std::get<UniquePtr<ListValue>>(evt.data);
+                const ListValue *cv = uv.get();
+                write_value(cv->nb_values);
+                for (uint32_t i = 0; i < cv->nb_values; ++i)
                 {
-                    pack(cv.values[i],network);
+                    pack(cv->values[i],network);
                 }
             }
         };
@@ -198,7 +199,8 @@ namespace arm_cmsis_stream
         {
             TensorPtr<T> t = std::get<TensorPtr<T>>(anyt);
             write_value(uint8_t(kTensor));
-            t.lock_shared([this, dt,network](CG_MUTEX_ERROR_TYPE error, const Tensor<T> &v)
+            bool lockError;
+            t.lock_shared(lockError,[this, dt,network](const Tensor<T> &v)
                           {
                 write_value(v.nb_dims);
                 pack_array<uint32_t,CG_TENSOR_NB_DIMS>(v.dims);
@@ -224,7 +226,8 @@ namespace arm_cmsis_stream
         {
             TensorPtr<T> t = std::get<TensorPtr<T>>(anyt);
             write_value(uint8_t(kTensor));
-            t.lock_shared([this, dt,network](CG_MUTEX_ERROR_TYPE error, const Tensor<T> &v)
+            bool lockError;
+            t.lock_shared(lockError,[this, dt,network](const Tensor<T> &v)
                           {
                 write_value(v.nb_dims);
                 pack_array<uint32_t,CG_TENSOR_NB_DIMS>(v.dims);
@@ -319,7 +322,8 @@ namespace arm_cmsis_stream
             {
                 write_value(uint8_t(kAny));
                 const BufferPtr r = std::get<BufferPtr>(val.value);
-                r.lock_shared([this,network](CG_MUTEX_ERROR_TYPE error, const RawBuffer &v)
+                bool lockError;
+                r.lock_shared(lockError,[this,network](const RawBuffer &v)
                               {
                                   if (std::holds_alternative<UniquePtr<std::byte>>(v.data))
                                   {
@@ -469,13 +473,13 @@ namespace arm_cmsis_stream
             else if (dataCase == 1)
             {
                 uint32_t nb_values = read_value<uint32_t>();
-                std::shared_ptr<ListValue> cv = Event::make_new_list_value();
+                UniquePtr<ListValue> cv = Event::make_new_list_value();
                 cv->nb_values = nb_values;
                 for (uint32_t i = 0; i < nb_values; ++i)
                 {
                     cv->values[i] = unpack_value();
                 }
-                return (Event(event_id, cv, priority));
+                return (Event(event_id, std::move(cv), priority));
             }
             return (Event((uint32_t)kDo, priority, (cg_value())));
         };
@@ -743,3 +747,4 @@ namespace arm_cmsis_stream
     };
 
 };
+// end of namespace arm_cmsis_stream

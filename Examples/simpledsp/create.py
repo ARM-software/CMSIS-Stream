@@ -45,6 +45,7 @@ with open("simpledsp.dot","w") as f:
 try_remove("StreamNode.hpp")
 try_remove("GenericNodes.hpp")
 try_remove("EventQueue.hpp")
+try_remove("EventDisplay.hpp")
 try_remove("cg_queue.hpp")
 try_remove("cg_queue.cpp")
 try_remove("cg_enums.h")

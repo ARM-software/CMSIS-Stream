@@ -172,7 +172,7 @@ class Configuration:
         self.CAPI = True
 
         # By default arm_math.h is included
-        self.CMSISDSP = False
+        self.CMSISDSP:bool = False
 
         # Asynchronous scheduling using
         # synchronous as first start

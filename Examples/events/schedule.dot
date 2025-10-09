@@ -2,6 +2,8 @@
 
 
 
+
+
 digraph structs {
     bgcolor = "white"
     node [shape=plaintext,color="black",fontcolor="black",fontname="Times-Roman"]
@@ -25,7 +27,7 @@ sink [label=<
     <TD></TD>
   </TR>
 <TR>
-<TD PORT="0"><FONT POINT-SIZE="12.0" COLOR="black">ev0</FONT></TD>
+<TD PORT="iev0"><FONT POINT-SIZE="12.0" COLOR="black">iev0</FONT></TD>
 
  
 <TD></TD></TR>
@@ -43,7 +45,7 @@ source [label=<
 <TR>
  
 <TD></TD>
-<TD PORT="0"><FONT POINT-SIZE="12.0" COLOR="black">ev0</FONT></TD>
+<TD PORT="oev0"><FONT POINT-SIZE="12.0" COLOR="black">oev0</FONT></TD>
 </TR>
 
 </TABLE>>];
@@ -71,10 +73,10 @@ processing:i -> sink:i [style="solid",color="black",fontsize="12.0",fontcolor="b
 
 
 
-source:0 -> sink:0 [style="dashed",color="black",fontsize="12.0",fontcolor="black",label=<>
+source:oev0 -> sink:iev0 [style="dashed",color="black",fontsize="12.0",fontcolor="black",label=<>
 
 ]
-source:0 -> evtsink:i [style="dashed",color="black",fontsize="12.0",fontcolor="black",label=<>
+source:oev0 -> evtsink:i [style="dashed",color="black",fontsize="12.0",fontcolor="black",label=<>
 
 ]
 

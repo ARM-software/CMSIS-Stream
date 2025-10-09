@@ -98,6 +98,7 @@ namespace arm_cmsis_stream
         virtual T *getWriteBuffer(int nb) = 0;
         virtual T *getReadBuffer(int nb) = 0;
         virtual ~FIFOBase() {};
+        virtual bool isArray() const { return false; };
 
         /*
         Used when FIFO buffer is enforced by a node.
@@ -131,7 +132,7 @@ namespace arm_cmsis_stream
            The buffer is a shared memory wrapper */
         explicit FIFO(void *buffer, int delay = 0) : mBuffer((T *)buffer), readPos(0), writePos(delay) {};
 
-        void setBuffer(T *buffer) { mBuffer = buffer; };
+        void setBuffer(T *buffer) final override{ mBuffer = buffer; };
 
         /*
         FIFO are fixed and not made to be copied or moved.
@@ -220,7 +221,9 @@ namespace arm_cmsis_stream
         explicit FIFO(T *buffer) : mBuffer(buffer) {};
         explicit FIFO(void *buffer) : mBuffer((T *)buffer) {};
 
-        void setBuffer(T *buffer) { mBuffer = buffer; };
+        void setBuffer(T *buffer)  final override { mBuffer = buffer; };
+
+        bool isArray() const final override { return true; };
 
         /*
         FIFO are fixed and not made to be copied or moved.
@@ -293,7 +296,7 @@ namespace arm_cmsis_stream
         explicit FIFO(T *buffer, int delay = 0) : mBuffer(buffer), readPos(0), writePos(delay) {};
         explicit FIFO(void *buffer, int delay = 0) : mBuffer((T *)buffer), readPos(0), writePos(delay) {};
 
-        void setBuffer(T *buffer) { mBuffer = buffer; };
+        void setBuffer(T *buffer)  final override { mBuffer = buffer; };
 
         /*
         FIFO are fixed and not made to be copied or moved.
@@ -422,6 +425,9 @@ namespace arm_cmsis_stream
         bool willOverflow(int nb = outputSize) const { return mDst.willOverflowWith(nb); };
         bool willUnderflow(int nb = inputSize) const { return mSrc.willUnderflowWith(nb); };
 
+        bool isReadArray() const  { return mSrc.isArray(); };
+        bool isWriteArray() const { return mDst.isArray(); };
+
     private:
         FIFOBase<IN> &mSrc;
         FIFOBase<OUT> &mDst;
@@ -444,6 +450,9 @@ namespace arm_cmsis_stream
         bool willUnderflow(int nb = inputSize) const { return mSrc.willUnderflowWith(nb); };
         bool willOverflow(int id = 0, int nb = outputSize) const { return mDstList[id]->willOverflowWith(nb); };
 
+        bool isReadArray() const  { return mSrc.isArray(); };
+        bool isWriteArray(int id = 0) const { return mDstList[id]->isArray(); };
+
     private:
         FIFOBase<IN> &mSrc;
         const std::vector<FIFOBase<OUT> *> mDstList;
@@ -465,6 +474,10 @@ namespace arm_cmsis_stream
 
         bool willUnderflow(int id = 0, int nb = inputSize) const { return mSrcList[id]->willUnderflowWith(nb); };
         bool willOverflow(int nb = outputSize) const { return mDst.willOverflowWith(nb); };
+
+        bool isReadArray(int id = 0) const  { return mSrcList[id]->isArray(); };
+        bool isWriteArray() const { return mDst.isArray(); };
+
 
     private:
         const std::vector<FIFOBase<IN> *> mSrcList;
@@ -489,6 +502,9 @@ namespace arm_cmsis_stream
         bool willUnderflow(int id = 0, int nb = inputSize) const { return mSrcList[id]->willUnderflowWith(nb); };
         bool willOverflow(int id = 0, int nb = outputSize) const { return mDstList[id]->willOverflowWith(nb); };
 
+        bool isReadArray(int id = 0) const  { return mSrcList[id]->isArray(); };
+        bool isWriteArray(int id = 0) const { return mDstList[id]->isArray(); };
+
     private:
         const std::vector<FIFOBase<IN> *> mSrcList;
         const std::vector<FIFOBase<OUT> *> mDstList;
@@ -510,6 +526,10 @@ namespace arm_cmsis_stream
         bool willOverflow2(int nb = output2Size) const { return mDst2.willOverflowWith(nb); };
 
         bool willUnderflow(int nb = inputSize) const { return mSrc.willUnderflowWith(nb); };
+
+        bool isReadArray() const  { return mSrc.isArray(); };
+        bool isWriteArray1() const { return mDst1.isArray(); };
+        bool isWriteArray2() const { return mDst2.isArray(); };
 
     private:
         FIFOBase<IN> &mSrc;
@@ -543,6 +563,11 @@ namespace arm_cmsis_stream
 
         bool willUnderflow(int nb = inputSize) const { return mSrc.willUnderflowWith(nb); };
 
+        bool isReadArray() const  { return mSrc.isArray(); };
+        bool isWriteArray1() const { return mDst1.isArray(); };
+        bool isWriteArray2() const { return mDst2.isArray(); };
+        bool isWriteArray3() const { return mDst3.isArray(); };
+
     private:
         FIFOBase<IN> &mSrc;
         FIFOBase<OUT1> &mDst1;
@@ -566,6 +591,10 @@ namespace arm_cmsis_stream
         bool willOverflow(int nb = outputSize) const { return mDst.willOverflowWith(nb); };
         bool willUnderflow1(int nb = input1Size) const { return mSrc1.willUnderflowWith(nb); };
         bool willUnderflow2(int nb = input2Size) const { return mSrc2.willUnderflowWith(nb); };
+
+        bool isReadArray1() const  { return mSrc1.isArray(); };
+        bool isReadArray2() const  { return mSrc2.isArray(); };
+        bool isWriteArray() const { return mDst.isArray(); };
 
     private:
         FIFOBase<IN1> &mSrc1;
@@ -599,6 +628,11 @@ namespace arm_cmsis_stream
         bool willUnderflow2(int nb = input2Size) const { return mSrc2.willUnderflowWith(nb); };
         bool willUnderflow3(int nb = input3Size) const { return mSrc3.willUnderflowWith(nb); };
 
+        bool isReadArray1() const  { return mSrc1.isArray(); };
+        bool isReadArray2() const  { return mSrc2.isArray(); };
+        bool isReadArray3() const  { return mSrc3.isArray(); };
+        bool isWriteArray() const { return mDst.isArray(); };
+
     private:
         FIFOBase<IN1> &mSrc1;
         FIFOBase<IN2> &mSrc2;
@@ -618,6 +652,7 @@ namespace arm_cmsis_stream
 
         bool willOverflow(int nb = outputSize) const { return mDst.willOverflowWith(nb); };
 
+        bool isWriteArray() const { return mDst.isArray(); };
     private:
         FIFOBase<OUT> &mDst;
     };
@@ -633,6 +668,7 @@ namespace arm_cmsis_stream
 
         bool willUnderflow(int nb = inputSize) const { return mSrc.willUnderflowWith(nb); };
 
+        bool isReadArray() const  { return mSrc.isArray(); };
     private:
         FIFOBase<IN> &mSrc;
     };

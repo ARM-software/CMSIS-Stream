@@ -193,11 +193,6 @@ int init_scheduler()
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    initError = nodes.processing->init();
-    if (initError != CG_SUCCESS)
-    {
-        return(initError);
-    }
     identifiedNodes[PROCESSING_ID]=createStreamNode(*nodes.processing);
     nodes.processing->setID(PROCESSING_ID);
 
@@ -205,11 +200,6 @@ int init_scheduler()
     if (nodes.sink==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
-    initError = nodes.sink->init();
-    if (initError != CG_SUCCESS)
-    {
-        return(initError);
     }
     identifiedNodes[SINK_ID]=createStreamNode(*nodes.sink);
     nodes.sink->setID(SINK_ID);
@@ -219,11 +209,6 @@ int init_scheduler()
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    initError = nodes.source->init();
-    if (initError != CG_SUCCESS)
-    {
-        return(initError);
-    }
     identifiedNodes[SOURCE_ID]=createStreamNode(*nodes.source);
     nodes.source->setID(SOURCE_ID);
 
@@ -232,11 +217,6 @@ int init_scheduler()
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    initError = nodes.evtsink->init();
-    if (initError != CG_SUCCESS)
-    {
-        return(initError);
-    }
     identifiedNodes[EVTSINK_ID]=createStreamNode(*nodes.evtsink);
     nodes.evtsink->setID(EVTSINK_ID);
 
@@ -244,6 +224,25 @@ int init_scheduler()
 /* Subscribe nodes for the event system*/
     nodes.source->subscribe(0,*nodes.sink,0);
     nodes.source->subscribe(0,*nodes.evtsink,0);
+
+    initError = CG_SUCCESS;
+    initError = nodes.processing->init();
+    if (initError != CG_SUCCESS)
+        return(initError);
+    
+    initError = nodes.sink->init();
+    if (initError != CG_SUCCESS)
+        return(initError);
+    
+    initError = nodes.source->init();
+    if (initError != CG_SUCCESS)
+        return(initError);
+    
+    initError = nodes.evtsink->init();
+    if (initError != CG_SUCCESS)
+        return(initError);
+    
+   
 
 
     return(CG_SUCCESS);

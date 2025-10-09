@@ -231,55 +231,69 @@ uint32_t scheduler(int *error,int someVariable)
     /* 
     Create node objects
     */
-   cgStaticError = CG_SUCCESS;
-    Duplicate<complex,1,complex,1> dup0(fifo14,{&fifo15,&fifo16}); /* Node ID = 0 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = dup0.init();
-    }
-    FromSource<float,1,float,5> fromSource(fifo0,{&fifo1,&fifo2,&fifo3,&fifo4,&fifo5}); /* Node ID = 1 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = fromSource.init();
-    }
-    ProcessingNode<float,7,complex,5> processing({&fifo1,&fifo2,&fifo3,&fifo4,&fifo5},{&fifo6,&fifo7,&fifo8,&fifo9,&fifo10,&fifo11,&fifo12}); /* Node ID = 2 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = processing.init();
-    }
-    SharedSink<complex,1,Shared<buffer,false>,1> sharedSink(fifo16,fifo13); /* Node ID = 3 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = sharedSink.init();
-    }
-    Source<Shared<buffer,false>,1> sharedSource(fifo13); /* Node ID = 4 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = sharedSource.init();
-    }
-    Sink<complex,1> sink(fifo15); /* Node ID = 5 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = sink.init();
-    }
-    Source<float,1> source(fifo0); /* Node ID = 6 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = source.init();
-    }
-    ToSink<complex,5,complex,1> toSink({&fifo6,&fifo7,&fifo8,&fifo9,&fifo10,&fifo11,&fifo12},fifo14); /* Node ID = 7 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = toSink.init();
-    }
 
-   if (cgStaticError != CG_SUCCESS)
-   {
-       goto errorHandling;
-   }
+
+    Duplicate<complex,1,complex,1> dup0(fifo14,{&fifo15,&fifo16}); /* Node ID = 0 */
+    FromSource<float,1,float,5> fromSource(fifo0,{&fifo1,&fifo2,&fifo3,&fifo4,&fifo5}); /* Node ID = 1 */
+    ProcessingNode<float,7,complex,5> processing({&fifo1,&fifo2,&fifo3,&fifo4,&fifo5},{&fifo6,&fifo7,&fifo8,&fifo9,&fifo10,&fifo11,&fifo12}); /* Node ID = 2 */
+    SharedSink<complex,1,Shared<buffer,false>,1> sharedSink(fifo16,fifo13); /* Node ID = 3 */
+    Source<Shared<buffer,false>,1> sharedSource(fifo13); /* Node ID = 4 */
+    Sink<complex,1> sink(fifo15); /* Node ID = 5 */
+    Source<float,1> source(fifo0); /* Node ID = 6 */
+    ToSink<complex,5,complex,1> toSink({&fifo6,&fifo7,&fifo8,&fifo9,&fifo10,&fifo11,&fifo12},fifo14); /* Node ID = 7 */
+
 
 /* Subscribe nodes for the event system*/
 
+    cgStaticError = CG_SUCCESS;
+    cgStaticError = dup0.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = fromSource.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = processing.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sharedSink.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sharedSource.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sink.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = source.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = toSink.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
 
 
 

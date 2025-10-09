@@ -110,7 +110,7 @@ void debug()
     uint32_t nodeid;
     evt = unpack.unpack(nodeid);
     std::cout << "Unpacked event ID: " << evt.event_id << std::endl;
-    std::cout << "Unpacked event " << evt << std::endl;
+    std::cout << "Unpacked event " << std::move(evt) << std::endl;
 #endif
     // Delete the old event that may contain shared_ptr to the
     // cbv pool.
@@ -147,9 +147,9 @@ void debug()
     }
 }
 
-bool app_handler(void *data,Event &&evt)
+bool app_handler(int src_node_id, void *data,Event &&evt)
 {
-      printf("App received event with id %d\n", evt.event_id);
+      printf("App received event with id %d from node %d\n", evt.event_id, src_node_id);
       return true;
 }
 

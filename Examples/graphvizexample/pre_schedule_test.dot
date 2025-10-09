@@ -3,10 +3,10 @@
 
 
 digraph structs {
-    bgcolor = "gray"
-    node [shape=plaintext,color="yellow",fontcolor="black",fontname="courier"]
+    bgcolor = "white"
+    node [shape=plaintext,color="black",fontcolor="black",fontname="Times-Roman"]
     rankdir=LR
-    edge [arrowsize="1.0",color="green",fontcolor="black",fontname="courier"]
+    edge [arrowsize="0.5",color="black",fontcolor="black",fontname="Times-Roman"]
 
 
 
@@ -111,7 +111,7 @@ TFLite [label=<
 
 
 srctoMonoDelay [label=<
-<TABLE color="yellow" bgcolor="bisque" BORDER="0" CELLBORDER="2" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="bisque" BORDER="0" CELLBORDER="2" CELLSPACING="0" CELLPADDING="4">
   <TR>
     <TD ALIGN="CENTER" PORT="i"><FONT COLOR="black" POINT-SIZE="20">10</FONT></TD>
   </TR>
@@ -121,18 +121,18 @@ srctoMonoDelay [label=<
 src:i -> srctoMonoDelay:i [style="solid",color="limegreen",label="",taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="red" POINT-SIZE="18" >320</FONT>
 </TD></TR></TABLE>>]
 
-srctoMonoDelay:i -> toMono:i [style="solid",color="green",label=""
+srctoMonoDelay:i -> toMono:i [style="solid",color="black",label=""
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="red" POINT-SIZE="18" >320</FONT>
 </TD></TR></TABLE>>]
 
 
-toMono:o1 -> arm_scale_f321:ia [style="solid",color="green",label=""
+toMono:o1 -> arm_scale_f321:ia [style="solid",color="black",label=""
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >160</FONT>
 </TD></TR></TABLE>>
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >160</FONT>
 </TD></TR></TABLE>>]
 
-toMono:o2 -> arm_scale_f322:ia [style="solid",color="green",label=""
+toMono:o2 -> arm_scale_f322:ia [style="solid",color="black",label=""
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >160</FONT>
 </TD></TR></TABLE>>
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >160</FONT>
@@ -150,32 +150,32 @@ arm_scale_f322:o -> arm_add_f321:ib [style="dashed",color="white",label=""
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >160</FONT>
 </TD></TR></TABLE>>]
 
-arm_add_f321:o -> audioWin:i [style="solid",color="green",label=""
+arm_add_f321:o -> audioWin:i [style="solid",color="black",label=""
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="red" POINT-SIZE="18" >320</FONT>
 </TD></TR></TABLE>>
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >160</FONT>
 </TD></TR></TABLE>>]
 
-audioWin:i -> mfcc:i [style="solid",color="green",label=""
+audioWin:i -> mfcc:i [style="solid",color="black",label=""
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="red" POINT-SIZE="18" >640</FONT>
 </TD></TR></TABLE>>
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="red" POINT-SIZE="18" >640</FONT>
 </TD></TR></TABLE>>]
 
-mfcc:i -> mfccWind:i [style="solid",color="green",label=""
+mfcc:i -> mfccWind:i [style="solid",color="black",label=""
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >250</FONT>
 </TD></TR></TABLE>>
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="blue" POINT-SIZE="12.0" >10</FONT>
 </TD></TR></TABLE>>]
 
-mfccWind:i -> TFLite:i [style="solid",color="green",label=""
+mfccWind:i -> TFLite:i [style="solid",color="black",label=""
 ,headlabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="red" POINT-SIZE="18" >500</FONT>
 </TD></TR></TABLE>>
 ,taillabel=<<TABLE BORDER="0" CELLPADDING="2"><TR><TD><FONT COLOR="red" POINT-SIZE="18" >500</FONT>
 </TD></TR></TABLE>>]
 
 HALF [label=<
-<TABLE color="yellow" bgcolor="darkseagreen" BORDER="0" CELLBORDER="2" CELLSPACING="0" CELLPADDING="4">
+<TABLE color="black" bgcolor="darkseagreen" BORDER="0" CELLBORDER="2" CELLSPACING="0" CELLPADDING="4">
   <TR>
     <TD ALIGN="CENTER" PORT="i"><FONT COLOR="red" POINT-SIZE="9">HALF</FONT></TD>
   </TR>

@@ -178,55 +178,69 @@ uint32_t dynamic_scheduler(int *error)
     /* 
     Create node objects
     */
-   cgStaticError = CG_SUCCESS;
-    BufferSource<std::shared_ptr<buffer>,1> buf1(fifo4); /* Node ID = 0 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = buf1.init();
-    }
-    BufferSource<std::shared_ptr<buffer>,1> buf2(fifo0); /* Node ID = 1 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = buf2.init();
-    }
-    BufferCopy<std::shared_ptr<buffer>,1,std::shared_ptr<buffer>,1> bufCopy(fifo6,fifo1); /* Node ID = 2 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = bufCopy.init();
-    }
-    Duplicate<std::shared_ptr<buffer>,1,std::shared_ptr<buffer>,1> dup0(fifo4,{&fifo5,&fifo6}); /* Node ID = 3 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = dup0.init();
-    }
-    InPlace<std::shared_ptr<buffer>,1,std::shared_ptr<buffer>,1> inplace(fifo1,fifo3); /* Node ID = 4 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = inplace.init();
-    }
-    Processing<std::shared_ptr<buffer>,1,std::shared_ptr<buffer>,1,std::shared_ptr<buffer>,1> processing(fifo0,fifo5,fifo2); /* Node ID = 5 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = processing.init();
-    }
-    BufferSink<std::shared_ptr<buffer>,1> sinkA(fifo2); /* Node ID = 6 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = sinkA.init();
-    }
-    BufferSink<std::shared_ptr<buffer>,1> sinkB(fifo3); /* Node ID = 7 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = sinkB.init();
-    }
 
-   if (cgStaticError != CG_SUCCESS)
-   {
-       goto errorHandling;
-   }
+
+    BufferSource<std::shared_ptr<buffer>,1> buf1(fifo4); /* Node ID = 0 */
+    BufferSource<std::shared_ptr<buffer>,1> buf2(fifo0); /* Node ID = 1 */
+    BufferCopy<std::shared_ptr<buffer>,1,std::shared_ptr<buffer>,1> bufCopy(fifo6,fifo1); /* Node ID = 2 */
+    Duplicate<std::shared_ptr<buffer>,1,std::shared_ptr<buffer>,1> dup0(fifo4,{&fifo5,&fifo6}); /* Node ID = 3 */
+    InPlace<std::shared_ptr<buffer>,1,std::shared_ptr<buffer>,1> inplace(fifo1,fifo3); /* Node ID = 4 */
+    Processing<std::shared_ptr<buffer>,1,std::shared_ptr<buffer>,1,std::shared_ptr<buffer>,1> processing(fifo0,fifo5,fifo2); /* Node ID = 5 */
+    BufferSink<std::shared_ptr<buffer>,1> sinkA(fifo2); /* Node ID = 6 */
+    BufferSink<std::shared_ptr<buffer>,1> sinkB(fifo3); /* Node ID = 7 */
+
 
 /* Subscribe nodes for the event system*/
 
+    cgStaticError = CG_SUCCESS;
+    cgStaticError = buf1.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = buf2.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = bufCopy.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = dup0.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = inplace.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = processing.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sinkA.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sinkB.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
 
 
 

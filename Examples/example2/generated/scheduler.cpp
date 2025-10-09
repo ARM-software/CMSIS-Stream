@@ -195,45 +195,55 @@ uint32_t scheduler(int *error,int opt1,int opt2)
     /* 
     Create node objects
     */
-   cgStaticError = CG_SUCCESS;
-    TFLite<float32_t,500> TFLite(fifo8); /* Node ID = 0 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = TFLite.init();
-    }
-    SlidingBuffer<float32_t,640,320> audioWin(fifo5,fifo6); /* Node ID = 4 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = audioWin.init();
-    }
-    MFCC<float32_t,640,float32_t,10> mfcc(fifo6,fifo7); /* Node ID = 5 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = mfcc.init();
-    }
-    SlidingBuffer<float32_t,500,250> mfccWind(fifo7,fifo8); /* Node ID = 6 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = mfccWind.init();
-    }
-    StereoSource<float32_t,320> src(fifo0); /* Node ID = 7 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = src.init();
-    }
-    Unzip<float32_t,320,float32_t,160,float32_t,160> toMono(fifo0,fifo1,fifo2); /* Node ID = 8 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = toMono.init();
-    }
 
-   if (cgStaticError != CG_SUCCESS)
-   {
-       goto errorHandling;
-   }
+
+    TFLite<float32_t,500> TFLite(fifo8); /* Node ID = 0 */
+    SlidingBuffer<float32_t,640,320> audioWin(fifo5,fifo6); /* Node ID = 4 */
+    MFCC<float32_t,640,float32_t,10> mfcc(fifo6,fifo7); /* Node ID = 5 */
+    SlidingBuffer<float32_t,500,250> mfccWind(fifo7,fifo8); /* Node ID = 6 */
+    StereoSource<float32_t,320> src(fifo0); /* Node ID = 7 */
+    Unzip<float32_t,320,float32_t,160,float32_t,160> toMono(fifo0,fifo1,fifo2); /* Node ID = 8 */
+
 
 /* Subscribe nodes for the event system*/
 
+    cgStaticError = CG_SUCCESS;
+    cgStaticError = TFLite.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = audioWin.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = mfcc.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = mfccWind.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = src.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = toMono.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
 
 
 

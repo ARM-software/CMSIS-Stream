@@ -159,50 +159,62 @@ uint32_t scheduler(int *error,int someVariable)
     /* 
     Create node objects
     */
-   cgStaticError = CG_SUCCESS;
-    Duplicate<complex,5,complex,5> dup0(fifo2,{&fifo3}); /* Node ID = 0 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = dup0.init();
-    }
-    ProcessingNode<complex,5,complex,5,complex,5> filter(fifo0,fifo2,fifo1,4,"Test",someVariable); /* Node ID = 1 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = filter.init();
-    }
-    Sink<complex,5> sa(fifo3); /* Node ID = 2 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = sa.init();
-    }
-    Sink<complex,5> sb(fifo4); /* Node ID = 3 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = sb.init();
-    }
-    Sink<complex,5> sc(fifo5); /* Node ID = 4 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = sc.init();
-    }
-    Sink<complex,5> sd(fifo1); /* Node ID = 5 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = sd.init();
-    }
-    Source<complex,5> source(fifo0); /* Node ID = 6 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = source.init();
-    }
 
-   if (cgStaticError != CG_SUCCESS)
-   {
-       goto errorHandling;
-   }
+
+    Duplicate<complex,5,complex,5> dup0(fifo2,{&fifo3}); /* Node ID = 0 */
+    ProcessingNode<complex,5,complex,5,complex,5> filter(fifo0,fifo2,fifo1,4,"Test",someVariable); /* Node ID = 1 */
+    Sink<complex,5> sa(fifo3); /* Node ID = 2 */
+    Sink<complex,5> sb(fifo4); /* Node ID = 3 */
+    Sink<complex,5> sc(fifo5); /* Node ID = 4 */
+    Sink<complex,5> sd(fifo1); /* Node ID = 5 */
+    Source<complex,5> source(fifo0); /* Node ID = 6 */
+
 
 /* Subscribe nodes for the event system*/
 
+    cgStaticError = CG_SUCCESS;
+    cgStaticError = dup0.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = filter.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sa.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sb.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sc.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sd.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = source.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
 
 
 

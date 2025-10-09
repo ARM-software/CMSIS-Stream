@@ -450,7 +450,7 @@ class BaseNode:
         return(True)
 
     @property
-    def typeName(self):
+    def typeName(self) -> str:
         return "void"
     
     

@@ -70,7 +70,9 @@ extern "C"
         kNodeWillBeDestroyed = 11,
         kNodeReadyToBeDestroyed = 12, 
         kError = 13,
-        kLongRun = 14,     
+        kLongRun = 14,    
+        kMemServerWillDestroy = 15,
+        kIPCEvent = 16, 
         // Node selectors are starting at 100
         kSelector = 100
     };

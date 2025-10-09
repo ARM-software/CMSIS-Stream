@@ -143,30 +143,34 @@ uint32_t scheduler(int *error,int someVariable)
     /* 
     Create node objects
     */
-   cgStaticError = CG_SUCCESS;
-    ProcessingNode<float,7,float,5> processing(fifo0,fifo1,4,"testString",someVariable); /* Node ID = 0 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = processing.init();
-    }
-    Sink<float,5> sink(fifo1); /* Node ID = 1 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = sink.init();
-    }
-    Source<float,5> source(fifo0); /* Node ID = 2 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = source.init();
-    }
 
-   if (cgStaticError != CG_SUCCESS)
-   {
-       goto errorHandling;
-   }
+
+    ProcessingNode<float,7,float,5> processing(fifo0,fifo1,4,"testString",someVariable); /* Node ID = 0 */
+    Sink<float,5> sink(fifo1); /* Node ID = 1 */
+    Source<float,5> source(fifo0); /* Node ID = 2 */
+
 
 /* Subscribe nodes for the event system*/
 
+    cgStaticError = CG_SUCCESS;
+    cgStaticError = processing.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sink.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = source.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
 
 
 

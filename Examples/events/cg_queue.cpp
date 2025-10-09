@@ -28,7 +28,9 @@
 #include "posix_thread.hpp"
 #include "cg_queue.hpp"
 
-bool MyQueue::push(arm_cmsis_stream::Message &&event)
+using namespace arm_cmsis_stream;
+
+bool MyQueue::push(Message &&event)
 {
     bool res = true;
     CG_MUTEX_ERROR_TYPE err;
@@ -73,7 +75,6 @@ void MyQueue::clear()
     CG_EXIT_CRITICAL_SECTION(queue_mutex, err);
 }
 
-
 void MyQueue::execute()
 {
     bool empty = false;
@@ -81,7 +82,7 @@ void MyQueue::execute()
     while (!empty)
     {
 
-        arm_cmsis_stream::Message msg;
+        Message msg;
         bool messageWasRead = false;
 
         // processEvent may push in async way some new events.
@@ -100,16 +101,16 @@ void MyQueue::execute()
 
         if (messageWasRead)
         {
-            if (msg.dst)
+            if (std::holds_alternative<LocalDestination>(msg.destination))
             {
-                msg.dst->processEvent(msg.dstPort, std::move(msg.event));
+                LocalDestination &local = std::get<LocalDestination>(msg.destination);
+                local.dst->processEvent(local.dstPort, std::move(msg.event));
             }
-            else
+            else if (std::holds_alternative<DistantDestination>(msg.destination))
             {
-                // Application handler
-                this->callHandler(std::move(msg.event));
+                DistantDestination &dist = std::get<DistantDestination>(msg.destination);
+                this->callHandler(dist.src_node_id, std::move(msg.event));
             }
         }
     }
 }
-

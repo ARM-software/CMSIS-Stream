@@ -264,9 +264,9 @@ public:
                 // Async send to the event queue
                 // Host always send to port 0
                 // Message from host is not shared since it is sent to only one node
-                Message msg = {n, 0, std::move(evt)};
+                LocalDestination dst{n, 0};
                 if (EventQueue::cg_eventQueue)
-                    EventQueue::cg_eventQueue->push(std::move(msg));
+                    EventQueue::cg_eventQueue->push(dst,std::move(evt));
             }
             else
             {

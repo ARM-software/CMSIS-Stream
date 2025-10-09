@@ -156,35 +156,41 @@ uint32_t scheduler(int *error,int someVariable)
     /* 
     Create node objects
     */
-   cgStaticError = CG_SUCCESS;
-    Duplicate<float,5,float,5> dup0(fifo1,{&fifo2,&fifo3}); /* Node ID = 0 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = dup0.init();
-    }
-    ProcessingNode<float,5,float,5,float,5> filter(fifo0,fifo3,fifo1); /* Node ID = 1 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = filter.init();
-    }
-    Sink<float,5> sink(fifo2); /* Node ID = 2 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = sink.init();
-    }
-    Source<float,5> source(fifo0); /* Node ID = 3 */
-    if (cgStaticError == CG_SUCCESS)
-    {
-        cgStaticError = source.init();
-    }
 
-   if (cgStaticError != CG_SUCCESS)
-   {
-       goto errorHandling;
-   }
+
+    Duplicate<float,5,float,5> dup0(fifo1,{&fifo2,&fifo3}); /* Node ID = 0 */
+    ProcessingNode<float,5,float,5,float,5> filter(fifo0,fifo3,fifo1); /* Node ID = 1 */
+    Sink<float,5> sink(fifo2); /* Node ID = 2 */
+    Source<float,5> source(fifo0); /* Node ID = 3 */
+
 
 /* Subscribe nodes for the event system*/
 
+    cgStaticError = CG_SUCCESS;
+    cgStaticError = dup0.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = filter.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sink.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = source.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
 
 
 
