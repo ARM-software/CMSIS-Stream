@@ -1,40 +1,51 @@
 # CMSIS-Stream
 
-CMSIS-Stream is a Python package for source code generation and a set of C++ headers that can be used on embedded devices to process streams of samples and events.
+CMSIS-Stream is a low overhead framework that can be used to build AI + multi-media applications.
+It unifies the handling of video, audio, DSP and AI in the same framework.
 
-With CMSIS-Stream you can describe a graph of processing elements exchanging data streams and events.
+Video, audio, AI, DSP components are all connected in a CMSIS Stream graph.
 
-The processing of the data streams in this graph has:
+CMSIS Stream is low overhead : it can run on bare metal with no RTOS, on embedded systems with RTOS (Zephyr, RTX or any other RTOS) and it also works on Linux and Mac with optional interprocess communications.
 
-* low memory usage
-* minimal overhead
-* deterministic scheduling
-* modular design
-* graphical representation
+CMSIS Stream is made of two parts : dataflow and events.
 
-CMSIS-Stream computes a scheduling of this streaming graph at **build time** with several memory optimizations. The scheduling is a state machine : it is deterministic.
+Processing elements in the graph can exchange data streams (dataflow) and send and receive events. An event is like a remote procedure call : it has a name and arguments.
 
-Stream of samples are processed by this graph as illustrated on the following animation:
-
-![SDF_doc](Documentation/assets/SDF_doc.gif)
-
-Processing nodes in the graph can also communicate with events. An event is like a function call : it has a name and arguments. Processing elements can send and receive events.
+CMSIS-Stream provides a Python package.
 
 Python is used to:
 
 * Describe the graph (streaming graph and event graph)
-* Generate a **static scheduling** of the streaming graph that is computed **at build time** with several memory optimizations. 
-* Generate the code for this scheduler as a simple C++ file (with a C API).
+* Generate a **static scheduling** of the streaming graph that is computed **at build time** with several memory optimizations.
+* Generate the code for this scheduler (state machine) as a simple C++ file (with a C API).
   * The scheduler can be run on bare metal devices. There is no dependencies to any RTOS. The scheduler is a sequence of function calls
 * Connect all the nodes for events propagation in the graph of events
 
 * Generate a graphical representation of the graph
 
-For the streaming part, C++ is only used for strong and static typing (template). The only part of the C++ library that is used is the memory allocator to create the objects before the graph is started.
+The processing of the data streams in this graph has:
 
-For the event graph (which is optional), more C++ is used. See the section of the documentation about the event graph.
+* low memory usage
+* minimal overhead (build time computations)
+* deterministic scheduling (state machine)
+* modular design
+* graphical representation
 
+For the streaming part, C++ is only used for strong and static typing (template). The only part of the C++ library that is used is the memory allocator to create the objects before the graph is started. You control memory allocations during the execution of the graph.
 
+For the event graph (which is optional) there is a dependency on the environment (RTOS, Rich OS or bare metal) and an implementation of the event runtime must be provided. See the section of the documentation about the event graph.
+
+The current repository does not (yet) provide implementations of the event runtime except as an example with CMSIS-RTOS API.
+
+Only the API to be implemented for the event runtime is provided.
+Some example implementations for CMSIS-RTOS, Zephyr and Linux will be provided soon.
+
+Here is an example of graph running on Zephyr and implementing a
+keyword spotting demo for Cortex-M with DSP pre-processing (microphone + MFCC), TensorFlow Lite for Micro component and additional components for majority voting and display on LCD with animation:
+
+![KWS graph](Documentation/assets/kws.png)
+
+This demo uses Helium acceleration and the Ethos NPU and is multi-threaded with fading animations on the LCD when keywords are recognized.
 
 ## License Terms
 
@@ -61,7 +72,6 @@ CMSIS-Stream is licensed under [Apache License 2.0](LICENSE).
 
    2. ### [C++ default nodes for C++ wrappers](Documentation/CPPNodes.md)
 
-
 5. ### [Memory optimizations](Documentation/Memory.md)
 
 6. ### [Integration in a system](Documentation/Integration.md)
@@ -79,6 +89,3 @@ CMSIS-Stream is licensed under [Apache License 2.0](LICENSE).
 9. ### [Maths principles](Documentation/MATHS.md)
 
 10. ### [FAQs](Documentation/FAQ.md)
-
-
-
