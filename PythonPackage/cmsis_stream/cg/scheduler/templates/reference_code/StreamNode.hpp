@@ -435,9 +435,10 @@ namespace arm_cmsis_stream
         {
         }
 
-        explicit UniquePtr(T *ptr,deleter_t d) noexcept
+        template <typename U>
+        explicit UniquePtr(U *ptr,deleter_t d) noexcept
         {
-            ptr_ = ptr;
+            ptr_ = const_cast<std::remove_const_t<U> *>(ptr);
             deleter_ = d;
         }
 
