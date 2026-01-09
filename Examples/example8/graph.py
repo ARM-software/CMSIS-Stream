@@ -97,7 +97,8 @@ conf=Configuration()
 # So we cannot reuse the graph to compute the Python and the C
 # code generation
 conf.debugLimit=2
-conf.cOptionalArgs="int someVariable"
+conf.cOptionalInitArgs=["int someVariable"]
+conf.cOptionalExecutionArgs=["int someVariable"]
 conf.memoryOptimization=True
 #conf.memStrategy = 'connected_sequential_bfs'
 #conf.disableDuplicateOptimization = True

@@ -51,7 +51,7 @@ extern uint32_t scheduler(int *error,int someVariable);
 This new argument to the scheduler is defined in the Python script:
 
 ```python
-conf.cOptionalArgs=["int someVariable"]
+conf.cOptionalInitArgs=["int someVariable"]
 ```
 
 ## The C++ code

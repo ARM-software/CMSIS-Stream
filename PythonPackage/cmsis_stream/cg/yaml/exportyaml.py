@@ -482,8 +482,8 @@ def export_config(config,filename):
     if config.eventRecorder   != default.eventRecorder :
         c_code_gen["event-recorder"] = config.eventRecorder 
 
-    if config.customCName    != default.customCName  :
-        c_code_gen["custom-c-name"] = config.customCName 
+    if config.appConfigCName    != default.appConfigCName  :
+        c_code_gen["app-config-c-name"] = config.appConfigCName 
 
     if config.postCustomCName     != default.postCustomCName   :
         c_code_gen["post-custom-c-name"] = config.postCustomCName      

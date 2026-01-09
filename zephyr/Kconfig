@@ -1,0 +1,107 @@
+config ZEPHYR_CMSISSTREAM_MODULE
+	bool
+
+menuconfig CMSISSTREAM
+	bool "CMSIS Stream Library Support"
+	help
+	  This option enables the CMSIS Stream library.
+
+if CMSISSTREAM
+
+config CMSISSTREAM_EVENT_QUEUE_LENGTH
+    int "Length of an event queue"
+    default 20
+    help
+      This is the number of events that can be queued in an event queue.
+      In case of overflow of the queue, new events are dropped.
+
+config CMSISSTREAM_NB_MAX_EVENTS 
+    int "Maximum number of events expected in the system at a given time"
+    default 20
+    help 
+      This is used to size the memory pools involved in event creation.
+      Several event queues will use the same pool so this number
+      may be bigger than the event queue length.
+
+config CMSISSTREAM_NB_MAX_BUFS 
+    int "Maximum number of buffers (tensors ...) expected in the system at a given time"
+    default 20
+    help 
+      This used to size the memory pool involved in atomic
+      reference counting of buffers (tensors ...).
+      An event may hold references to several buffers so this number
+      may be bigger than the number of events.
+
+
+config CMSISSTREAM_STREAM_THREAD_PRIORITY  
+    int "Priority of stream thread"
+    default 0
+    help 
+        This is the priority of the thread running the stream graph processing.
+        It should be set according to the application real-time requirements.
+
+config CMSISSTREAM_EVT_HIGH_PRIORITY 
+    int "Priority of high priority event thread"
+    default 4 
+    help 
+        This is the priority of the thread running high priority events.
+        It should be lower priority than the stream thread priority.
+
+config CMSISSTREAM_EVT_NORMAL_PRIORITY 
+    int "Priority of normal priority event thread"
+    default 5
+    help 
+        This is the priority of the thread running normal priority events.
+        It should be lower priority than the high priority event thread.
+
+config CMSISSTREAM_EVT_LOW_PRIORITY 
+    int "Priority of low priority event thread"
+    default 6
+    help 
+        This is the priority of the thread running low priority events.
+        It should be lower priority than the normal priority event thread.
+
+config CMSISSTREAM_EVT_THREAD_STACK_SIZE 
+    int "Stack size of event thread"
+    default 4096
+
+config CMSISSTREAM_STREAM_THREAD_STACK_SIZE 
+    int "Stack size of stream thread"
+    default 4096
+
+config CMSISSTREAM_POOL_SIZE 
+    int "Size allocated for the memory pools for event system"
+    default 800
+    help 
+        This is the total size allocated for the memory pool heap
+        used by the event system (events, buffers ...).
+        This heap contains atomic reference counted shared pointer, mutexes,
+        list of arguments for events ...
+        It must be big enough to accommodate all these structures and the size will depend
+        on the number of events and buffers in the system as well as the maximum
+        number of arguments per event. 
+
+config CMSISSTREAM_POOL_SECTION
+    string "Linker section where CMSIS Stream memory pools are placed"
+    default ".alif_sram0.evt_pool"
+
+config CMSISSTREAM_FIFO_SECTION
+    string "Linker section where CMSIS Stream FIFO buffers are placed"
+    default ".alif_sram0.stream_fifo"  
+
+config CMSISSTREAM_TENSOR_MAX_DIMENSIONS 
+    int "Maximum number of tensor dimensions"
+    default 3
+    help 
+      It defines the maximum number of dimensions for tensors used in the CMSIS Stream library.
+      The default value of 3 is suitable for image oriented applications (height, width, channels).
+
+config CMSISSTREAM_MAX_NUMBER_EVENT_ARGUMENTS
+    int "Maximum number of arguments in an event"
+    default 4
+    help 
+        It defines the maximum number of arguments that can be passed in an event.
+        This number impacts the size of memory pools used by the event system.
+
+endif #CMSISSTREAM
+

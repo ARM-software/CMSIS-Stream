@@ -59,7 +59,8 @@ print("Generate graphviz and code")
 
 conf=Configuration()
 conf.debugLimit=2
-conf.cOptionalArgs="int someVariable"
+conf.cOptionalInitArgs=["int someVariable"]
+conf.cOptionalExecutionArgs=["int someVariable"]
 #conf.displayFIFOSizes=True
 # Prefix for global FIFO buffers
 #conf.prefix="sched1"

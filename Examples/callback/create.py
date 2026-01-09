@@ -26,8 +26,8 @@ conf.callback = True
 # Here the state is the state variable defined in macro CG_BEFORE_SCHEDULE
 # The state of objects is automatically preserved since objects are
 # kept between calls of the schedule
-conf.cOptionalArgs="int *someVariable"
-
+conf.cOptionalInitArgs=["int *someVariable"]
+conf.cOptionalExecutionArgs=["int *someVariable"]
 
 # Compute a static scheduling of the graph 
 # The size of FIFO is also computed

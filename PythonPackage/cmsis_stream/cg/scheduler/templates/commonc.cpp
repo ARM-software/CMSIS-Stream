@@ -16,7 +16,8 @@ The support classes and code are covered by CMSIS-Stream license.
 {% else %}
 #include <cstdint>
 {% endif %}
-#include "{{config.customCName}}"
+#include "{{config.appConfigCName}}"
+#include "stream_platform_config.hpp"
 #include "cg_enums.h"
 #include "StreamNode.hpp"
 {% if config.nodeIdentification -%}
@@ -36,8 +37,16 @@ The support classes and code are covered by CMSIS-Stream license.
 
 CG_AFTER_INCLUDES
 
-{% macro optionalargs(first) -%}
-{% if config.cOptionalArgs %}{% if not first %},{% endif %}{{config.cOptionalArgs}}{% endif %}
+{% macro initOptionalargs(first) -%}
+{% if config.cOptionalInitArgs %}{% if not first %},{% endif %}{{config.cOptionalInitArgs}}{% endif %}
+{% endmacro -%}
+
+{% macro executionOptionalargs(first) -%}
+{% if config.cOptionalExecutionArgs %}{% if not first %},{% endif %}{{config.cOptionalExecutionArgs}}{% endif %}
+{% endmacro -%}
+
+{% macro freeOptionalargs(first) -%}
+{% if config.cOptionalFreeArgs %}{% if not first %},{% endif %}{{config.cOptionalFreeArgs}}{% endif %}
 {% endmacro -%}
 
 {% macro async() -%}
@@ -132,7 +141,7 @@ CG_BEFORE_BUFFER
 static buffers_t buffers={0};
 {% endif %}
 
-int init_buffer_{{config.schedName}}({{optionalargs(True)}})
+int init_buffer_{{config.schedName}}({{initOptionalargs(True)}})
 {
 {% for buf in sched._graph._allBuffers %}
     buffers.buf{{buf._bufferID}} = ({{buf._theType.ctype}} *)CG_MALLOC({{buf._length}} * sizeof({{buf._theType.ctype}}));
@@ -144,7 +153,7 @@ int init_buffer_{{config.schedName}}({{optionalargs(True)}})
     return(CG_SUCCESS);
 }
 
-void free_buffer_{{config.schedName}}({{optionalargs(True)}})
+void free_buffer_{{config.schedName}}({{freeOptionalargs(True)}})
 {
 {% for buf in sched._graph._allBuffers %}
     if (buffers.buf{{buf._bufferID}}!=NULL)
@@ -202,8 +211,15 @@ static nodes_t nodes={0};
 }
 {% endif %}
 
-int init_{{config.schedName}}({{optionalargs(True)}})
+{% if config.CAPI -%}
+int init_{{config.schedName}}(void *evtQueue_{{initOptionalargs(False)}})
+{% else %}
+int init_{{config.schedName}}(EventQueue *evtQueue{{initOptionalargs(False)}})
+{% endif %}
 {
+{% if config.CAPI %}
+    EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
+{% endif %}
 {% if config.callback -%}
     init_cb_state();
 {% endif %}
@@ -266,7 +282,7 @@ int init_{{config.schedName}}({{optionalargs(True)}})
 
 }
 
-void free_{{config.schedName}}({{optionalargs(True)}})
+void free_{{config.schedName}}({{freeOptionalargs(True)}})
 {
 {% for id in range(nbFifos) %}
     if (fifos.fifo{{id}}!=NULL)
@@ -288,7 +304,7 @@ void free_{{config.schedName}}({{optionalargs(True)}})
 {% endif %}
 
 CG_BEFORE_SCHEDULER_FUNCTION
-uint32_t {{config.schedName}}(int *error{{optionalargs(False)}})
+uint32_t {{config.schedName}}(int *error{{executionOptionalargs(False)}})
 {
 {% if schedLen > 0 %}
     int cgStaticError=0;

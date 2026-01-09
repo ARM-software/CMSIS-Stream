@@ -493,8 +493,8 @@ def import_config(filename):
             if 'event-recorder' in cco:
                 conf.eventRecorder = cco['event-recorder']
     
-            if 'custom-c-name' in cco:
-                conf.customCName = cco['custom-c-name']
+            if 'app-config-c-name' in cco:
+                conf.appConfigCName = cco['app-config-c-name']
     
             if 'post-custom-c-name' in cco:
                 conf.postCustomCName = cco['post-custom-c-name']

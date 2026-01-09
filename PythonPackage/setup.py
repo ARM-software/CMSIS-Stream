@@ -42,7 +42,7 @@ setup (name = 'cmsis-stream',
        long_description=open("README.md").read(),
        long_description_content_type='text/markdown',
        include_package_data=True,
-       author = 'Copyright (C) 2023-2025 ARM Limited or its affiliates. All rights reserved.',
+       author = 'Copyright (C) 2023-2026 ARM Limited or its affiliates. All rights reserved.',
        author_email = 'christophe.favergeon@arm.com',
        url="https://github.com/ARM-software/CMSIS-Stream",
        python_requires='>=3.7',
@@ -72,11 +72,6 @@ setup (name = 'cmsis-stream',
         project_urls={  # Optional
            'Bug Reports': 'https://github.com/ARM-software/CMSIS-Stream/issues',
            'Source': 'https://github.com/ARM-software/CMSIS-Stream',
-          },
-        entry_points={
-        'console_scripts': [
-            'cmsis-stream = cmsis_stream:cmsis_stream',
-        ]
-    }
+          }
         )
        

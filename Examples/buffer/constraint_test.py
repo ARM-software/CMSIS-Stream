@@ -246,7 +246,9 @@ conf.memStrategy = 'independent_set'
 #conf.memStrategy = 'saturation_largest_first'
 #conf.memStrategy = 'largest_first'
 conf.bufferAllocation = True
-conf.cOptionalArgs=["uint8_t *myBuffer","uint8_t *myBufferB"]
+conf.cOptionalInitArgs=["uint8_t *myBuffer","uint8_t *myBufferB"]
+conf.cOptionalExecutionArgs=["uint8_t *myBuffer","uint8_t *myBufferB"]
+
 conf.prefix = "cv"
 
 

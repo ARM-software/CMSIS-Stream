@@ -329,6 +329,8 @@ class BaseNode:
         self._identified = identified
 
         self._selectors = selectors
+        # Argument for receiving the event queue has been added
+        self._evtQueueAdded = False
 
     def __getattr__(self,name):
         """Present inputs / outputs as attributes"""
@@ -373,7 +375,12 @@ class BaseNode:
         id = len(self._eventOutputs)
         for k in range(nb):
             self._eventOutputs.append(EventOutput(self,id+k,EventType()))
-
+        if not self._evtQueueAdded:
+           # First time we add an event output
+           # we need to add the event queue argument
+           self._evtQueueAdded = True
+           self.addVariableArg("evtQueue")
+    
     @property
     def hasEventSlots(self):
         return len(self._eventInputs)>0 or len(self._eventOutputs)>0
@@ -419,9 +426,12 @@ class BaseNode:
             else:
                 self._addLiteralItem(l)
 
-    def _addVariableItem(self,item):
+    def _addVariableItem(self,item,first=False):
         if self.schedArgs:
-            self.schedArgs.append(VarLiteral(item))
+            if first:
+                self.schedArgs.insert(0,VarLiteral(item))
+            else:
+                self.schedArgs.append(VarLiteral(item))
         else:
             self.schedArgs=[VarLiteral(item)]
 
@@ -429,9 +439,15 @@ class BaseNode:
         for l in ls:
             if isinstance(l, list):
                for i in l:
-                  self._addVariableItem(i)
+                  if i == "evtQueue":
+                     self._addVariableItem(i,first=True)
+                  else:
+                     self._addVariableItem(i)
             else:
-              self._addVariableItem(l)
+              if l == "evtQueue":
+                 self._addVariableItem(l,first=True)
+              else:
+                 self._addVariableItem(l)
            
 
     @property

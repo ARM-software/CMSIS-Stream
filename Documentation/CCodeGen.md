@@ -15,9 +15,14 @@ It generate C++ code implementing the static schedule.
 
 ## Options for C Code Generation
 
-### cOptionalArgs (default = "")
+### C OptionalArgs (default = [])
 
-Optional arguments to pass to the C API of the scheduler function
+Optional arguments to pass to the C API.
+
+The are 3 variants :
+* `cOptionalInitArgs` : For init function
+* `cOptionalExecutionArgs` : For main scheduler function
+* `cOptionalFreeArgs` : for free function
 
 It can either use a `string` or a list of `string` where an element is an argument of the function (and should be valid `C`).
 
@@ -45,7 +50,7 @@ Enable the generation of `CMSIS EventRecorder` intrumentation in the code. You n
 * Node execution
 * Error
 
-### customCName (default = "custom.h")
+### appConfigCName (default = "app_config.h")
 
 Name of custom header in generated C code. If you use several scheduler, you may want to use different headers for each one.
 

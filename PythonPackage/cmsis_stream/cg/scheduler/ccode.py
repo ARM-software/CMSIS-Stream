@@ -94,10 +94,19 @@ def gencode(sched,directory,config):
     
     schedDescription=""
 
-    if isinstance(config.cOptionalArgs,list):
+    if isinstance(config.cOptionalInitArgs,list):
        spc = " " * 30
-       config.cOptionalArgs = f",\n{spc}".join(config.cOptionalArgs)
+       config.cOptionalInitArgs = f",\n{spc}".join(config.cOptionalInitArgs)
 
+    if isinstance(config.cOptionalExecutionArgs,list):
+       spc = " " * 30
+       config.cOptionalExecutionArgs = f",\n{spc}".join(config.cOptionalExecutionArgs)
+
+    if isinstance(config.cOptionalFreeArgs,list):
+       spc = " " * 30
+       config.cOptionalFreeArgs = f",\n{spc}".join(config.cOptionalFreeArgs)
+
+    
     # Asynchronous implies code array and switchCase
     if config.asynchronous or config.fullyAsynchronous:
        config.memoryOptimization = False

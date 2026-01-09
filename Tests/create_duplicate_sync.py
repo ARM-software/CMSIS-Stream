@@ -9,7 +9,7 @@ conf=Configuration()
 # to prevent the scheduling from running forever
 # (which should be the case for a stream computation)
 conf.debugLimit=1
-conf.customCName = "custom.h"
+conf.appConfigCName = "custom.h"
 conf.appNodesCName = "DuplicateAppNodes.h"
 conf.cOptionalArgs=["float* inputArray",
                     "float* outputArray"

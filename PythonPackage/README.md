@@ -15,6 +15,12 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 3.0.0:
+* Source code no more provided by the Python extension.
+* Get the source code here : https://github.com/ARM-software/CMSIS-Stream/platform
+* The repository will progressively add support for different OS
+* Event system reworked to more easily use several event queues
+
 ## Version 2.2.0:
 * Improved Event management to avoid introducing unwanted buffer sharing
 * Changed naming of event ports in Python API when connecting nodes

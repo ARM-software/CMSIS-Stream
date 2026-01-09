@@ -94,7 +94,7 @@ print("Generate graphviz and code")
 
 conf=Configuration()
 conf.debugLimit=10
-conf.cOptionalArgs=""
+conf.cOptionalArgs=[]
 conf.CMSISDSP = False 
 
 conf.heapAllocation = True

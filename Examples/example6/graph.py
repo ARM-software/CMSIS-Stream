@@ -48,8 +48,8 @@ conf=Configuration()
 #conf.dumpSchedule = True 
 
 conf.debugLimit=1
-conf.cOptionalArgs="arm_mfcc_instance_f32 *mfccConfig"
-
+conf.cOptionalInitArgs=["arm_mfcc_instance_f32 *mfccConfig"]
+conf.cOptionalExecutionArgs=["arm_mfcc_instance_f32 *mfccConfig"]
 
 export_graph(g,"graph.yml")
 export_config(conf,"config.yml")

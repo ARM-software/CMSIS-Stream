@@ -11,7 +11,7 @@ conf=Configuration()
 conf.debugLimit=10
 
 conf.asynchronous = True 
-conf.customCName = "custom_bench.h"
+conf.appConfigCName = "custom_bench.h"
 conf.appNodesCName = "BenchAppNodes.h"
 conf.cOptionalArgs=["float32_t* inputArray",
                     "float32_t* outputArray"

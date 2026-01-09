@@ -23,7 +23,8 @@ conf.asynchronous = False
 conf.memoryOptimization=True
 conf.memStrategy = 'independent_set'
 conf.bufferAllocation = True
-conf.cOptionalArgs=["uint8_t *myBuffer","uint8_t *myBufferB"]
+conf.cOptionalInitArgs=["uint8_t *myBuffer","uint8_t *myBufferB"]
+conf.cOptionalExecutionArgs=["uint8_t *myBuffer","uint8_t *myBufferB"]
 conf.prefix = "cv"
 
 export_graph(the_graph,"graph.yml")

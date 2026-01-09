@@ -129,8 +129,8 @@ print("Generate graphviz and code")
 
 conf=Configuration()
 conf.debugLimit=1
-conf.cOptionalArgs=["int someVariable"
-                   ]
+conf.cOptionalInitArgs=["int someVariable"]
+conf.cOptionalExecutionArgs=["int someVariable"]
 export_graph(g,"graph.yml")
 export_config(conf,"config.yml")
 

@@ -100,7 +100,8 @@ print("Generate graphviz and code")
 
 conf=Configuration()
 conf.debugLimit=1
-conf.cOptionalArgs="int opt1,int opt2"
+conf.cOptionalInitArgs=["int opt1","int opt2"]
+conf.cOptionalExecutionArgs=["int opt1","int opt2"]
 conf.sinkPriority  = True
 conf.CMSISDSP = True
 

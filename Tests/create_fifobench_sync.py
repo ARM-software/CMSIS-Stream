@@ -9,7 +9,7 @@ conf=Configuration()
 # to prevent the scheduling from running forever
 # (which should be the case for a stream computation)
 conf.debugLimit=10
-conf.customCName = "custom_bench.h"
+conf.appConfigCName = "custom_bench.h"
 conf.appNodesCName = "BenchAppNodes.h"
 conf.cOptionalArgs=["float32_t* inputArray",
                     "float32_t* outputArray"
