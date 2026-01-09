@@ -10,6 +10,7 @@ The support classes and code are covered by CMSIS-Stream license.
 #ifndef {{config.schedulerCFileName |replace(".h","")|upper()}}_H_ 
 #define {{config.schedulerCFileName |replace(".h","")|upper()}}_H_
 
+
 {% macro initOptionalargs(first) -%}
 {% if config.cOptionalInitArgs %}{% if not first %},{% endif %}{{config.cOptionalInitArgs}}{% endif %}
 {% endmacro -%}
