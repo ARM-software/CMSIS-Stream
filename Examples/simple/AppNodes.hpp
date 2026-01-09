@@ -50,17 +50,6 @@ public:
     // Implementation of this Sink constructor is doing nothing
     Sink(FIFOBase<IN> &src):GenericSink<IN,inputSize>(src){};
 
-    // Used in asynchronous mode. In case of underflow on
-    // the input, the execution of this node will be skipped
-    int prepareForRunning() final
-    {
-        if (this->willUnderflow())
-        {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
-        }
-
-        return(CG_SUCCESS);
-    };
 
     // Implementation of the node.
     // The input is printed on stdout.
@@ -93,16 +82,7 @@ class Source: public GenericSource<OUT,outputSize>
 public:
     Source(FIFOBase<OUT> &dst):GenericSource<OUT,outputSize>(dst){};
 
-    int prepareForRunning() final
-    {
-        if (this->willOverflow())
-        {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
-        }
-
-        return(CG_SUCCESS);
-    };
-
+   
     int run() final{
         OUT *b=this->getWriteBuffer();
 
@@ -159,21 +139,7 @@ public:
                    FIFOBase<IN> &dst):GenericNode<IN,inputOutputSize,
                                                   IN,inputOutputSize>(src,dst){};
 
-    /* In asynchronous mode, node execution will be 
-       skipped in case of underflow on the input 
-       or overflow in the output.
-    */
-    int prepareForRunning() final
-    {
-        if (this->willOverflow() ||
-            this->willUnderflow())
-        {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
-        }
-
-        return(CG_SUCCESS);
-    };
-    
+   
     /* 
        Node processing
        1 is added to the input

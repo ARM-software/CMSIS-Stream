@@ -1,7 +1,7 @@
 from ..scheduler import *
 from yaml import dump
 
-_yaml_version = "2.0.0"
+_yaml_version = "3.0.0"
 
 class _YAMLConstantEdge():
     def __init__(self,src,dst):
@@ -473,8 +473,14 @@ def export_config(config,filename):
 
     c_code_gen = {}
 
-    if config.cOptionalArgs  != default.cOptionalArgs:
-        c_code_gen["c-optional-args"] = config.cOptionalArgs 
+    if config.cOptionalInitArgs  != default.cOptionalInitArgs:
+        c_code_gen["c-optional-init-args"] = config.cOptionalInitArgs 
+
+    if config.cOptionalExecutionArgs  != default.cOptionalExecutionArgs:
+        c_code_gen["c-optional-execution-args"] = config.cOptionalExecutionArgs
+
+    if config.cOptionalFreeArgs  != default.cOptionalFreeArgs:
+        c_code_gen["c-optional-free-args"] = config.cOptionalFreeArgs
 
     if config.switchCase  != default.switchCase:
         c_code_gen["switch-case"] = config.switchCase 
@@ -528,8 +534,8 @@ def export_config(config,filename):
     if config.pyOptionalArgs    != default.pyOptionalArgs         :
         python_code_gen["py-optional-args"] = config.pyOptionalArgs    
 
-    if config.customPythonName     != default.customPythonName          :
-        python_code_gen["custom-python-name"] = config.customPythonName     
+    if config.appConfigPythonName     != default.appConfigPythonName          :
+        python_code_gen["app-config-python-name"] = config.appConfigPythonName     
 
     if config.appNodesPythonName != default.appNodesPythonName          :
         python_code_gen["app-nodes-python-name"] = config.appNodesPythonName     

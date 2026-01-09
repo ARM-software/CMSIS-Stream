@@ -478,11 +478,15 @@ def import_config(filename):
         if 'c-code-generation-options' in r:
             cco = r['c-code-generation-options']
     
-            if 'c-optional-args' in cco:
-                conf.cOptionalArgs = cco['c-optional-args']
+            if 'c-optional-init-args' in cco:
+                conf.cOptionalInitArgs = cco['c-optional-init-args']
+
+            if 'c-optional-execution-args' in cco:
+                conf.cOptionalExecutionArgs = cco['c-optional-execution-args']
+
+            if 'c-optional-free-args' in cco:
+                conf.cOptionalFreeArgs = cco['c-optional-free-args']
     
-            if 'code-array' in cco:
-                conf.codeArray = cco['code-array']
     
             if 'switch-case' in cco:
                 conf.switchCase = cco['switch-case']
@@ -538,8 +542,8 @@ def import_config(filename):
             if 'py-optional-args' in pco:
                 conf.pyOptionalArgs = pco['py-optional-args']
     
-            if 'custom-python-name' in pco:
-                conf.customPythonName = pco['custom-python-name']
+            if 'app-config-python-name' in pco:
+                conf.appConfigPythonName = pco['app-config-python-name']
     
             if 'app-nodes-python-name' in pco:
                 conf.appNodesPythonName = pco['app-nodes-python-name']

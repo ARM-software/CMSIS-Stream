@@ -90,26 +90,28 @@ project(Examples)
 # Add DSP folder to module path
 list(APPEND CMAKE_MODULE_PATH ${DSP})
 
+add_subdirectory(common)
 add_subdirectory(${DSP}/Source bin_dsp)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../platform/posix_runtime bin_runtime)
 
 
-add_subdirectory(example1 bin_example1)
-add_subdirectory(example2 bin_example2)
-add_subdirectory(example3 bin_example3)
-add_subdirectory(example6 bin_example6)
-add_subdirectory(example8 bin_example8)
-add_subdirectory(example9 bin_example9)
-add_subdirectory(example10 bin_example10)
-add_subdirectory(example11 bin_example11)
-add_subdirectory(example12 bin_example12)
-
-add_subdirectory(simple bin_simple)
-add_subdirectory(simpledsp bin_simpledsp)
-add_subdirectory(cyclo bin_cyclo)
-add_subdirectory(functionexample bin_functionexample)
-add_subdirectory(callback bin_callback)
-
-
-# Python examples
-add_subdirectory(graphvizexample bin_graphvizexample)
-add_subdirectory(yaml bin_yaml)
+#add_subdirectory(example1)
+#add_subdirectory(example2)
+#add_subdirectory(example3)
+#add_subdirectory(example6)
+#add_subdirectory(example8)
+#add_subdirectory(example9)
+#add_subdirectory(example10)
+#add_subdirectory(example11)
+#add_subdirectory(example12)
+#
+add_subdirectory(simple)
+#add_subdirectory(simpledsp)
+#add_subdirectory(cyclo)
+#add_subdirectory(functionexample)
+#add_subdirectory(callback)
+#
+#
+## Python examples
+#add_subdirectory(graphvizexample)
+#add_subdirectory(yaml)
