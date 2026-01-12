@@ -585,18 +585,18 @@ void reset_fifos_scheduler(int all)
    // Buffers are set to zero too
    if (all)
    {
-       std::fill_n(buf0, BUFFERSIZE0, 0);
-       std::fill_n(buf1, BUFFERSIZE1, 0);
-       std::fill_n(buf2, BUFFERSIZE2, 0);
-       std::fill_n(buf3, BUFFERSIZE3, 0);
-       std::fill_n(buf4, BUFFERSIZE4, 0);
-       std::fill_n(buf5, BUFFERSIZE5, 0);
-       std::fill_n(buf6, BUFFERSIZE6, 0);
-       std::fill_n(buf7, BUFFERSIZE7, 0);
-       std::fill_n(buf8, BUFFERSIZE8, 0);
-       std::fill_n(buf9, BUFFERSIZE9, 0);
-       std::fill_n(buf10, BUFFERSIZE10, 0);
-       std::fill_n(buf11, BUFFERSIZE11, 0);
+       std::fill_n(buf0, BUFFERSIZE0, (int16_t)0);
+       std::fill_n(buf1, BUFFERSIZE1, (int16_t)0);
+       std::fill_n(buf2, BUFFERSIZE2, (int16_t)0);
+       std::fill_n(buf3, BUFFERSIZE3, (int16_t)0);
+       std::fill_n(buf4, BUFFERSIZE4, (int16_t)0);
+       std::fill_n(buf5, BUFFERSIZE5, (int16_t)0);
+       std::fill_n(buf6, BUFFERSIZE6, (int16_t)0);
+       std::fill_n(buf7, BUFFERSIZE7, (int16_t)0);
+       std::fill_n(buf8, BUFFERSIZE8, (int16_t)0);
+       std::fill_n(buf9, BUFFERSIZE9, (int16_t)0);
+       std::fill_n(buf10, BUFFERSIZE10, (int16_t)0);
+       std::fill_n(buf11, BUFFERSIZE11, (int16_t)0);
    }
 }
 

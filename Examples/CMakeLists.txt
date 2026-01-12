@@ -97,24 +97,24 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Include/cg/nodes/cpp bin_example
 
 add_subdirectory(events)
 
-#add_subdirectory(example1)
-#add_subdirectory(example2)
-#add_subdirectory(example3)
-#add_subdirectory(example6)
-#add_subdirectory(example8)
-#add_subdirectory(example9)
-#add_subdirectory(example10)
-#add_subdirectory(example11)
-#add_subdirectory(example12)
-##
-#add_subdirectory(simple)
-#add_subdirectory(simpledsp)
-#add_subdirectory(cyclo)
-#add_subdirectory(functionexample)
-#add_subdirectory(callback)
-##
-##
-### Python examples
-#add_subdirectory(graphvizexample)
-#add_subdirectory(yaml)
+add_subdirectory(example1)
+add_subdirectory(example2)
+add_subdirectory(example3)
+add_subdirectory(example6)
+add_subdirectory(example8)
+add_subdirectory(example9)
+add_subdirectory(example10)
+add_subdirectory(example11)
+add_subdirectory(example12)
+#
+add_subdirectory(simple)
+add_subdirectory(simpledsp)
+add_subdirectory(cyclo)
+add_subdirectory(functionexample)
+add_subdirectory(callback)
+#
+#
+## Python examples
+add_subdirectory(graphvizexample)
+add_subdirectory(yaml)
 
