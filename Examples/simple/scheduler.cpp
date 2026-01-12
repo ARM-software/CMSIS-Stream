@@ -126,8 +126,9 @@ float buf1[BUFFERSIZE1]={0};
 
 
 CG_BEFORE_SCHEDULER_FUNCTION
-uint32_t scheduler(int *error)
+uint32_t scheduler(int *error,void *evtQueue_)
 {
+    EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
     int cgStaticError=0;
     uint32_t nbSchedule=0;
     int32_t debugCounter=1;

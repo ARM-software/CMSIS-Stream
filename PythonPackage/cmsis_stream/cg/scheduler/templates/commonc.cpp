@@ -301,12 +301,51 @@ void free_{{config.schedName}}({{freeOptionalargs(True)}})
 {% endfor %}
 }
 
+void reset_fifos_{{config.schedName}}(int all)
+{
+{% for id in range(nbFifos) %}
+    if (fifos.fifo{{id}}!=NULL)
+    {
+       fifos.fifo{{id}}->reset();
+    }
+{% endfor %}
+   // Buffers are set to zero too
+   if (all)
+   {
+{% if config.bufferAllocation %}
+{% for buf in sched._graph._allBuffers %}
+       if (buffers.buf{{buf._bufferID}}!=NULL)
+       {
+           std::fill_n(buffers.buf{{buf._bufferID}}, {{buf._length}}, 0);
+       }
+{% endfor %}
+{% else %}
+{% for buf in sched._graph._allBuffers %}
+       std::fill_n({{config.prefix}}buf{{buf._bufferID}}, BUFFERSIZE{{buf._bufferID}}, 0);
+{% endfor %}
+{% endif %}
+   }
+}
+
 {% endif %}
 
 CG_BEFORE_SCHEDULER_FUNCTION
+{% if not config.heapAllocation %}
+{% if config.CAPI -%}
+uint32_t {{config.schedName}}(int *error,void *evtQueue_{{executionOptionalargs(False)}})
+{% else %}
+uint32_t {{config.schedName}}(int *error,EventQueue *evtQueue{{executionOptionalargs(False)}})
+{% endif %}
+{% else %}
 uint32_t {{config.schedName}}(int *error{{executionOptionalargs(False)}})
+{% endif %}
 {
-{% if schedLen > 0 %}
+    {% if not config.heapAllocation -%}
+    {% if config.CAPI -%}
+    EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
+    {% endif -%}
+    {% endif -%}
+{% if schedLen > 0 -%}
     int cgStaticError=0;
     uint32_t nbSchedule=0;
 {% if config.debug %}

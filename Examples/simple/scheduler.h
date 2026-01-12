@@ -21,10 +21,7 @@ extern "C"
 
 
 
-
-
-extern uint32_t scheduler(int *error);
-
+extern uint32_t scheduler(int *error,void *evtQueue_);
 #ifdef   __cplusplus
 }
 #endif

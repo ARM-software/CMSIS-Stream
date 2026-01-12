@@ -43,7 +43,7 @@ extern "C"
 {% endif %}
 {% endif %}
 
-{% if config.eventRecorder %}
+{% if config.eventRecorder -%}
 #include "EventRecorder.h"
 
 #define EvtSched 0x01 
@@ -54,40 +54,48 @@ extern "C"
 
 {% endif %}
 
-{% if config.nodeIdentification %}
+{% if config.nodeIdentification -%}
 /* Node identifiers */
 #define {{config.prefix | upper}}NB_IDENTIFIED_NODES {{identifiedNodes|length}}
 {% for node in identifiedNodes %}
 #define {{node[0]}} {{node[1]}}
 {% endfor %}
 
-{% if selector_defines %}
+{% if selector_defines -%}
 /* Selectors global identifiers */
 {{ selector_defines}}
 {% endif %}
 
 {% if config.CAPI -%}
 extern {{config.cNodeStruct}}* get_{{config.schedName}}_node(int32_t nodeID);
-{% else %}
+{% else -%}
 extern CStreamNode *get_{{config.schedName}}_node(int32_t nodeID);
 {% endif %}
 {% endif %}
 
-{% if config.bufferAllocation %}
+{% if config.bufferAllocation -%}
 extern int init_buffer_{{config.schedName}}({{initOptionalargs(True)}});
 extern void free_buffer_{{config.schedName}}({{initOptionalargs(True)}});
-{% endif %}
+{% endif -%}
 
-{% if config.heapAllocation %}
+{% if config.heapAllocation -%}
 {% if config.CAPI -%}
 extern int init_{{config.schedName}}(void *evtQueue_{{initOptionalargs(False)}});
-{% else %}
+{% else -%}
 extern int init_{{config.schedName}}(arm_cmsis_stream::EventQueue *evtQueue{{initOptionalargs(False)}});
-{% endif %}
+{% endif -%}
 extern void free_{{config.schedName}}({{freeOptionalargs(True)}});
-{% endif %}
-
 extern uint32_t {{config.schedName}}(int *error{{executionOptionalargs(False)}});
+extern void reset_fifos_{{config.schedName}}(int all);
+
+{% else -%}
+{% if config.CAPI -%}
+extern uint32_t {{config.schedName}}(int *error,void *evtQueue_{{executionOptionalargs(False)}});
+{% else -%}
+extern uint32_t {{config.schedName}}(int *error,arm_cmsis_stream::EventQueue *evtQueue{{executionOptionalargs(False)}});
+{% endif -%}
+{% endif -%}
+
 
 {% if config.CAPI -%}
 #ifdef   __cplusplus
