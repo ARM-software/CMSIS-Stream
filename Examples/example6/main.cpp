@@ -17,7 +17,7 @@ int main(int argc, char const *argv[])
                     mfcc_filter_coefs_config1_f32,
                     mfcc_window_coefs_config1_f32);
 
-    uint32_t nb = scheduler(&error,&mfcc);
+    uint32_t nb = scheduler(&error,NULL,&mfcc);
     printf("Nb = %d\n",nb);
     return 0;
 }

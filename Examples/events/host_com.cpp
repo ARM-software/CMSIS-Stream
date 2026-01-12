@@ -5,9 +5,8 @@
 #include <mutex>
 #include <queue>
 #include <atomic>
-#include "config_events.h"
+#include "app_config.hpp"
 #include "cg_enums.h"
-#include "custom.hpp"
 #include "posix_thread.hpp"
 #include "StreamNode.hpp"
 #include "EventDisplay.hpp"
@@ -166,7 +165,7 @@ class MessageReceiver
     std::vector<uint8_t> buffer;
 
 public:
-    MessageReceiver(socket_t socket_fd) : sock(socket_fd) {}
+    MessageReceiver(socket_t socket_fd,EventQueue *queue) : sock(socket_fd),queue_(queue) {}
 
     bool receiveMessages()
     {
@@ -265,8 +264,8 @@ public:
                 // Host always send to port 0
                 // Message from host is not shared since it is sent to only one node
                 LocalDestination dst{n, 0};
-                if (EventQueue::cg_eventQueue)
-                    EventQueue::cg_eventQueue->push(dst,std::move(evt));
+                if (queue_)
+                    queue_->push(dst,std::move(evt));
             }
             else
             {
@@ -278,6 +277,8 @@ public:
             std::cout << "Unknown node\n";
         }
     }
+protected:
+ EventQueue *queue_;
 };
 
 void close_host()
@@ -289,12 +290,13 @@ void close_host()
     }
 }
 
-void listen_to_host()
+void listen_to_host(EventQueue *queue)
 {
-    const int PORT = 8080;
+    const int PORT = 8100;
     const int BACKLOG = 5;
     const int BUF_SIZE = 1024;
     char buffer[BUF_SIZE] = {0};
+    int nbClientConnected=0;
 
 #if defined(_WIN32)
     WSADATA wsaData;
@@ -348,6 +350,14 @@ void listen_to_host()
     socklen_t client_len = sizeof(client_addr);
     while (true)
     {
+        if (nbClientConnected > 4)
+        {
+            CLOSESOCKET(server_fd);
+#if defined(_WIN32)
+            WSACleanup();
+#endif
+            return;
+        }
         client_socket = accept(server_fd, (struct sockaddr *)&client_addr, &client_len);
         if (client_socket < 0)
         {
@@ -368,8 +378,9 @@ void listen_to_host()
         fcntl(client_socket, F_SETFL, flags | O_NONBLOCK);
 #endif
         std::cout << "Client connected\n";
+        nbClientConnected ++;
 
-        MessageReceiver receiver(client_socket);
+        MessageReceiver receiver(client_socket,queue);
         while (receiver.receiveMessages())
         {
             // To send data to host

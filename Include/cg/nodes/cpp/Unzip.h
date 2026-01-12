@@ -45,18 +45,7 @@ public:
     Unzip(FIFOBase<IN> &src,FIFOBase<IN> &dst1,FIFOBase<IN> &dst2):
     GenericNode12<IN,inputSize,IN,output1Size,IN,output2Size>(src,dst1,dst2){};
 
-    int prepareForRunning() final
-    {
-        if (this->willOverflow1() ||
-            this->willOverflow2() ||
-            this->willUnderflow()
-           )
-        {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
-        }
-
-        return(CG_SUCCESS);
-    };
+   
     
     /*
           2*outputSize1 == 2*outSize2 == inputSize

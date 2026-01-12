@@ -7,8 +7,11 @@ The support classes and code are covered by CMSIS-Stream license.
 
 */
 
-#ifndef _STATIC_SCHEDULER_H_ 
-#define _STATIC_SCHEDULER_H_
+#ifndef STATIC_SCHEDULER_H_ 
+#define STATIC_SCHEDULER_H_
+
+
+#include <stdint.h>
 
 #ifdef   __cplusplus
 extern "C"
@@ -18,9 +21,7 @@ extern "C"
 
 
 
-
-extern uint32_t static_scheduler(int *error);
-
+extern uint32_t static_scheduler(int *error,void *evtQueue_);
 #ifdef   __cplusplus
 }
 #endif

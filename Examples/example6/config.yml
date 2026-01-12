@@ -1,6 +1,9 @@
-version: 2.0.0
+version: 3.0.0
 code-generation-options:
   debug-limit: 1
 c-code-generation-options:
-  c-optional-args: arm_mfcc_instance_f32 *mfccConfig
+  c-optional-init-args:
+  - arm_mfcc_instance_f32 *mfccConfig
+  c-optional-execution-args:
+  - arm_mfcc_instance_f32 *mfccConfig
 

@@ -10,5 +10,6 @@ dotdependency(example9 test ON graph.py)
 cppdependency(example9 generated/scheduler.cpp graph.py)
 add_sdf_dir(example9)
 
+target_link_libraries(example9 PRIVATE examplenodes posix_runtime appcommon)
 target_include_directories(example9 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(example9 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/generated)

@@ -10,6 +10,8 @@ dotdependency(simpledsp simpledsp ON create.py)
 cppdependency(simpledsp generated/scheduler.cpp create.py)
 add_sdf_dir(simpledsp)
 
+target_link_libraries(simpledsp PRIVATE posix_runtime appcommon)
+
 target_include_directories(simpledsp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(simpledsp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/generated)
 target_link_libraries(simpledsp PRIVATE CMSISDSP)

@@ -9,7 +9,8 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 #include <cstdint>
-#include "custom.hpp"
+#include "app_config.hpp"
+#include "stream_platform_config.hpp"
 #include "cg_enums.h"
 #include "StreamNode.hpp"
 #include "cstream_node.h"
@@ -170,8 +171,9 @@ CStreamNode* get_scheduler_node(int32_t nodeID)
     return(&identifiedNodes[nodeID]);
 }
 
-int init_scheduler()
+int init_scheduler(void *evtQueue_)
 {
+    EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
 
     CG_BEFORE_FIFO_INIT;
     fifos.fifo0 = new (std::nothrow) FIFO<float,FIFOSIZE0,0,0>(buf0);
@@ -196,7 +198,7 @@ int init_scheduler()
     identifiedNodes[PROCESSING_ID]=createStreamNode(*nodes.processing);
     nodes.processing->setID(PROCESSING_ID);
 
-    nodes.sink = new (std::nothrow) Sink<float,5>(*(fifos.fifo1));
+    nodes.sink = new (std::nothrow) Sink<float,5>(*(fifos.fifo1),evtQueue);
     if (nodes.sink==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
@@ -204,7 +206,7 @@ int init_scheduler()
     identifiedNodes[SINK_ID]=createStreamNode(*nodes.sink);
     nodes.sink->setID(SINK_ID);
 
-    nodes.source = new (std::nothrow) Source<float,5>(*(fifos.fifo0));
+    nodes.source = new (std::nothrow) Source<float,5>(*(fifos.fifo0),evtQueue);
     if (nodes.source==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
@@ -212,7 +214,7 @@ int init_scheduler()
     identifiedNodes[SOURCE_ID]=createStreamNode(*nodes.source);
     nodes.source->setID(SOURCE_ID);
 
-    nodes.evtsink = new (std::nothrow) EvtSink;
+    nodes.evtsink = new (std::nothrow) EvtSink(evtQueue);
     if (nodes.evtsink==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
@@ -276,6 +278,24 @@ void free_scheduler()
     {
         delete nodes.evtsink;
     }
+}
+
+void reset_fifos_scheduler(int all)
+{
+    if (fifos.fifo0!=NULL)
+    {
+       fifos.fifo0->reset();
+    }
+    if (fifos.fifo1!=NULL)
+    {
+       fifos.fifo1->reset();
+    }
+   // Buffers are set to zero too
+   if (all)
+   {
+       std::fill_n(buf0, BUFFERSIZE0, (float)0);
+       std::fill_n(buf1, BUFFERSIZE1, (float)0);
+   }
 }
 
 

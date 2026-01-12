@@ -1,6 +1,9 @@
 # Nodes
 
-Some nodes. Some are used in the examples.
+Some nodes used in examples.
 
-There are CPP and Python versions for most of the nodes.
+Don't use those nodes in a product. Most are deprecated and will
+be removed.
+
+The ones used in examples will be moved to the examples.
 

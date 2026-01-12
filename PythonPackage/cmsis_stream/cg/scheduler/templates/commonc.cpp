@@ -316,12 +316,12 @@ void reset_fifos_{{config.schedName}}(int all)
 {% for buf in sched._graph._allBuffers %}
        if (buffers.buf{{buf._bufferID}}!=NULL)
        {
-           std::fill_n(buffers.buf{{buf._bufferID}}, {{buf._length}}, 0);
+           std::fill_n(buffers.buf{{buf._bufferID}}, {{buf._length}}, ({{buf._theType.ctype}})0);
        }
 {% endfor %}
 {% else %}
 {% for buf in sched._graph._allBuffers %}
-       std::fill_n({{config.prefix}}buf{{buf._bufferID}}, BUFFERSIZE{{buf._bufferID}}, 0);
+       std::fill_n({{config.prefix}}buf{{buf._bufferID}}, BUFFERSIZE{{buf._bufferID}}, ({{buf._theType.ctype}})0);
 {% endfor %}
 {% endif %}
    }

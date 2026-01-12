@@ -6,7 +6,7 @@ int main(int argc, char const *argv[])
 {
     int error;
     printf("Start\n");
-    int err = init_scheduler();
+    int err = init_scheduler(NULL);
     uint32_t nbSched=scheduler(&error);
     free_scheduler();
     return 0;

@@ -1,8 +1,11 @@
-version: 2.0.0
+version: 3.0.0
 schedule-options:
   memory-optimization: true
 code-generation-options:
   debug-limit: 2
 c-code-generation-options:
-  c-optional-args: int someVariable
+  c-optional-init-args:
+  - int someVariable
+  c-optional-execution-args:
+  - int someVariable
 

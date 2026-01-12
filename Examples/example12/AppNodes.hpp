@@ -42,7 +42,7 @@ public:
         if (this->willUnderflow()
            )
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(CG_SUCCESS);
@@ -69,7 +69,7 @@ public:
         if (this->willOverflow()
            )
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(CG_SUCCESS);
@@ -105,7 +105,7 @@ public:
             this->willUnderflow()
            )
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(CG_SUCCESS);
@@ -144,7 +144,7 @@ public:
             this->willUnderflow()
            )
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(CG_SUCCESS);
@@ -180,7 +180,7 @@ public:
             this->willUnderflow()
            )
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(CG_SUCCESS);
@@ -232,7 +232,7 @@ public:
             this->willUnderflow2()
            )
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(CG_SUCCESS);
@@ -272,7 +272,7 @@ public:
             this->willUnderflow2()
            )
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(CG_SUCCESS);

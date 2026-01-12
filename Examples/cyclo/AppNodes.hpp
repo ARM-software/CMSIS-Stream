@@ -39,7 +39,7 @@ public:
     {
         if (this->willUnderflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
@@ -92,7 +92,7 @@ public:
         */
         if (this->willOverflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
@@ -135,7 +135,7 @@ public:
         if (this->willOverflow() ||
             this->willUnderflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);

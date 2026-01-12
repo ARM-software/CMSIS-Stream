@@ -93,7 +93,9 @@ list(APPEND CMAKE_MODULE_PATH ${DSP})
 add_subdirectory(common)
 add_subdirectory(${DSP}/Source bin_dsp)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../platform/posix_runtime bin_runtime)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Include/cg/nodes/cpp bin_examplenodes)
 
+add_subdirectory(events)
 
 #add_subdirectory(example1)
 #add_subdirectory(example2)
@@ -104,14 +106,15 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../platform/posix_runtime bin_runti
 #add_subdirectory(example10)
 #add_subdirectory(example11)
 #add_subdirectory(example12)
-#
-add_subdirectory(simple)
+##
+#add_subdirectory(simple)
 #add_subdirectory(simpledsp)
 #add_subdirectory(cyclo)
 #add_subdirectory(functionexample)
 #add_subdirectory(callback)
-#
-#
-## Python examples
+##
+##
+### Python examples
 #add_subdirectory(graphvizexample)
 #add_subdirectory(yaml)
+

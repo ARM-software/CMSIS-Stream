@@ -19,6 +19,7 @@ class Sink(GenericSink):
         GenericSink.__init__(self,name,selectors=["increment"])
         self.addInput("i",theType,inLength)
         self.addEventInput()
+        self.addVariableArg("evtQueue")
 
     @property
     def typeName(self):
@@ -53,6 +54,7 @@ class EvtSink(GenericSink):
     def __init__(self,name):
         GenericSink.__init__(self,name,selectors=["increment","value"])
         self.addEventInput()
+        self.addVariableArg("evtQueue")
 
     @property
     def typeName(self):

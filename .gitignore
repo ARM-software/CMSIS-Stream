@@ -29,6 +29,7 @@ PythonPackage/cmsis_stream.egg-info/
 *.obj
 Examples/build/build.bat
 Examples/build/bin_*
+Examples/build/common/
 Tests/out/
 Tests/tmp/
 Examples/simple/simple
@@ -44,3 +45,4 @@ Examples/eventrecorder/*.cbuild-idx.yml
 *.cbuild-set.yml
 Examples/events/simple
 Examples/build/build.sh
+Examples/build/

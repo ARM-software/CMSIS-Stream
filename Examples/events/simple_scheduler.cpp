@@ -9,7 +9,8 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 #include <cstdint>
-#include "custom.hpp"
+#include "app_config.hpp"
+#include "stream_platform_config.hpp"
 #include "cg_enums.h"
 #include "StreamNode.hpp"
 #include "cstream_node.h"
@@ -141,15 +142,16 @@ CStreamNode* get_simple_node(int32_t nodeID)
     return(&identifiedNodes[nodeID]);
 }
 
-int init_simple()
+int init_simple(void *evtQueue_)
 {
+    EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
 
     CG_BEFORE_FIFO_INIT;
 
     CG_BEFORE_NODE_INIT;
     cg_status initError;
 
-    nodes.sink = new (std::nothrow) EvtSink;
+    nodes.sink = new (std::nothrow) EvtSink(evtQueue);
     if (nodes.sink==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
@@ -157,7 +159,7 @@ int init_simple()
     identifiedNodes[SINK_ID]=createStreamNode(*nodes.sink);
     nodes.sink->setID(SINK_ID);
 
-    nodes.source = new (std::nothrow) EvtSource;
+    nodes.source = new (std::nothrow) EvtSource(evtQueue);
     if (nodes.source==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
@@ -198,11 +200,19 @@ void free_simple()
     }
 }
 
+void reset_fifos_simple(int all)
+{
+   // Buffers are set to zero too
+   if (all)
+   {
+   }
+}
+
 
 CG_BEFORE_SCHEDULER_FUNCTION
 uint32_t simple(int *error)
 {
-    *error=CG_STOP_SCHEDULER;
+        *error=CG_STOP_SCHEDULER;
 #if !defined(CG_EVENTS_MULTI_THREAD)
     while(1){
         // To have possibility to process the event queue

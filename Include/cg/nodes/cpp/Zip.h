@@ -45,7 +45,7 @@ public:
             this->willUnderflow2()
            )
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(CG_SUCCESS);

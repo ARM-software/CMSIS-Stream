@@ -10,5 +10,6 @@ dotdependency(cyclo cyclo ON create.py)
 cppdependency(cyclo generated/scheduler.cpp create.py)
 add_sdf_dir(cyclo)
 
+target_link_libraries(cyclo PRIVATE examplenodes posix_runtime appcommon)
 target_include_directories(cyclo PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(cyclo PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/generated)

@@ -34,7 +34,7 @@ print(selectors)
 
 
 HOST = 'localhost'  # Server's IP address
-PORT = 8080         # The same port as used by the server
+PORT = 8100         # The same port as used by the server
 
 
 

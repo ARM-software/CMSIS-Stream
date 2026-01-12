@@ -4,9 +4,8 @@
 #include "scheduler.h"
 #include "cg_enums.h"
 
-#include "config_events.h"
 #include "cg_enums.h"
-#include "custom.hpp"
+#include "app_config.hpp"
 #include "posix_thread.hpp"
 #include "StreamNode.hpp"
 #include "EventQueue.hpp"
@@ -17,7 +16,7 @@
 
 #include <iostream>
 
- std::pmr::synchronized_pool_resource pool;
+std::pmr::synchronized_pool_resource pool;
 
 // When event system is enabled, we provide a global event queue
 #if defined(CG_EVENTS)
@@ -80,7 +79,7 @@ void debug()
 
     Event evt;
 
-#if 1
+#if 0
     Pack pack;
 
 
@@ -117,7 +116,7 @@ void debug()
     // If cbv pool is deleted before "pointer" to it are
     // released then it will crash because the pointer will
     // be released after the pool has been deleted.
-    evt = Event(0, kNormalPriority, 1.0f,int32_t(2));
+    evt = Event(0, kNormalPriority, 1.0f, int32_t(2));
     MyObj obj{4};
 
     if (evt.wellFormed<float, int32_t>())
@@ -147,90 +146,95 @@ void debug()
     }
 }
 
-bool app_handler(int src_node_id, void *data,Event &&evt)
+bool app_handler(int src_node_id, void *data, Event &&evt)
 {
-      printf("App received event with id %d from node %d\n", evt.event_id, src_node_id);
-      return true;
+    printf("App received event with id %d from node %d\n", evt.event_id, src_node_id);
+    return true;
 }
 
 int main(int argc, char const *argv[])
 {
-    //debug();
-    //exit(0);
-#if 1
-    int err = init_scheduler();
-    if (err == CG_MEMORY_ALLOCATION_FAILURE)
+    // debug();
+    // exit(0);
+
+
+    MyQueue *queue = new MyQueue();
+    arm_cmsis_stream::EventQueue::setHandler(nullptr, app_handler);
+
+    PosixThread t([queue]
+                  {
+                      std::cout << "Event thread started!" << std::endl;
+                      // If we are done with the scheduling, we exit the thread
+                      queue->execute();
+                      std::cout << "Event thread quitted!" << std::endl;
+                  });
+
+    queue->setThread(&t);
+    t.setPriority(ThreadPriority::High);
+    t.start();
+    t.waitUntilStarted(); // Wait until the thread is ready to process events
+
+
+
+    int error = init_scheduler(queue);
+    if (error != CG_SUCCESS)
     {
-        std::cerr << "Error: Memory allocation failure during scheduler initialization." << std::endl;
-        return -1;
+        std::cout << "Error during scheduler initialization : " << error << std::endl;
+        queue->end();
+        t.join();
+        return error;
     }
-#endif
-#if defined(CG_EVENTS)
-
-    arm_cmsis_stream::EventQueue::cg_eventQueue = new MyQueue();
-    arm_cmsis_stream::EventQueue::cg_eventQueue->setHandler(nullptr, app_handler);
-
-#if defined(CG_EVENTS_MULTI_THREAD)
 
 // Thread for host communication
 #if defined(CG_HOST)
-    PosixThread hostComThread(listen_to_host);
+    PosixThread hostComThread([queue]
+                              { listen_to_host(queue); });
     hostComThread.start();
     hostComThread.setPriority(ThreadPriority::Low);
     hostComThread.waitUntilStarted();
 #endif
 
-    // Thread is processing the event queue an sleeping when no events are available
-    PosixThread t([]
-                  {
-        std::cout << "Thread started!" << std::endl;
-        // If we are done with the scheduling, we exit the thread
-        while(!cg_eventThreadDone)
-        {
-            arm_cmsis_stream::EventQueue::cg_eventQueue->execute();
-            if (cg_eventThread)
-               cg_eventThread->sleep();
-        } });
-
-    // Thread is started and we wait until the thread is ready
-    // before we start the scheduler.
-    cg_eventThread = &t;
-    t.start();
-    t.setPriority(ThreadPriority::Low);
-    t.waitUntilStarted(); // Wait until the thread is ready to process events
-#endif
-
-#endif
-
+    
+   
     // Initialize and start the scheduler
-    int error;
-    printf("Start\n");
-    uint32_t nbSched = scheduler(&error);
-    printf("Nb sched = %d\n", nbSched);
-    if (error != CG_SUCCESS)
-    {
-        std::cerr << "Error during scheduling: " << error << std::endl;
-        return -1;
-    }
-#if defined(CG_EVENTS)
-#if defined(CG_EVENTS_MULTI_THREAD)
 
-    // Notify the thread we are done and wait for the end
-    // of the thread.
-    cg_eventThreadDone = true;
-    t.wakeup(); // Wake up the thread to finish processing
+    PosixThread ts([&error]
+                  {
+                      std::cout << "Scheduler thread started!" << std::endl;
+                      uint32_t nb = scheduler(&error);
+                      if ((error != CG_SUCCESS) && (error != CG_STOP_SCHEDULER))
+                      {
+                          std::cout << "Error during scheduler execution : " << error << std::endl;
+                          std::cout << "Scheduler executed " << nb << " iterations" << std::endl;
+                      }
+                      else
+                      {
+                          std::cout << "Scheduler executed " << nb << " iterations" << std::endl;
+                      }
+                      std::cout << "Scheduler thread quitted!" << std::endl;
+                  });
+
+    ts.setPriority(ThreadPriority::RealTime);
+    ts.start();
+    ts.waitUntilStarted(); // Wait until the thread is ready to process events
+
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    queue->end();
+
+    // Wait for event queue to finish
     t.join();
+
+   
 
 #if defined(CG_HOST)
     close_host();
     hostComThread.join(); // Wait for the host communication thread to finish
 #endif
-#endif
 
     // Delete the event queue
-    delete arm_cmsis_stream::EventQueue::cg_eventQueue;
-    arm_cmsis_stream::EventQueue::cg_eventQueue = nullptr;
-#endif
     free_scheduler();
+
+    delete queue;
     return 0;
 }

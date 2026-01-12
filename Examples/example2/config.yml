@@ -1,7 +1,12 @@
-version: 2.0.0
+version: 3.0.0
 code-generation-options:
   debug-limit: 1
 c-code-generation-options:
-  c-optional-args: int opt1,int opt2
+  c-optional-init-args:
+  - int opt1
+  - int opt2
+  c-optional-execution-args:
+  - int opt1
+  - int opt2
   cmsis-dsp: true
 

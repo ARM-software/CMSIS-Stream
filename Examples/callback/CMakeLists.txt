@@ -10,4 +10,6 @@ dotdependency(callback callback ON create.py)
 cppdependency(callback scheduler.cpp create.py)
 add_sdf_dir(callback)
 
+target_link_libraries(callback PRIVATE posix_runtime appcommon)
+
 target_include_directories(callback PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

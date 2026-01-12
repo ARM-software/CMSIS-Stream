@@ -10,9 +10,9 @@
                     if (!canRun)
                     {
 {% if asyncDefaultSkip %}
-                      cgStaticError = CG_SKIP_EXECUTION_ID_CODE;
+                      cgStaticError = CG_SKIP_EXECUTION;
 {% else %}
-                      cgStaticError = CG_BUFFER_ERROR_ID_CODE;
+                      cgStaticError = CG_BUFFER_ERROR;
 {%- endif %}
                     }
                     else

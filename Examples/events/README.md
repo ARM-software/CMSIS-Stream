@@ -4,31 +4,11 @@ This example demonstrates the event system of CMSIS Stream with several configur
 
 The configurations can be changed in `config_events.h`
 
-# No events 
-`CG_EVENTS` is disabled
-
-# With events
-`CG_EVENTS` enabled
-
-`source` node is sending an event to `sink` node each time the
-`source` run function is executed.
-
-Event processing is interleaved between node execution as defined
-in `custom.h`.
-
-The macro can be changed and the event processing could occur less often : at each schedule iteration.
-
-# With events and multi-threading
-
-`CG_EVENTS_MULTI_THREAD` enabled
-
-Events are processed on a background thread.
-The example is providing some default Posix implementations for the mutex and thread.
-
-Those implementation can be easily replaced. An RTOS could provide a totally different implementation.
 
 # With host communication
 `CG_HOST` is defined
+
+This example is no more working ...
 
 This is an example to show that events can be received and sent to an host.
 The example implementation is using sockets.

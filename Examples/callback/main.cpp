@@ -31,7 +31,7 @@ int main(int argc, char const *argv[])
 {
     int error;
     printf("Start\n");
-    init_scheduler(&state);
+    init_scheduler(&state,NULL);
     uint32_t nbSched;
 
     for(int i=0;i<7;i++)
@@ -46,7 +46,7 @@ int main(int argc, char const *argv[])
     CHECK
     printf("-- Pause and end\n");
 
-    free_scheduler(&state);
+    free_scheduler();
 
     printf("Nb sched = %d\n",nbSched);
     return 0;

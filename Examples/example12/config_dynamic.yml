@@ -1,9 +1,8 @@
-version: 2.0.0
+version: 3.0.0
 code-generation-options:
   debug-limit: 1
   scheduler-name: dynamic_scheduler
   fifo-prefix: dynamic_
 c-code-generation-options:
-  c-optional-args: []
   scheduler-c-file-name: dynamic_scheduler
 

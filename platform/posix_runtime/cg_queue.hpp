@@ -32,11 +32,7 @@
 #include <utility>
 #include "posix_thread.hpp"
 
-#ifndef MY_QUEUE_MAX_ELEMS
 #define MY_QUEUE_MAX_ELEMS 20
-#endif
-
-
 
 class MyQueue:public arm_cmsis_stream::EventQueue
 {

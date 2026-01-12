@@ -1,12 +1,13 @@
 #pragma once
 
 #include "StreamNode.hpp"
+#include "EventQueue.hpp"
 #include <iostream>
 
 #define MAX_NB_HOST_MSGS 50
 
 #if defined(CG_HOST)
-extern void listen_to_host();
+extern void listen_to_host(arm_cmsis_stream::EventQueue *queue);
 extern void close_host();
 extern void send_data_to_host(int nodeid, const char *data, int size);
 extern void send_event_to_host(int nodeid,arm_cmsis_stream::Event &&evt);

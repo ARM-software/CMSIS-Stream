@@ -7,13 +7,18 @@ The support classes and code are covered by CMSIS-Stream license.
 
 */
 
-#ifndef _SIMPLE_SCHEDULER_H_ 
-#define _SIMPLE_SCHEDULER_H_
+#ifndef SIMPLE_SCHEDULER_H_ 
+#define SIMPLE_SCHEDULER_H_
+
+
+#include <stdint.h>
 
 #ifdef   __cplusplus
 extern "C"
 {
 #endif
+
+#include "cstream_node.h"
 
 
 /* Node identifiers */
@@ -28,11 +33,10 @@ extern "C"
 
 extern CStreamNode* get_simple_node(int32_t nodeID);
 
-
-extern int init_simple();
+extern int init_simple(void *evtQueue_);
 extern void free_simple();
-
 extern uint32_t simple(int *error);
+extern void reset_fifos_simple(int all);
 
 #ifdef   __cplusplus
 }

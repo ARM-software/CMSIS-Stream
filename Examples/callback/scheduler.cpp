@@ -9,7 +9,8 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 #include <cstdint>
-#include "custom.hpp"
+#include "app_config.hpp"
+#include "stream_platform_config.hpp"
 #include "cg_enums.h"
 #include "StreamNode.hpp"
 #include "EventQueue.hpp"
@@ -177,8 +178,9 @@ static fifos_t fifos={0};
 static nodes_t nodes={0};
 
 
-int init_scheduler(int *someVariable)
+int init_scheduler(void *evtQueue_,int *someVariable)
 {
+    EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
 init_cb_state();
 
     CG_BEFORE_FIFO_INIT;
@@ -207,21 +209,11 @@ init_cb_state();
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    initError = nodes.processing->init();
-    if (initError != CG_SUCCESS)
-    {
-        return(initError);
-    }
 
     nodes.sink = new (std::nothrow) Sink<float,5>(*(fifos.fifo2));
     if (nodes.sink==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
-    }
-    initError = nodes.sink->init();
-    if (initError != CG_SUCCESS)
-    {
-        return(initError);
     }
 
     nodes.source = new (std::nothrow) Source<float,5>(*(fifos.fifo0));
@@ -229,21 +221,31 @@ init_cb_state();
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
-    initError = nodes.source->init();
-    if (initError != CG_SUCCESS)
-    {
-        return(initError);
-    }
 
 
 /* Subscribe nodes for the event system*/
+
+    initError = CG_SUCCESS;
+    initError = nodes.processing->init();
+    if (initError != CG_SUCCESS)
+        return(initError);
+    
+    initError = nodes.sink->init();
+    if (initError != CG_SUCCESS)
+        return(initError);
+    
+    initError = nodes.source->init();
+    if (initError != CG_SUCCESS)
+        return(initError);
+    
+   
 
 
     return(CG_SUCCESS);
 
 }
 
-void free_scheduler(int *someVariable)
+void free_scheduler()
 {
     if (fifos.fifo0!=NULL)
     {
@@ -270,6 +272,29 @@ void free_scheduler(int *someVariable)
     {
         delete nodes.source;
     }
+}
+
+void reset_fifos_scheduler(int all)
+{
+    if (fifos.fifo0!=NULL)
+    {
+       fifos.fifo0->reset();
+    }
+    if (fifos.fifo1!=NULL)
+    {
+       fifos.fifo1->reset();
+    }
+    if (fifos.fifo2!=NULL)
+    {
+       fifos.fifo2->reset();
+    }
+   // Buffers are set to zero too
+   if (all)
+   {
+       std::fill_n(buf0, BUFFERSIZE0, (float)0);
+       std::fill_n(buf1, BUFFERSIZE1, (float)0);
+       std::fill_n(buf2, BUFFERSIZE2, (float)0);
+   }
 }
 
 

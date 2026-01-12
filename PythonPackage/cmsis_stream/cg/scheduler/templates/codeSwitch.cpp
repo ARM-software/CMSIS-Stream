@@ -79,7 +79,7 @@ static {{schedSwitchDataType}} schedule[{{schedLen}}]=
 
             CG_ASYNC_AFTER_NODE_CHECK(schedule[id]);
 
-            if (cgStaticError == CG_SKIP_EXECUTION_ID_CODE)
+            if (cgStaticError == CG_SKIP_EXECUTION)
             { 
               cgStaticError = 0;
               CG_NODE_NOT_EXECUTED(schedule[id]);

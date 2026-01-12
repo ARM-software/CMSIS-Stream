@@ -15,6 +15,8 @@ cppdependency(example12 static/static_scheduler.cpp static_refcount.py)
 cppdependency(example12 dynamic/dynamic_scheduler.cpp dynamic_refcount.py)
 add_sdf_dir(example12)
 
+target_link_libraries(example12 PRIVATE examplenodes posix_runtime appcommon)
+
 target_include_directories(example12 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(example12 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/static)
 target_include_directories(example12 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/dynamic)

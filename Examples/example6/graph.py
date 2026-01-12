@@ -1,13 +1,10 @@
 import numpy as np 
 
 from cmsis_stream.cg.scheduler import *
-import os 
 
 from cmsis_stream.cg.yaml import *
 
-def try_remove(path):
-    if os.path.isfile(path):
-        os.remove(path)
+
 
 from sharedconfig import *
 
@@ -67,26 +64,3 @@ sched.ccode("generated",config=conf)
 with open("test.dot","w") as f:
     sched.graphviz(f)
 
-try_remove("StreamNode.hpp")
-try_remove("GenericNodes.hpp")
-try_remove("EventQueue.hpp")
-try_remove("EventDisplay.hpp")
-try_remove("cg_queue.hpp")
-try_remove("cg_queue.cpp")
-try_remove("cg_enums.h")
-try_remove("posix_thread.cpp")
-try_remove("posix_thread.hpp")
-try_remove("cstream_node.h")
-try_remove("IdentifiedNode.hpp")
-try_remove("cg_pack.hpp")
-
-try_remove("StreamNode.h")
-try_remove("GenericNodes.h")
-try_remove("EventQueue.h")
-try_remove("cg_queue.h")
-try_remove("cg_enums.h")
-try_remove("posix_thread.h")
-try_remove("cstream_node.h")
-try_remove("IdentifiedNode.h")
-try_remove("cg_pack.h")
-generateGenericNodes(".")

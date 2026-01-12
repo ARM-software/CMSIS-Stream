@@ -35,16 +35,7 @@ class Sink: public GenericSink<IN, inputSize>
 public:
     Sink(FIFOBase<IN> &src):GenericSink<IN,inputSize>(src){};
 
-    int prepareForRunning() final
-    {
-        if (this->willUnderflow())
-        {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
-        }
-
-        return(0);
-    };
-
+   
     int run() final
     {
         IN *b=this->getReadBuffer();
@@ -64,15 +55,7 @@ class Source: public GenericSource<OUT,outputSize>
 public:
     Source(FIFOBase<OUT> &dst):GenericSource<OUT,outputSize>(dst){};
 
-    int prepareForRunning() final
-    {
-        if (this->willOverflow())
-        {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
-        }
-
-        return(0);
-    };
+   
 
     int run() final{
         OUT *b=this->getWriteBuffer();
@@ -100,17 +83,7 @@ public:
                    FIFOBase<IN> &dst):GenericNode<IN,inputOutputSize,
                                                   IN,inputOutputSize>(src,dst){};
 
-    int prepareForRunning() final
-    {
-        if (this->willOverflow() ||
-            this->willUnderflow())
-        {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
-        }
-
-        return(0);
-    };
-    
+   
     int run() final{
         printf("ProcessingNode\n");
         IN *a=this->getReadBuffer();

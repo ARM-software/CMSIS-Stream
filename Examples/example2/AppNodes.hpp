@@ -39,17 +39,6 @@ class TFLite: public GenericSink<IN, inputSize>
 public:
     TFLite(FIFOBase<IN> &src):GenericSink<IN,inputSize>(src){};
 
-    int prepareForRunning() override
-    {
-        if (this->willUnderflow()
-           )
-        {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
-        }
-
-        return(0);
-    };
-
     int run()
     {
         IN *b=this->getReadBuffer();
@@ -69,16 +58,7 @@ class StereoSource: public GenericSource<OUT,outputSize>
 public:
     StereoSource(FIFOBase<OUT> &dst):GenericSource<OUT,outputSize>(dst),mCounter(0){};
 
-    int prepareForRunning() override
-    {
-        if (this->willOverflow()
-           )
-        {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
-        }
-
-        return(0);
-    };
+   
 
     int run(){
         OUT *b=this->getWriteBuffer();
@@ -102,17 +82,7 @@ class MFCC: public GenericNode<IN,inputSize,OUT,outputSize>
 public:
     MFCC(FIFOBase<IN> &src,FIFOBase<OUT> &dst):GenericNode<IN,inputSize,OUT,outputSize>(src,dst){};
 
-    int prepareForRunning() override
-    {
-        if (this->willOverflow() ||
-            this->willUnderflow()
-           )
-        {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
-        }
-
-        return(0);
-    };
+   
     
     int run(){
         printf("MFCC\n");

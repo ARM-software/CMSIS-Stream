@@ -9,7 +9,8 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 #include <cstdint>
-#include "custom.hpp"
+#include "app_config.hpp"
+#include "stream_platform_config.hpp"
 #include "cg_enums.h"
 #include "StreamNode.hpp"
 #include "EventQueue.hpp"
@@ -198,8 +199,9 @@ complex buf14[BUFFERSIZE14]={0};
 
 
 CG_BEFORE_SCHEDULER_FUNCTION
-uint32_t scheduler(int *error,int someVariable)
+uint32_t scheduler(int *error,void *evtQueue_,int someVariable)
 {
+    EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
     int cgStaticError=0;
     uint32_t nbSchedule=0;
     int32_t debugCounter=1;

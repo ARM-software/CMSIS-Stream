@@ -56,10 +56,11 @@ public:
     // the input FIFO (coming from the generated scheduler).
     // This FIFO is passed to the GenericSink contructor.
     // Implementation of this Sink constructor is doing nothing
-    Sink(FIFOBase<IN> &src):GenericSink<IN,inputSize>(src),
+    Sink(FIFOBase<IN> &src,EventQueue *evtQueue):GenericSink<IN,inputSize>(src),
     eventCount(0),
     mustStop(false),
-    increment(1)
+    increment(1),
+    queue_(evtQueue)
     {};
 
     // Used in asynchronous mode. In case of underflow on
@@ -68,7 +69,7 @@ public:
     {
         if (this->willUnderflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
@@ -103,7 +104,7 @@ public:
 
     void processEvent(int dstPort,Event &&evt) final
     {
-             //std::cout << evt.event_id << std::endl;
+        std::cout << evt.event_id << std::endl;
         if (evt.event_id == kStopGraph)
         {
             mustStop = true; // Stop the graph
@@ -128,7 +129,9 @@ public:
         {
             std::cout << "Sink value = " << value << std::endl;
         }
-        EventOutput::sendAsyncToApp(this->nodeID(),kNormalPriority,kDo,1.0f,2.0f);
+
+        Event newEvt(kDo,kNormalPriority,1.0f,2.0f);
+        queue_->push(DistantDestination{this->nodeID()},std::move(newEvt));
 
         std::cout << "Sink received direct event on port " << dstPort << ": evt id " 
                << evt.event_id << " val = " << eventCount << "  " << std::endl;
@@ -143,7 +146,7 @@ protected:
    int eventCount;
    int increment;
    uint32_t value=0;
-
+   EventQueue *queue_;
 };
 
 /*
@@ -161,7 +164,7 @@ public:
     static std::array<uint16_t,1> selectors;
 
 
-    Source(FIFOBase<OUT> &dst):GenericSource<OUT,outputSize>(dst)
+    Source(FIFOBase<OUT> &dst,EventQueue *queue):GenericSource<OUT,outputSize>(dst),ev0(queue)
     {
     };
 
@@ -169,7 +172,7 @@ public:
     {
         if (this->willOverflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
@@ -264,7 +267,7 @@ public:
         if (this->willOverflow() ||
             this->willUnderflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
@@ -308,7 +311,7 @@ class EvtSource:public StreamNode
 public:
     static std::array<uint16_t,1> selectors;
 
-    EvtSource():StreamNode(){};
+    EvtSource(EventQueue *queue):StreamNode(),ev0(queue){};
 
     void subscribe(int outputPort,StreamNode &dst,int dstPort) final
     {
@@ -328,13 +331,14 @@ public:
     // the input FIFO (coming from the generated scheduler).
     // This FIFO is passed to the GenericSink contructor.
     // Implementation of this Sink constructor is doing nothing
-    EvtSink():StreamNode(),eventCount(0){};
+    EvtSink(EventQueue *queue):StreamNode(),eventCount(0),queue_(queue){};
 
     void processEvent(int dstPort,Event &&evt) final
     {
         eventCount++;
         
-        EventOutput::sendAsyncToApp(this->nodeID(),kNormalPriority,kDo,1.0f,2.0f);
+        Event newEvt(kDo,kNormalPriority,1.0f,2.0f);
+        queue_->push(DistantDestination{this->nodeID()},std::move(newEvt));
 
         // Display the event received from another node
         std::cout << "Sink received event on port " << dstPort << ": evt id " 
@@ -343,6 +347,7 @@ public:
 
 protected:
    int eventCount;
+   EventQueue *queue_;
 
 };
 

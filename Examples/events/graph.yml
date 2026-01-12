@@ -1,4 +1,4 @@
-version: 2.0.0
+version: 3.0.0
 graph:
   nodes:
   - node: source
@@ -8,6 +8,8 @@ graph:
     - output: o
       samples: 5
       type: float
+    args:
+    - variable: evtQueue
   - node: processing
     identified: true
     kind: ProcessingNode
@@ -26,6 +28,8 @@ graph:
     - input: i
       samples: 5
       type: float
+    args:
+    - variable: evtQueue
   edges:
   - src:
       node: source

@@ -67,7 +67,7 @@ public:
         if (this->willUnderflow())
         {
             //printf("skip sink\n");
-            return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+            return(CG_SKIP_EXECUTION); // Skip execution
             //return(CG_STOP_SCHEDULER);
         }
 
@@ -128,7 +128,7 @@ public:
         if (this->willOverflow())
         {
            printf("skip source\n");
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
@@ -200,7 +200,7 @@ public:
             this->willUnderflow())
         {
             printf("skip processing\n");
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
