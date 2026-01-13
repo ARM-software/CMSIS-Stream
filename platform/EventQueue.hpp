@@ -101,6 +101,7 @@ class EventQueue
 	// and wakeup when notified from push or end
 	virtual void execute() = 0;
 
+	// True if a request to end the event processing was made
 	bool mustEnd() const noexcept
 	{
 		return (mustEnd_.load());
@@ -108,14 +109,16 @@ class EventQueue
 
 	// In case of multi-threaded implementation
 	// this should wakeup the thread
+	// Signal a request to end the event processing
 	virtual void end() noexcept
 	{
 		mustEnd_.store(true);
 	};
 
-	// Set an application handler.
-	// Events sent to a null node are sent to the application handler.
-	// data is any additional data needed by the handler.
+	
+	// Used by queue implementations and EventOutput
+	// when event sent to application in an asynchronous way
+	// Should not be directly
 	bool callAsyncHandler(int node_id, arm_cmsis_stream::Event &&evt)
 	{
 		if (mustEnd_) {
@@ -131,6 +134,8 @@ class EventQueue
 		return false;
 	};
 
+	// Used by EventOutput and queue implementation
+	// to send event to application in a synchronous way
 	static bool callSyncHandler(int node_id, arm_cmsis_stream::Event &&evt)
 	{
 		if (EventQueue::handlerReady_) {
@@ -143,6 +148,7 @@ class EventQueue
 		return false;
 	};
 
+	// Set the application handler for events sent to application
 	static void setHandler(void *data, AppHandler handler)
 	{
 		EventQueue::handlerData = data;

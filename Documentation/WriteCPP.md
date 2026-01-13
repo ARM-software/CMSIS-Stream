@@ -209,7 +209,17 @@ The API to the scheduler is:
 extern uint32_t scheduler(int *error);
 ```
 
+or
+
+```C
+extern uint32_t scheduler(int *error,void *evtQueue_);
+```
+
 It is a C API that can be used from C code.
+
+The second form (with `evtQueue_`) is generated when initialization of FIFOs occurs inside the scheduler function.
+When initialization occurs in a separate initialization function, the event queue argument is only used by the init function.
+If you don't use events in your graph, this argument can be `NULL`.
 
 In case of error, the function is returning :
 

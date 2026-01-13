@@ -87,6 +87,13 @@ void subscribe(int outputPort,StreamNode &dst,int dstPort)
     }
 }
 ```
+
+The `EventOutput` object can only be created with an `EventQueue` argument.
+
+Each node using `self.addEventOutput()` in the Python description has an argument 
+of type `EventQueue*` in the C++ constructor. This argument follows the FIFOs arguments.
+This argument must be used to instantiate the `EventOutput` member variable.
+
 ## Receiving and sending events in C++
 
 ### Receiving events 
@@ -159,16 +166,29 @@ It is better to give the type of constant values to avoid any ambiguity.
 It is also possible to send an event to the application. 
 
 ```C++
-EventOutput::sendSyncToApp(kNormalPriority,kDo)
+EventOutput::sendSyncToApp(nodeIDSendingTheEvent,kNormalPriority,kDo)
 ```
+
+This is a static function of the class `EventOutput` because it is not related to any specific output. The application is virtually connected to all nodes.
+
 
 or
 
 ```C++
-EventOutput::sendAsyncToApp(kNormalPriority,kDo)
+ev0->sendAsyncToApp(nodeIDSendingTheEvent,kNormalPriority,kDo)
 ```
 
-This is a static function of the class `EventOutput` because it is not related to any specific output. The application is virtually connected to all nodes.
+For asynchronous mode, the event must be put on the event queue.
+Each `EventOutput` is virtually connected to the application.
+When an event is sent to the application, it is not sent to the nodes connected to the event output.
+
+You don't have to use an `EventOutput` object to send an event to the application in an asynchronous way.
+You can do it with the `EventQueue` used in the graph:
+
+```C++
+queue->push(DistantDestination{nodeIDSendingTheEvent},std::move(event));
+```
+
 
 You need to install an application event handler to process those events. This handler must be installed in the `EventQueue`. See the section about the `EventQueue`.
 
@@ -497,23 +517,40 @@ With `posix=False` you'll get an example `CMSIS RTOS2 API` implementation.
 ```C++
 class EventQueue
 {
-public:
-    using AppHandler = bool (*)(void *data, const Event &evt);
+    public:
+    using AppHandler = bool (*)(int src_node_id, void *data, Event &&evt);
 
-    inline static EventQueue *cg_eventQueue = nullptr;
+    bool push(LocalDestination dest, Event &&evt);
+
+    bool push(DistantDestination dest, Event &&evt);
 
     EventQueue() {};
     virtual ~EventQueue() {};
 
-    virtual bool push(Message &&message) = 0;
     virtual bool isEmpty() = 0;
     virtual void clear() = 0;
 
+    // In case of a threaded implementation
+    // this should sleep when no more any event are available
+    // and wakeup when notified from push or end
     virtual void execute() = 0;
 
-    bool callHandler(const arm_cmsis_stream::Event &evt);
+    // True if a request to end the event processing has been made
+    bool mustEnd() const noexcept;
 
-    void setHandler(void *data, AppHandler handler);
+    // In case of multi-threaded implementation
+    // this should wakeup the thread
+    // Request end of event processing for this queue
+    virtual void end() noexcept;
+
+    // Async call functions for application handler. Used by EventQueue implementation and EventOutput
+    bool callAsyncHandler(int node_id, arm_cmsis_stream::Event &&evt);
+
+    // Sync call functions for application handler. Used by EventQueue implementation and EventOutput
+    static bool callSyncHandler(int node_id, arm_cmsis_stream::Event &&evt);
+
+    // Set an application handler.
+    static void setHandler(void *data, AppHandler handler);
 
 };
 ```

@@ -158,10 +158,10 @@ public:
 
 The `input` and `output` arrays, used in the sink / source, are defined as extern. The source is reading from `input` and the sink is writing to `output`.
 
-The generated scheduler is:
+The generated scheduler is (in C++ API mode):
 
 ```C++
-uint32_t scheduler(int *error)
+uint32_t scheduler(int *error,EventQueue *evtQueue)
 {
     int cgStaticError=0;
     uint32_t nbSchedule=0;
