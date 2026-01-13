@@ -317,7 +317,11 @@ void listen_to_host(EventQueue *queue)
 
     // Allow socket address reuse
     int opt = 1;
+#if defined(_WIN32)
+    setsockopt(server_fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&opt, sizeof(opt));
+#else
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt));
+#endif
 
     sockaddr_in address{};
     address.sin_family = AF_INET;
@@ -359,15 +363,24 @@ void listen_to_host(EventQueue *queue)
             return;
         }
         client_socket = accept(server_fd, (struct sockaddr *)&client_addr, &client_len);
-        if (client_socket < 0)
+#if defined(_WIN32)
+        if (client_socket == INVALID_SOCKET)
         {
-            std::cerr << "Accept failed\n";
+            std::cerr << "Accept failed:" << WSAGetLastError() << " \n";
             CLOSESOCKET(server_fd);
 #if defined(_WIN32)
             WSACleanup();
 #endif
             return;
         }
+#else
+        if (client_socket < 0)
+        {
+            std::cerr << "Accept failed\n";
+            CLOSESOCKET(server_fd);
+            return;
+        }
+#endif
         clean_queue();
         // Set recv non blocking
 #if defined(_WIN32)

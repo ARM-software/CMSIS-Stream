@@ -197,32 +197,41 @@ int main(int argc, char const *argv[])
     
    
     // Initialize and start the scheduler
-
-    PosixThread ts([&error]
+    uint32_t nbIterations = 0;;
+    PosixThread ts([&error,&nbIterations]
                   {
                       std::cout << "Scheduler thread started!" << std::endl;
-                      uint32_t nb = scheduler(&error);
+                      nbIterations = scheduler(&error);
                       if ((error != CG_SUCCESS) && (error != CG_STOP_SCHEDULER))
                       {
                           std::cout << "Error during scheduler execution : " << error << std::endl;
-                          std::cout << "Scheduler executed " << nb << " iterations" << std::endl;
+                          std::cout << "Scheduler executed " << nbIterations << " iterations" << std::endl;
                       }
                       else
                       {
-                          std::cout << "Scheduler executed " << nb << " iterations" << std::endl;
+                          std::cout << "Scheduler executed " << nbIterations << " iterations" << std::endl;
                       }
                       std::cout << "Scheduler thread quitted!" << std::endl;
                   });
 
     ts.setPriority(ThreadPriority::RealTime);
     ts.start();
-    ts.waitUntilStarted(); // Wait until the thread is ready to process events
+    ts.join();
 
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    queue->end();
+    if ((error != CG_STOP_SCHEDULER) || (nbIterations != 0))
+    {
+        // Stream thread has finished so we end the event queue
+        std::cout << "Error " << error << " or nbIterations " << nbIterations << " !=0, ending event queue..." << std::endl;
+        std::cout << "Ending event queue..." << std::endl;
+        queue->end();
+    }
+    
 
     // Wait for event queue to finish
+    // If it was not finished this willb lock forever unless
+    // some other thread ends the queue
     t.join();
 
    
