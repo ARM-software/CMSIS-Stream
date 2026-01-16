@@ -55,6 +55,7 @@ public:
     // This should sleep when there is no more any event to process
     void execute()  final;
     void end() noexcept final;
+    void pause() noexcept final;
 
 
 private:
