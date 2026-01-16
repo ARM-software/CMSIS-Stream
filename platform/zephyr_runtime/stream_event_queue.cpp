@@ -26,7 +26,7 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(streamruntime_module);
+LOG_MODULE_DECLARE(cmsisstream,CONFIG_CMSISSTREAM_LOG_LEVEL);
 
 #include "stream_event_queue.hpp"
 #include <cstdint>
@@ -69,6 +69,10 @@ MyQueue::~MyQueue()
 bool MyQueue::push(arm_cmsis_stream::Message &&event)
 {
     bool ok = false;
+    if (this->mustPause() || (this->mustEnd()))
+    {
+        return false;
+    }
     CG_MUTEX_ERROR_TYPE error;
     CG_ENTER_CRITICAL_SECTION(queue_mutex, error);
     if (!CG_MUTEX_HAS_ERROR(error))
@@ -153,15 +157,26 @@ void MyQueue::end() noexcept
     
 };
 
+void MyQueue::pause() noexcept
+{
+    mustPause_.store(true);
+    // Force wakeup of the execute function
+    k_event_post(&cg_eventEvent, MY_QUEUE_NEW_EVENT_FLAG);
+    
+};
+
 // The thread priority will be changed according to the event priority
 // The thread priority is always the highest to extract events from the queue
 // and then change to the event priority to process the event
 void MyQueue::execute()
 {
     CG_MUTEX_ERROR_TYPE error;
-    while (!this->mustEnd())
+    // Stop event processing when end or pause
+    // Pause is different from waiting for new event pushed to the queue
+    // Pause ignore any new coming events and just stop processing events
+    while ((!this->mustEnd())  && (!this->mustPause()))
     {
-        while ((!this->mustEnd()) && (!isEmpty()))
+        while ((!this->mustEnd()) && (!isEmpty()) && (!this->mustPause()))
         {
             Message msg;
             bool messageWasReceived = false;
@@ -235,7 +250,11 @@ void MyQueue::execute()
         // In more recent version of Zephyr there is
         // a k_event_wait_safe that clears the events
         // in an atomic way.
-        k_event_wait(&cg_eventEvent, MY_QUEUE_NEW_EVENT_FLAG, false, K_FOREVER);
-        k_event_clear(&cg_eventEvent, MY_QUEUE_NEW_EVENT_FLAG);
+        // In pause mode if queue is empty we don't wait and just return
+        if (!this->mustPause())
+        {
+           k_event_wait(&cg_eventEvent, MY_QUEUE_NEW_EVENT_FLAG, false, K_FOREVER);
+           k_event_clear(&cg_eventEvent, MY_QUEUE_NEW_EVENT_FLAG);
+        }
     }
 }

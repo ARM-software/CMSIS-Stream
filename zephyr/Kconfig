@@ -103,5 +103,10 @@ config CMSISSTREAM_MAX_NUMBER_EVENT_ARGUMENTS
         It defines the maximum number of arguments that can be passed in an event.
         This number impacts the size of memory pools used by the event system.
 
+module = CMSISSTREAM
+module-str = cmsisstream
+source "subsys/logging/Kconfig.template.log_config"
+
+
 endif #CMSISSTREAM
 

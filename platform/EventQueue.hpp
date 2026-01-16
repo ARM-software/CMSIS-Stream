@@ -107,12 +107,32 @@ class EventQueue
 		return (mustEnd_.load());
 	};
 
+	// True if a request to pause the event processing was made
+	bool mustPause() const noexcept
+	{
+		return (mustPause_.load());
+	};
+
 	// In case of multi-threaded implementation
 	// this should wakeup the thread
 	// Signal a request to end the event processing
 	virtual void end() noexcept
 	{
 		mustEnd_.store(true);
+	};
+
+	// Ask for a pause of the event queue processing
+	// In case of multi-threaded implementation
+	// this should wakeup the thread
+	virtual void pause() noexcept
+	{
+		mustPause_.store(true);
+	};
+
+	// Resume the event queue processing queue
+	void resume() noexcept
+	{
+		mustPause_.store(false);
 	};
 
 	
@@ -165,6 +185,7 @@ class EventQueue
 	static void *handlerData;
 	static AppHandler handler;
 	std::atomic<bool> mustEnd_ = false;
+	std::atomic<bool> mustPause_ = false;
 	static std::atomic<bool> handlerReady_;
 };
 
