@@ -15,6 +15,10 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 3.1.0:
+* New option to disable selector initialization in generated scheduler
+* New scheduler length define in scheduler header
+
 ## Version 3.0.0:
 * Source code no more provided by the Python extension.
 * Get the source code here : https://github.com/ARM-software/CMSIS-Stream/platform
