@@ -61,9 +61,13 @@ extern "C"
 #define {{node[0]}} {{node[1]}}
 {% endfor %}
 
+#define {{config.prefix | upper}}SCHED_LEN {{schedLen}}
+
+{% if not config.disableSelectorInit  %}
 {% if selector_defines -%}
 /* Selectors global identifiers */
 {{ selector_defines}}
+{% endif %}
 {% endif %}
 
 {% if config.CAPI -%}

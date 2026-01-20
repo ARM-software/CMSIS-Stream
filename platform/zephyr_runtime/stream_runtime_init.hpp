@@ -29,6 +29,7 @@ typedef struct stream_execution_context_t_ {
    get_scheduler_node get_node_by_id;
    arm_cmsis_stream::EventQueue *evtQueue;
    uint32_t nb_identified_nodes;
+   uint32_t scheduler_length;
 } stream_execution_context_t;
 
 /**
