@@ -71,6 +71,12 @@ static void event_thread_function(void *, void *, void *)
 		}
 		else // Paused queue
 		{
+			// If no dataflow nodes, the nodes are paused here when the event thread is pausing
+			if (context->scheduler_length==0)
+			{
+			   if (context->pause_all_nodes)
+				   context->pause_all_nodes(context);
+			}
 			k_event_post(&cg_streamReplyEvent, EVENT_PAUSED_EVENT);
 			uint32_t res = k_event_wait(&cg_streamEvent, EVENT_RESUME_EVENT, false, K_FOREVER);
 			if ((res & EVENT_RESUME_EVENT) != 0)
@@ -112,14 +118,22 @@ static void stream_thread_function(void *, void *, void *)
 			((nb_iter == 0) && (error == CG_STOP_SCHEDULER)))
 		{
 
-			if (context->pause_all_nodes)
-				context->pause_all_nodes(context);
-			context->reset_fifos(1);
+			// If there are data flow nodes, we prefer pausing the nodes
+			// as soon as possible and not do it when event thread is pausing
+			if (context->scheduler_length>0)
+			{
+			   if (context->pause_all_nodes)
+				   context->pause_all_nodes(context);
+			}
+			
 			k_event_post(&cg_streamReplyEvent, STREAM_PAUSED_EVENT);
 			uint32_t res = k_event_wait(&cg_streamEvent, STREAM_RESUME_EVENT, false, K_FOREVER);
 			if ((res & STREAM_RESUME_EVENT) != 0)
 			{
 				k_event_clear(&cg_streamEvent, STREAM_RESUME_EVENT);
+				// Clear FIFOs here. In case of memory overlay between different graphs, the
+				// data in FIFOs could be corrupted when resuming another graph
+				context->reset_fifos(1);
 				if (context->resume_all_nodes)
 					context->resume_all_nodes(context);
 				k_event_post(&cg_streamReplyEvent, STREAM_RESUMED_EVENT);

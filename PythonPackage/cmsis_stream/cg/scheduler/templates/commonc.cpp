@@ -69,9 +69,11 @@ Internal ID identification for the nodes
 {% endif %}
 {% endfor %}
 
+{% if not config.disableSelectorInit  %}
 {% if selector_inits %}
 /* Initialize the selectors global IDs in each class */
 {{selector_inits}}
+{% endif %}
 {% endif %}
 
 {% if config.callback -%}

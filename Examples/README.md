@@ -43,7 +43,6 @@ For `example3` which is using an input file, `cmake` should have copied the inpu
 python main.py
 ```
 
-`example7` is communicating with `OpenModelica`. You need to install the VHTModelica blocks from the [AVH-SystemModeling](https://github.com/ARM-software/VHT-SystemModeling) project on our GitHub
 
 # List of examples
 

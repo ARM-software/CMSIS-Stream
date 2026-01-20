@@ -186,6 +186,7 @@ def gencode(sched,directory,config):
             schedule=sched.schedule,
             config=config,
             sched=sched,
+            schedLen=len(sched.schedule),
             identifiedNodes=identifiedNodes,
             selector_defines=selector_defines(sched),
             ),file=f)
