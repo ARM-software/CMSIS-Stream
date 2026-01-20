@@ -85,10 +85,6 @@ config CMSISSTREAM_POOL_SECTION
     string "Linker section where CMSIS Stream memory pools are placed"
     default ".alif_sram0.evt_pool"
 
-config CMSISSTREAM_FIFO_SECTION
-    string "Linker section where CMSIS Stream FIFO buffers are placed"
-    default ".alif_sram0.stream_fifo"  
-
 config CMSISSTREAM_TENSOR_MAX_DIMENSIONS 
     int "Maximum number of tensor dimensions"
     default 3
