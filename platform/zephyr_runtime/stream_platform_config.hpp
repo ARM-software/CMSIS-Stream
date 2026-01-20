@@ -124,10 +124,6 @@ class ZephyrLock
 
 #include "stream_zephyr_allocator.hpp"
 
-
-// Because memory optimization is enabled
-#define CG_BEFORE_BUFFER __aligned(16)__attribute__((section(CONFIG_CMSISSTREAM_FIFO_SECTION))) 
-
 #define CG_TIME_STAMP_TYPE uint32_t
 
 #define CG_GET_TIME_STAMP()  k_cycle_get_32()  
