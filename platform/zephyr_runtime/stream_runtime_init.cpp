@@ -34,15 +34,11 @@ using namespace arm_cmsis_stream;
 #define MUTEX_ELEMENT_SIZE (sizeof(CG_MUTEX) + sizeof(std::shared_ptr<CG_MUTEX>) + CONFIG_CMSISSTREAM_SHARED_OVERHEAD)
 #define MUTEX_SIZE (CONFIG_CMSISSTREAM_NB_MAX_BUFS * MUTEX_ELEMENT_SIZE)
 
+__aligned(8) __attribute__((section(CONFIG_CMSISSTREAM_POOL_SECTION))) static uint8_t list_slab_area[LIST_SIZE];
 
-__aligned(8) __attribute__((section(CONFIG_CMSISSTREAM_POOL_SECTION))) 
-static uint8_t list_slab_area[LIST_SIZE];
+__aligned(8) __attribute__((section(CONFIG_CMSISSTREAM_POOL_SECTION))) static uint8_t buf_slab_area[BUF_SIZE];
 
-__aligned(8) __attribute__((section(CONFIG_CMSISSTREAM_POOL_SECTION))) 
-static uint8_t buf_slab_area[BUF_SIZE];
-
-__aligned(8) __attribute__((section(CONFIG_CMSISSTREAM_POOL_SECTION))) 
-static uint8_t mutex_slab_area[MUTEX_SIZE];
+__aligned(8) __attribute__((section(CONFIG_CMSISSTREAM_POOL_SECTION))) static uint8_t mutex_slab_area[MUTEX_SIZE];
 
 struct k_mem_slab cg_eventPool;
 struct k_mem_slab cg_bufPool;
@@ -137,9 +133,14 @@ static void stream_thread_function(void *, void *, void *)
 			{
 				if (context->pause_all_nodes)
 					context->pause_all_nodes(context);
+				// If scheduler_length == 0 then
+				// the data flow has paused alone and not in
+				// reaction to a pause event
+				// So no need to acknowledge the pause event
+				k_event_post(&cg_streamReplyEvent, STREAM_PAUSED_EVENT);
 			}
 
-			k_event_post(&cg_streamReplyEvent, STREAM_PAUSED_EVENT);
+			
 			uint32_t res = k_event_wait(&cg_streamEvent, STREAM_RESUME_EVENT, false, K_FOREVER);
 			if ((res & STREAM_RESUME_EVENT) != 0)
 			{
@@ -164,12 +165,18 @@ static void stream_thread_function(void *, void *, void *)
 
 void stream_pause_current_scheduler()
 {
-	LOG_DBG("Try to pause stream scheduler\n");
-	k_event_post(&cg_streamEvent, STREAM_PAUSE_EVENT);
-	uint32_t res = k_event_wait(&cg_streamReplyEvent, STREAM_PAUSED_EVENT, false, K_FOREVER);
-	if ((res & STREAM_PAUSED_EVENT) != 0)
+	// If the graph is a pure event graph (scheduler_len == 0), the dataflow part
+	// is already paused so no need to post a pause event
+	uint32_t res;
+	if (current_context.load()->scheduler_length > 0)
 	{
-		k_event_clear(&cg_streamReplyEvent, STREAM_PAUSED_EVENT);
+		LOG_DBG("Try to pause stream scheduler\n");
+		k_event_post(&cg_streamEvent, STREAM_PAUSE_EVENT);
+		res = k_event_wait(&cg_streamReplyEvent, STREAM_PAUSED_EVENT, false, K_FOREVER);
+		if ((res & STREAM_PAUSED_EVENT) != 0)
+		{
+			k_event_clear(&cg_streamReplyEvent, STREAM_PAUSED_EVENT);
+		}
 	}
 	LOG_DBG("Try to pause event queue\n");
 	current_context.load()->evtQueue->pause();
@@ -210,7 +217,6 @@ int stream_init_memory()
 	/* Init events */
 	k_event_init(&cg_streamEvent);
 	k_event_init(&cg_streamReplyEvent);
-
 
 	/* Init memory slabs */
 	int err = k_mem_slab_init(&cg_eventPool, list_slab_area, LIST_ELEMENT_SIZE,
@@ -271,7 +277,6 @@ void stream_wait_for_threads_end()
 
 void stream_free_memory()
 {
-
 }
 
 EventQueue *stream_new_event_queue()
