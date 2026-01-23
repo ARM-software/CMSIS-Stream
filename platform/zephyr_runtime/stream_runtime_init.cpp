@@ -1,6 +1,6 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(cmsisstream,CONFIG_CMSISSTREAM_LOG_LEVEL);
+LOG_MODULE_REGISTER(cmsisstream, CONFIG_CMSISSTREAM_LOG_LEVEL);
 
 #include "stream_platform_config.hpp"
 #include "cg_enums.h"
@@ -17,23 +17,36 @@ LOG_MODULE_REGISTER(cmsisstream,CONFIG_CMSISSTREAM_LOG_LEVEL);
 
 #include <new>
 
+#include <memory>
+
 struct k_event cg_streamEvent;
 struct k_event cg_streamReplyEvent;
 
-#define MEMORY_POOL_HEAP_SIZE CONFIG_CMSISSTREAM_POOL_SIZE
+using namespace arm_cmsis_stream;
 
-__aligned(8)
-	__attribute__((section(CONFIG_CMSISSTREAM_POOL_SECTION))) static uint8_t sram0_heap_area[MEMORY_POOL_HEAP_SIZE];
+// Define memory pool sizes
+#define LIST_ELEMENT_SIZE (sizeof(ListValue) + sizeof(std::shared_ptr<ListValue>) + CONFIG_CMSISSTREAM_SHARED_OVERHEAD)
+#define LIST_SIZE (CONFIG_CMSISSTREAM_NB_MAX_EVENTS * LIST_ELEMENT_SIZE)
 
-static struct k_heap sram0_heap;
+#define BUF_ELEMENT_SIZE (sizeof(Tensor<double>) + sizeof(std::shared_ptr<Tensor<double>>) + CONFIG_CMSISSTREAM_SHARED_OVERHEAD)
+#define BUF_SIZE (CONFIG_CMSISSTREAM_NB_MAX_BUFS * BUF_ELEMENT_SIZE)
+
+#define MUTEX_ELEMENT_SIZE (sizeof(CG_MUTEX) + sizeof(std::shared_ptr<CG_MUTEX>) + CONFIG_CMSISSTREAM_SHARED_OVERHEAD)
+#define MUTEX_SIZE (CONFIG_CMSISSTREAM_NB_MAX_BUFS * MUTEX_ELEMENT_SIZE)
+
+
+__aligned(8) __attribute__((section(CONFIG_CMSISSTREAM_POOL_SECTION))) 
+static uint8_t list_slab_area[LIST_SIZE];
+
+__aligned(8) __attribute__((section(CONFIG_CMSISSTREAM_POOL_SECTION))) 
+static uint8_t buf_slab_area[BUF_SIZE];
+
+__aligned(8) __attribute__((section(CONFIG_CMSISSTREAM_POOL_SECTION))) 
+static uint8_t mutex_slab_area[MUTEX_SIZE];
 
 struct k_mem_slab cg_eventPool;
 struct k_mem_slab cg_bufPool;
 struct k_mem_slab cg_mutexPool;
-
-static void *event_pool_buffer;
-static void *buf_pool_buffer;
-static void *mutex_pool_buffer;
 
 static k_tid_t tid_stream = nullptr;
 static k_tid_t tid_event = nullptr;
@@ -72,10 +85,10 @@ static void event_thread_function(void *, void *, void *)
 		else // Paused queue
 		{
 			// If no dataflow nodes, the nodes are paused here when the event thread is pausing
-			if (context->scheduler_length==0)
+			if (context->scheduler_length == 0)
 			{
-			   if (context->pause_all_nodes)
-				   context->pause_all_nodes(context);
+				if (context->pause_all_nodes)
+					context->pause_all_nodes(context);
 			}
 			k_event_post(&cg_streamReplyEvent, EVENT_PAUSED_EVENT);
 			uint32_t res = k_event_wait(&cg_streamEvent, EVENT_RESUME_EVENT, false, K_FOREVER);
@@ -90,7 +103,7 @@ static void event_thread_function(void *, void *, void *)
 
 static void stream_thread_function(void *, void *, void *)
 {
-	
+
 	uint32_t nb_iter;
 	int error;
 	bool done = false;
@@ -100,10 +113,10 @@ static void stream_thread_function(void *, void *, void *)
 	{
 		stream_execution_context_t *context = current_context.load();
 		if (context == nullptr)
-	    {
-		   LOG_ERR("No stream execution context defined\n");
-		   return;
-	    }
+		{
+			LOG_ERR("No stream execution context defined\n");
+			return;
+		}
 		nb_iter = context->dataflow_scheduler(&error);
 		if ((error != CG_SUCCESS) &&
 			(error != CG_STOP_SCHEDULER) &&
@@ -120,12 +133,12 @@ static void stream_thread_function(void *, void *, void *)
 
 			// If there are data flow nodes, we prefer pausing the nodes
 			// as soon as possible and not do it when event thread is pausing
-			if (context->scheduler_length>0)
+			if (context->scheduler_length > 0)
 			{
-			   if (context->pause_all_nodes)
-				   context->pause_all_nodes(context);
+				if (context->pause_all_nodes)
+					context->pause_all_nodes(context);
 			}
-			
+
 			k_event_post(&cg_streamReplyEvent, STREAM_PAUSED_EVENT);
 			uint32_t res = k_event_wait(&cg_streamEvent, STREAM_RESUME_EVENT, false, K_FOREVER);
 			if ((res & STREAM_RESUME_EVENT) != 0)
@@ -198,17 +211,9 @@ int stream_init_memory()
 	k_event_init(&cg_streamEvent);
 	k_event_init(&cg_streamReplyEvent);
 
-	/* Init sram0 heap */
-	k_heap_init(&sram0_heap, sram0_heap_area, MEMORY_POOL_HEAP_SIZE);
 
 	/* Init memory slabs */
-	event_pool_buffer = nullptr;
-	buf_pool_buffer = nullptr;
-	mutex_pool_buffer = nullptr;
-
-	event_pool_buffer =
-		k_heap_alloc(&sram0_heap, CONFIG_CMSISSTREAM_NB_MAX_EVENTS * (sizeof(ListValue) + 16), K_NO_WAIT);
-	int err = k_mem_slab_init(&cg_eventPool, event_pool_buffer, sizeof(ListValue) + 16,
+	int err = k_mem_slab_init(&cg_eventPool, list_slab_area, LIST_ELEMENT_SIZE,
 							  CONFIG_CMSISSTREAM_NB_MAX_EVENTS);
 	if (err != 0)
 	{
@@ -216,9 +221,7 @@ int stream_init_memory()
 		return (err);
 	}
 
-	buf_pool_buffer =
-		k_heap_alloc(&sram0_heap, CONFIG_CMSISSTREAM_NB_MAX_BUFS * (sizeof(Tensor<double>) + 16), K_NO_WAIT);
-	err = k_mem_slab_init(&cg_bufPool, buf_pool_buffer, sizeof(Tensor<double>) + 16,
+	err = k_mem_slab_init(&cg_bufPool, buf_slab_area, BUF_ELEMENT_SIZE,
 						  CONFIG_CMSISSTREAM_NB_MAX_BUFS);
 	if (err != 0)
 	{
@@ -226,9 +229,8 @@ int stream_init_memory()
 		return (err);
 	}
 
-	mutex_pool_buffer =
-		k_heap_alloc(&sram0_heap, CONFIG_CMSISSTREAM_NB_MAX_BUFS * (sizeof(CG_MUTEX) + 16), K_NO_WAIT);
-	err = k_mem_slab_init(&cg_mutexPool, mutex_pool_buffer, sizeof(CG_MUTEX) + 16, CONFIG_CMSISSTREAM_NB_MAX_BUFS);
+	err = k_mem_slab_init(&cg_mutexPool, mutex_slab_area, MUTEX_ELEMENT_SIZE,
+						  CONFIG_CMSISSTREAM_NB_MAX_BUFS);
 	if (err != 0)
 	{
 		LOG_ERR("Failed to init mutex pool slab\n");
@@ -270,9 +272,6 @@ void stream_wait_for_threads_end()
 void stream_free_memory()
 {
 
-	k_heap_free(&sram0_heap, event_pool_buffer);
-	k_heap_free(&sram0_heap, buf_pool_buffer);
-	k_heap_free(&sram0_heap, mutex_pool_buffer);
 }
 
 EventQueue *stream_new_event_queue()

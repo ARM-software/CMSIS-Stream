@@ -69,17 +69,6 @@ config CMSISSTREAM_STREAM_THREAD_STACK_SIZE
     int "Stack size of stream thread"
     default 4096
 
-config CMSISSTREAM_POOL_SIZE 
-    int "Size allocated for the memory pools for event system"
-    default 800
-    help 
-        This is the total size allocated for the memory pool heap
-        used by the event system (events, buffers ...).
-        This heap contains atomic reference counted shared pointer, mutexes,
-        list of arguments for events ...
-        It must be big enough to accommodate all these structures and the size will depend
-        on the number of events and buffers in the system as well as the maximum
-        number of arguments per event. 
 
 config CMSISSTREAM_POOL_SECTION
     string "Linker section where CMSIS Stream memory pools are placed"
@@ -98,6 +87,18 @@ config CMSISSTREAM_MAX_NUMBER_EVENT_ARGUMENTS
     help 
         It defines the maximum number of arguments that can be passed in an event.
         This number impacts the size of memory pools used by the event system.
+
+config CMSISSTREAM_SHARED_OVERHEAD
+    int "Additional memory required by std::allocate_shared"
+    default 16
+    help 
+        When allocating a object of type T with std::allocate_shared<T> we need
+        enough memory for T and some additional memory required by the 
+        implementation of std::shared_ptr.
+        This parameter defines the additional memory required.
+        This value is used by the memory pool allocators to allocate enough memory.
+        The request to the allocator does not have the size sizeof(T) + sizeof(std::shared_ptr<T>)
+        It is slightly bigger.
 
 module = CMSISSTREAM
 module-str = cmsisstream
