@@ -144,6 +144,8 @@ static void stream_thread_function(void *, void *, void *)
 			uint32_t res = k_event_wait(&cg_streamEvent, STREAM_RESUME_EVENT, false, K_FOREVER);
 			if ((res & STREAM_RESUME_EVENT) != 0)
 			{
+				// The context may have changed after a resume event
+				context = current_context.load();
 				k_event_clear(&cg_streamEvent, STREAM_RESUME_EVENT);
 				// Clear FIFOs here. In case of memory overlay between different graphs, the
 				// data in FIFOs could be corrupted when resuming another graph
