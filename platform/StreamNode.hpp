@@ -1543,8 +1543,13 @@ void PrintType(void)
                         new_lv->values[i] = lv->values[i];
                     }
                     new_lv->nb_values = lv->nb_values;
+                    data = std::move(new_lv);
                 }
-                data = std::move(new_lv);
+                else 
+                {
+                    event_id = kNoEvent;
+                    data = cg_value();
+                }
             }
             else
             {
@@ -1593,6 +1598,10 @@ void PrintType(void)
         static UniquePtr<ListValue> make_new_list_value()
         {
             void *p= CG_MK_LIST_EVENT_ALLOCATOR(ListValue).allocate(1);
+            if (p == nullptr)
+            {
+                return UniquePtr<ListValue>();
+            }
             ListValue *val = new (p) ListValue();
 
             return UniquePtr<ListValue>(val, Event::list_value_deleter);
