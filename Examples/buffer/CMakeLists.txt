@@ -7,7 +7,7 @@ project(Simple)
 add_executable(simple scheduler.cpp main.cpp)
 
 dotdependency(simple simple ON create.py)
-cppdependency(simple scheduler.cpp create.py)
+cppdependency(simple scheduler.cpp create.py pre_schedule_simple.dot simple.dot)
 add_sdf_dir(simple)
 
 target_include_directories(simple PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

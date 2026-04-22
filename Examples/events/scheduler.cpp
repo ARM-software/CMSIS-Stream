@@ -174,6 +174,7 @@ CStreamNode* get_scheduler_node(int32_t nodeID)
 int init_scheduler(void *evtQueue_)
 {
     EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
+    (void)evtQueue;
 
     CG_BEFORE_FIFO_INIT;
     fifos.fifo0 = new (std::nothrow) FIFO<float,FIFOSIZE0,0,0>(buf0);
@@ -304,6 +305,7 @@ uint32_t scheduler(int *error)
 {
     int cgStaticError=0;
     uint32_t nbSchedule=0;
+
 
 
 

@@ -7,7 +7,7 @@ project(Callback)
 add_executable(callback scheduler.cpp main.cpp)
 
 dotdependency(callback callback ON create.py)
-cppdependency(callback scheduler.cpp create.py)
+cppdependency(callback scheduler.cpp create.py pre_schedule_callback.dot callback.dot)
 add_sdf_dir(callback)
 
 target_link_libraries(callback PRIVATE posix_runtime appcommon)

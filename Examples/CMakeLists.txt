@@ -21,7 +21,6 @@ if (DOT)
         BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.pdf
         COMMAND ${DOT} -Tpdf -o ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.pdf ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.dot
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.dot
         VERBATIM
         )
 
@@ -37,7 +36,6 @@ if (DOT)
         BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.pdf
         COMMAND ${DOT} -Tpdf -o ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.pdf ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.dot
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.dot
         VERBATIM
         )
 
@@ -54,7 +52,13 @@ endif()
 endfunction()
 
 function(cppdependency TARGET SRC SCRIPT)
- add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${SRC}
+ set(optional_outputs ${ARGN})   # may be empty
+ set(outputs "${SRC}")          # always-present output
+ list(APPEND outputs ${optional_outputs}) 
+ list(TRANSFORM outputs PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+
+
+ add_custom_command(OUTPUT ${outputs}
         COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
@@ -112,6 +116,7 @@ add_subdirectory(simpledsp)
 add_subdirectory(cyclo)
 add_subdirectory(functionexample)
 add_subdirectory(callback)
+add_subdirectory(memory)
 #
 #
 ## Python examples

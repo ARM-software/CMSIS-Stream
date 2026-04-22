@@ -9,9 +9,12 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 #include <cstdint>
-#include "custom.h"
-#include "GenericNodes.h"
-#include "cg_status.h"
+#include "app_config.hpp"
+#include "stream_platform_config.hpp"
+#include "cg_enums.h"
+#include "StreamNode.hpp"
+#include "EventQueue.hpp"
+#include "GenericNodes.hpp"
 #include "ComplexAppNodes.h"
 #include "scheduler.h"
 
@@ -22,6 +25,7 @@ The support classes and code are covered by CMSIS-Stream license.
        }
 
 #endif
+
 
 #if !defined(CG_BEFORE_ITERATION)
 #define CG_BEFORE_ITERATION
@@ -84,6 +88,8 @@ The support classes and code are covered by CMSIS-Stream license.
 #endif
 
 
+
+
 CG_AFTER_INCLUDES
 
 
@@ -102,6 +108,44 @@ static uint8_t schedule[184]=
 4,12,25,8,9,11,23,24,28,29,10,13,26,7,19,2,20,0,3,21,1,4,12,25,8,9,11,23,24,28,29,10,13,26,7,19,2,20,0,3,
 21,1,4,12,25,8,9,11,23,24,10,13,26,7,19,2,20,0,3,21,1,4,12,25,
 };
+
+/*
+
+Internal ID identification for the nodes
+
+*/
+#define DSTAA_INTERNAL_ID 0
+#define DSTAB_INTERNAL_ID 1
+#define DSTAC_INTERNAL_ID 2
+#define DSTBA_INTERNAL_ID 3
+#define DSTBB_INTERNAL_ID 4
+#define DUP0_INTERNAL_ID 5
+#define DUP1_INTERNAL_ID 6
+#define DUP2_INTERNAL_ID 7
+#define DUP3_INTERNAL_ID 8
+#define DUP4_INTERNAL_ID 9
+#define PROC12_INTERNAL_ID 10
+#define PROC13_INTERNAL_ID 11
+#define PROC21A_INTERNAL_ID 12
+#define PROC21B_INTERNAL_ID 13
+#define PROCA_INTERNAL_ID 14
+#define PROCB_INTERNAL_ID 15
+#define PROCC_INTERNAL_ID 16
+#define PROCD_INTERNAL_ID 17
+#define PROCE_INTERNAL_ID 18
+#define PROC_F_M_INTERNAL_ID 19
+#define PROC_M_TO_M_INTERNAL_ID 20
+#define PROC_TO_M_INTERNAL_ID 21
+#define SINK_INTERNAL_ID 22
+#define SINKB_INTERNAL_ID 23
+#define SINKC_INTERNAL_ID 24
+#define SINKD_INTERNAL_ID 25
+#define SINKE_INTERNAL_ID 26
+#define SOURCE_INTERNAL_ID 27
+#define SRC0_INTERNAL_ID 28
+#define SRC1_INTERNAL_ID 29
+
+
 
 
 CG_BEFORE_FIFO_BUFFERS
@@ -144,6 +188,10 @@ FIFO buffers
 #define FIFOSIZE31 16
 #define FIFOSIZE32 16
 
+#define BUFFERSIZE0 128
+CG_BEFORE_BUFFER
+float buf0[BUFFERSIZE0]={0};
+
 #define BUFFERSIZE1 128
 CG_BEFORE_BUFFER
 float buf1[BUFFERSIZE1]={0};
@@ -156,7 +204,7 @@ float buf2[BUFFERSIZE2]={0};
 CG_BEFORE_BUFFER
 float buf3[BUFFERSIZE3]={0};
 
-#define BUFFERSIZE4 128
+#define BUFFERSIZE4 16
 CG_BEFORE_BUFFER
 float buf4[BUFFERSIZE4]={0};
 
@@ -180,7 +228,7 @@ float buf8[BUFFERSIZE8]={0};
 CG_BEFORE_BUFFER
 float buf9[BUFFERSIZE9]={0};
 
-#define BUFFERSIZE10 16
+#define BUFFERSIZE10 32
 CG_BEFORE_BUFFER
 float buf10[BUFFERSIZE10]={0};
 
@@ -200,7 +248,7 @@ float buf13[BUFFERSIZE13]={0};
 CG_BEFORE_BUFFER
 float buf14[BUFFERSIZE14]={0};
 
-#define BUFFERSIZE15 32
+#define BUFFERSIZE15 128
 CG_BEFORE_BUFFER
 float buf15[BUFFERSIZE15]={0};
 
@@ -228,7 +276,7 @@ float buf20[BUFFERSIZE20]={0};
 CG_BEFORE_BUFFER
 float buf21[BUFFERSIZE21]={0};
 
-#define BUFFERSIZE22 128
+#define BUFFERSIZE22 16
 CG_BEFORE_BUFFER
 float buf22[BUFFERSIZE22]={0};
 
@@ -272,61 +320,63 @@ float buf31[BUFFERSIZE31]={0};
 CG_BEFORE_BUFFER
 float buf32[BUFFERSIZE32]={0};
 
-#define BUFFERSIZE33 16
-CG_BEFORE_BUFFER
-float buf33[BUFFERSIZE33]={0};
-
 
 
 CG_BEFORE_SCHEDULER_FUNCTION
-uint32_t scheduler(int *error)
+uint32_t scheduler(int *error,void *evtQueue_)
 {
+    EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
     int cgStaticError=0;
     uint32_t nbSchedule=0;
     int32_t debugCounter=1;
+
+    (void)evtQueue;
+
 
     CG_BEFORE_FIFO_INIT;
     /*
     Create FIFOs objects
     */
-    FIFO<float,FIFOSIZE0,0,1> fifo0(buf1);
-    FIFO<float,FIFOSIZE1,0,1> fifo1(buf2);
-    FIFO<float,FIFOSIZE2,0,1> fifo2(buf3);
-    FIFO<float,FIFOSIZE3,0,1> fifo3(buf4);
-    FIFO<float,FIFOSIZE4,0,1> fifo4(buf5);
-    FIFO<float,FIFOSIZE5,0,1> fifo5(buf6);
-    FIFO<float,FIFOSIZE6,0,1> fifo6(buf7);
-    FIFO<float,FIFOSIZE7,0,1> fifo7(buf8);
-    FIFO<float,FIFOSIZE8,0,1> fifo8(buf9);
-    FIFO<float,FIFOSIZE9,0,1> fifo9(buf10);
-    FIFO<float,FIFOSIZE10,0,1> fifo10(buf11);
-    FIFO<float,FIFOSIZE11,0,1> fifo11(buf12);
-    FIFO<float,FIFOSIZE12,0,1> fifo12(buf13);
-    FIFO<float,FIFOSIZE13,0,1> fifo13(buf14);
-    FIFO<float,FIFOSIZE14,0,1> fifo14(buf15);
-    FIFO<float,FIFOSIZE15,0,1> fifo15(buf16);
-    FIFO<float,FIFOSIZE16,0,1> fifo16(buf17);
-    FIFO<float,FIFOSIZE17,0,1> fifo17(buf18);
-    FIFO<float,FIFOSIZE18,0,1> fifo18(buf19);
-    FIFO<float,FIFOSIZE19,0,1> fifo19(buf20);
-    FIFO<float,FIFOSIZE20,0,1> fifo20(buf21);
-    FIFO<float,FIFOSIZE21,0,1> fifo21(buf22);
-    FIFO<float,FIFOSIZE22,0,1> fifo22(buf23);
-    FIFO<float,FIFOSIZE23,0,1> fifo23(buf24);
-    FIFO<float,FIFOSIZE24,0,1> fifo24(buf25);
-    FIFO<float,FIFOSIZE25,0,1> fifo25(buf26);
-    FIFO<float,FIFOSIZE26,0,1> fifo26(buf27);
-    FIFO<float,FIFOSIZE27,0,1> fifo27(buf28);
-    FIFO<float,FIFOSIZE28,0,1> fifo28(buf29);
-    FIFO<float,FIFOSIZE29,0,1> fifo29(buf30);
-    FIFO<float,FIFOSIZE30,0,1> fifo30(buf31);
-    FIFO<float,FIFOSIZE31,0,1> fifo31(buf32);
-    FIFO<float,FIFOSIZE32,0,1> fifo32(buf33);
+    FIFO<float,FIFOSIZE0,0,1> fifo0(buf0);
+    FIFO<float,FIFOSIZE1,0,1> fifo1(buf1);
+    FIFO<float,FIFOSIZE2,0,1> fifo2(buf2);
+    FIFO<float,FIFOSIZE3,0,1> fifo3(buf3);
+    FIFO<float,FIFOSIZE4,0,1> fifo4(buf4);
+    FIFO<float,FIFOSIZE5,0,1> fifo5(buf5);
+    FIFO<float,FIFOSIZE6,0,1> fifo6(buf6);
+    FIFO<float,FIFOSIZE7,0,1> fifo7(buf7);
+    FIFO<float,FIFOSIZE8,0,1> fifo8(buf8);
+    FIFO<float,FIFOSIZE9,0,1> fifo9(buf9);
+    FIFO<float,FIFOSIZE10,0,1> fifo10(buf10);
+    FIFO<float,FIFOSIZE11,0,1> fifo11(buf11);
+    FIFO<float,FIFOSIZE12,0,1> fifo12(buf12);
+    FIFO<float,FIFOSIZE13,0,1> fifo13(buf13);
+    FIFO<float,FIFOSIZE14,0,1> fifo14(buf14);
+    FIFO<float,FIFOSIZE15,0,1> fifo15(buf15);
+    FIFO<float,FIFOSIZE16,0,1> fifo16(buf16);
+    FIFO<float,FIFOSIZE17,0,1> fifo17(buf17);
+    FIFO<float,FIFOSIZE18,0,1> fifo18(buf18);
+    FIFO<float,FIFOSIZE19,0,1> fifo19(buf19);
+    FIFO<float,FIFOSIZE20,0,1> fifo20(buf20);
+    FIFO<float,FIFOSIZE21,0,1> fifo21(buf21);
+    FIFO<float,FIFOSIZE22,0,1> fifo22(buf22);
+    FIFO<float,FIFOSIZE23,0,1> fifo23(buf23);
+    FIFO<float,FIFOSIZE24,0,1> fifo24(buf24);
+    FIFO<float,FIFOSIZE25,0,1> fifo25(buf25);
+    FIFO<float,FIFOSIZE26,0,1> fifo26(buf26);
+    FIFO<float,FIFOSIZE27,0,1> fifo27(buf27);
+    FIFO<float,FIFOSIZE28,0,1> fifo28(buf28);
+    FIFO<float,FIFOSIZE29,0,1> fifo29(buf29);
+    FIFO<float,FIFOSIZE30,0,1> fifo30(buf30);
+    FIFO<float,FIFOSIZE31,0,1> fifo31(buf31);
+    FIFO<float,FIFOSIZE32,0,1> fifo32(buf32);
 
     CG_BEFORE_NODE_INIT;
     /* 
     Create node objects
     */
+
+
     Sink<float,32> dstaA(fifo10); /* Node ID = 0 */
     Sink<float,32> dstaB(fifo12); /* Node ID = 1 */
     Sink<float,32> dstaC(fifo14); /* Node ID = 2 */
@@ -358,16 +408,204 @@ uint32_t scheduler(int *error)
     Source<float,16> src0(fifo27); /* Node ID = 28 */
     Source<float,16> src1(fifo30); /* Node ID = 29 */
 
+
+/* Subscribe nodes for the event system*/
+
+    cgStaticError = CG_SUCCESS;
+    cgStaticError = dstaA.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = dstaB.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = dstaC.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = dstbA.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = dstbB.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = dup0.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = dup1.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = dup2.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = dup3.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = dup4.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = proc12.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = proc13.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = proc21A.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = proc21B.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = procA.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = procB.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = procC.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = procD.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = procE.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = proc_f_m.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = proc_m_to_m.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = proc_to_m.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sink.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sinkB.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sinkC.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sinkD.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sinkE.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = source.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = src0.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = src1.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+
+
+
+
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
     while((cgStaticError==0) && (debugCounter > 0))
     {
         /* Run a schedule iteration */
         CG_BEFORE_ITERATION;
-        for(unsigned long id=0 ; id < 184; id++)
+        unsigned long id=0;
+        for(; id < 184; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             cgStaticError = 0;
             CG_ASYNC_BEFORE_NODE_CHECK(schedule[id]);
             switch(schedule[id])
@@ -558,193 +796,224 @@ uint32_t scheduler(int *error)
 
             CG_ASYNC_AFTER_NODE_CHECK(schedule[id]);
 
-            if (cgStaticError == CG_SKIP_EXECUTION_ID_CODE)
+            if (cgStaticError == CG_SKIP_EXECUTION)
             { 
               cgStaticError = 0;
               CG_NODE_NOT_EXECUTED(schedule[id]);
               continue;
             }
 
+            
             CHECKERROR;
 
             switch(schedule[id])
             {
                 case 0:
                 {
+                    
                    cgStaticError = dstaA.run();
                 }
                 break;
 
                 case 1:
                 {
+                    
                    cgStaticError = dstaB.run();
                 }
                 break;
 
                 case 2:
                 {
+                    
                    cgStaticError = dstaC.run();
                 }
                 break;
 
                 case 3:
                 {
+                    
                    cgStaticError = dstbA.run();
                 }
                 break;
 
                 case 4:
                 {
+                    
                    cgStaticError = dstbB.run();
                 }
                 break;
 
                 case 5:
                 {
+                    
                    cgStaticError = dup0.run();
                 }
                 break;
 
                 case 6:
                 {
+                    
                    cgStaticError = dup1.run();
                 }
                 break;
 
                 case 7:
                 {
+                    
                    cgStaticError = dup2.run();
                 }
                 break;
 
                 case 8:
                 {
+                    
                    cgStaticError = dup3.run();
                 }
                 break;
 
                 case 9:
                 {
+                    
                    cgStaticError = dup4.run();
                 }
                 break;
 
                 case 10:
                 {
+                    
                    cgStaticError = proc12.run();
                 }
                 break;
 
                 case 11:
                 {
+                    
                    cgStaticError = proc13.run();
                 }
                 break;
 
                 case 12:
                 {
+                    
                    cgStaticError = proc21A.run();
                 }
                 break;
 
                 case 13:
                 {
+                    
                    cgStaticError = proc21B.run();
                 }
                 break;
 
                 case 14:
                 {
+                    
                    cgStaticError = procA.run();
                 }
                 break;
 
                 case 15:
                 {
+                    
                    cgStaticError = procB.run();
                 }
                 break;
 
                 case 16:
                 {
+                    
                    cgStaticError = procC.run();
                 }
                 break;
 
                 case 17:
                 {
+                    
                    cgStaticError = procD.run();
                 }
                 break;
 
                 case 18:
                 {
+                    
                    cgStaticError = procE.run();
                 }
                 break;
 
                 case 19:
                 {
+                    
                    cgStaticError = proc_f_m.run();
                 }
                 break;
 
                 case 20:
                 {
+                    
                    cgStaticError = proc_m_to_m.run();
                 }
                 break;
 
                 case 21:
                 {
+                    
                    cgStaticError = proc_to_m.run();
                 }
                 break;
 
                 case 22:
                 {
+                    
                    cgStaticError = sink.run();
                 }
                 break;
 
                 case 23:
                 {
+                    
                    cgStaticError = sinkB.run();
                 }
                 break;
 
                 case 24:
                 {
+                    
                    cgStaticError = sinkC.run();
                 }
                 break;
 
                 case 25:
                 {
+                    
                    cgStaticError = sinkD.run();
                 }
                 break;
 
                 case 26:
                 {
+                    
                    cgStaticError = sinkE.run();
                 }
                 break;
 
                 case 27:
                 {
+                    
                    cgStaticError = source.run();
                 }
                 break;
 
                 case 28:
                 {
+                    
                    cgStaticError = src0.run();
                 }
                 break;
 
                 case 29:
                 {
+                    
                    cgStaticError = src1.run();
                 }
                 break;
@@ -753,15 +1022,15 @@ uint32_t scheduler(int *error)
                 break;
             }
             CG_AFTER_NODE_EXECUTION(schedule[id]);
-            CHECKERROR;
+                        CHECKERROR;
         }
        debugCounter--;
        CG_AFTER_ITERATION;
        nbSchedule++;
     }
-
 errorHandling:
     CG_AFTER_SCHEDULE;
     *error=cgStaticError;
     return(nbSchedule);
+    
 }

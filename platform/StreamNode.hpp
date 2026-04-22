@@ -1830,9 +1830,11 @@ void PrintType(void)
 
         StreamNode() {};
 
-        virtual void processEvent(int dstPort, Event &&evt) {};
+        // int dstPort, Event &&evt
+        virtual void processEvent(int, Event &&) {};
         virtual bool needsAsynchronousInit() const { return false; };
-        virtual void subscribe(int outputPort, StreamNode &dst, int dstPort) {};
+        // int outputPort, StreamNode &dst, int dstPort
+        virtual void subscribe(int , StreamNode &, int ) {};
         virtual cg_status init() {return CG_SUCCESS;};
 
         /*

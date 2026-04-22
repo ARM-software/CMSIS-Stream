@@ -105,5 +105,7 @@
         "semaphore": "cpp",
         "cinttypes": "cpp",
         "shared_mutex": "cpp"
-    }
+    },
+    "debug.hideSlowPreLaunchWarning": true,
+    "debug.showInStatusBar": "never"
 }

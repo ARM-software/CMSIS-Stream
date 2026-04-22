@@ -1,0 +1,22 @@
+project:
+  groups:
+    - group: App
+      files:
+        - file: ./../main.cpp
+        - file: ./scheduler.cpp
+
+  add-path:
+    - ..
+    - .
+    - ../../platform
+    - ../../platform/cmsis_rtos
+       
+  components:
+    - component: ARM::CMSIS:DSP&Source@1.17.0
+    - component: CMSIS:OS Tick:SysTick
+    - component: CMSIS:RTOS2:Keil RTX5&Source
+  
+  layers:
+    - layer: ./../vht.clayer.yml 
+    - layer: ./../cg.clayer.yml
+

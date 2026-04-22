@@ -19,7 +19,7 @@ void app_main (void *argument)
     printf("Start\n\r");
 
 
-    nbSched=scheduler(&error);
+    nbSched=scheduler(&error,nullptr);
     printf("Number of schedule iterations = %d\n\r",nbSched);
     printf("Error code = %d\n\r",error);
 

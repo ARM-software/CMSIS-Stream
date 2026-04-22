@@ -7,8 +7,11 @@ The support classes and code are covered by CMSIS-Stream license.
 
 */
 
-#ifndef _CV_SCHEDULER8_H_ 
-#define _CV_SCHEDULER8_H_
+#ifndef CV_SCHEDULER8_H_ 
+#define CV_SCHEDULER8_H_
+
+
+#include <stdint.h>
 
 #ifdef   __cplusplus
 extern "C"
@@ -17,15 +20,13 @@ extern "C"
 
 
 
+
 extern int init_buffer_scheduler(uint8_t *myBuffer,
                               uint8_t *myBufferB);
 extern void free_buffer_scheduler(uint8_t *myBuffer,
                               uint8_t *myBufferB);
-
-
-extern uint32_t scheduler(int *error,uint8_t *myBuffer,
+extern uint32_t scheduler(int *error,void *evtQueue_,uint8_t *myBuffer,
                               uint8_t *myBufferB);
-
 #ifdef   __cplusplus
 }
 #endif

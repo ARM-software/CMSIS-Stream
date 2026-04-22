@@ -7,7 +7,7 @@ project(Example10)
 add_executable(example10 generated/scheduler.cpp main.cpp)
 
 dotdependency(example10 test ON graph.py)
-cppdependency(example10 generated/scheduler.cpp graph.py)
+cppdependency(example10 generated/scheduler.cpp graph.py pre_schedule_test.dot test.dot)
 add_sdf_dir(example10)
 
 target_link_libraries(example10 PRIVATE examplenodes posix_runtime appcommon)

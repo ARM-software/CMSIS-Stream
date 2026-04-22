@@ -9,11 +9,11 @@ conf=Configuration()
 # to prevent the scheduling from running forever
 # (which should be the case for a stream computation)
 conf.debugLimit=1
-conf.appConfigCName = "custom.h"
+conf.appConfigCName = "app_config.hpp"
 conf.appNodesCName = "DuplicateAppNodes.h"
-conf.cOptionalArgs=["float* inputArray",
-                    "float* outputArray"
-                   ]
+conf.cOptionalExecutionArgs=["float* inputArray",
+                             "float* outputArray"
+                         ]
 conf.CMSISDSP = False
 # Compute a static scheduling of the graph 
 # The size of FIFO is also computed

@@ -7,7 +7,7 @@ project(simpledsp)
 add_executable(simpledsp generated/scheduler.cpp main.cpp)
 
 dotdependency(simpledsp simpledsp ON create.py)
-cppdependency(simpledsp generated/scheduler.cpp create.py)
+cppdependency(simpledsp generated/scheduler.cpp create.py pre_schedule_simpledsp.dot simpledsp.dot)
 add_sdf_dir(simpledsp)
 
 target_link_libraries(simpledsp PRIVATE posix_runtime appcommon)

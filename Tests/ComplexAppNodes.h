@@ -25,8 +25,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _APPNODES_H_
-#define _APPNODES_H_
+#ifndef CPLX_APPNODES_H_
+#define CPLX_APPNODES_H_
 
 #include <cstring>
 #include <cstdio>
@@ -49,7 +49,7 @@ public:
     {
         if (this->willUnderflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
@@ -72,7 +72,7 @@ template<typename OUT,int outputSize>
 class Source;
 
 template<int outputSize>
-class Source<float32_t,outputSize>: GenericSource<float32_t,outputSize>
+class Source<float32_t,outputSize>: public GenericSource<float32_t,outputSize>
 {
 public:
     Source(FIFOBase<float32_t> &dst):
@@ -82,7 +82,7 @@ public:
     {
         if (this->willOverflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
@@ -121,7 +121,7 @@ public:
         if (this->willOverflow() ||
             this->willUnderflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
@@ -160,7 +160,7 @@ public:
             this->willOverflow2() ||
             this->willUnderflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
@@ -206,7 +206,7 @@ public:
             this->willOverflow3() ||
             this->willUnderflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
@@ -250,7 +250,7 @@ public:
             this->willUnderflow1() ||
             this->willUnderflow2())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
@@ -288,7 +288,7 @@ public:
         {
            if (this->willUnderflow(i))
            {
-              return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+              return(CG_SKIP_EXECUTION); // Skip execution
            }
         }
 
@@ -297,17 +297,18 @@ public:
         {
            if (this->willOverflow(i))
            {
-              return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+              return(CG_SKIP_EXECUTION); // Skip execution
            }
         }
 
 
-        return(CG_SUCCESS_ID_CODE);
+        return(CG_SUCCESS);
+
     };
     
     int run() final{
         
-        return(CG_SUCCESS_ID_CODE);
+        return(CG_SUCCESS);
     };
 
 };
@@ -328,24 +329,24 @@ public:
     {
          if (this->willUnderflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         for(unsigned int i=0;i<this->getNbOutputs();i++)
         {
            if (this->willOverflow(i))
            {
-              return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+              return(CG_SKIP_EXECUTION); // Skip execution
            }
         }
 
 
-        return(CG_SUCCESS_ID_CODE);
+        return(CG_SUCCESS);
     };
     
     int run() final{
         
-        return(CG_SUCCESS_ID_CODE);
+        return(CG_SUCCESS);
     };
 
 };
@@ -370,22 +371,22 @@ public:
         {
            if (this->willUnderflow(i))
            {
-              return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+              return(CG_SKIP_EXECUTION); // Skip execution
            }
         }
 
         if (this->willOverflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
 
-        return(CG_SUCCESS_ID_CODE);
+        return(CG_SUCCESS);
     };
     
     int run() final{
         
-        return(CG_SUCCESS_ID_CODE);
+        return(CG_SUCCESS);
     };
 
 };

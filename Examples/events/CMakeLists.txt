@@ -7,7 +7,7 @@ project(Events)
 add_executable(events scheduler.cpp host_com.cpp main.cpp )
 
 dotdependency(events events ON create.py)
-cppdependency(events scheduler.cpp create.py)
+cppdependency(events scheduler.cpp create.py pre_schedule_simple.dot events.dot)
 add_sdf_dir(events)
 
 target_link_libraries(events PRIVATE posix_runtime appcommon)

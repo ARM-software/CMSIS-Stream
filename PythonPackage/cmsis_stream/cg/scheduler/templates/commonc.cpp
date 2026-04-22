@@ -222,6 +222,7 @@ int init_{{config.schedName}}(EventQueue *evtQueue{{initOptionalargs(False)}})
 {% if config.CAPI %}
     EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
 {% endif %}
+    (void)evtQueue;
 {% if config.callback -%}
     init_cb_state();
 {% endif %}
@@ -352,6 +353,10 @@ uint32_t {{config.schedName}}(int *error{{executionOptionalargs(False)}})
     uint32_t nbSchedule=0;
 {% if config.debug %}
     int32_t debugCounter={{config.debugLimit}};
+{% endif %}
+
+{% if not config.heapAllocation %}
+    (void)evtQueue;
 {% endif %}
 
 {% if config.callback -%}

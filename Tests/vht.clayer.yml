@@ -4,27 +4,8 @@ layer:
 
   components:
     - component: ARM::CMSIS:CORE
-    - component: Device:Startup&C Startup
-      not-for-context: 
-        - +VHT-Corstone-300 
-        - +VHT-Corstone-310
+    - component: ARM::Device:Startup&C Startup
     - component: ARM::Device:Definition
-      for-context: 
-        - +VHT-Corstone-300 
-        - +VHT-Corstone-310
-    - component: ARM::Device:Startup&Baremetal
-      for-context: 
-        - +VHT-Corstone-300 
-        - +VHT-Corstone-310
-    - component: ARM::Native Driver:Timeout
-      for-context: 
-        - +VHT-Corstone-300 
-        - +VHT-Corstone-310
-    - component: ARM::Native Driver:SysCounter
-      for-context: 
-        - +VHT-Corstone-300 
-        - +VHT-Corstone-310
-    - component: ARM::Native Driver:SysTimer
-      for-context: 
-        - +VHT-Corstone-300 
-        - +VHT-Corstone-310
+    - component: ARM::Device:Native Driver:Timeout
+    - component: ARM::Device:Native Driver:SysCounter
+    - component: ARM::Device:Native Driver:SysTimer

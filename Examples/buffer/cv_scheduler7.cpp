@@ -9,11 +9,13 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 #include <cstdint>
-#include "custom.h"
+#include "app_config.hpp"
+#include "stream_platform_config.hpp"
 #include "cg_enums.h"
-#include "StreamNode.h"
-#include "GenericNodes.h"
-#include "AppNodes.h"
+#include "StreamNode.hpp"
+#include "EventQueue.hpp"
+#include "GenericNodes.hpp"
+#include "AppNodes.hpp"
 #include "cv_scheduler7.h"
 
 #if !defined(CHECKERROR)
@@ -112,6 +114,7 @@ Internal ID identification for the nodes
 
 
 
+
 CG_BEFORE_FIFO_BUFFERS
 /***********
 
@@ -153,8 +156,7 @@ int init_buffer_scheduler(uint8_t *myBuffer,
     return(CG_SUCCESS);
 }
 
-void free_buffer_scheduler(uint8_t *myBuffer,
-                              uint8_t *myBufferB)
+void free_buffer_scheduler()
 {
     if (buffers.buf0!=NULL)
     {
@@ -173,9 +175,10 @@ void free_buffer_scheduler(uint8_t *myBuffer,
 
 
 CG_BEFORE_SCHEDULER_FUNCTION
-uint32_t scheduler(int *error,uint8_t *myBuffer,
+uint32_t scheduler(int *error,void *evtQueue_,uint8_t *myBuffer,
                               uint8_t *myBufferB)
 {
+    EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
     int cgStaticError=0;
     uint32_t nbSchedule=0;
     int32_t debugCounter=1;
@@ -186,21 +189,56 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
     Create FIFOs objects
     */
     FIFO<float,FIFOSIZE0,0,0> fifo0(Test);
-    FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf2);
+    FIFO<float,FIFOSIZE1,1,0> fifo1(buffers.buf0);
     FIFO<float,FIFOSIZE2,1,0> fifo2(buffers.buf1);
-    FIFO<float,FIFOSIZE3,1,0> fifo3(buffers.buf0);
+    FIFO<float,FIFOSIZE3,1,0> fifo3(buffers.buf2);
 
     CG_BEFORE_NODE_INIT;
     /* 
     Create node objects
     */
+
+
     Duplicate<float,5,float,5> dup0(fifo1,{&fifo2,&fifo3}); /* Node ID = 0 */
     ProcessingNode<float,7,float,5> processing1(fifo0,fifo1); /* Node ID = 1 */
     Sink<float,5> sink1(fifo2,"sink1"); /* Node ID = 2 */
     Sink<float,5> sink2(fifo3,"sink2"); /* Node ID = 3 */
     SourceC3<float,5> source(fifo0); /* Node ID = 4 */
 
+
 /* Subscribe nodes for the event system*/
+
+    cgStaticError = CG_SUCCESS;
+    cgStaticError = dup0.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = processing1.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sink1.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sink2.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = source.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
 
 
 

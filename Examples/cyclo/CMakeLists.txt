@@ -7,7 +7,7 @@ project(cyclo)
 add_executable(cyclo generated/scheduler.cpp main.cpp)
 
 dotdependency(cyclo cyclo ON create.py)
-cppdependency(cyclo generated/scheduler.cpp create.py)
+cppdependency(cyclo generated/scheduler.cpp create.py pre_schedule_cyclo.dot cyclo.dot)
 add_sdf_dir(cyclo)
 
 target_link_libraries(cyclo PRIVATE examplenodes posix_runtime appcommon)

@@ -10,7 +10,7 @@
 #include  CMSIS_device_header
 
 #include "arm_math_types.h"
-#include "GenericNodes.h"
+#include "GenericNodes.hpp"
 
 using namespace arm_cmsis_stream;
 

@@ -9,11 +9,13 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 #include <cstdint>
-#include "custom.h"
+#include "app_config.hpp"
+#include "stream_platform_config.hpp"
 #include "cg_enums.h"
-#include "StreamNode.h"
-#include "GenericNodes.h"
-#include "AppNodes.h"
+#include "StreamNode.hpp"
+#include "EventQueue.hpp"
+#include "GenericNodes.hpp"
+#include "AppNodes.hpp"
 #include "cv_scheduler12.h"
 
 #if !defined(CHECKERROR)
@@ -109,6 +111,7 @@ Internal ID identification for the nodes
 
 
 
+
 CG_BEFORE_FIFO_BUFFERS
 /***********
 
@@ -126,17 +129,17 @@ int init_buffer_scheduler(uint8_t *myBuffer,
     return(CG_SUCCESS);
 }
 
-void free_buffer_scheduler(uint8_t *myBuffer,
-                              uint8_t *myBufferB)
+void free_buffer_scheduler()
 {
 }
 
 
 
 CG_BEFORE_SCHEDULER_FUNCTION
-uint32_t scheduler(int *error,uint8_t *myBuffer,
+uint32_t scheduler(int *error,void *evtQueue_,uint8_t *myBuffer,
                               uint8_t *myBufferB)
 {
+    EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
     int cgStaticError=0;
     uint32_t nbSchedule=0;
     int32_t debugCounter=1;
@@ -152,10 +155,27 @@ uint32_t scheduler(int *error,uint8_t *myBuffer,
     /* 
     Create node objects
     */
+
+
     SinkC<float,5> sink(fifo0,"sink"); /* Node ID = 0 */
     SourceC3<float,5> source(fifo0); /* Node ID = 1 */
 
+
 /* Subscribe nodes for the event system*/
+
+    cgStaticError = CG_SUCCESS;
+    cgStaticError = sink.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = source.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
 
 
 

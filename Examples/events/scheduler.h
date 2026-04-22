@@ -28,6 +28,8 @@ extern "C"
 #define SOURCE_ID 2
 #define EVTSINK_ID 3
 
+#define SCHED_LEN 19
+
 /* Selectors global identifiers */
 #define SEL_RESET_ID 100 
 #define SEL_INCREMENT_ID 101 

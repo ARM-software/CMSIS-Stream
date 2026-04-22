@@ -163,6 +163,8 @@ uint32_t dynamic_scheduler(int *error,void *evtQueue_)
     uint32_t nbSchedule=0;
     int32_t debugCounter=1;
 
+    (void)evtQueue;
+
 
     CG_BEFORE_FIFO_INIT;
     /*

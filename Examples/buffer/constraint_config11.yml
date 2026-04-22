@@ -1,4 +1,4 @@
-version: 2.0.0
+version: 3.0.0
 schedule-options:
   memory-optimization: true
   mem-strategy: independent_set
@@ -7,6 +7,10 @@ code-generation-options:
   debug-limit: 1
   fifo-prefix: cv
 c-code-generation-options:
-  c-optional-args: "uint8_t *myBuffer,\n                              uint8_t *myBufferB"
+  c-optional-init-args: "uint8_t *myBuffer,\n                              uint8_t\
+    \ *myBufferB"
+  c-optional-execution-args: "uint8_t *myBuffer,\n                              uint8_t\
+    \ *myBufferB"
+  c-optional-free-args: ''
   scheduler-c-file-name: cv_scheduler11
 
