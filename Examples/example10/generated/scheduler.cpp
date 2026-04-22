@@ -233,6 +233,7 @@ static nodes_t nodes={0};
 int init_scheduler(void *evtQueue_)
 {
     EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
+    (void)evtQueue;
 
     CG_BEFORE_FIFO_INIT;
     fifos.fifo0 = new (std::nothrow) FIFO<int16_t,FIFOSIZE0,0,1>(buf0);
@@ -607,6 +608,7 @@ uint32_t scheduler(int *error)
     int cgStaticError=0;
     uint32_t nbSchedule=0;
     int32_t debugCounter=10;
+
 
 
 

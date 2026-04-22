@@ -11,9 +11,9 @@ conf=Configuration()
 conf.debugLimit=10
 conf.appConfigCName = "custom_bench.h"
 conf.appNodesCName = "BenchAppNodes.h"
-conf.cOptionalArgs=["float32_t* inputArray",
-                    "float32_t* outputArray"
-                   ]
+conf.cOptionalExecutionArgs=["float32_t* inputArray",
+                             "float32_t* outputArray"
+                            ]
 conf.CMSISDSP = True
 # Compute a static scheduling of the graph 
 # The size of FIFO is also computed

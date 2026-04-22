@@ -181,6 +181,7 @@ static nodes_t nodes={0};
 int init_scheduler(void *evtQueue_,int *someVariable)
 {
     EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
+    (void)evtQueue;
 init_cb_state();
 
     CG_BEFORE_FIFO_INIT;
@@ -303,6 +304,7 @@ uint32_t scheduler(int *error,int *someVariable)
 {
     int cgStaticError=0;
     uint32_t nbSchedule=0;
+
 
 if (cb_state.status==CG_PAUSED_SCHEDULER_ID)
    {

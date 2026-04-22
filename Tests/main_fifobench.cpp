@@ -111,7 +111,7 @@ int main(void)
   printf("Measurement overhead %d\r\n",overhead);
 
   cycleMeasurementStart();
-  nbSched=scheduler(&error,input_buffer,output_buffer);
+  nbSched=scheduler(&error,nullptr,input_buffer,output_buffer);
   cycleMeasurementStop();
   int32_t cycles = (getCycles() - overhead)/nbSched;
 

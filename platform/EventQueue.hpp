@@ -237,8 +237,7 @@ class EventOutput
 					}
 				} else {
 					// If not async, we call the processEvent directly
-					destination.dst->processEvent(destination.dstPort,
-								      std::move(evt.clone()));
+					destination.dst->processEvent(destination.dstPort,evt.clone());
 				}
 			}
 		}

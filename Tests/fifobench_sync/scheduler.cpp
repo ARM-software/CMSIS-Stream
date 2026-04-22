@@ -10,8 +10,11 @@ The support classes and code are covered by CMSIS-Stream license.
 
 #include "arm_math.h"
 #include "custom_bench.h"
-#include "GenericNodes.h"
-#include "cg_status.h"
+#include "stream_platform_config.hpp"
+#include "cg_enums.h"
+#include "StreamNode.hpp"
+#include "EventQueue.hpp"
+#include "GenericNodes.hpp"
 #include "BenchAppNodes.h"
 #include "scheduler.h"
 
@@ -22,6 +25,7 @@ The support classes and code are covered by CMSIS-Stream license.
        }
 
 #endif
+
 
 #if !defined(CG_BEFORE_ITERATION)
 #define CG_BEFORE_ITERATION
@@ -73,6 +77,8 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 
+
+
 CG_AFTER_INCLUDES
 
 
@@ -87,6 +93,22 @@ static uint8_t schedule[25]=
 { 
 6,2,0,7,3,4,8,1,6,2,0,7,3,4,8,1,5,2,0,7,3,4,8,1,5,
 };
+
+/*
+
+Internal ID identification for the nodes
+
+*/
+#define AUDIOOVERLAP_INTERNAL_ID 1
+#define AUDIOWIN_INTERNAL_ID 2
+#define CFFT_INTERNAL_ID 3
+#define ICFFT_INTERNAL_ID 4
+#define SINK_INTERNAL_ID 5
+#define SRC_INTERNAL_ID 6
+#define TOCMPLX_INTERNAL_ID 7
+#define TOREAL_INTERNAL_ID 8
+
+
 
 
 CG_BEFORE_FIFO_BUFFERS
@@ -104,6 +126,10 @@ FIFO buffers
 #define FIFOSIZE6 256
 #define FIFOSIZE7 256
 
+#define BUFFERSIZE0 256
+CG_BEFORE_BUFFER
+float buf0[BUFFERSIZE0]={0};
+
 #define BUFFERSIZE1 256
 CG_BEFORE_BUFFER
 float buf1[BUFFERSIZE1]={0};
@@ -112,7 +138,7 @@ float buf1[BUFFERSIZE1]={0};
 CG_BEFORE_BUFFER
 float buf2[BUFFERSIZE2]={0};
 
-#define BUFFERSIZE3 256
+#define BUFFERSIZE3 512
 CG_BEFORE_BUFFER
 float buf3[BUFFERSIZE3]={0};
 
@@ -124,7 +150,7 @@ float buf4[BUFFERSIZE4]={0};
 CG_BEFORE_BUFFER
 float buf5[BUFFERSIZE5]={0};
 
-#define BUFFERSIZE6 512
+#define BUFFERSIZE6 256
 CG_BEFORE_BUFFER
 float buf6[BUFFERSIZE6]={0};
 
@@ -132,37 +158,39 @@ float buf6[BUFFERSIZE6]={0};
 CG_BEFORE_BUFFER
 float buf7[BUFFERSIZE7]={0};
 
-#define BUFFERSIZE8 256
-CG_BEFORE_BUFFER
-float buf8[BUFFERSIZE8]={0};
-
 
 
 CG_BEFORE_SCHEDULER_FUNCTION
-uint32_t scheduler(int *error,float32_t* inputArray,
+uint32_t scheduler(int *error,void *evtQueue_,float32_t* inputArray,
                               float32_t* outputArray)
 {
+    EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
     int cgStaticError=0;
     uint32_t nbSchedule=0;
     int32_t debugCounter=10;
+
+    (void)evtQueue;
+
 
     CG_BEFORE_FIFO_INIT;
     /*
     Create FIFOs objects
     */
-    FIFO<float,FIFOSIZE0,0,0> fifo0(buf1);
-    FIFO<float,FIFOSIZE1,1,0> fifo1(buf2);
-    FIFO<float,FIFOSIZE2,1,0> fifo2(buf3);
-    FIFO<float,FIFOSIZE3,1,0> fifo3(buf4);
-    FIFO<float,FIFOSIZE4,1,0> fifo4(buf5);
-    FIFO<float,FIFOSIZE5,1,0> fifo5(buf6);
-    FIFO<float,FIFOSIZE6,1,0> fifo6(buf7);
-    FIFO<float,FIFOSIZE7,0,0> fifo7(buf8);
+    FIFO<float,FIFOSIZE0,0,0> fifo0(buf0);
+    FIFO<float,FIFOSIZE1,1,0> fifo1(buf1);
+    FIFO<float,FIFOSIZE2,1,0> fifo2(buf2);
+    FIFO<float,FIFOSIZE3,1,0> fifo3(buf3);
+    FIFO<float,FIFOSIZE4,1,0> fifo4(buf4);
+    FIFO<float,FIFOSIZE5,1,0> fifo5(buf5);
+    FIFO<float,FIFOSIZE6,1,0> fifo6(buf6);
+    FIFO<float,FIFOSIZE7,0,0> fifo7(buf7);
 
     CG_BEFORE_NODE_INIT;
     /* 
     Create node objects
     */
+
+
     OverlapAdd<float,256,128> audioOverlap(fifo6,fifo7); /* Node ID = 1 */
     SlidingBuffer<float,256,128> audioWin(fifo0,fifo1); /* Node ID = 2 */
     CFFT<float,512,float,512> cfft(fifo3,fifo4); /* Node ID = 3 */
@@ -172,20 +200,77 @@ uint32_t scheduler(int *error,float32_t* inputArray,
     ToComplex<float,256,float,512> toCmplx(fifo2,fifo3); /* Node ID = 7 */
     ToReal<float,512,float,256> toReal(fifo5,fifo6); /* Node ID = 8 */
 
+
+/* Subscribe nodes for the event system*/
+
+    cgStaticError = CG_SUCCESS;
+    cgStaticError = audioOverlap.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = audioWin.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = cfft.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = icfft.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sink.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = src.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = toCmplx.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = toReal.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+
+
+
+
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
     while((cgStaticError==0) && (debugCounter > 0))
     {
         /* Run a schedule iteration */
         CG_BEFORE_ITERATION;
-        for(unsigned long id=0 ; id < 25; id++)
+        unsigned long id=0;
+        for(; id < 25; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             switch(schedule[id])
             {
                 case 0:
                 {
+                    
                    
                   {
 
@@ -201,48 +286,56 @@ uint32_t scheduler(int *error,float32_t* inputArray,
 
                 case 1:
                 {
+                    
                    cgStaticError = audioOverlap.run();
                 }
                 break;
 
                 case 2:
                 {
+                    
                    cgStaticError = audioWin.run();
                 }
                 break;
 
                 case 3:
                 {
+                    
                    cgStaticError = cfft.run();
                 }
                 break;
 
                 case 4:
                 {
+                    
                    cgStaticError = icfft.run();
                 }
                 break;
 
                 case 5:
                 {
+                    
                    cgStaticError = sink.run();
                 }
                 break;
 
                 case 6:
                 {
+                    
                    cgStaticError = src.run();
                 }
                 break;
 
                 case 7:
                 {
+                    
                    cgStaticError = toCmplx.run();
                 }
                 break;
 
                 case 8:
                 {
+                    
                    cgStaticError = toReal.run();
                 }
                 break;
@@ -251,15 +344,15 @@ uint32_t scheduler(int *error,float32_t* inputArray,
                 break;
             }
             CG_AFTER_NODE_EXECUTION(schedule[id]);
-            CHECKERROR;
+                        CHECKERROR;
         }
        debugCounter--;
        CG_AFTER_ITERATION;
        nbSchedule++;
     }
-
 errorHandling:
     CG_AFTER_SCHEDULE;
     *error=cgStaticError;
     return(nbSchedule);
+    
 }

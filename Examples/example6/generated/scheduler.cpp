@@ -145,6 +145,8 @@ uint32_t scheduler(int *error,void *evtQueue_,arm_mfcc_instance_f32 *mfccConfig)
     uint32_t nbSchedule=0;
     int32_t debugCounter=1;
 
+    (void)evtQueue;
+
 
     CG_BEFORE_FIFO_INIT;
     /*

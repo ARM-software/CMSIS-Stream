@@ -18,12 +18,13 @@ int main(void)
   int error;
   uint32_t nbSched = 0;
   int32_t overhead = 0;
+  (void)overhead;
 
 
   printf("Start\n\r");
 
   
-  nbSched=scheduler(&error,input_buffer,output_buffer);
+  nbSched=scheduler(&error,nullptr,input_buffer,output_buffer);
   
   printf("Number of schedule iterations = %d\n\r",nbSched);
   printf("Error code = %d\n\r",error);

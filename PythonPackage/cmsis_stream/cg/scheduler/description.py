@@ -312,6 +312,45 @@ def analyzeStep(vec,allFIFOs,theTime):
             allFIFOs[fifoID].recordRead(theTime) 
         fifoID = fifoID + 1
 
+def optimal_coloring(nodes, adj, max_visits=131072):
+    """Exact graph coloring via backtracking with a node-visit budget.
+
+    Args:
+        nodes: list of node names, pre-sorted for best performance
+        adj: dict mapping each node to a set of its neighbours
+        max_visits: budget cap on recursive calls (accumulated across all k)
+
+    Returns dict[node, int] mapping each node to a color if solved
+    within the visit budget, or None if the budget is exceeded.
+    """
+    if not nodes:
+        return {}
+    color = {}
+    visits = [0]
+
+    def backtrack(i, k):
+        visits[0] += 1
+        if visits[0] > max_visits:
+            return False
+        if i == len(nodes):
+            return True
+        n = nodes[i]
+        for c in range(k):
+            if all(color.get(nb) != c for nb in adj[n]):
+                color[n] = c
+                if backtrack(i + 1, k):
+                    return True
+                del color[n]
+        return False
+
+    for k in range(1, len(nodes) + 1):
+        color.clear()
+        if backtrack(0, k):
+            return dict(color)
+        if visits[0] > max_visits:
+            return None
+    return None
+
 class Graph():
 
     def __init__(self):
@@ -1027,7 +1066,12 @@ class Graph():
 
         
             # Graph coloring
-            d = nx.coloring.greedy_color(G, strategy=config.memStrategy)
+            # Two-tier coloring: exact backtracking, then greedy fallback
+            nodes = sorted(G.nodes, key=lambda n: len(list(G.neighbors(n))), reverse=True)
+            adj = {n: set(G.neighbors(n)) for n in nodes}
+            d = optimal_coloring(nodes, adj)
+            if d is None:
+                d = nx.coloring.greedy_color(G, strategy=config.memStrategy)
 
             # Allocate the colors (buffer ID) to the FIFO
             # and keep track of the max color number

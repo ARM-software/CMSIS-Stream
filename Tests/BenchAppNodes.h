@@ -25,12 +25,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _APPNODES_H_
-#define _APPNODES_H_
+#ifndef APPNODES_H_
+#define APPNODES_H_
 
 #include <cstdio>
 #include "arm_math.h"
-#include "cg_status.h"
+#include "cg_enums.h"
 
 using namespace arm_cmsis_stream;
 
@@ -56,7 +56,7 @@ public:
     {
         if (this->willUnderflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);
@@ -77,7 +77,7 @@ protected:
 };
 
 template<typename OUT,int outputSize>
-class ArraySource: GenericSource<OUT,outputSize>
+class ArraySource: public GenericSource<OUT,outputSize>
 {
 public:
     ArraySource(FIFOBase<OUT> &dst, OUT *inputBuf):
@@ -87,7 +87,7 @@ public:
     {
         if (this->willOverflow())
         {
-           return(CG_SKIP_EXECUTION_ID_CODE); // Skip execution
+           return(CG_SKIP_EXECUTION); // Skip execution
         }
 
         return(0);

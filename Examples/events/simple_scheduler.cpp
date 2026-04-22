@@ -145,6 +145,7 @@ CStreamNode* get_simple_node(int32_t nodeID)
 int init_simple(void *evtQueue_)
 {
     EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
+    (void)evtQueue;
 
     CG_BEFORE_FIFO_INIT;
 

@@ -11,8 +11,8 @@ add_executable(example12 static/static_scheduler.cpp
 dotdependency(example12 static ON static_refcount.py)
 dotdependency(example12 dynamic ON dynamic_refcount.py)
 
-cppdependency(example12 static/static_scheduler.cpp static_refcount.py)
-cppdependency(example12 dynamic/dynamic_scheduler.cpp dynamic_refcount.py)
+cppdependency(example12 static/static_scheduler.cpp static_refcount.py pre_schedule_static.dot static.dot)
+cppdependency(example12 dynamic/dynamic_scheduler.cpp dynamic_refcount.py pre_schedule_dynamic.dot dynamic.dot)
 add_sdf_dir(example12)
 
 target_link_libraries(example12 PRIVATE examplenodes posix_runtime appcommon)

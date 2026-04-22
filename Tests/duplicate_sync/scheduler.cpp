@@ -9,9 +9,12 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 #include <cstdint>
-#include "custom.h"
-#include "GenericNodes.h"
-#include "cg_status.h"
+#include "app_config.hpp"
+#include "stream_platform_config.hpp"
+#include "cg_enums.h"
+#include "StreamNode.hpp"
+#include "EventQueue.hpp"
+#include "GenericNodes.hpp"
 #include "DuplicateAppNodes.h"
 #include "scheduler.h"
 
@@ -22,6 +25,7 @@ The support classes and code are covered by CMSIS-Stream license.
        }
 
 #endif
+
 
 #if !defined(CG_BEFORE_ITERATION)
 #define CG_BEFORE_ITERATION
@@ -73,6 +77,8 @@ The support classes and code are covered by CMSIS-Stream license.
 
 
 
+
+
 CG_AFTER_INCLUDES
 
 
@@ -88,6 +94,21 @@ static uint8_t schedule[7]=
 6,0,1,2,3,4,5,
 };
 
+/*
+
+Internal ID identification for the nodes
+
+*/
+#define DUP0_INTERNAL_ID 0
+#define SINK0_INTERNAL_ID 1
+#define SINK1_INTERNAL_ID 2
+#define SINK2_INTERNAL_ID 3
+#define SINK3_INTERNAL_ID 4
+#define SINK4_INTERNAL_ID 5
+#define SRC_INTERNAL_ID 6
+
+
+
 
 CG_BEFORE_FIFO_BUFFERS
 /***********
@@ -101,6 +122,10 @@ FIFO buffers
 #define FIFOSIZE3 192
 #define FIFOSIZE4 192
 #define FIFOSIZE5 192
+
+#define BUFFERSIZE0 192
+CG_BEFORE_BUFFER
+float buf0[BUFFERSIZE0]={0};
 
 #define BUFFERSIZE1 192
 CG_BEFORE_BUFFER
@@ -122,35 +147,37 @@ float buf4[BUFFERSIZE4]={0};
 CG_BEFORE_BUFFER
 float buf5[BUFFERSIZE5]={0};
 
-#define BUFFERSIZE6 192
-CG_BEFORE_BUFFER
-float buf6[BUFFERSIZE6]={0};
-
 
 
 CG_BEFORE_SCHEDULER_FUNCTION
-uint32_t scheduler(int *error,float* inputArray,
+uint32_t scheduler(int *error,void *evtQueue_,float* inputArray,
                               float* outputArray)
 {
+    EventQueue *evtQueue = reinterpret_cast<EventQueue *>(evtQueue_);
     int cgStaticError=0;
     uint32_t nbSchedule=0;
     int32_t debugCounter=1;
+
+    (void)evtQueue;
+
 
     CG_BEFORE_FIFO_INIT;
     /*
     Create FIFOs objects
     */
-    FIFO<float,FIFOSIZE0,1,0> fifo0(buf1);
-    FIFO<float,FIFOSIZE1,1,0> fifo1(buf2);
-    FIFO<float,FIFOSIZE2,1,0> fifo2(buf3);
-    FIFO<float,FIFOSIZE3,1,0> fifo3(buf4);
-    FIFO<float,FIFOSIZE4,1,0> fifo4(buf5);
-    FIFO<float,FIFOSIZE5,1,0> fifo5(buf6);
+    FIFO<float,FIFOSIZE0,1,0> fifo0(buf0);
+    FIFO<float,FIFOSIZE1,1,0> fifo1(buf1);
+    FIFO<float,FIFOSIZE2,1,0> fifo2(buf2);
+    FIFO<float,FIFOSIZE3,1,0> fifo3(buf3);
+    FIFO<float,FIFOSIZE4,1,0> fifo4(buf4);
+    FIFO<float,FIFOSIZE5,1,0> fifo5(buf5);
 
     CG_BEFORE_NODE_INIT;
     /* 
     Create node objects
     */
+
+
     Duplicate<float,192,float,192> dup0(fifo0,{&fifo1,&fifo2,&fifo3,&fifo4,&fifo5}); /* Node ID = 0 */
     ArraySink<float,192> sink0(fifo1,&outputArray[0]); /* Node ID = 1 */
     ArraySink<float,192> sink1(fifo2,&outputArray[192]); /* Node ID = 2 */
@@ -159,56 +186,113 @@ uint32_t scheduler(int *error,float* inputArray,
     ArraySink<float,192> sink4(fifo5,&outputArray[768]); /* Node ID = 5 */
     ArraySource<float,192> src(fifo0,inputArray); /* Node ID = 6 */
 
+
+/* Subscribe nodes for the event system*/
+
+    cgStaticError = CG_SUCCESS;
+    cgStaticError = dup0.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sink0.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sink1.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sink2.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sink3.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = sink4.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+    cgStaticError = src.init();
+    if (cgStaticError != CG_SUCCESS)
+    {
+        *error=cgStaticError;
+        return(0);
+    }
+
+
+
+
     /* Run several schedule iterations */
     CG_BEFORE_SCHEDULE;
     while((cgStaticError==0) && (debugCounter > 0))
     {
         /* Run a schedule iteration */
         CG_BEFORE_ITERATION;
-        for(unsigned long id=0 ; id < 7; id++)
+        unsigned long id=0;
+        for(; id < 7; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
-
             switch(schedule[id])
             {
                 case 0:
                 {
+                    
                    cgStaticError = dup0.run();
                 }
                 break;
 
                 case 1:
                 {
+                    
                    cgStaticError = sink0.run();
                 }
                 break;
 
                 case 2:
                 {
+                    
                    cgStaticError = sink1.run();
                 }
                 break;
 
                 case 3:
                 {
+                    
                    cgStaticError = sink2.run();
                 }
                 break;
 
                 case 4:
                 {
+                    
                    cgStaticError = sink3.run();
                 }
                 break;
 
                 case 5:
                 {
+                    
                    cgStaticError = sink4.run();
                 }
                 break;
 
                 case 6:
                 {
+                    
                    cgStaticError = src.run();
                 }
                 break;
@@ -217,15 +301,15 @@ uint32_t scheduler(int *error,float* inputArray,
                 break;
             }
             CG_AFTER_NODE_EXECUTION(schedule[id]);
-            CHECKERROR;
+                        CHECKERROR;
         }
        debugCounter--;
        CG_AFTER_ITERATION;
        nbSchedule++;
     }
-
 errorHandling:
     CG_AFTER_SCHEDULE;
     *error=cgStaticError;
     return(nbSchedule);
+    
 }
