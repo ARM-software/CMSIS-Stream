@@ -15,6 +15,10 @@ Then you can follow the [documentation](https://github.com/ARM-software/CMSIS-St
 
 # Change history
 
+## Version 3.2.0:
+* New optimal coloring algorithm for memory optimizations (with fallback to simpler algorithm when taking too much time)
+* Remove some Pylance warnings
+
 ## Version 3.1.0:
 * New option to disable selector initialization in generated scheduler
 * New scheduler length define in scheduler header
