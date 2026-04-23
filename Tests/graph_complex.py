@@ -3,7 +3,16 @@
 # Graph class
 from cmsis_stream.cg.scheduler import *
 # Include definition of the nodes
-from nodes import * 
+from test_nodes import * 
+
+import sys
+import os
+
+base_dir = os.path.dirname(__file__)
+examples_path = os.path.abspath(os.path.join(base_dir, "../Examples"))
+sys.path.append(examples_path)
+
+from nodes.python.nodes import *
 
 class ProcessingNode12(GenericNode):
     def __init__(self,name,theType,inLength,outLength):

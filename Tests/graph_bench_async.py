@@ -4,6 +4,15 @@
 from cmsis_stream.cg.scheduler import *
 from nodes_bench import * 
 
+import sys
+import os
+
+base_dir = os.path.dirname(__file__)
+examples_path = os.path.abspath(os.path.join(base_dir, "../Examples"))
+sys.path.append(examples_path)
+
+from nodes.python.nodes import *
+
 FS=16000
 # You can try with 120
 AUDIO_INTERRUPT_LENGTH = 192

@@ -1,7 +1,8 @@
 # Include definition of the nodes
-from nodes import * 
+from test_nodes import * 
 # Include definition of the graph
 from graph_bench_async import * 
+
 
 # Create a configuration object
 conf=Configuration()
