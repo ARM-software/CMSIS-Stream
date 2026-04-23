@@ -1069,7 +1069,7 @@ class Graph():
             # Two-tier coloring: exact backtracking, then greedy fallback
             nodes = sorted(G.nodes, key=lambda n: len(list(G.neighbors(n))), reverse=True)
             adj = {n: set(G.neighbors(n)) for n in nodes}
-            d = optimal_coloring(nodes, adj)
+            d = optimal_coloring(nodes, adj, max_visits=config.optimalColoringMaxVisits)
             if d is None:
                 d = nx.coloring.greedy_color(G, strategy=config.memStrategy)
 

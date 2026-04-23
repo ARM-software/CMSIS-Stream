@@ -235,6 +235,12 @@ class Configuration:
         # 'saturation_largest_first'
         self.memStrategy = "largest_first"
 
+        # Max number of visits for the optimal coloring algorithm
+        # before giving up and using the default strategy. The optimal coloring algorithm is a backtracking 
+        # algorithm that tries to find the optimal coloring of the graph but can be very long for large graph. 
+        # This parameter allows to limit the number of visits of the algorithm and use the default strategy if it is too long.
+        self.optimalColoringMaxVisits=131072
+
         # Those definitions will be reused 
         # Usefult to share ID between different
         # graphs
