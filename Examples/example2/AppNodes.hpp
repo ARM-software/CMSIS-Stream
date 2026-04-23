@@ -31,7 +31,7 @@
 using namespace arm_cmsis_stream;
 
 #include "Unzip.h"
-#include "SlidingBuffer.h"
+#include "core_nodes/SlidingBuffer.hpp"
 
 template<typename IN, int inputSize>
 class TFLite: public GenericSink<IN, inputSize>

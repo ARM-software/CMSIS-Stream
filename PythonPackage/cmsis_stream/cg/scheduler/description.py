@@ -149,7 +149,7 @@ class StreamFIFO:
         self._length = length 
 
     @property
-    def cname(self):
+    def cname(self) -> str:
         return "FIFO"
     
     @property
@@ -172,7 +172,7 @@ class FIFODesc:
         # FIFO length
         self.length=0
         # FIFO type
-        self.theType=None 
+        self.theType = None 
         # Buffer used by FIFO (allocated by the scheduler)
         self.buffer=None 
         # Custom buffer assigned to FIFO 

@@ -5,8 +5,6 @@ from cmsis_stream.cg.scheduler import *
 # Include definition of the nodes
 from nodes import * 
 
-# Include definition of the nodes
-from nodes import * 
 
 from cmsis_stream.cg.yaml import *
 

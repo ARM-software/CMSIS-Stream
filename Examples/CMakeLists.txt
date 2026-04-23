@@ -14,6 +14,12 @@ function(dotdependency TARGET DOTNAME PRESCHEDULE SCRIPT)
     #list(JOIN DEPS "\n" OUT)
     #list(GET DEPS 0 SCRIPT)
     #message(${SCRIPT})
+
+if(DEFINED ENV{PYTHONPATH} AND NOT "$ENV{PYTHONPATH}" STREQUAL "")
+        set(MY_PYTHONPATH "$ENV{PYTHONPATH}${CMAKE_HOST_PATH_SEPARATOR}${CMAKE_SOURCE_DIR}")
+ else()
+        set(MY_PYTHONPATH "${CMAKE_SOURCE_DIR}")
+ endif()
     
     
 if (DOT)
@@ -25,7 +31,7 @@ if (DOT)
         )
 
     add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${DOTNAME}.dot
-        COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
+        COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${MY_PYTHONPATH}" ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         VERBATIM
@@ -42,7 +48,7 @@ if (DOT)
     
 
     add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/pre_schedule_${DOTNAME}.dot
-        COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
+        COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${MY_PYTHONPATH}" ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         VERBATIM
@@ -57,9 +63,14 @@ function(cppdependency TARGET SRC SCRIPT)
  list(APPEND outputs ${optional_outputs}) 
  list(TRANSFORM outputs PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
 
+ if(DEFINED ENV{PYTHONPATH} AND NOT "$ENV{PYTHONPATH}" STREQUAL "")
+        set(MY_PYTHONPATH "$ENV{PYTHONPATH}${CMAKE_HOST_PATH_SEPARATOR}${CMAKE_SOURCE_DIR}")
+ else()
+        set(MY_PYTHONPATH "${CMAKE_SOURCE_DIR}")
+ endif()
 
  add_custom_command(OUTPUT ${outputs}
-        COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
+        COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${MY_PYTHONPATH}" ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
         VERBATIM
@@ -70,22 +81,14 @@ endif()
 
 endfunction()
 
-function(pythondependency TARGET SRC SCRIPT)
-    add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${SRC}
-        COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${SCRIPT}
-        VERBATIM
-        )
-endfunction()
 
-set(CGDIR ${CMAKE_CURRENT_SOURCE_DIR}/../Include/cg)
+set(NODEDIR ${CMAKE_SOURCE_DIR}/Examples/nodes/cpp)
 
 
 set(DSP ${CMSISDSP})
 
 function(add_sdf_dir TARGET)
-    target_include_directories(${TARGET} PRIVATE ${CGDIR}/nodes/cpp)
+    target_include_directories(${TARGET} PRIVATE ${NODEDIR})
     target_include_directories(${TARGET} PRIVATE ${DSP}/Include)
 endfunction()
 
@@ -97,7 +100,7 @@ list(APPEND CMAKE_MODULE_PATH ${DSP})
 add_subdirectory(common)
 add_subdirectory(${DSP}/Source bin_dsp)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../platform/posix_runtime bin_runtime)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../Include/cg/nodes/cpp bin_examplenodes)
+add_subdirectory(nodes/cpp)
 
 add_subdirectory(events)
 

@@ -19,7 +19,6 @@ conf.prefix="static_"
 conf.schedulerCFileName = "static_scheduler"
 
 
-conf.cOptionalArgs=[]
 
 export_graph(g,"graph_static.yml")
 export_config(conf,"config_static.yml")

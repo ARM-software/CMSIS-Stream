@@ -50,28 +50,6 @@ buf = flat.gen(scheduling,conf)
 flat.create_bin(buf,"sched_flat")
 
 
-try_remove("StreamNode.hpp")
-try_remove("GenericNodes.hpp")
-try_remove("EventQueue.hpp")
-try_remove("cg_queue.hpp")
-try_remove("cg_queue.cpp")
-try_remove("cg_enums.h")
-try_remove("posix_thread.cpp")
-try_remove("posix_thread.hpp")
-try_remove("cstream_node.h")
-try_remove("IdentifiedNode.hpp")
-try_remove("cg_pack.hpp")
-
-try_remove("StreamNode.h")
-try_remove("GenericNodes.h")
-try_remove("EventQueue.h")
-try_remove("cg_queue.h")
-try_remove("cg_enums.h")
-try_remove("posix_thread.h")
-try_remove("cstream_node.h")
-try_remove("IdentifiedNode.h")
-try_remove("cg_pack.h")
-generateGenericNodes(".")
 
 
 # Generate a graphviz representation of the graph

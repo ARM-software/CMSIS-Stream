@@ -2,7 +2,7 @@ from cmsis_stream.cg.scheduler import *
 
 from cmsis_stream.cg.yaml import *
 
-
+from nodes.python.nodes import Unzip
 # Creation of a graph for testing styling.
 # Look below for the style definition
 

@@ -3,6 +3,7 @@ import numpy as np
 from cmsis_stream.cg.scheduler import *
 
 from cmsis_stream.cg.yaml import *
+from nodes.python.nodes import FileSource, SlidingBuffer, MFCC, FileSink
 
 
 

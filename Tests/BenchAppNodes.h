@@ -40,8 +40,8 @@ using namespace arm_cmsis_stream;
 
 #include "ToComplex.h"
 #include "ToReal.h"
-#include "SlidingBuffer.h"
-#include "OverlapAndAdd.h"
+#include "core_nodes/SlidingBuffer.hpp"
+#include "core_nodes/OverlapAndAdd.hpp"
 
 
 template<typename IN, int inputSize>

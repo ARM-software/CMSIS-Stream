@@ -61,6 +61,11 @@ solution:
       target-set:
         - set:
           images:
+            - project-context: fifo.CommandLine
+            - project-context: fifobench_async.CommandLine
+            - project-context: fifobench_sync.CommandLine
+            - project-context: asyncgraph.CommandLine
+            - project-context: syncgraph.CommandLine
             - project-context: duplicate.CommandLine
 
   build-types:

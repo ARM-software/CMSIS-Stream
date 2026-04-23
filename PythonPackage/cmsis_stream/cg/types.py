@@ -55,12 +55,8 @@ class CGStaticType:
         return(self.__class__ == other.__class__)
 
     @property
-    def bytes(self):
+    def bytes(self) -> int:
        return(0)
-
-    @property
-    def fillValue(self):
-        return(0)
 
     @property
     def shared(self):
@@ -83,11 +79,7 @@ class EventType(CGStaticType):
       return(CGStaticType.__eq__(self,other) and self._name == other._name)
 
    @property
-   def fillValue(self):
-        return("None") 
-
-   @property
-   def bytes(self):
+   def bytes(self) -> int:
        return(self._size_in_bytes)
 
    @property
@@ -115,10 +107,6 @@ class CStructType(CGStaticType):
 
    def __eq__(self, other):
       return(CGStaticType.__eq__(self,other) and self._name == other._name)
-
-   @property
-   def fillValue(self):
-        return("None") 
 
    @property
    def bytes(self):
@@ -162,10 +150,6 @@ class SharedType(CGStaticType):
          return("false")
 
    @property
-   def fillValue(self):
-        return("None") 
-
-   @property
    def bytes(self):
        return(self._refType.bytes)
 
@@ -190,37 +174,6 @@ class SharedType(CGStaticType):
        r = SharedType(self._refType)
        return(r)
       
-
-class PythonClassType(CGStaticType):
-   """A Python class
-
-   """
-   def __init__(self,python_name):
-        CGStaticType.__init__(self)
-        self._python_name=python_name 
-
-   def __eq__(self, other):
-      return(CGStaticType.__eq__(self,other) and self._python_name == other._python_name)
-
-   @property
-   def fillValue(self):
-        return("%s()" % self._python_name) 
-
-   @property
-   def bytes(self):
-       return(0)
-
-   @property
-   def ctype(self):
-      return("void")
-
-   @property
-   def nptype(self):
-      return("object")
-
-   @property
-   def graphViztype(self):
-      return(escape(self._python_name))
 
 class CType(CGStaticType):
     """A C Scalar element"""

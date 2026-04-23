@@ -1,6 +1,6 @@
 /* ----------------------------------------------------------------------
- * Project:      CMSIS DSP Library
- * Title:        SlidingBuffer.h
+ * Project:      CMSIS Stream Library
+ * Title:        SlidingBuffer.hpp
  * Description:  Sliding buffer
  *
  *
@@ -24,8 +24,8 @@
  * limitations under the License.
  */
 
-#ifndef _SLIDINGBUFFER_H_
-#define _SLIDINGBUFFER_H_ 
+#ifndef SLIDINGBUFFER_H_
+#define SLIDINGBUFFER_H_ 
 
 namespace arm_cmsis_stream {
 

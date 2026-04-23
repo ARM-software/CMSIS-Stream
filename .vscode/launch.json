@@ -20,11 +20,16 @@
             "type": "gdbtarget",
             "request": "launch",
             "cwd": "${workspaceFolder}/Tests",
-            "program": "out/duplicate/VHT-Corstone-300/CommandLine/duplicate.axf",
+            "program": "out/syncgraph/VHT-Corstone-300/CommandLine/syncgraph.axf",
             "gdb": "arm-none-eabi-gdb",
             "auxiliaryGdb": true,
             "preLaunchTask": "CMSIS Load",
             "initCommands": [
+                "symbol-file \"out/asyncgraph/VHT-Corstone-300/CommandLine/asyncgraph.axf\"",
+                "symbol-file \"out/fifobench_sync/VHT-Corstone-300/CommandLine/fifobench_sync.axf\"",
+                "symbol-file \"out/fifobench_async/VHT-Corstone-300/CommandLine/fifobench_async.axf\"",
+                "symbol-file \"out/fifo/VHT-Corstone-300/CommandLine/fifo.axf\"",
+                "symbol-file \"out/duplicate/VHT-Corstone-300/CommandLine/duplicate.axf\"",
                 "monitor reset halt",
                 "tbreak main"
             ],
@@ -61,10 +66,15 @@
             "type": "gdbtarget",
             "request": "attach",
             "cwd": "${workspaceFolder}/Tests",
-            "program": "out/duplicate/VHT-Corstone-300/CommandLine/duplicate.axf",
+            "program": "out/syncgraph/VHT-Corstone-300/CommandLine/syncgraph.axf",
             "gdb": "arm-none-eabi-gdb",
             "auxiliaryGdb": true,
             "initCommands": [
+                "symbol-file \"out/asyncgraph/VHT-Corstone-300/CommandLine/asyncgraph.axf\"",
+                "symbol-file \"out/fifobench_sync/VHT-Corstone-300/CommandLine/fifobench_sync.axf\"",
+                "symbol-file \"out/fifobench_async/VHT-Corstone-300/CommandLine/fifobench_async.axf\"",
+                "symbol-file \"out/fifo/VHT-Corstone-300/CommandLine/fifo.axf\"",
+                "symbol-file \"out/duplicate/VHT-Corstone-300/CommandLine/duplicate.axf\"",
                 ""
             ],
             "customResetCommands": [

@@ -7,7 +7,7 @@ from cmsis_stream.cg.yaml import *
 
 class ProcessingNode(GenericManyToManyNode):
     def __init__(self,name,theType_in,theType_out,inLength,outLength,nb_in=2,nb_out=2):
-        GenericNode.__init__(self,name)
+        GenericManyToManyNode.__init__(self,name)
         self.addManyInput(theType_in,inLength,nb_in)
         self.addManyOutput(theType_out,outLength,nb_out)
 

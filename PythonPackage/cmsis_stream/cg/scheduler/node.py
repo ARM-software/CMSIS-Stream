@@ -302,9 +302,9 @@ class BaseNode:
         self._eventOutputs = []
         # For code generations
         # The fifo args
-        self._args=""
+        self._args=[]
         # Literal arguments
-        self.schedArgs=None 
+        self.schedArgs: list[ArgLiteral | VarLiteral] | None = None 
 
         # For cyclo static scheduling
         # It is the LCM of the cycles of all
@@ -455,11 +455,11 @@ class BaseNode:
         return False
 
     @property 
-    def isDuplicateNode(self):
+    def isDuplicateNode(self) -> bool:
         return False
 
     @property
-    def hasState(self):
+    def hasState(self) -> bool:
         """False if the node is a pure functiom with no state
            and no associated C++ object
         """
@@ -830,7 +830,7 @@ class GenericSink(BaseNode):
         return self._isPureNode
 
     @property
-    def typeName(self):
+    def typeName(self) -> str:
         return "void"
 
     def addInput(self,name,theType,theLength):
@@ -849,7 +849,7 @@ class GenericSource(BaseNode):
         return self._isPureNode
 
     @property
-    def typeName(self):
+    def typeName(self) -> str:
         return "void"
 
     def addOutput(self,name,theType,theLength):
@@ -871,7 +871,7 @@ class GenericNode(BaseNode):
         return self._isPureNode
     
     @property
-    def typeName(self):
+    def typeName(self) -> str:
         return "void"
 
     def addInput(self,name,theType,theLength):
@@ -896,7 +896,7 @@ class GenericToManyNode(BaseNode):
         return self._isPureNode
     
     @property
-    def typeName(self):
+    def typeName(self) -> str:
         return "void"
 
     # Should be in alphabetical order so that the
@@ -976,7 +976,7 @@ class GenericFromManyNode(BaseNode):
         return self._isPureNode
     
     @property
-    def typeName(self):
+    def typeName(self) -> str:
         return "void"
 
     # Should be in alphabetical order so that the
@@ -1053,7 +1053,7 @@ class GenericManyToManyNode(BaseNode):
         return self._isPureNode
     
     @property
-    def typeName(self):
+    def typeName(self) -> str:
         return "void"
 
     # Should be in alphabetical order so that the
@@ -1151,7 +1151,7 @@ class SlidingBuffer(GenericNode):
         
 
     @property
-    def typeName(self):
+    def typeName(self) -> str:
         return "SlidingBuffer"
 
 class OverlapAdd(GenericNode):
@@ -1181,7 +1181,7 @@ class OverlapAdd(GenericNode):
         
 
     @property
-    def typeName(self):
+    def typeName(self) -> str:
         return "OverlapAdd"
 
 
@@ -1280,12 +1280,12 @@ class GenericFunction(GenericNode):
     
 
     @property
-    def hasState(self):
+    def hasState(self) -> bool:
         return self._hasState
     
 
     @property
-    def typeName(self):
+    def typeName(self) -> str:
         return "Function"
 
     # Prepare for code generation.

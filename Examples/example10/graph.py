@@ -3,7 +3,7 @@ import os
 
 from cmsis_stream.cg.yaml import *
 
-
+from nodes.python.nodes import NullSink
 ### Define new types of Nodes 
 
 
@@ -92,7 +92,7 @@ print("Generate graphviz and code")
 
 conf=Configuration()
 conf.debugLimit=10
-conf.cOptionalArgs=[]
+
 conf.CMSISDSP = False 
 
 conf.heapAllocation = True

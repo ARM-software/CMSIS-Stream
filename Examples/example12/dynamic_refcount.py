@@ -16,7 +16,6 @@ conf.schedName="dynamic_scheduler"
 conf.prefix="dynamic_"
 conf.schedulerCFileName = "dynamic_scheduler"
 
-conf.cOptionalArgs=[]
 
 export_graph(g,"graph_dynamic.yml")
 export_config(conf,"config_dynamic.yml")

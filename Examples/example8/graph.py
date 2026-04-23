@@ -47,13 +47,9 @@ class Source(GenericSource):
 # Modify the fields of the objects, or create a totally new
 # object.
 
-GEN_PYTHON = False 
 
 
-if GEN_PYTHON:
-   complexType=PythonClassType("MyComplex")
-else:
-   complexType=CStructType("complex",8)
+complexType=CStructType("complex",8)
 
 src=Source("source",complexType,5)
 # if 7 for processing input then no duplicate buffer optimization
@@ -115,13 +111,7 @@ print("Memory usage %d bytes" % sched.memory)
 
 
 
-if not GEN_PYTHON:
-   # C++ implementation
-   sched.ccode("generated",conf)
-else:
-   # Python implementation
-   conf.pyOptionalArgs="someVariable"
-   sched.pythoncode(".",config=conf)
+sched.ccode("generated",conf)
 
 
 # When true it is displaying the name of the FIFO buffer
