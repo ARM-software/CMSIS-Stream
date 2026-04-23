@@ -35,10 +35,17 @@ For the streaming part, C++ is only used for strong and static typing (template)
 
 For the event graph (which is optional) there is a dependency on the environment (RTOS, Rich OS or bare metal) and an implementation of the event runtime must be provided. See the section of the documentation about the event graph.
 
-The current repository does not (yet) provide implementations of the event runtime except as an example with CMSIS-RTOS API.
+The current repository provides implementations of the runtime system for:
+* Posix (but with no inter-process communication and memory sharing cross process in this version)
+* Zephyr
 
-Only the API to be implemented for the event runtime is provided.
-Some example implementations for CMSIS-RTOS, Zephyr and Linux will be provided soon.
+A CMSIS RTOS API version is work in progress.
+
+A Linux version with inter process communication and buffer sharing cross process without copy is work in progress.
+
+The Linux version with IPC is not yet in the repository.
+
+The provided implementations for posix and Zephyr are simple : the event management uses only one thread but an implementation may decide to use a thread pool instead.
 
 Here is an example of graph running on Zephyr and implementing a
 keyword spotting demo for Cortex-M with DSP pre-processing (microphone + MFCC), TensorFlow Lite for Micro component and additional components for majority voting and display on LCD with animation:
