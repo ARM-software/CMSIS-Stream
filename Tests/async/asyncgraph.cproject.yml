@@ -9,7 +9,7 @@ project:
     - ..
     - .
     - ../../platform
-    - ../../platform/cmsis_rtos
+    - ../../platform/cmsis_rtos_runtime
        
   components:
     - component: ARM::CMSIS:DSP&Source@1.17.0

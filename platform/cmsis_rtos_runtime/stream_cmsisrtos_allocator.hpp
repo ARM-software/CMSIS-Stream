@@ -1,13 +1,21 @@
 #pragma once 
 
-#include "cmsis_os2.h"
+extern "C"
+{
+#include "RTE_Components.h"
+#include CMSIS_device_header
+
+#include "cmsis_os2.h" /* CMSIS-RTOS2 API */
+}
+
 #include <cstdio>
 #include <type_traits>
 
-
+extern "C" {
 extern osMemoryPoolId_t cg_eventPool;
 extern osMemoryPoolId_t cg_bufPool;
 extern osMemoryPoolId_t cg_mutexPool;
+}
 
 template <typename T>
 class CMSISEventPoolAllocator

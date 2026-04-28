@@ -35,16 +35,19 @@ extern "C"
 }
 
 #include "cg_enums.h"
-#include "app_config.hpp"
+#include "stream_platform_config.hpp"
 #include "StreamNode.hpp"
 #include "EventQueue.hpp"
 #include <utility>
 
-#ifndef MY_QUEUE_MAX_ELEMS
-#define MY_QUEUE_MAX_ELEMS 20
+#ifndef CONFIG_CMSISSTREAM_EVENT_QUEUE_LENGTH
+#define CONFIG_CMSISSTREAM_EVENT_QUEUE_LENGTH 20
 #endif
 
-#define MY_QUEUE_NEW_EVENT_FLAG 0x1 
+#define MY_QUEUE_MAX_ELEMS CONFIG_CMSISSTREAM_EVENT_QUEUE_LENGTH
+
+
+typedef osPriority_t cg_threadPriority_t;
 
 class MyQueue:public arm_cmsis_stream::EventQueue
 {
@@ -59,7 +62,7 @@ public:
     // This should sleep when there is no more any event to process
     void execute()  final;
     void end() noexcept final;
-
+    void pause() noexcept final;
 
 private:
     CG_MUTEX queue_mutex;
@@ -73,7 +76,11 @@ protected:
 
     uint32_t nb_elems[nb_priorities];
 
-    osPriority_t priorities[nb_priorities];
+    cg_threadPriority_t priorities[nb_priorities];
+
+    
+    osEventFlagsId_t cg_eventEvent;
+
 };
 
 

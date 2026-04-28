@@ -24,13 +24,16 @@
  * limitations under the License.
  */
 
-#include "cg_queue.hpp"
-#include "config.h"
-#include "app_config.hpp"
+#include "cg_enums.h"
+#include "stream_event_queue.hpp"
+#include "StreamNode.hpp"
+#include "EventQueue.hpp"
+#include <utility>
 #include <cstdint>
 #include <variant>
 
-extern osThreadId_t cg_eventThread;
+
+#define MY_QUEUE_NEW_EVENT_FLAG (0x1) 
 
 using namespace arm_cmsis_stream;
 
@@ -41,6 +44,8 @@ std::atomic<bool> EventQueue::handlerReady_ = false;
 MyQueue::MyQueue(osPriority_t low, osPriority_t normal, osPriority_t high)
     : arm_cmsis_stream::EventQueue()
 {
+    cg_eventEvent = osEventFlagsNew(nullptr);
+
     priorities[0] = low;
     priorities[1] = normal;
     priorities[2] = high;
@@ -64,6 +69,10 @@ MyQueue::~MyQueue()
 bool MyQueue::push(arm_cmsis_stream::Message &&event)
 {
     bool ok = false;
+    if (this->mustPause() || (this->mustEnd()))
+    {
+        return false;
+    }
     CG_MUTEX_ERROR_TYPE error;
     CG_ENTER_CRITICAL_SECTION(queue_mutex, error);
     if (!CG_MUTEX_HAS_ERROR(error))
@@ -75,8 +84,8 @@ bool MyQueue::push(arm_cmsis_stream::Message &&event)
         }
         if (nb_elems[p] < MY_QUEUE_MAX_ELEMS)
         {
-            // DEBUG_PRINT("Push event %d\n", event.event.event_id);
-            uint32_t timestamp = osKernelGetTickCount();
+            // LOG_DBG("Push event %d\n", event.event.event_id);
+            uint32_t timestamp = CG_GET_TIME_STAMP();
             event.timestamp = timestamp;
             queue[p][write[p]++] = std::move(event);
             if (write[p] == MY_QUEUE_MAX_ELEMS)
@@ -89,14 +98,13 @@ bool MyQueue::push(arm_cmsis_stream::Message &&event)
         }
         else
         {
-            ERROR_PRINT("Event queue overflow for priority %d\n", p);
+            LOG_ERR("Event queue overflow for priority %d\n", p);
         }
     }
     CG_EXIT_CRITICAL_SECTION(queue_mutex, error);
-    if (cg_eventThread != nullptr)
-    {
-        osThreadFlagsSet(cg_eventThread, MY_QUEUE_NEW_EVENT_FLAG);
-    }
+    
+    osEventFlagsSet(cg_eventEvent, MY_QUEUE_NEW_EVENT_FLAG);
+    
 
     return ok;
 }
@@ -144,11 +152,16 @@ void MyQueue::clear()
 
 void MyQueue::end() noexcept
 {
-    mustEnd_.store(true);
-    if (cg_eventThread != nullptr)
-    {
-        osThreadFlagsSet(cg_eventThread, MY_QUEUE_NEW_EVENT_FLAG);
-    }
+   mustEnd_.store(true);
+    osEventFlagsSet(cg_eventEvent, MY_QUEUE_NEW_EVENT_FLAG);
+};
+
+void MyQueue::pause() noexcept
+{
+    mustPause_.store(true);
+    // Force wakeup of the execute function
+    osEventFlagsSet(cg_eventEvent, MY_QUEUE_NEW_EVENT_FLAG);
+    
 };
 
 // The thread priority will be changed according to the event priority
@@ -156,10 +169,13 @@ void MyQueue::end() noexcept
 // and then change to the event priority to process the event
 void MyQueue::execute()
 {
-    CG_MUTEX_ERROR_TYPE error;
-    while (!this->mustEnd())
+   CG_MUTEX_ERROR_TYPE error;
+    // Stop event processing when end or pause
+    // Pause is different from waiting for new event pushed to the queue
+    // Pause ignore any new coming events and just stop processing events
+    while ((!this->mustEnd())  && (!this->mustPause()))
     {
-        while ((!this->mustEnd()) && (!isEmpty()))
+        while ((!this->mustEnd()) && (!isEmpty()) && (!this->mustPause()))
         {
             Message msg;
             bool messageWasReceived = false;
@@ -193,7 +209,7 @@ void MyQueue::execute()
                 {
                     uint32_t startMs = (1000*msg.timestamp) / osKernelGetTickFreq() ;
                     uint32_t limitMs = startMs + msg.event.ttl;
-                    uint32_t nowMs = (1000*osKernelGetTickCount()) / osKernelGetTickFreq();
+                    uint32_t nowMs = (1000*CG_GET_TIME_STAMP()) / osKernelGetTickFreq();
                     if (nowMs > limitMs)
                     {
                         // Event expired
@@ -204,12 +220,13 @@ void MyQueue::execute()
                 {
 
                     osThreadId_t tid = osThreadGetId();
-                    int p = msg.event.priority;
+                    uint32_t p = msg.event.priority;
                     if (p >= nb_priorities)
                     {
                         p = nb_priorities - 1; // Highest priority
                     }
                     osThreadSetPriority(tid, priorities[p]);
+
                     if (std::holds_alternative<LocalDestination>(msg.destination))
                     {
                         LocalDestination &local = std::get<LocalDestination>(msg.destination);
@@ -230,6 +247,13 @@ void MyQueue::execute()
         }
         // If new event was pushed and missed with the
         // empty test
-        osThreadFlagsWait(MY_QUEUE_NEW_EVENT_FLAG, osFlagsWaitAny, osWaitForever);
+        // In more recent version of Zephyr there is
+        // a k_event_wait_safe that clears the events
+        // in an atomic way.
+        // In pause mode if queue is empty we don't wait and just return
+        if (!this->mustPause())
+        {
+           osEventFlagsWait(cg_eventEvent, MY_QUEUE_NEW_EVENT_FLAG, osFlagsWaitAny, osWaitForever);
+        }
     }
 }

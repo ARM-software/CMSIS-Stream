@@ -1,6 +1,12 @@
 #pragma once 
 
-#include "cmsis_os2.h"
+extern "C"
+{
+#include "RTE_Components.h"
+#include CMSIS_device_header
+
+#include "cmsis_os2.h" /* CMSIS-RTOS2 API */
+}
 
 class CMSISMutex
 {
@@ -93,13 +99,31 @@ class CMSISLock
 #define CG_MK_PROTECTED_BUF_ALLOCATOR(T) (CMSISBufPoolAllocator<T>{})
 #define CG_MK_PROTECTED_MUTEX_ALLOCATOR(T) (CMSISMutexPoolAllocator<T>{})
 
-#include "cmsis_allocator.hpp"
+#include "stream_cmsisrtos_allocator.hpp"
 
 #define CG_TIME_STAMP_TYPE uint32_t
 
 #define CG_GET_TIME_STAMP() osKernelGetTickCount()  
 
-#define CG_MAX_VALUES 8
-#define CG_TENSOR_NB_DIMS 3 
+#ifndef CONFIG_MAX_NUMBER_EVENT_ARGUMENTS
+#define CONFIG_MAX_NUMBER_EVENT_ARGUMENTS 8
+#endif
 
-#define LOG_ERR(fmt, ...) //fprintf(stderr, "[ERR] " fmt, ##__VA_ARGS__)
+#define CG_MAX_VALUES CONFIG_MAX_NUMBER_EVENT_ARGUMENTS
+
+#ifndef CMSISSTREAM_TENSOR_MAX_DIMENSIONS 
+#define CMSISSTREAM_TENSOR_MAX_DIMENSIONS 3
+#endif
+
+#define CG_TENSOR_NB_DIMS CMSISSTREAM_TENSOR_MAX_DIMENSIONS
+
+#ifndef CMSISSTREAM_LOG_DBG
+#define CMSISSTREAM_LOG_DBG(fmt, ...)
+#endif
+
+#ifndef CMSISSTREAM_LOG_ERR
+#define CMSISSTREAM_LOG_ERR(fmt, ...)
+#endif
+
+#define LOG_ERR(...) CMSISSTREAM_LOG_ERR(__VA_ARGS__);
+#define LOG_DBG(...) CMSISSTREAM_LOG_DBG(__VA_ARGS__);
