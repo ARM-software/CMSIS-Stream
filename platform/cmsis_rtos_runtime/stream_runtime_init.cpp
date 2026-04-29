@@ -1,3 +1,4 @@
+#include "stream_runtime_config.hpp"
 #include "stream_platform_config.hpp"
 #include "cg_enums.h"
 #include "EventQueue.hpp"
@@ -245,7 +246,7 @@ void stream_resume_scheduler(stream_execution_context_t *context)
 	{
 		// No need to clear the event flag in CMSIS-RTOS2
 	}
-	LOG_DBG("Stream scheduler and event queue resumed\n");
+	CMSISSTREAM_LOG_DBG("Stream scheduler and event queue resumed\n");
 }
 
 int stream_init_memory()
@@ -279,7 +280,7 @@ int stream_init_memory()
 		return (-1);
 	}
 
-	LOG_DBG("Stream memory initialized\n");
+	CMSISSTREAM_LOG_DBG("Stream memory initialized\n");
 
 	return (0);
 }
@@ -293,7 +294,7 @@ void stream_start_threads(stream_execution_context_t *context)
 
 	tid_stream = osThreadNew(stream_thread_function, NULL, &stream_thread_attr);
 
-	CMSISSTREAM_LOG_DBG("Stream threads started\n");
+	CMSISSTREAM_LOG_DBG("Stream runtime threads started\n");
 }
 
 void stream_wait_for_threads_end()

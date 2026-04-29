@@ -76,7 +76,6 @@ bool MyQueue::push(arm_cmsis_stream::Message &&event)
         }
         if (nb_elems[p] < MY_QUEUE_MAX_ELEMS)
         {
-            // LOG_DBG("Push event %d\n", event.event.event_id);
             uint32_t timestamp = CG_GET_TIME_STAMP();
             event.timestamp = timestamp;
             queue[p][write[p]++] = std::move(event);

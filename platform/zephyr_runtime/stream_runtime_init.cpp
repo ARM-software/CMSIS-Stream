@@ -103,7 +103,7 @@ static void stream_thread_function(void *, void *, void *)
 	uint32_t nb_iter;
 	int error;
 	bool done = false;
-	LOG_DBG("Stream thread started\n");
+	LOG_DBG("Started stream thread\n");
 
 	while (!done)
 	{
@@ -269,7 +269,7 @@ void stream_start_threads(stream_execution_context_t *context)
 
 	k_thread_name_set(&stream_thread, "stream_thread");
 
-	LOG_DBG("Stream threads started\n");
+	LOG_DBG("Stream runtime threads started\n");
 }
 
 void stream_wait_for_threads_end()

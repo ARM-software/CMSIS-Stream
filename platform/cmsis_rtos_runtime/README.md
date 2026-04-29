@@ -6,6 +6,7 @@ The application must provide some headers (their name can be redefined in the Py
 - `app_config.hpp` : Application configuration
 - `cstream_node.h` : C API to the nodes
 - `IdentifiedNode.hpp` : Implementation of the C API
+- `stream_runtime_config.hpp` : Runtime configuration
 
 ## `app_config.hpp`
 
@@ -13,7 +14,9 @@ This header is generally used to define `CG_BEFORE_BUFFER` and `CG_BEFORE_NODE_E
 
 `CG_BEFORE_BUFFER` __must__ be used to enforce alignment of buffers when memory optimization feature is activated.
 
-This header can also be used to redefine macros `CMSISSTREAM_LOG_ERR` and `CMSISSTREAM_LOG_DBG` for logging.
+## `stream_runtime_config.hpp`
+
+This header can be used to redefine macros `CMSISSTREAM_LOG_ERR` and `CMSISSTREAM_LOG_DBG` for logging.
 
 All configuration macros can also be redefined in this header.
 
