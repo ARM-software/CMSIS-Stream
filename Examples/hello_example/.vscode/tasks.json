@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMSIS Load+Run",
+            "type": "shell",
+            "command": "FVP_Corstone_SSE-300_Ethos-U55",
+            "options": {
+                "cwd": "${workspaceFolder}/",
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": [
+                        "/d",
+                        "/c"
+                    ]
+                }
+            },
+            "args": [
+                "-C",
+                "mps3_board.visualisation.disable-visualisation=1",
+                "-C",
+                "cpu0.semihosting-enable=1",
+                "-a",
+                "out/Hello/SSE-300-MPS3/Debug/Hello.axf",
+                ""
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
