@@ -46,3 +46,4 @@ Examples/eventrecorder/*.cbuild-idx.yml
 Examples/events/simple
 Examples/build/build.sh
 Examples/build/
+output/

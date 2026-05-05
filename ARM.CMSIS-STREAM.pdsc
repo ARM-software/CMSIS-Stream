@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <package schemaVersion="1.7.40" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="https://raw.githubusercontent.com/Open-CMSIS-Pack/Open-CMSIS-Pack-Spec/v1.7.40/schema/PACK.xsd">
-  <name>CMSIS-STREAM Runtime</name>
+  <name>CMSIS-STREAM</name>
   <description overview="README.md">CMSIS Stream runtime for CMSIS-RTOS API</description>
   <vendor>ARM</vendor>
   <license>LICENSE</license>
@@ -52,14 +52,14 @@
         <file category="source" name="platform/cmsis_rtos_runtime/stream_runtime_init.cpp"/>
         <file category="source" name="platform/cmsis_rtos_runtime/stream_event_queue.cpp"/>
         
-        <file category="include" name="platform"/>
+        <file category="include" name="platform/"/>
         
-        <file category="header" name="platform/cmsis_rtos_runtime/config/app_config.hpp" attr="config"/>
-        <file category="header" name="platform/cmsis_rtos_runtime/config/cstream_node.h" attr="config"/>
-        <file category="header" name="platform/cmsis_rtos_runtime/config/IdentifiedNode.hpp" attr="config"/>
-        <file category="source" name="platform/cmsis_rtos_runtime/config/stream_init.cpp" attr="config"/>
-        <file category="header" name="platform/cmsis_rtos_runtime/config/stream_init.hpp" attr="config"/>
-        <file category="header" name="platform/cmsis_rtos_runtime/config/stream_runtime_config.hpp" attr="config"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/config/app_config.hpp" attr="config" version="1.0.0"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/config/cstream_node.h" attr="config" version="1.0.0"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/config/IdentifiedNode.hpp" attr="config" version="1.0.0"/>
+        <file category="source" name="platform/cmsis_rtos_runtime/config/stream_init.cpp" attr="config" version="1.0.0"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/config/stream_init.hpp" attr="config" version="1.0.0"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/config/stream_runtime_config.hpp" attr="config" version="1.0.0"/>
         
       </files>
     </component>

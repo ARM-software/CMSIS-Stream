@@ -68,6 +68,7 @@ PACK_DELETE_FILES=""
 #
 PACKCHK_DEPS="
   ARM.CMSIS.pdsc
+  ARM.CMSIS-RTX.pdsc
 "
 
 # Optional: restrict fallback modes for changelog generation

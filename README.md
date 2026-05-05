@@ -38,16 +38,13 @@ For the event graph (which is optional) there is a dependency on the environment
 The current repository provides implementations of the runtime system for:
 * Posix (but with no inter-process communication and memory sharing cross process in this version)
 * Zephyr
+* CMSIS RTOS API
 
-A CMSIS RTOS API version is work in progress.
+A Linux version with inter process communication and buffer sharing cross process without copy is work in progress. This Linux version with IPC is not yet in the repository.
 
-A Linux version with inter process communication and buffer sharing cross process without copy is work in progress.
+The provided implementations for posix, Zephyr and CMSIS-RTOS are simple : the event management uses only one thread but an implementation may decide to use a thread pool instead.
 
-The Linux version with IPC is not yet in the repository.
-
-The provided implementations for posix and Zephyr are simple : the event management uses only one thread but an implementation may decide to use a thread pool instead.
-
-Here is an example of graph running on Zephyr and implementing a
+Here is an example of graph running on an embedded board and implementing a
 keyword spotting demo for Cortex-M with DSP pre-processing (microphone + MFCC), TensorFlow Lite for Micro component and additional components for majority voting and display on LCD with animation:
 
 ![KWS graph](Documentation/assets/kws.png)
