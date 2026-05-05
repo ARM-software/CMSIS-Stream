@@ -40,11 +40,9 @@ extern "C"
 #include "EventQueue.hpp"
 #include <utility>
 
-#ifndef CONFIG_CMSISSTREAM_EVENT_QUEUE_LENGTH
-#define CONFIG_CMSISSTREAM_EVENT_QUEUE_LENGTH 20
-#endif
 
-#define MY_QUEUE_MAX_ELEMS CONFIG_CMSISSTREAM_EVENT_QUEUE_LENGTH
+
+#define MY_QUEUE_MAX_ELEMS CMSISSTREAM_EVENT_QUEUE_LENGTH
 
 
 typedef osPriority_t cg_threadPriority_t;

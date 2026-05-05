@@ -56,25 +56,25 @@ You can redefine any of those values:
 
 
 
-## CONFIG_CMSISSTREAM_EVT_THREAD_STACK_SIZE
+## CMSISSTREAM_EVT_THREAD_STACK_SIZE
 
 Stack size of event thread
 
 Default value:
 ```C
-#define CONFIG_CMSISSTREAM_EVT_THREAD_STACK_SIZE 4096
+#define CMSISSTREAM_EVT_THREAD_STACK_SIZE 4096
 ```
 
-## CONFIG_CMSISSTREAM_STREAM_THREAD_STACK_SIZE
+## CMSISSTREAM_STREAM_THREAD_STACK_SIZE
 
 Stack size of stream thread
 
 Default value:
 ```C
-#define CONFIG_CMSISSTREAM_STREAM_THREAD_STACK_SIZE 4096
+#define CMSISSTREAM_STREAM_THREAD_STACK_SIZE 4096
 ```
 
-## CONFIG_CMSISSTREAM_NB_MAX_EVENTS
+## CMSISSTREAM_NB_MAX_EVENTS
 
 Maximum number of events expected in the system at a given time.
 
@@ -89,7 +89,7 @@ Default value:
 #define CONFIG_CMSISSTREAM_NB_MAX_EVENTS 16
 ```
 
-## CONFIG_CMSISSTREAM_NB_MAX_BUFS
+## CMSISSTREAM_NB_MAX_BUFS
 
 Maximum number of buffers (tensors ...) expected in the system at a given time.
 
@@ -100,47 +100,47 @@ may be bigger than the number of events.
 
 Default value:
 ```C
-#define CONFIG_CMSISSTREAM_NB_MAX_BUFS 16
+#define CMSISSTREAM_NB_MAX_BUFS 16
 ```
 
-## CONFIG_CMSISSTREAM_STREAM_THREAD_PRIORITY
+## CMSISSTREAM_STREAM_THREAD_PRIORITY
 
 Priority of the stream thread. It should be real-time. IT should be higher than any priority used for events.
 
 Default value:
 ```C
-#define CONFIG_CMSISSTREAM_STREAM_THREAD_PRIORITY osPriorityRealTime
+#define CMSISSTREAM_STREAM_THREAD_PRIORITY osPriorityRealTime
 ```
 
-## CONFIG_CMSISSTREAM_EVT_HIGH_PRIORITY
+## CMSISSTREAM_EVT_HIGH_PRIORITY
 
 Priority of the event thread when it is processing high priority event.
 
 Default value:
 ```C
-#define CONFIG_CMSISSTREAM_EVT_HIGH_PRIORITY osPriorityHigh
+#define CMSISSTREAM_EVT_HIGH_PRIORITY osPriorityHigh
 ```
 
 
-## CONFIG_CMSISSTREAM_EVT_NORMAL_PRIORITY
+## CMSISSTREAM_EVT_NORMAL_PRIORITY
 
 Priority of the event thread when it is processing normal priority event.
 
 Default value:
 ```C
-#define CONFIG_CMSISSTREAM_EVT_NORMAL_PRIORITY osPriorityNormal
+#define CMSISSTREAM_EVT_NORMAL_PRIORITY osPriorityNormal
 ```
 
-## CONFIG_CMSISSTREAM_EVT_LOW_PRIORITY
+## CMSISSTREAM_EVT_LOW_PRIORITY
 
 Priority of the event thread when it is processing low priority event.
 
 Default value:
 ```C
-#define CONFIG_CMSISSTREAM_EVT_LOW_PRIORITY osPriorityLow
+#define CMSISSTREAM_EVT_LOW_PRIORITY osPriorityLow
 ```
 
-## CONFIG_CMSISSTREAM_SHARED_OVERHEAD
+## CMSISSTREAM_SHARED_OVERHEAD
 
 Additional memory required by `std::allocate_shared`.
 
@@ -154,10 +154,10 @@ It is slightly bigger.
 
 Default value:
 ```C
-#define CONFIG_CMSISSTREAM_SHARED_OVERHEAD 16
+#define CMSISSTREAM_SHARED_OVERHEAD 16
 ```
 
-## CONFIG_MAX_NUMBER_EVENT_ARGUMENTS
+## CMSISSTREAM_MAX_NUMBER_EVENT_ARGUMENTS
 
 Maximum number of arguments in an event.
 
@@ -166,7 +166,7 @@ This number impacts the size of memory pools used by the event system.
 
 Default value:
 ```C
-#define CONFIG_MAX_NUMBER_EVENT_ARGUMENTS 8
+#define CMSISSTREAM_MAX_NUMBER_EVENT_ARGUMENTS 8
 ```
 
 ## CMSISSTREAM_TENSOR_MAX_DIMENSIONS
@@ -181,7 +181,7 @@ Default value:
 #define CMSISSTREAM_TENSOR_MAX_DIMENSIONS 3
 ```
 
-## CONFIG_CMSISSTREAM_EVENT_QUEUE_LENGTH
+## CMSISSTREAM_EVENT_QUEUE_LENGTH
 
 Length of an event queue.
 
@@ -190,14 +190,14 @@ In case of overflow of the queue, new events are dropped.
 
 Default value:
 ```C
-#define CONFIG_CMSISSTREAM_EVENT_QUEUE_LENGTH 20
+#define CMSISSTREAM_EVENT_QUEUE_LENGTH 20
 ```
 
-## CONFIG_CMSISSTREAM_POOL_SECTION
+## CMSISSTREAM_POOL_SECTION
 
 Linker section where CMSIS Stream memory pools are placed
 
 Default value:
 ```C
-#define CONFIG_CMSISSTREAM_POOL_SECTION ".bss.evt_pool"
+#define CMSISSTREAM_POOL_SECTION ".bss.evt_pool"
 ```

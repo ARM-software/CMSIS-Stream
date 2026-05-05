@@ -25,7 +25,7 @@
  */
 
 #include "cg_enums.h"
-#include "stream_runtime_config.hpp"
+#include "stream_platform_config.hpp"
 #include "stream_event_queue.hpp"
 #include "StreamNode.hpp"
 #include "EventQueue.hpp"

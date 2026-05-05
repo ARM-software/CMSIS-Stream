@@ -1,4 +1,3 @@
-#include "stream_runtime_config.hpp"
 #include "stream_platform_config.hpp"
 #include "cg_enums.h"
 #include "EventQueue.hpp"
@@ -19,45 +18,7 @@
 #include "cmsis_compiler.h"
 
 
-#ifndef CONFIG_CMSISSTREAM_EVT_THREAD_STACK_SIZE
-#define CONFIG_CMSISSTREAM_EVT_THREAD_STACK_SIZE 4096
-#endif 
 
-#ifndef CONFIG_CMSISSTREAM_STREAM_THREAD_STACK_SIZE
-#define CONFIG_CMSISSTREAM_STREAM_THREAD_STACK_SIZE 4096
-#endif
-
-#ifndef CONFIG_CMSISSTREAM_NB_MAX_EVENTS
-#define CONFIG_CMSISSTREAM_NB_MAX_EVENTS 16
-#endif
-
-#ifndef CONFIG_CMSISSTREAM_NB_MAX_BUFS
-#define CONFIG_CMSISSTREAM_NB_MAX_BUFS 16
-#endif
-
-#ifndef CONFIG_CMSISSTREAM_EVT_HIGH_PRIORITY
-#define CONFIG_CMSISSTREAM_EVT_HIGH_PRIORITY osPriorityHigh
-#endif
-
-#ifndef CONFIG_CMSISSTREAM_STREAM_THREAD_PRIORITY
-#define CONFIG_CMSISSTREAM_STREAM_THREAD_PRIORITY osPriorityRealtime
-#endif
-
-#ifndef CONFIG_CMSISSTREAM_EVT_NORMAL_PRIORITY
-#define CONFIG_CMSISSTREAM_EVT_NORMAL_PRIORITY osPriorityNormal
-#endif
-
-#ifndef CONFIG_CMSISSTREAM_EVT_LOW_PRIORITY
-#define CONFIG_CMSISSTREAM_EVT_LOW_PRIORITY osPriorityLow
-#endif
-
-#ifndef CONFIG_CMSISSTREAM_SHARED_OVERHEAD
-#define CONFIG_CMSISSTREAM_SHARED_OVERHEAD 16
-#endif
-
-#ifndef CONFIG_CMSISSTREAM_POOL_SECTION
-#define CONFIG_CMSISSTREAM_POOL_SECTION ".bss.evt_pool"
-#endif
 
 
 osEventFlagsId_t cg_streamEvent;
@@ -66,20 +27,20 @@ osEventFlagsId_t cg_streamReplyEvent;
 using namespace arm_cmsis_stream;
 
 // Define memory pool sizes
-#define LIST_ELEMENT_SIZE (sizeof(ListValue) + sizeof(std::shared_ptr<ListValue>) + CONFIG_CMSISSTREAM_SHARED_OVERHEAD)
-#define LIST_SIZE (CONFIG_CMSISSTREAM_NB_MAX_EVENTS * LIST_ELEMENT_SIZE)
+#define LIST_ELEMENT_SIZE (sizeof(ListValue) + sizeof(std::shared_ptr<ListValue>) + CMSISSTREAM_SHARED_OVERHEAD)
+#define LIST_SIZE (CMSISSTREAM_NB_MAX_EVENTS * LIST_ELEMENT_SIZE)
 
-#define BUF_ELEMENT_SIZE (sizeof(Tensor<double>) + sizeof(std::shared_ptr<Tensor<double>>) + CONFIG_CMSISSTREAM_SHARED_OVERHEAD)
-#define BUF_SIZE (CONFIG_CMSISSTREAM_NB_MAX_BUFS * BUF_ELEMENT_SIZE)
+#define BUF_ELEMENT_SIZE (sizeof(Tensor<double>) + sizeof(std::shared_ptr<Tensor<double>>) + CMSISSTREAM_SHARED_OVERHEAD)
+#define BUF_SIZE (CMSISSTREAM_NB_MAX_BUFS * BUF_ELEMENT_SIZE)
 
-#define MUTEX_ELEMENT_SIZE (sizeof(CG_MUTEX) + sizeof(std::shared_ptr<CG_MUTEX>) + CONFIG_CMSISSTREAM_SHARED_OVERHEAD)
-#define MUTEX_SIZE (CONFIG_CMSISSTREAM_NB_MAX_BUFS * MUTEX_ELEMENT_SIZE)
+#define MUTEX_ELEMENT_SIZE (sizeof(CG_MUTEX) + sizeof(std::shared_ptr<CG_MUTEX>) + CMSISSTREAM_SHARED_OVERHEAD)
+#define MUTEX_SIZE (CMSISSTREAM_NB_MAX_BUFS * MUTEX_ELEMENT_SIZE)
 
-__ALIGNED(8) __attribute__((section(CONFIG_CMSISSTREAM_POOL_SECTION))) static uint8_t list_slab_area[LIST_SIZE];
+__ALIGNED(8) __attribute__((section(CMSISSTREAM_POOL_SECTION))) static uint8_t list_slab_area[LIST_SIZE];
 
-__ALIGNED(8) __attribute__((section(CONFIG_CMSISSTREAM_POOL_SECTION))) static uint8_t buf_slab_area[BUF_SIZE];
+__ALIGNED(8) __attribute__((section(CMSISSTREAM_POOL_SECTION))) static uint8_t buf_slab_area[BUF_SIZE];
 
-__ALIGNED(8) __attribute__((section(CONFIG_CMSISSTREAM_POOL_SECTION))) static uint8_t mutex_slab_area[MUTEX_SIZE];
+__ALIGNED(8) __attribute__((section(CMSISSTREAM_POOL_SECTION))) static uint8_t mutex_slab_area[MUTEX_SIZE];
 
 osMemoryPoolId_t cg_eventPool;
 osMemoryPoolId_t cg_bufPool;
@@ -90,14 +51,14 @@ static osThreadId_t tid_event = nullptr;
 
 static const osThreadAttr_t stream_thread_attr = {
 	    .attr_bits = osThreadJoinable,
-        .stack_size = CONFIG_CMSISSTREAM_STREAM_THREAD_STACK_SIZE,
-        .priority = CONFIG_CMSISSTREAM_STREAM_THREAD_PRIORITY
+        .stack_size = CMSISSTREAM_STREAM_THREAD_STACK_SIZE,
+        .priority = CMSISSTREAM_STREAM_THREAD_PRIORITY
     };
 
 static const osThreadAttr_t event_thread_attr = {
 	    .attr_bits = osThreadJoinable,
-        .stack_size = CONFIG_CMSISSTREAM_EVT_THREAD_STACK_SIZE,
-        .priority = CONFIG_CMSISSTREAM_EVT_HIGH_PRIORITY,
+        .stack_size = CMSISSTREAM_EVT_THREAD_STACK_SIZE,
+        .priority = CMSISSTREAM_EVT_HIGH_PRIORITY,
     };
 
 
@@ -257,7 +218,7 @@ int stream_init_memory()
 	cg_streamReplyEvent = osEventFlagsNew(NULL);
 
 	/* Init memory slabs */
-    cg_eventPool = osMemoryPoolNew(CONFIG_CMSISSTREAM_NB_MAX_EVENTS, LIST_ELEMENT_SIZE, NULL);
+    cg_eventPool = osMemoryPoolNew(CMSISSTREAM_NB_MAX_EVENTS, LIST_ELEMENT_SIZE, NULL);
 
 	
 	if (cg_eventPool == nullptr)
@@ -266,14 +227,14 @@ int stream_init_memory()
 		return (-1);
 	}
 
-	cg_bufPool = osMemoryPoolNew(CONFIG_CMSISSTREAM_NB_MAX_BUFS, BUF_ELEMENT_SIZE, NULL);
+	cg_bufPool = osMemoryPoolNew(CMSISSTREAM_NB_MAX_BUFS, BUF_ELEMENT_SIZE, NULL);
 	if (cg_bufPool == nullptr)
 	{
 		CMSISSTREAM_LOG_ERR("Failed to init buf pool slab\n");
 		return (-1);
 	}
 
-	cg_mutexPool = osMemoryPoolNew(CONFIG_CMSISSTREAM_NB_MAX_BUFS, MUTEX_ELEMENT_SIZE, NULL);
+	cg_mutexPool = osMemoryPoolNew(CMSISSTREAM_NB_MAX_BUFS, MUTEX_ELEMENT_SIZE, NULL);
 	if (cg_mutexPool == nullptr)
 	{
 		CMSISSTREAM_LOG_ERR("Failed to init mutex pool slab\n");
@@ -315,8 +276,8 @@ void stream_free_memory()
 
 EventQueue *stream_new_event_queue()
 {
-	MyQueue *queue = new (std::nothrow) MyQueue(CONFIG_CMSISSTREAM_EVT_LOW_PRIORITY,
-												CONFIG_CMSISSTREAM_EVT_NORMAL_PRIORITY,
-												CONFIG_CMSISSTREAM_EVT_HIGH_PRIORITY);
+	MyQueue *queue = new (std::nothrow) MyQueue(CMSISSTREAM_EVT_LOW_PRIORITY,
+												CMSISSTREAM_EVT_NORMAL_PRIORITY,
+												CMSISSTREAM_EVT_HIGH_PRIORITY);
 	return (static_cast<EventQueue *>(queue));
 }
