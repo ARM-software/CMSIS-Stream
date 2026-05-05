@@ -8,6 +8,8 @@ extern "C"
 #include "cmsis_os2.h" /* CMSIS-RTOS2 API */
 }
 
+#include "stream_runtime_config.hpp"
+
 class CMSISMutex
 {
   public:
@@ -127,3 +129,28 @@ class CMSISLock
 
 #define LOG_ERR(...) CMSISSTREAM_LOG_ERR(__VA_ARGS__);
 #define LOG_DBG(...) CMSISSTREAM_LOG_DBG(__VA_ARGS__);
+
+class ContextSwitch
+{
+  public:
+    virtual ~ContextSwitch()
+    {
+    }
+    /*
+
+    Event queue running but posting event disabled.
+    Run from data flow thread except for pure event graphs.
+    In that case, it is run from event thread.
+
+    */
+    virtual int pause() = 0;
+
+    /*
+
+    Run from data  flow thread.
+    Posting events is possible but event thread is not yet
+    restarted.
+
+    */
+    virtual int resume() = 0;
+};

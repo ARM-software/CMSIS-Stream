@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<package schemaVersion="1.7.40" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="https://raw.githubusercontent.com/Open-CMSIS-Pack/Open-CMSIS-Pack-Spec/v1.7.40/schema/PACK.xsd">
+  <name>CMSIS-STREAM Runtime</name>
+  <description overview="README.md">CMSIS Stream runtime for CMSIS-RTOS API</description>
+  <vendor>ARM</vendor>
+  <license>LICENSE</license>
+  <licenseSets>
+    <licenseSet id="all" default="true" gating="true">
+      <license name="LICENSE" title="Apache 2.0 open-source license" spdx="Apache-2.0"/>
+    </licenseSet>
+  </licenseSets>
+  <url>https://www.keil.com/pack/</url>
+  <repository type="git">https://github.com/ARM-software/CMSIS-Stream</repository>
+
+  <releases>
+    <release version="0.0.0">
+      Active development ...
+    </release>
+  </releases>
+
+ 
+  <!-- conditions are dependency rules that can apply to a component or an individual file -->
+  <conditions>
+   
+   
+    <!-- CMSIS -->
+    <condition id="CMSISRTOS">
+      <description>Components required for CMSIS RTOS</description>
+       <require Cclass="CMSIS" Cgroup="RTOS2"/>
+    </condition>
+
+   
+
+  <components>
+    <!-- CMSIS-STREAM Runtime component -->
+    <component Cclass="CMSIS" Cgroup="STREAM" Cvariant="Source"  Cversion="0.0.0" isDefaultVariant="true" condition="CMSISRTOS">
+      <description>CMSIS Stream runtime for CMSIS-RTOS API</description>
+      <files>
+        <file category="header" name="platform/cg_enums.h"/>       
+        <file category="header" name="platform/GenericNodes.hpp"/>
+        <file category="header" name="platform/cg_pack.hpp"/>
+        <file category="header" name="platform/EventDisplay.hpp"/>
+        <file category="header" name="platform/EventQueue.hpp"/>
+        <file category="header" name="platform/StreamNode.hpp"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/stream_platform_config.hpp"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/stream_rtos_events.h"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/stream_cmsisrtos_allocator.hpp"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/stream_runtime_init.hpp"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/stream_event_queue.hpp"/>
+        
+        <file category="source" name="platform/cmsis_rtos_runtime/stream_runtime_init.cpp"/>
+        <file category="source" name="platform/cmsis_rtos_runtime/stream_event_queue.cpp "/>
+        
+        <file category="include" name="platform"/>
+        
+        <file category="header" name="platform/cmsis_rtos_runtime/config/cstream_node.h" attr="config"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/config/IdentifiedNode.hpp" attr="config"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/config/stream_init.cpp" attr="config"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/config/stream_init.hpp" attr="config"/>
+        <file category="header" name="platform/cmsis_rtos_runtime/config/stream_runtime_config.hpp" attr="config"/>
+        
+      </files>
+    </component>
+
+  </components>
+
+
+</package>

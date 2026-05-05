@@ -138,7 +138,6 @@ class EventQueue
 	
 	// Used by queue implementations and EventOutput
 	// when event sent to application in an asynchronous way
-	// Should not be directly
 	bool callAsyncHandler(int node_id, arm_cmsis_stream::Event &&evt)
 	{
 		if (mustEnd_) {
