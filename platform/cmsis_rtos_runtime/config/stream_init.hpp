@@ -2,11 +2,12 @@
 
 /**
  * @file stream_init.hpp
- * @brief Public initialization interface for the CMSIS-Stream demo graphs.
+ * @brief Public initialization interface for CMSIS-Stream applications.
  *
- * This module owns the top-level stream execution contexts and exposes the
- * functions used by the application entry point to configure, start, and free
- * the available stream applications.
+ * This Pack configuration header exposes the top-level entry points and stream
+ * execution contexts used by the application. Adapt NB_APPS and the matching
+ * implementation in stream_init.cpp when the project contains more than one
+ * generated graph.
  */
 
 #include "EventQueue.hpp"
@@ -15,7 +16,7 @@
 #include "stream_runtime_init.hpp"
 
 /**
- * @brief Number of stream applications available in this demo.
+ * @brief Number of stream applications configured for this project.
  */
 #define NB_APPS 1
 
@@ -37,7 +38,7 @@ extern int currentNetwork;
 /**
  * @brief Configure hardware, initialize stream graphs, and start the selected graph.
  *
- * The function initializes the required hardware drivers, prepares graph
+ * The implementation initializes required hardware drivers, prepares graph
  * parameters, allocates runtime memory and event queues, initializes generated
  * schedulers, builds stream execution contexts, then starts the active graph.
  */

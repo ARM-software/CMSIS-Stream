@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------
  * Project:      CMSIS Stream Library
  * Title:        cstream_node.h
- * Description:  Example C interface to access API of a C++ object
+ * Description:  C interface used by the runtime to access C++ stream nodes
  *
  *
  * Target Processor: Cortex-M and Cortex-A cores
@@ -36,8 +36,11 @@ extern "C"
 struct CStreamNode;
 
 /**
- * @brief C interface to access standard StreamNode API shared by all nodes
+ * @brief C-callable view of the standard StreamNode API.
  * 
+ * The generated scheduler exposes identified C++ nodes through these function
+ * pointers so code outside the scheduler can query and initialize them without
+ * depending on their concrete C++ types.
  */
 struct StreamNodeInterface
 {
@@ -49,10 +52,11 @@ struct StreamNodeInterface
 
 
 /**
- * @brief C interface to access ContextSwitch API
- * This interface is implemented by nodes that need to do something during
- * context switch. Generally this is used for nodes interacting with
- * hardware peripherals and for nodes having a memory.
+ * @brief Optional C-callable view of the ContextSwitch API.
+ *
+ * Nodes implement this interface when they must react to graph pause and
+ * resume operations. Typical users are hardware-facing nodes and stateful
+ * nodes that must quiesce or restart cleanly around a context switch.
  * 
  */
 struct ContextSwitchInterface
@@ -62,16 +66,18 @@ struct ContextSwitchInterface
 };
 
 /**
- * @brief C structure to hold a pointer to a C++ object and its interfaces
- * If the object does not implement a given interface, the corresponding pointer is set to NULL
- * This interface is generated only for nodes marked as identified in the Python description
- * of the graph.
- * If you don't need to interact with a node from outside of the graph, you don't need to
- * generate an interface for this node.
- * Node that to implement context switching, an interaction with some nodes from the outside
- * is required so those nodes must be marked as identified in the Python.
- * 
- * If your application requires additional APIs to interact with some nodes, you can add additional interfaces and methods to this structure.
+ * @brief Opaque handle for an identified C++ stream node.
+ *
+ * The generated scheduler creates CStreamNode handles only for nodes marked as
+ * identified in the Python graph description. Nodes that do not need to be
+ * accessed from application or runtime code do not need a handle.
+ *
+ * If the C++ object does not implement an optional interface, the corresponding
+ * pointer is NULL. Nodes that participate in pause/resume context switching
+ * must be identified so the runtime can reach their ContextSwitchInterface.
+ *
+ * Applications may extend this structure with additional interface tables when
+ * users need more C-callable node APIs.
  */
 
 struct CStreamNode

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------
  * Project:      CMSIS Stream Library
  * Title:        IdentifiedNode.hpp
- * Description:  Example C++ template to create a C interface to a C++ object
+ * Description:  Helper template that exposes identified C++ nodes through C
  *
  *
  * Target Processor: Cortex-M and Cortex-A cores
@@ -32,12 +32,15 @@ extern "C" {
 #include "StreamNode.hpp"
 
 /**
- * @brief Template function to create a CStreamNode from a C++ object
- * This function checks at compile time if the object implements the StreamNode and/or ContextSwitch interfaces
- * and fills the corresponding interface pointers in the CStreamNode structure.
- * If the object does not implement a given interface, the corresponding pointer is set to NULL.
- * 
- * You can extend this function to support additional interfaces as needed, following the same pattern.
+ * @brief Create a CStreamNode handle for an identified C++ node.
+ *
+ * The helper detects supported C++ base classes at compile time and installs
+ * the matching C interface tables in the returned CStreamNode. Interface
+ * pointers remain NULL when the node type does not implement the corresponding
+ * API.
+ *
+ * Extend this function with additional interface tables when the application
+ * adds more C-callable APIs to CStreamNode.
  */
 template <typename T>
 CStreamNode createStreamNode(T &obj)
