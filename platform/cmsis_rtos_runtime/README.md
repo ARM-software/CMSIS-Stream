@@ -1,8 +1,13 @@
 # README
 
-# Files provided by the application
+# Files copied to the application
 
-The application must provide some headers (their name can be redefined in the Python script used to generate the scheduler):
+The CMSIS Pack copies the configuration files into the client project so the
+application can customize them. Generated schedulers include `app_config.hpp`
+and then `stream_platform_config.hpp`; client application source files normally
+do not include the files in `config` directly.
+
+The copied configuration files are:
 - `app_config.hpp` : Application configuration
 - `cstream_node.h` : C API to the nodes
 - `IdentifiedNode.hpp` : Implementation of the C API
@@ -10,15 +15,20 @@ The application must provide some headers (their name can be redefined in the Py
 
 ## `app_config.hpp`
 
-This header is generally used to define `CG_BEFORE_BUFFER` and `CG_BEFORE_NODE_EXECUTION` than can be used to modify the CMSIS Stream scheduler.
+This header is generally used to define `CG_BEFORE_BUFFER` and
+`CG_BEFORE_NODE_EXECUTION`, which customize the generated CMSIS-Stream
+scheduler.
 
 `CG_BEFORE_BUFFER` __must__ be used to enforce alignment of buffers when memory optimization feature is activated.
 
 ## `stream_runtime_config.hpp`
 
-This header can be used to redefine macros `CMSISSTREAM_LOG_ERR` and `CMSISSTREAM_LOG_DBG` for logging.
+This header can be used to redefine macros `CMSISSTREAM_LOG_ERR` and
+`CMSISSTREAM_LOG_DBG` for logging.
 
-All configuration macros can also be redefined in this header.
+All CMSIS-Stream runtime configuration macros can also be redefined in this
+header. `stream_platform_config.hpp` includes it before defining platform
+defaults, so values defined here override the Pack defaults.
 
 ## Other header
 
@@ -52,7 +62,7 @@ Default configuration values that can be modified when building.
 You can redefine any of those values:
 
 - By redefining them on the command line
-- By redefining them in the application configuration header used by any CMSIS Stream application for CMSIS RTOS.
+- By redefining them in the copied `stream_runtime_config.hpp` file.
 
 
 
@@ -86,7 +96,7 @@ In current `stream_runtime_init` APIs, each application (even paused) has its ow
 
 Default value:
 ```C
-#define CONFIG_CMSISSTREAM_NB_MAX_EVENTS 16
+#define CMSISSTREAM_NB_MAX_EVENTS 16
 ```
 
 ## CMSISSTREAM_NB_MAX_BUFS
@@ -109,7 +119,7 @@ Priority of the stream thread. It should be real-time. IT should be higher than 
 
 Default value:
 ```C
-#define CMSISSTREAM_STREAM_THREAD_PRIORITY osPriorityRealTime
+#define CMSISSTREAM_STREAM_THREAD_PRIORITY osPriorityRealtime
 ```
 
 ## CMSISSTREAM_EVT_HIGH_PRIORITY

@@ -62,7 +62,7 @@ extern void stream_resume_scheduler(stream_execution_context_t *context);
  * @return 0 on success, negative error code on failure
  * 
  * This function initializes the memory pools and event queue required
- * for the CMSIS Stream runtime in a Zephyr environment.
+ * for the CMSIS Stream runtime in a CMSIS-RTOS environment.
  */
 extern int stream_init_memory();
 

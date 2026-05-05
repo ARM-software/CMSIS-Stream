@@ -1,5 +1,14 @@
 #pragma once 
 
+/*
+ * CMSIS-RTOS platform configuration for CMSIS-Stream.
+ *
+ * The CMSIS Pack supplies this header with the runtime. Client projects
+ * customize runtime values in the copied stream_runtime_config.hpp file. That
+ * file is included first so any CMSISSTREAM_* definition provided by the
+ * application overrides the defaults below.
+ */
+
 extern "C"
 {
 #include "RTE_Components.h"

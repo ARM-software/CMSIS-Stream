@@ -4,9 +4,10 @@
  * Shared CMSIS-Stream runtime configuration.
  *
  * Define runtime and stream-core overrides here when the target application
- * needs values different from the library defaults. This header is included by
- * all CMSIS-Stream runtime source files, and app_config.hpp includes it for the
- * generated scheduler, so definitions placed here are visible to both sides.
+ * needs values different from the library defaults. This copied configuration
+ * header is included by stream_platform_config.hpp before the platform defaults
+ * are defined, so any CMSISSTREAM_* macro placed here overrides the default
+ * used by CMSIS-Stream runtime sources and generated schedulers.
  *
  * Keep application-only scheduler hooks in app_config.hpp.
  */

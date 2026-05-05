@@ -30,7 +30,7 @@
        <require Cclass="CMSIS" Cgroup="RTOS2"/>
     </condition>
 
-   
+  </conditions>
 
   <components>
     <!-- CMSIS-STREAM Runtime component -->
@@ -50,13 +50,14 @@
         <file category="header" name="platform/cmsis_rtos_runtime/stream_event_queue.hpp"/>
         
         <file category="source" name="platform/cmsis_rtos_runtime/stream_runtime_init.cpp"/>
-        <file category="source" name="platform/cmsis_rtos_runtime/stream_event_queue.cpp "/>
+        <file category="source" name="platform/cmsis_rtos_runtime/stream_event_queue.cpp"/>
         
         <file category="include" name="platform"/>
         
+        <file category="header" name="platform/cmsis_rtos_runtime/config/app_config.hpp" attr="config"/>
         <file category="header" name="platform/cmsis_rtos_runtime/config/cstream_node.h" attr="config"/>
         <file category="header" name="platform/cmsis_rtos_runtime/config/IdentifiedNode.hpp" attr="config"/>
-        <file category="header" name="platform/cmsis_rtos_runtime/config/stream_init.cpp" attr="config"/>
+        <file category="source" name="platform/cmsis_rtos_runtime/config/stream_init.cpp" attr="config"/>
         <file category="header" name="platform/cmsis_rtos_runtime/config/stream_init.hpp" attr="config"/>
         <file category="header" name="platform/cmsis_rtos_runtime/config/stream_runtime_config.hpp" attr="config"/>
         

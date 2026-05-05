@@ -3,12 +3,12 @@
 /*
  * Application configuration for a CMSIS-Stream scheduler.
  *
- * Generated schedulers include this header to pick up application-specific
- * hooks, CMSIS-RTOS dependencies, and runtime configuration. Keep the
- * application-only settings in this file, and put shared CMSIS-Stream runtime
- * settings in stream_runtime_config.hpp.
+ * Generated schedulers include this copied configuration header before
+ * stream_platform_config.hpp. Use it for scheduler-specific application hooks.
+ * Put shared CMSIS-Stream runtime overrides in stream_runtime_config.hpp; those
+ * overrides are included by stream_platform_config.hpp.
  *
- * CG_BEFORE_BUFFER is used when the generated scheduler use memory optimization 
+ * CG_BEFORE_BUFFER is used when the generated scheduler uses memory optimization
  * settings with memory sharing between different FIFOs. In this case, the buffers 
  * must be aligned.
  *
@@ -25,6 +25,9 @@ extern "C"
 
 #include "cmsis_os2.h" /* CMSIS-RTOS2 API */
 }
+
+#include "cg_enums.h"
+#include "stream_rtos_events.h"
 
 extern osEventFlagsId_t cg_streamEvent;
 
@@ -53,7 +56,3 @@ extern osEventFlagsId_t cg_streamEvent;
             }                                                                        \
         }                                                                            \
     }
-
-
-
-#include "stream_runtime_config.hpp"

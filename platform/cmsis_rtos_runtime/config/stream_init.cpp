@@ -9,8 +9,8 @@
  */
 
 // Application configuration included by each generated scheduler. It contains
-// scheduler-specific hooks and includes stream_runtime_config.hpp for settings
-// shared with the CMSIS-Stream runtime.
+// scheduler-specific hooks. Shared runtime overrides belong in
+// stream_runtime_config.hpp and are picked up through stream_platform_config.hpp.
 #include "app_config.hpp"
 
 // Application parameter block for graph A. 
