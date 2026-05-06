@@ -19,7 +19,7 @@
                 "-f",
                 "fvp_config.txt",
                 "-a",
-                "out/Hello/SSE-300-MPS3/Debug/Hello.axf",
+                "out/Hello/SSE-300-MPS3/Debug/Hello.elf",
                 ""
             ],
             "problemMatcher": []

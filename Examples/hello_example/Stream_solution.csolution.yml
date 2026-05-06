@@ -32,6 +32,13 @@ solution:
     - type: SSE-300-MPS3
       board: V2M-MPS3-SSE-300-FVP
       device: SSE-300-MPS3
+      misc:
+        - for-compiler: CLANG
+          Link:
+              - -lcrt0
+        - for-compiler: GCC
+          Link:
+              - --specs=nosys.specs
       target-set:
         - set:
           images:
@@ -55,4 +62,4 @@ solution:
   # List related projects.
   projects:
     - project: Hello/Hello.cproject.yml
-  compiler: AC6
+  compiler: CLANG
