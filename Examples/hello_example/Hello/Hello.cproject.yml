@@ -2,15 +2,37 @@
 project:
   
   groups:
-    - group: Source Files
+    - group: Main App
       files:
         - file: ./main.c
 
+    - group: Hello Graph
+      files:
+        - file: hello_graph/scheduler_hello.cpp
+        - file: hello_graph/hello_params.c
+
+  add-path:
+    - hello_graph
+    - .
+    
   # List components to use for your application.
   # A software component is a re-usable unit that may be configurable.
   components:
     - component: ARM::CMSIS:CORE
     - component: Device:Startup&C Startup
+    - component: CMSIS:OS Tick:SysTick
+    - component: CMSIS:RTOS2:Keil RTX5&Source
+    - component: CMSIS Driver:USART
+    - component: CMSIS-Compiler:CORE
+    - component: CMSIS-Compiler:STDOUT:Custom
+    - component: ARM::CMSIS:STREAM
+    - component: Device:Definition
+    - component: Device:Native Driver:IO
+    - component: Device:Native Driver:SysCounter
+    - component: Device:Native Driver:SysTimer
+    - component: Device:Native Driver:Timeout
+    - component: Device:Native Driver:UART
+    - component: Device:USART Retarget
 
   # List executable file formats to be generated.
   output:

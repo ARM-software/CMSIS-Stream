@@ -16,10 +16,8 @@
                 }
             },
             "args": [
-                "-C",
-                "mps3_board.visualisation.disable-visualisation=1",
-                "-C",
-                "cpu0.semihosting-enable=1",
+                "-f",
+                "fvp_config.txt",
                 "-a",
                 "out/Hello/SSE-300-MPS3/Debug/Hello.axf",
                 ""

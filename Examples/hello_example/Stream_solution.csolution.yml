@@ -1,13 +1,14 @@
 # A solution is a collection of related projects that share same base configuration.
 solution:
-  created-for: CMSIS-Toolbox@2.12.0
+  created-for: CMSIS-Toolbox@2.13.0
+  language-C: c11
+  language-CPP: c++17
   cdefault: # use CMSIS-Toolbox default Compiler options
 
   # Compilers that can be selected
   select-compiler:
     - compiler: AC6
     - compiler: GCC
-    - compiler: IAR
     - compiler: CLANG
 
   # List of miscellaneous tool-specific controls
@@ -22,6 +23,9 @@ solution:
   packs:
     - pack: ARM::V2M_MPS3_SSE_300_BSP
     - pack: ARM::CMSIS
+    - pack: ARM::CMSIS-Compiler@2.0.0
+    - pack: ARM::CMSIS-RTX@^5.9.0
+    - pack: ARM::CMSIS-STREAM
 
   # List different hardware targets that are used to deploy the solution.
   target-types:
@@ -35,8 +39,8 @@ solution:
           debugger:
             name: Arm-FVP
             model: FVP_Corstone_SSE-300_Ethos-U55
-            args: -C mps3_board.visualisation.disable-visualisation=1 -C
-              cpu0.semihosting-enable=1
+            args: ""
+            config-file: fvp_config.txt
 
   # List of different build configurations.
   build-types:

@@ -4,7 +4,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "retarget_stdout.h"
+
+extern int stdout_init (void);
+
 int main() {
+    stdout_init();
+
     printf("Hello, World!\n");
     exit(0);
 }
