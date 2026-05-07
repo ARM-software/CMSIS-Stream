@@ -13,17 +13,13 @@
 // stream_runtime_config.hpp and are picked up through stream_platform_config.hpp.
 #include "app_config.hpp"
 
-// Application parameter block for graph A. 
-// Define the data types required by your application to
-// communicate settings to the nodes of the graph
-#include "appa_params.h"
 
-// Generated scheduler header for graph A. The name is selected by the Python
+// Generated scheduler header for hello graph. The name is selected by the Python
 // graph description. Include one generated scheduler header per graph when the
 // application switches between several graphs at runtime.
 // The name of the generated scheduler may be different from the
-// name used below.
-#include "scheduler_appa.h"
+// name used below if you use a different name in the Python description.
+#include "scheduler_hello.h"
 
 // CMSIS-Stream standard headers.
 #include "EventQueue.hpp"
@@ -52,6 +48,7 @@ stream_execution_context_t contexts[NB_APPS];
  * @brief Event queues used by each stream application.
  */
 EventQueue *queue_app[NB_APPS];
+
 
 /*
  * Pause all context-switchable nodes in a graph.
@@ -110,16 +107,17 @@ static void resume_scheduler_app(const stream_execution_context_t *context)
  * CStreamNode pointers. The runtime stores them as opaque pointers so different
  * graphs may use different application node interfaces.
  */
-static void *get_appa_node(int32_t nodeID)
+static void *get_hello_node(int32_t nodeID)
 {
     // Hide the application-specific node type behind the runtime's void* hook.
-    return static_cast<void *>(get_scheduler_appa_node(nodeID));
+    return static_cast<void *>(get_scheduler_hello_node(nodeID));
 }
 
-static void *get_appb_node(int32_t nodeID)
+uint32_t exec1;
+
+static void timer_callback(void *argument)
 {
-    // Hide the application-specific node type behind the runtime's void* hook.
-    return static_cast<void *>(get_scheduler_appb_node(nodeID));
+    CMSISSTREAM_LOG_DBG("Timer callback");
 }
 
 /**
@@ -138,42 +136,20 @@ void stream_configure_and_start()
      * Step 1: configure hardware sources that may be shared by the stream
      * graphs. Remove unused sources or add application-specific drivers here.
      */
-
-    osEventFlagsId_t audioSrcEvent = 0;
-    const vStreamDriver_t *audioSrcDriver = nullptr;
-
-    osEventFlagsId_t videoSrcEvent = 0;
-    const vStreamDriver_t *videoSrcDriver = nullptr;
-
-#if defined(HAS_AUDIO_SRC)
-    // Initialize the audio source driver when the build enables audio input.
-    audioSrcDriver = init_audio_source(audioSrcEvent);
-
-    if (audioSrcDriver == nullptr)
+    osTimerId_t  timer_id = osTimerNew(timer_callback, osTimerPeriodic, &exec1, nullptr);
+    if (timer_id == nullptr)
     {
-        CMSISSTREAM_LOG_ERR("Error initializing audio source\n");
+        CMSISSTREAM_LOG_ERR("Can't create timer for hardware source\n");
         goto error;
     }
-#endif
-
-#if defined(HAS_CAMERA_SRC)
-    // Initialize the video source driver when the build enables camera input.
-    videoSrcDriver = init_video_source(cg_interruptEvent);
-
-    if (videoSrcDriver == nullptr)
-    {
-        CMSISSTREAM_LOG_ERR("Error initializing video source\n");
-        goto error;
-    }
-#endif
-
+    
     /*
      * Step 2: fill generated parameter structures with application-specific
      * data before scheduler initialization.
      */
 
-    // Initialize graph A parameters here when the generated scheduler needs them.
-    
+    helloParams.src.hw_.timer_id = timer_id;
+    helloParams.src.val = 1.5f;
 
 
     // Step 3: initialize common CMSIS-Stream runtime memory.
@@ -200,10 +176,10 @@ void stream_configure_and_start()
     // arguments are configured in the Python graph description; they may be a
     // parameter structure, several node-specific structures, or no parameters.
 
-    err = init_scheduler_appa(queue_app[0], &appaParams);
+    err = init_scheduler_hello(queue_app[0], &helloParams);
     if (err != CG_SUCCESS)
     {
-        CMSISSTREAM_LOG_ERR("Error: Failure during scheduler initialization for appa.\n");
+        CMSISSTREAM_LOG_ERR("Error: Failure during scheduler initialization for hello graph.\n");
         goto error;
     }
 
@@ -214,15 +190,16 @@ void stream_configure_and_start()
     // wrappers in this file hide application-specific node types from the
     // shared runtime.
 
-    contexts[0] = {
-        .dataflow_scheduler = scheduler_appa,
-        .reset_fifos = reset_fifos_scheduler_appa,
-        .pause_all_nodes = pause_scheduler_app,
-        .resume_all_nodes = resume_scheduler_app,
-        .get_node_by_id = get_appa_node,
-        .evtQueue = queue_app[0],
-        .nb_identified_nodes = STREAM_APPA_NB_IDENTIFIED_NODES,
-        .scheduler_length = STREAM_APPA_SCHED_LEN};
+    contexts[0] = stream_execution_context_t {
+        scheduler_hello,
+        reset_fifos_scheduler_hello,
+        pause_scheduler_app,
+        resume_scheduler_app,
+        get_hello_node,
+        queue_app[0],
+        STREAM_HELLO_NB_IDENTIFIED_NODES,
+        STREAM_HELLO_SCHED_LEN
+    };
 
 
     /*
@@ -253,7 +230,7 @@ void stream_free_all()
     stream_wait_for_threads_end();
 
     // Release resources allocated by the generated schedulers.
-    free_scheduler_appa();
+    free_scheduler_hello();
 
     // Destroy the event queues created during stream_configure_and_start().
     for (int network = 0; network < NB_APPS; network++)

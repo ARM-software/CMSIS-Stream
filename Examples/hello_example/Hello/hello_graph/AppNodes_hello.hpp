@@ -1,4 +1,7 @@
 #pragma once
 
-#include "nodes/EmptySource.hpp"
-#include "nodes/NullSink.hpp"
+// It may be possible to generate this file from the graph definition
+// in the python script.
+// IN this example this file must be manually edited
+#include "nodes/DebugSource.hpp"
+#include "nodes/DebugSink.hpp"

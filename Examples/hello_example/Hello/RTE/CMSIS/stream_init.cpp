@@ -16,7 +16,10 @@
 // Application parameter block for graph A. 
 // Define the data types required by your application to
 // communicate settings to the nodes of the graph
+extern "C"
+{
 #include "hello_params.h"
+}
 
 // Generated scheduler header for graph A. The name is selected by the Python
 // graph description. Include one generated scheduler header per graph when the
@@ -52,6 +55,7 @@ stream_execution_context_t contexts[NB_APPS];
  * @brief Event queues used by each stream application.
  */
 EventQueue *queue_app[NB_APPS];
+
 
 /*
  * Pause all context-switchable nodes in a graph.
@@ -116,6 +120,13 @@ static void *get_hello_node(int32_t nodeID)
     return static_cast<void *>(get_scheduler_hello_node(nodeID));
 }
 
+uint32_t exec1;
+
+static void timer_callback(void *argument)
+{
+    CMSISSTREAM_LOG_DBG("Timer callback");
+}
+
 /**
  * @brief Configure resources and start the currently selected stream graph.
  *
@@ -132,14 +143,19 @@ void stream_configure_and_start()
      * Step 1: configure hardware sources that may be shared by the stream
      * graphs. Remove unused sources or add application-specific drivers here.
      */
-
+    osTimerId_t  timer_id = osTimerNew(timer_callback, osTimerPeriodic, &exec1, nullptr);
+    if (timer_id == nullptr)
+    {
+        CMSISSTREAM_LOG_ERR("Can't create timer for hardware source\n");
+        goto error;
+    }
     
-
     /*
      * Step 2: fill generated parameter structures with application-specific
      * data before scheduler initialization.
      */
 
+    helloParams.src.hw_.timer_id = timer_id;
     helloParams.src.val = 1.5f;
 
 

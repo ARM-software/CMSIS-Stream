@@ -21,11 +21,11 @@ solution:
 
   # List the packs that define the device and/or board.
   packs:
-    - pack: ARM::V2M_MPS3_SSE_300_BSP
-    - pack: ARM::CMSIS
-    - pack: ARM::CMSIS-Compiler@2.0.0
-    - pack: ARM::CMSIS-RTX@^5.9.0
+    - pack: ARM::V2M_MPS3_SSE_300_BSP@1.5.0
+    - pack: ARM::CMSIS@6.3.0
+    - pack: ARM::CMSIS-RTX@5.9.0
     - pack: ARM::CMSIS-STREAM
+      path: ../..
 
   # List different hardware targets that are used to deploy the solution.
   target-types:
@@ -35,10 +35,13 @@ solution:
       misc:
         - for-compiler: CLANG
           Link:
-              - -lcrt0
+            - -lcrt0-semihost
+            - -lsemihost
         - for-compiler: GCC
           Link:
-              - --specs=nosys.specs
+            - --specs=rdimon.specs
+          Library:
+            - -lrdimon
       target-set:
         - set:
           images:

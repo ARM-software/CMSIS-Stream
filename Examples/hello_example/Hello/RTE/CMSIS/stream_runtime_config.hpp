@@ -131,3 +131,6 @@
 // </h>
 
 // <<< end of configuration section >>>
+
+#define CMSISSTREAM_LOG_ERR(fmt,...) printf("[ERR] " fmt, ##__VA_ARGS__)
+#define CMSISSTREAM_LOG_DBG(fmt,...) printf("[DBG] " fmt, ##__VA_ARGS__)

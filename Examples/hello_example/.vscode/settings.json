@@ -1,4 +1,7 @@
 {
     "debug.hideSlowPreLaunchWarning": true,
-    "debug.showInStatusBar": "never"
+    "debug.showInStatusBar": "never",
+    "clangd.arguments": [
+        "--compile-commands-dir=c:\\Users\\chrfav01\\benchresults\\CMSIS-Stream\\Examples\\hello_example\\out\\Hello\\SSE-300-MPS3\\Debug"
+    ]
 }

@@ -1,9 +1,9 @@
 {
-  "NullSink<float,10>": {
+  "DebugSink<float,10>": {
     "isTemplate": true,
     "selectors": []
   },
-  "EmptySource<float,10>": {
+  "DebugSource<float,10>": {
     "isTemplate": true,
     "selectors": []
   }

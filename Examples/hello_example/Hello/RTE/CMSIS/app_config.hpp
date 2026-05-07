@@ -24,12 +24,15 @@ extern "C"
 #include CMSIS_device_header
 
 #include "cmsis_os2.h" /* CMSIS-RTOS2 API */
+
+#include "hello_params.h"
+
 }
 
 #include "cg_enums.h"
 #include "stream_rtos_events.h"
 
-#include "hello_params.h"
+
 
 extern osEventFlagsId_t cg_streamEvent;
 

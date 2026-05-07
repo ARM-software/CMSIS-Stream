@@ -24,10 +24,19 @@ extern "C"
 #include CMSIS_device_header
 
 #include "cmsis_os2.h" /* CMSIS-RTOS2 API */
+
+// Parameter datatype for the graph
+// An application needs to customize it to adapt to the graph's needs.
+// This is not provided by the CMSIS-Stream pack and must come from the user 
+// application.
+#include "hello_params.h"
+
 }
 
 #include "cg_enums.h"
 #include "stream_rtos_events.h"
+
+
 
 extern osEventFlagsId_t cg_streamEvent;
 

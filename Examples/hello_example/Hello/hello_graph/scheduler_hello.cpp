@@ -131,8 +131,8 @@ FIFO<float,FIFOSIZE0,1,0> *fifo0;
 } fifos_t;
 
 typedef struct {
-    NullSink<float,10> *sink;
-    EmptySource<float,10> *src;
+    DebugSink<float,10> *sink;
+    DebugSource<float,10> *src;
 } nodes_t;
 
 
@@ -168,7 +168,7 @@ int init_scheduler_hello(void *evtQueue_,helloParams_t *params)
     CG_BEFORE_NODE_INIT;
     cg_status initError;
 
-    nodes.sink = new (std::nothrow) NullSink<float,10>(*(fifos.fifo0));
+    nodes.sink = new (std::nothrow) DebugSink<float,10>(*(fifos.fifo0));
     if (nodes.sink==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
@@ -176,7 +176,7 @@ int init_scheduler_hello(void *evtQueue_,helloParams_t *params)
     identifiedNodes[STREAM_HELLO_SINK_ID]=createStreamNode(*nodes.sink);
     nodes.sink->setID(STREAM_HELLO_SINK_ID);
 
-    nodes.src = new (std::nothrow) EmptySource<float,10>(*(fifos.fifo0),params->src);
+    nodes.src = new (std::nothrow) DebugSource<float,10>(*(fifos.fifo0),params->src);
     if (nodes.src==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);

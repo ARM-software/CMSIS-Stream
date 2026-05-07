@@ -4,7 +4,7 @@ project:
   groups:
     - group: Main App
       files:
-        - file: ./main.c
+        - file: ./main.cpp
 
     - group: Hello Graph
       files:
@@ -22,17 +22,12 @@ project:
     - component: Device:Startup&C Startup
     - component: CMSIS:OS Tick:SysTick
     - component: CMSIS:RTOS2:Keil RTX5&Source
-    - component: CMSIS Driver:USART
-    - component: CMSIS-Compiler:CORE
-    - component: CMSIS-Compiler:STDOUT:Custom
     - component: ARM::CMSIS:STREAM
     - component: Device:Definition
     - component: Device:Native Driver:IO
     - component: Device:Native Driver:SysCounter
     - component: Device:Native Driver:SysTimer
     - component: Device:Native Driver:Timeout
-    - component: Device:Native Driver:UART
-    - component: Device:USART Retarget
 
   # List executable file formats to be generated.
   output:

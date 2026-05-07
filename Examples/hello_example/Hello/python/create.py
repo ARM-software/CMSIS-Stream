@@ -1,6 +1,7 @@
 from cmsis_stream.cg.scheduler import *
 from pathlib import Path
 import subprocess
+from nodes import *
 
 # Get current working directory
 cwd = Path.cwd()
@@ -14,34 +15,14 @@ target = target.resolve()
 if not target.exists():
     print(f"The script must be launched from the python folder but you launched it from {cwd}.")
 
-class EmptySource(GenericSource):
-    def __init__(self,name,theType,outLength):
-        GenericSource.__init__(self,name,identified=True)
-        # Stereo output
-        self.addOutput("o",theType,outLength)
-        self.addVariableArg(f"params->{name}")
 
-    @property
-    def typeName(self):
-        """The name of the C++ class implementing this node"""
-        return "EmptySource"
 
-class NullSink(GenericSink):
-    def __init__(self,name,theType,outLength):
-        GenericSink.__init__(self,name)
-        # Stereo output
-        self.addInput("i",theType,outLength)
-
-    @property
-    def typeName(self):
-        """The name of the C++ class implementing this node"""
-        return "NullSink"
    
 
 the_graph = Graph()
 
-src = EmptySource("src",CType(F32),10)
-sink = NullSink("sink",CType(F32),10)
+src = DebugSource("src",CType(F32),10)
+sink = DebugSink("sink",CType(F32),10)
 
 the_graph.connect(src.o,sink.i)
 

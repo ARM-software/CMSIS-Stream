@@ -10,20 +10,21 @@
 
 using namespace arm_cmsis_stream;
 
-
+// This template can only be instaintiated with OUT = float, 
+//but we keep it generic for demonstration purposes.
 template <typename OUT, int outputSamples>
-class NullSink: public GenericSink<OUT, outputSamples>
+class DebugSink: public GenericSink<OUT, outputSamples>
 {
   public:
    
-    NullSink(FIFOBase<OUT> &dst)
+    DebugSink(FIFOBase<OUT> &dst)
         : GenericSink<OUT, outputSamples>(dst)
     {
 
        
     };
 
-    ~NullSink()
+    ~DebugSink()
     {
         
     };
@@ -32,9 +33,17 @@ class NullSink: public GenericSink<OUT, outputSamples>
     int run() final
     {
         OUT *input = this->getReadBuffer();
+
+        float tmp;
+        for (int i = 0; i < outputSamples; i++)
+        {
+            tmp += input[i];
+        }
+        printf("[%d] Temp = %f\n", counter++, tmp);
         
         return (CG_SUCCESS);
     };
-
+protected:
+ uint32_t counter = 0;
   
 };

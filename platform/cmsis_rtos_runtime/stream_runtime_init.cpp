@@ -252,9 +252,18 @@ void stream_start_threads(stream_execution_context_t *context)
 	current_context.store(context);
 
     tid_event = osThreadNew(event_thread_function, NULL, &event_thread_attr);
+	if (tid_event == nullptr)
+	{
+		CMSISSTREAM_LOG_ERR("Failed to start event thread\n");
+		return;
+	}
 
 	tid_stream = osThreadNew(stream_thread_function, NULL, &stream_thread_attr);
-
+	if (tid_stream == nullptr)
+	{
+		CMSISSTREAM_LOG_ERR("Failed to start stream thread\n");
+		return;
+	}
 	CMSISSTREAM_LOG_DBG("Stream runtime threads started\n");
 }
 
