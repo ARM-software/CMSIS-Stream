@@ -1,4 +1,6 @@
 {
-  "sink": 0,
-  "src": 1
+  "process": 0,
+  "sink": 1,
+  "src": 2,
+  "evtSink": 3
 }

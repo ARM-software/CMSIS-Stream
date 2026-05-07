@@ -5,7 +5,7 @@ helloParams_t helloParams = {
         .hw_ = {
             .timer_id = NULL
         },
-        .ticks = 1000,
+        .ticks = 10000,
         .val = 0.0f
     }
 };

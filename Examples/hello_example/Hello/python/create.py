@@ -17,14 +17,16 @@ if not target.exists():
 
 
 
-   
-
 the_graph = Graph()
 
 src = DebugSource("src",CType(F32),10)
-sink = DebugSink("sink",CType(F32),10)
+process = DebugProcess("process",CType(F32),10)
+sink = DebugSink("sink",CType(F32))
+evtSink = DebugEvtSink("evtSink")
 
-the_graph.connect(src.o,sink.i)
+the_graph.connect(src.o,process.i)
+the_graph.connect(process.o,sink.i)
+the_graph.connect(sink["oev0"],evtSink["iev0"])
 
 conf = Configuration()
 conf.CMSISDSP = False

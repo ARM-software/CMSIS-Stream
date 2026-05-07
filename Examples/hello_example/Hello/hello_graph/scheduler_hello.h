@@ -22,12 +22,16 @@ extern "C"
 
 
 /* Node identifiers */
-#define STREAM_HELLO_NB_IDENTIFIED_NODES 2
-#define STREAM_HELLO_SINK_ID 0
-#define STREAM_HELLO_SRC_ID 1
+#define STREAM_HELLO_NB_IDENTIFIED_NODES 4
+#define STREAM_HELLO_PROCESS_ID 0
+#define STREAM_HELLO_SINK_ID 1
+#define STREAM_HELLO_SRC_ID 2
+#define STREAM_HELLO_EVTSINK_ID 3
 
-#define STREAM_HELLO_SCHED_LEN 2
+#define STREAM_HELLO_SCHED_LEN 3
 
+/* Selectors global identifiers */
+#define SEL_MESSAGE_ID 100 
 
 extern CStreamNode* get_scheduler_hello_node(int32_t nodeID);
 

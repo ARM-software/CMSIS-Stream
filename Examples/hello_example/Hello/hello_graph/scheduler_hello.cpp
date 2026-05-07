@@ -91,9 +91,9 @@ using namespace arm_cmsis_stream;
 Description of the scheduling. 
 
 */
-static uint8_t schedule[2]=
+static uint8_t schedule[3]=
 { 
-1,0,
+2,0,1,
 };
 
 /*
@@ -101,9 +101,15 @@ static uint8_t schedule[2]=
 Internal ID identification for the nodes
 
 */
-#define SINK_INTERNAL_ID 0
-#define SRC_INTERNAL_ID 1
+#define PROCESS_INTERNAL_ID 0
+#define SINK_INTERNAL_ID 1
+#define SRC_INTERNAL_ID 2
+#define EVTSINK_INTERNAL_ID 3
 
+/* Initialize the selectors global IDs in each class */
+template<>
+std::array<uint16_t,1> DebugSink<float,1>::selectors = {SEL_MESSAGE_ID};
+std::array<uint16_t,1> DebugEvtSink::selectors = {SEL_MESSAGE_ID};
 
 
 /***********
@@ -120,19 +126,27 @@ FIFO buffers
 
 ************/
 #define FIFOSIZE0 10
+#define FIFOSIZE1 1
 
 #define BUFFERSIZE0 40
 CG_BEFORE_BUFFER
 uint8_t stream_hello_buf0[BUFFERSIZE0]={0};
 
+#define BUFFERSIZE1 4
+CG_BEFORE_BUFFER
+uint8_t stream_hello_buf1[BUFFERSIZE1]={0};
+
 
 typedef struct {
 FIFO<float,FIFOSIZE0,1,0> *fifo0;
+FIFO<float,FIFOSIZE1,1,0> *fifo1;
 } fifos_t;
 
 typedef struct {
-    DebugSink<float,10> *sink;
+    DebugProcess<float,10,float,1> *process;
+    DebugSink<float,1> *sink;
     DebugSource<float,10> *src;
+    DebugEvtSink *evtSink;
 } nodes_t;
 
 
@@ -164,11 +178,24 @@ int init_scheduler_hello(void *evtQueue_,helloParams_t *params)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
     }
+    fifos.fifo1 = new (std::nothrow) FIFO<float,FIFOSIZE1,1,0>(stream_hello_buf1);
+    if (fifos.fifo1==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
 
     CG_BEFORE_NODE_INIT;
     cg_status initError;
 
-    nodes.sink = new (std::nothrow) DebugSink<float,10>(*(fifos.fifo0));
+    nodes.process = new (std::nothrow) DebugProcess<float,10,float,1>(*(fifos.fifo0),*(fifos.fifo1));
+    if (nodes.process==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[STREAM_HELLO_PROCESS_ID]=createStreamNode(*nodes.process);
+    nodes.process->setID(STREAM_HELLO_PROCESS_ID);
+
+    nodes.sink = new (std::nothrow) DebugSink<float,1>(*(fifos.fifo1),evtQueue);
     if (nodes.sink==NULL)
     {
         return(CG_MEMORY_ALLOCATION_FAILURE);
@@ -184,15 +211,32 @@ int init_scheduler_hello(void *evtQueue_,helloParams_t *params)
     identifiedNodes[STREAM_HELLO_SRC_ID]=createStreamNode(*nodes.src);
     nodes.src->setID(STREAM_HELLO_SRC_ID);
 
+    nodes.evtSink = new (std::nothrow) DebugEvtSink;
+    if (nodes.evtSink==NULL)
+    {
+        return(CG_MEMORY_ALLOCATION_FAILURE);
+    }
+    identifiedNodes[STREAM_HELLO_EVTSINK_ID]=createStreamNode(*nodes.evtSink);
+    nodes.evtSink->setID(STREAM_HELLO_EVTSINK_ID);
+
 
 /* Subscribe nodes for the event system*/
+    nodes.sink->subscribe(0,*nodes.evtSink,0);
 
     initError = CG_SUCCESS;
+    initError = nodes.process->init();
+    if (initError != CG_SUCCESS)
+        return(initError);
+    
     initError = nodes.sink->init();
     if (initError != CG_SUCCESS)
         return(initError);
     
     initError = nodes.src->init();
+    if (initError != CG_SUCCESS)
+        return(initError);
+    
+    initError = nodes.evtSink->init();
     if (initError != CG_SUCCESS)
         return(initError);
     
@@ -209,7 +253,15 @@ void free_scheduler_hello()
     {
        delete fifos.fifo0;
     }
+    if (fifos.fifo1!=NULL)
+    {
+       delete fifos.fifo1;
+    }
 
+    if (nodes.process!=NULL)
+    {
+        delete nodes.process;
+    }
     if (nodes.sink!=NULL)
     {
         delete nodes.sink;
@@ -217,6 +269,10 @@ void free_scheduler_hello()
     if (nodes.src!=NULL)
     {
         delete nodes.src;
+    }
+    if (nodes.evtSink!=NULL)
+    {
+        delete nodes.evtSink;
     }
 }
 
@@ -226,10 +282,15 @@ void reset_fifos_scheduler_hello(int all)
     {
        fifos.fifo0->reset();
     }
+    if (fifos.fifo1!=NULL)
+    {
+       fifos.fifo1->reset();
+    }
    // Buffers are set to zero too
    if (all)
    {
        std::fill_n(stream_hello_buf0, BUFFERSIZE0, (uint8_t)0);
+       std::fill_n(stream_hello_buf1, BUFFERSIZE1, (uint8_t)0);
    }
 }
 
@@ -252,7 +313,7 @@ uint32_t scheduler_hello(int *error)
         /* Run a schedule iteration */
         CG_BEFORE_ITERATION;
         unsigned long id=0;
-        for(; id < 2; id++)
+        for(; id < 3; id++)
         {
             CG_BEFORE_NODE_EXECUTION(schedule[id]);
             switch(schedule[id])
@@ -260,11 +321,18 @@ uint32_t scheduler_hello(int *error)
                 case 0:
                 {
                     
-                   cgStaticError = nodes.sink->run();
+                   cgStaticError = nodes.process->run();
                 }
                 break;
 
                 case 1:
+                {
+                    
+                   cgStaticError = nodes.sink->run();
+                }
+                break;
+
+                case 2:
                 {
                     
                    cgStaticError = nodes.src->run();

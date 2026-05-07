@@ -124,7 +124,7 @@ uint32_t exec1;
 
 static void timer_callback(void *argument)
 {
-    CMSISSTREAM_LOG_DBG("Timer callback");
+    CMSISSTREAM_LOG_DBG("Timer callback\n");
 }
 
 /**
