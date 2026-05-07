@@ -148,8 +148,16 @@ void stream_configure_and_start()
      * data before scheduler initialization.
      */
 
-    helloParams.src.hw_.timer_id = timer_id;
-    helloParams.src.val = 1.5f;
+    // Here it is assumed that there is a global variable used to define all
+    // parameters for the hello graph.
+    // This global is a struct defined in hello_params.h and allocated in hello_params.cpp.
+    // Each node which needs to access to hardware parameters has a sub-structure named hw_ and of
+    // the same type.
+    // With this organization, it is easy in the Python to generate the right
+    // arguments for the C++ constructor to access to the parameters for a node.
+    
+    // helloParams.src.hw_.timer_id = timer_id;
+    // helloParams.src.val = 1.5f;
 
 
     // Step 3: initialize common CMSIS-Stream runtime memory.
