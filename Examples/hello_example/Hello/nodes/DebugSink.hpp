@@ -15,7 +15,7 @@ public:
   enum selector {selMessage=0};
   static std::array<uint16_t,1> selectors;
   DebugSink(FIFOBase<IN> &dst,EventQueue *queue)
-      : GenericSink<IN, inputSamples>(dst),ev0(queue) {
+      : GenericSink<IN, inputSamples>(dst),ev0(queue),nb(0) {
 
         };
 
@@ -27,6 +27,16 @@ public:
     IN *input = this->getReadBuffer();
 
     ev0.sendAsync(kNormalPriority,selectors[selMessage],input[0]);
+    nb++;
+    // Every 10 blocks, send a message to the application handler. This is just an example of how to use events for application communication; 
+    // real applications may want to send more meaningful data or trigger events based on specific conditions.
+    if (nb == 10)
+    {
+      nb = 0;
+      // We use a node id of zero. In this example, the application handler doesn't differentiate between nodes, but in a real application 
+      // you might want to include the node id or other context in the event data.
+      ev0.sendAsyncToApp<int32_t>(0,kNormalPriority,kValue,1);
+    }
 
     return (CG_SUCCESS);
   };
@@ -38,4 +48,5 @@ public:
 
 protected:
   EventOutput ev0;
+  uint32_t nb;
 };

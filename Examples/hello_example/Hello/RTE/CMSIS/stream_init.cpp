@@ -127,6 +127,33 @@ static void timer_callback(void *argument)
     CMSISSTREAM_LOG_DBG("Timer callback\n");
 }
 
+
+/**
+ * @brief Application-specific event handler.
+ *
+ * This function can be called from the graph in a synchronous or asynchronous way.
+ * It is a global application handler that can be used by all graphs.
+ *
+ * @param src_node_id ID of the source node that is calling the application handler.
+ * @param data Pointer to any associated data that was passed when the handler was installed.
+ * @param evt The event object containing event details.
+ * @return true if the event was handled successfully, false otherwise.
+ */
+static bool application_handler(int src_node_id, void *data, Event &&evt)
+{
+    int network_id = reinterpret_cast<int>(data);
+    if (evt.event_id == kValue)
+    {
+        int32_t msg = evt.get<int32_t>();
+        CMSISSTREAM_LOG_DBG("Application handler received event from node %d in network %d with value: %d\n", src_node_id, network_id, msg);
+    }
+    else 
+    {
+        CMSISSTREAM_LOG_DBG("Application handler received unknown event ID %d from node %d in network %d\n", evt.event_id, src_node_id, network_id);
+    }
+    return true;
+}
+
 /**
  * @brief Configure resources and start the currently selected stream graph.
  *
@@ -177,6 +204,8 @@ void stream_configure_and_start()
             CMSISSTREAM_LOG_ERR("Can't create CMSIS Stream Event Queue for network %d\n", network);
             goto error;
         }
+        // Set an application handler for the graph
+        queue_app[network]->setHandler((void*)network, application_handler);
     }
 
     // Step 5: initialize generated schedulers and graph nodes. Scheduler init
