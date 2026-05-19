@@ -29,6 +29,7 @@ DEFAULT_ARGS=(-c "v")
 # Default: empty (all folders)
 #
 PACK_DIRS="
+  Documentation/Doxygen/html
   platform/cmsis_rtos_runtime
   platform/core_nodes
 "
@@ -45,7 +46,7 @@ PACK_BASE_FILES="
   platform/EventDisplay.hpp  
   platform/EventQueue.hpp    
   platform/StreamNode.hpp
-  Documentation/index.html
+  Documentation/Doxygen/html/index.html
 "
 
 # Specify file names to be deleted from pack build directory
@@ -89,7 +90,7 @@ PACK_CHANGELOG_MODE="release"
 function preprocess() {
   # add custom steps here to be executed
   # before populating the pack build folder
-  #./Documentation/Doxygen/gen_doc.sh
+  bash ./Documentation/Doxygen/gen_doc.sh
   return 0
 }
 
@@ -111,7 +112,7 @@ function postprocess() {
 # Set GEN_PACK_LIB_PATH to use a specific gen-pack library root
 # ... instead of bootstrap based on REQUIRED_GEN_PACK_LIB
 if [[ -f "${GEN_PACK_LIB_PATH}/gen-pack" ]]; then
-  . "${GEN_PACK_LIB}/gen-pack"
+  . "${GEN_PACK_LIB_PATH}/gen-pack"
 else
   . <(curl -sL "https://raw.githubusercontent.com/Open-CMSIS-Pack/gen-pack/main/bootstrap")
 fi
