@@ -47,11 +47,11 @@ extern "C"
 
 typedef osPriority_t cg_threadPriority_t;
 
-class MyQueue:public arm_cmsis_stream::EventQueue
+class CMSISEventQueue:public arm_cmsis_stream::EventQueue
 {
 public:
-    MyQueue(osPriority_t low, osPriority_t normal, osPriority_t high);
-    ~MyQueue();
+    CMSISEventQueue(osPriority_t low, osPriority_t normal, osPriority_t high);
+    ~CMSISEventQueue();
 
     // This should wakeup the threads processing this queue
     bool push(arm_cmsis_stream::Message &&event)  final;

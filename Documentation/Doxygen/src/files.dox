@@ -144,7 +144,7 @@
 /** @class CMSISMutex */
 /** @class CMSISLock */
 /** @class ContextSwitch */
-/** @class MyQueue */
+/** @class CMSISEventQueue */
 /** @struct stream_execution_context_t_ */
 
 /** @} */

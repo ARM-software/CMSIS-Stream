@@ -15,5 +15,6 @@ var searchData=
   ['fifobase_3c_20out2_20_3e_12',['FIFOBase&lt; OUT2 &gt;',['../group__cmsis__stream__generic__data.html',1,'arm_cmsis_stream']]],
   ['fifobase_3c_20out3_20_3e_13',['FIFOBase&lt; OUT3 &gt;',['../group__cmsis__stream__generic__data.html',1,'arm_cmsis_stream']]],
   ['fifobase_3c_20shared_3c_20io_2c_20inputsharestatus_20_3e_20_3e_14',['FIFOBase&lt; Shared&lt; IO, inputShareStatus &gt; &gt;',['../group__cmsis__stream__generic__data.html',1,'arm_cmsis_stream']]],
-  ['fifobase_3c_20shared_3c_20io_2c_20true_20_3e_20_3e_15',['FIFOBase&lt; Shared&lt; IO, true &gt; &gt;',['../group__cmsis__stream__generic__data.html',1,'arm_cmsis_stream']]]
+  ['fifobase_3c_20shared_3c_20io_2c_20true_20_3e_20_3e_15',['FIFOBase&lt; Shared&lt; IO, true &gt; &gt;',['../group__cmsis__stream__generic__data.html',1,'arm_cmsis_stream']]],
+  ['files_20copied_20to_20the_20application_16',['Files copied to the application',['../cmsis_stream_files_copied.html',1,'']]]
 ];

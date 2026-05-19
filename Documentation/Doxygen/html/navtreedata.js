@@ -25,34 +25,32 @@
 var NAVTREE =
 [
   [ "CMSIS-Stream", "index.html", [
-    [ "CMSIS-Stream Platform Runtime API", "index.html", null ],
-    [ "README", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html", [
-      [ "Files copied to the application", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md3", [
-        [ "<code>app_config.hpp</code>", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md4", null ],
-        [ "<code>stream_runtime_config.hpp</code>", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md5", null ],
-        [ "Other header", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md6", null ]
-      ] ],
-      [ "How to start CMSIS Stream", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md7", null ],
-      [ "Configuration values", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md8", [
-        [ "CMSISSTREAM_EVT_THREAD_STACK_SIZE", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md9", null ],
-        [ "CMSISSTREAM_STREAM_THREAD_STACK_SIZE", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md10", null ],
-        [ "CMSISSTREAM_NB_MAX_EVENTS", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md11", null ],
-        [ "CMSISSTREAM_NB_MAX_BUFS", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md12", null ],
-        [ "CMSISSTREAM_STREAM_THREAD_PRIORITY", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md13", null ],
-        [ "CMSISSTREAM_EVT_HIGH_PRIORITY", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md14", null ],
-        [ "CMSISSTREAM_EVT_NORMAL_PRIORITY", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md15", null ],
-        [ "CMSISSTREAM_EVT_LOW_PRIORITY", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md16", null ],
-        [ "CMSISSTREAM_SHARED_OVERHEAD", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md17", null ],
-        [ "CMSISSTREAM_MAX_NUMBER_EVENT_ARGUMENTS", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md18", null ],
-        [ "CMSISSTREAM_TENSOR_MAX_DIMENSIONS", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md19", null ],
-        [ "CMSISSTREAM_EVENT_QUEUE_LENGTH", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md20", null ],
-        [ "CMSISSTREAM_POOL_SECTION", "md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html#autotoc_md21", null ]
-      ] ]
+    [ "Introduction", "index.html", null ],
+    [ "Files copied to the application", "cmsis_stream_files_copied.html", [
+      [ "app_config.hpp", "cmsis_stream_files_copied.html#autotoc_md2", null ],
+      [ "stream_runtime_config.hpp", "cmsis_stream_files_copied.html#autotoc_md3", null ],
+      [ "Other header", "cmsis_stream_files_copied.html#autotoc_md4", null ],
+      [ "stream_init.hpp and stream_init.cpp", "cmsis_stream_files_copied.html#autotoc_md5", null ],
+      [ "Customizing stream_init.hpp", "cmsis_stream_files_copied.html#autotoc_md6", null ],
+      [ "Customizing stream_init.cpp", "cmsis_stream_files_copied.html#autotoc_md7", null ]
     ] ],
-    [ "API Reference", "modules.html", "modules" ],
-    [ "Data Structures", "annotated.html", [
-      [ "Class List", "annotated.html", "annotated_dup" ]
-    ] ]
+    [ "How to start CMSIS Stream", "cmsis_stream_start.html", null ],
+    [ "Configuration", "cmsis_stream_configuration.html", [
+      [ "CMSISSTREAM_EVT_THREAD_STACK_SIZE", "cmsis_stream_configuration.html#autotoc_md8", null ],
+      [ "CMSISSTREAM_STREAM_THREAD_STACK_SIZE", "cmsis_stream_configuration.html#autotoc_md9", null ],
+      [ "CMSISSTREAM_NB_MAX_EVENTS", "cmsis_stream_configuration.html#autotoc_md10", null ],
+      [ "CMSISSTREAM_NB_MAX_BUFS", "cmsis_stream_configuration.html#autotoc_md11", null ],
+      [ "CMSISSTREAM_STREAM_THREAD_PRIORITY", "cmsis_stream_configuration.html#autotoc_md12", null ],
+      [ "CMSISSTREAM_EVT_HIGH_PRIORITY", "cmsis_stream_configuration.html#autotoc_md13", null ],
+      [ "CMSISSTREAM_EVT_NORMAL_PRIORITY", "cmsis_stream_configuration.html#autotoc_md14", null ],
+      [ "CMSISSTREAM_EVT_LOW_PRIORITY", "cmsis_stream_configuration.html#autotoc_md15", null ],
+      [ "CMSISSTREAM_SHARED_OVERHEAD", "cmsis_stream_configuration.html#autotoc_md16", null ],
+      [ "CMSISSTREAM_MAX_NUMBER_EVENT_ARGUMENTS", "cmsis_stream_configuration.html#autotoc_md17", null ],
+      [ "CMSISSTREAM_TENSOR_MAX_DIMENSIONS", "cmsis_stream_configuration.html#autotoc_md18", null ],
+      [ "CMSISSTREAM_EVENT_QUEUE_LENGTH", "cmsis_stream_configuration.html#autotoc_md19", null ],
+      [ "CMSISSTREAM_POOL_SECTION", "cmsis_stream_configuration.html#autotoc_md20", null ]
+    ] ],
+    [ "API Reference", "modules.html", "modules" ]
   ] ]
 ];
 

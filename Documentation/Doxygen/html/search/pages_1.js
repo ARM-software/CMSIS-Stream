@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['readme_0',['README',['../md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html',1,'']]]
+  ['files_20copied_20to_20the_20application_0',['Files copied to the application',['../cmsis_stream_files_copied.html',1,'']]]
 ];

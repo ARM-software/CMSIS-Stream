@@ -2,97 +2,12 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "CMSIS Erase",
-            "type": "shell",
-            "command": "pyocd",
-            "options": {
-                "cwd": "${workspaceFolder}/Tests",
-                "shell": {
-                    "executable": "cmd.exe",
-                    "args": [
-                        "/d",
-                        "/c"
-                    ]
-                }
-            },
-            "args": [
-                "erase",
-                "--probe",
-                "cmsisdap:",
-                "--chip",
-                "--cbuild-run",
-                "${command:cmsis-csolution.getCbuildRunFile}"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "CMSIS Load",
-            "type": "shell",
-            "command": "pyocd",
-            "options": {
-                "cwd": "${workspaceFolder}/Tests",
-                "shell": {
-                    "executable": "cmd.exe",
-                    "args": [
-                        "/d",
-                        "/c"
-                    ]
-                }
-            },
-            "args": [
-                "load",
-                "--probe",
-                "cmsisdap:",
-                "--cbuild-run",
-                "${command:cmsis-csolution.getCbuildRunFile}"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "CMSIS Run",
-            "type": "shell",
-            "command": "pyocd",
-            "options": {
-                "cwd": "${workspaceFolder}/Tests",
-                "shell": {
-                    "executable": "cmd.exe",
-                    "args": [
-                        "/d",
-                        "/c"
-                    ]
-                }
-            },
-            "args": [
-                "gdbserver",
-                "--probe",
-                "cmsisdap:",
-                "--connect",
-                "attach",
-                "--persist",
-                "--reset-run",
-                "--cbuild-run",
-                "${command:cmsis-csolution.getCbuildRunFile}",
-                "--quiet",
-                "--log",
-                "*.cbuild_run,*server=info"
-            ],
-            "problemMatcher": []
-        },
-        {
             "label": "CMSIS Load+Run",
-            "dependsOn": [
-                "CMSIS Load",
-                "CMSIS Run"
-            ],
-            "dependsOrder": "sequence",
-            "problemMatcher": []
-        },
-        {
-            "label": "CMSIS TargetInfo",
+            "problemMatcher": [],
             "type": "shell",
-            "command": "pyocd",
+            "command": "FVP_Corstone_SSE-300_Ethos-U55",
             "options": {
-                "cwd": "${workspaceFolder}/Tests",
+                "cwd": "${workspaceFolder}/Examples/hello_example",
                 "shell": {
                     "executable": "cmd.exe",
                     "args": [
@@ -102,11 +17,12 @@
                 }
             },
             "args": [
-                "list",
-                "--cbuild-run",
-                "${command:cmsis-csolution.getCbuildRunFile}"
-            ],
-            "problemMatcher": []
+                "-f",
+                "fvp_config.txt",
+                "-a",
+                "out/Hello/SSE-300-MPS3/Debug/Hello.elf",
+                ""
+            ]
         }
     ]
 }

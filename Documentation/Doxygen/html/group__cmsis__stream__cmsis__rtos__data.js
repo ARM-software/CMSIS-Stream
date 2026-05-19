@@ -12,6 +12,6 @@ var group__cmsis__stream__cmsis__rtos__data =
     [ "CMSISMutex", "group__cmsis__stream__cmsis__rtos__data.html#classCMSISMutex", null ],
     [ "CMSISLock", "group__cmsis__stream__cmsis__rtos__data.html#classCMSISLock", null ],
     [ "ContextSwitch", "group__cmsis__stream__cmsis__rtos__data.html#classContextSwitch", null ],
-    [ "MyQueue", "group__cmsis__stream__cmsis__rtos__data.html#classMyQueue", null ],
+    [ "CMSISEventQueue", "group__cmsis__stream__cmsis__rtos__data.html#classCMSISEventQueue", null ],
     [ "stream_execution_context_t_", "group__cmsis__stream__cmsis__rtos__data.html#structstream__execution__context__t__", null ]
 ];

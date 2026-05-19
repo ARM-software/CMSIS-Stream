@@ -2,7 +2,7 @@
 
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "CMSIS-Stream"
-PROJECT_NUMBER         = "Version v3.2.0-17-g346a612-dirty"
+PROJECT_NUMBER         = "Version v3.2.0-18-ga34eca3-dirty"
 PROJECT_BRIEF          = "CMSIS-Stream Platform and CMSIS-RTOS Runtime API"
 PROJECT_LOGO           = ./style_template/cmsis_logo_white_small.png
 OUTPUT_DIRECTORY       = ./
@@ -85,6 +85,9 @@ WARN_FORMAT            = "$file:$line: $text"
 WARN_LOGFILE           =
 
 INPUT                  = ./src/mainpage.md \
+                         ./src/01_files_copied.md \
+                         ./src/02_start.md \
+                         ./src/03_configuration.md \
                          ./src/files.dox \
                          ../../platform/cg_enums.h \
                          ../../platform/cg_pack.hpp \
@@ -102,7 +105,7 @@ FILE_PATTERNS          = *.h \
 RECURSIVE              = YES
 EXCLUDE                =
 EXCLUDE_SYMLINKS       = YES
-EXCLUDE_PATTERNS       =
+EXCLUDE_PATTERNS       = */platform/cmsis_rtos_runtime/README.md
 EXCLUDE_SYMBOLS        =
 EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *

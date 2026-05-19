@@ -42,7 +42,7 @@ void *EventQueue::handlerData = nullptr;
 EventQueue::AppHandler EventQueue::handler = nullptr;
 std::atomic<bool> EventQueue::handlerReady_ = false;
 
-MyQueue::MyQueue(osPriority_t low, osPriority_t normal, osPriority_t high)
+CMSISEventQueue::CMSISEventQueue(osPriority_t low, osPriority_t normal, osPriority_t high)
     : arm_cmsis_stream::EventQueue()
 {
     cg_eventEvent = osEventFlagsNew(nullptr);
@@ -59,7 +59,7 @@ MyQueue::MyQueue(osPriority_t low, osPriority_t normal, osPriority_t high)
     }
 }
 
-MyQueue::~MyQueue()
+CMSISEventQueue::~CMSISEventQueue()
 {
     for (uint32_t p = 0; p < nb_priorities; p++)
     {
@@ -67,7 +67,7 @@ MyQueue::~MyQueue()
     }
 }
 
-bool MyQueue::push(arm_cmsis_stream::Message &&event)
+bool CMSISEventQueue::push(arm_cmsis_stream::Message &&event)
 {
     bool ok = false;
     if (this->mustPause() || (this->mustEnd()))
@@ -109,7 +109,7 @@ bool MyQueue::push(arm_cmsis_stream::Message &&event)
     return ok;
 }
 
-bool MyQueue::isEmpty()
+bool CMSISEventQueue::isEmpty()
 {
     bool r = true;
     CG_MUTEX_ERROR_TYPE error;
@@ -126,7 +126,7 @@ bool MyQueue::isEmpty()
     return r;
 }
 
-void MyQueue::clear()
+void CMSISEventQueue::clear()
 {
     CG_MUTEX_ERROR_TYPE error;
     CG_ENTER_CRITICAL_SECTION(queue_mutex, error);
@@ -150,13 +150,13 @@ void MyQueue::clear()
     CG_EXIT_CRITICAL_SECTION(queue_mutex, error);
 }
 
-void MyQueue::end() noexcept
+void CMSISEventQueue::end() noexcept
 {
    mustEnd_.store(true);
     osEventFlagsSet(cg_eventEvent, MY_QUEUE_NEW_EVENT_FLAG);
 };
 
-void MyQueue::pause() noexcept
+void CMSISEventQueue::pause() noexcept
 {
     mustPause_.store(true);
     // Force wakeup of the execute function
@@ -167,7 +167,7 @@ void MyQueue::pause() noexcept
 // The thread priority will be changed according to the event priority
 // The thread priority is always the highest to extract events from the queue
 // and then change to the event priority to process the event
-void MyQueue::execute()
+void CMSISEventQueue::execute()
 {
    CG_MUTEX_ERROR_TYPE error;
     // Stop event processing when end or pause

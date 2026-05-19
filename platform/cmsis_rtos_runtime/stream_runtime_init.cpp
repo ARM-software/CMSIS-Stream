@@ -285,8 +285,8 @@ void stream_free_memory()
 
 EventQueue *stream_new_event_queue()
 {
-	MyQueue *queue = new (std::nothrow) MyQueue(CMSISSTREAM_EVT_LOW_PRIORITY,
-												CMSISSTREAM_EVT_NORMAL_PRIORITY,
-												CMSISSTREAM_EVT_HIGH_PRIORITY);
+	CMSISEventQueue *queue = new (std::nothrow) CMSISEventQueue(CMSISSTREAM_EVT_LOW_PRIORITY,
+																CMSISSTREAM_EVT_NORMAL_PRIORITY,
+																CMSISSTREAM_EVT_HIGH_PRIORITY);
 	return (static_cast<EventQueue *>(queue));
 }

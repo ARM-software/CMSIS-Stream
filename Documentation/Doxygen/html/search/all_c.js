@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['rawbuffer_0',['RawBuffer',['../group__cmsis__stream__generic__data.html#structarm__cmsis__stream_1_1RawBuffer',1,'arm_cmsis_stream']]],
-  ['readme_1',['README',['../md_C__Users_chrfav01_benchresults_CMSIS_Stream_platform_cmsis_rtos_runtime_README.html',1,'']]],
-  ['rebind_2',['rebind',['../structCMSISBufPoolAllocator_1_1rebind.html',1,'CMSISBufPoolAllocator&lt; T &gt;::rebind&lt; U &gt;'],['../structCMSISEventPoolAllocator_1_1rebind.html',1,'CMSISEventPoolAllocator&lt; T &gt;::rebind&lt; U &gt;'],['../structCMSISMutexPoolAllocator_1_1rebind.html',1,'CMSISMutexPoolAllocator&lt; T &gt;::rebind&lt; U &gt;']]]
+  ['queue_5fapp_0',['queue_app',['../stream__init_8cpp.html#a275b33ac9f30c5f75a87649cd2e392a8',1,'stream_init.cpp']]]
 ];
