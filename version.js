@@ -1,0 +1,48 @@
+const versions = {
+    "main": "v3.2.1-dev21 (main)"
+};
+
+var scripts = document.getElementsByTagName("script"),
+scriptUrl = new URL(scripts[scripts.length - 1].src);
+docUrl = new URL(document.URL);
+baseUrl = new URL(scriptUrl);
+baseUrl.pathname = baseUrl.pathname.split('/').slice(0, -1).join("/");
+
+function urlForVersion(url, version) {
+    url = new URL(url);
+    pathname = url.pathname.replace(baseUrl.pathname, "");
+    parts = pathname.split("/");
+    parts[1] = version;
+    url.pathname = baseUrl.pathname + parts.join("/");
+    return url;
+}
+
+function writeVersionDropdown() {
+    currentVersion = document.currentScript.parentNode.innerText;
+    document.currentScript.parentNode.classList.add("dropdown");
+    document.currentScript.parentNode.innerText = "";
+    document.write('  <span onclick="myFunction()" class="dropbtn">' + currentVersion + '</span>');
+    document.write('  <div id="myDropdown" class="dropdown-content">');
+    for (var version in versions) {
+        var label = versions[version];
+        document.write('    <a href="' + urlForVersion(docUrl, version) + '">' + label + '</a>');
+    }
+    document.write('  </div>');
+}
+
+function myFunction() {
+    document.getElementById("myDropdown").classList.toggle("show");
+}
+
+window.onclick = function(event) {
+    if (!event.target.matches('.dropbtn')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        var i;
+        for (i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+};
