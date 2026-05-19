@@ -76,7 +76,7 @@ LAYOUT_FILE            = ./style_template/layout.xml
 
 QUIET                  = NO
 WARNINGS               = YES
-WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_UNDOCUMENTED   = NO
 WARN_IF_DOC_ERROR      = YES
 WARN_NO_PARAMDOC       = NO
 WARN_IF_UNDOC_ENUM_VAL = NO
@@ -190,7 +190,8 @@ INCLUDE_PATH           = ../../platform \
                          ../../platform/cmsis_rtos_runtime \
                          ../../platform/cmsis_rtos_runtime/config
 INCLUDE_FILE_PATTERNS  =
-PREDEFINED             =
+PREDEFINED             = "__ALIGNED(x)=" \
+                         "__attribute__(x)="
 EXPAND_AS_DEFINED      =
 SKIP_FUNCTION_MACROS   = YES
 
