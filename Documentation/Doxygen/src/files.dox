@@ -1,0 +1,178 @@
+/**
+ * @file stream_runtime_init.hpp
+ * @brief CMSIS-Stream runtime initialization API for CMSIS-RTOS.
+ */
+
+/**
+ * @file app_config.hpp
+ * @ingroup cmsis_stream_cmsis_rtos_templates
+ * @brief Application-specific CMSIS-Stream configuration template.
+ */
+
+/**
+ * @file cstream_node.h
+ * @ingroup cmsis_stream_cmsis_rtos_templates
+ * @brief Application-customizable C interface for identified stream nodes.
+ */
+
+/**
+ * @file IdentifiedNode.hpp
+ * @ingroup cmsis_stream_cmsis_rtos_templates
+ * @brief Application-customizable helper for exposing C++ nodes through C.
+ */
+
+/**
+ * @file stream_runtime_config.hpp
+ * @ingroup cmsis_stream_cmsis_rtos_templates
+ * @brief Application-specific CMSIS-RTOS runtime configuration template.
+ */
+
+/**
+ * @file stream_init.hpp
+ * @ingroup cmsis_stream_cmsis_rtos_templates
+ * @brief Application-specific stream startup interface template.
+ */
+
+/**
+ * @file stream_init.cpp
+ * @ingroup cmsis_stream_cmsis_rtos_templates
+ * @brief Application-specific stream startup implementation template.
+ */
+
+/**
+ * @defgroup cmsis_stream_runtime_api CMSIS-RTOS Runtime API
+ * @brief Functions used to initialize and control the CMSIS-Stream runtime on
+ * CMSIS-RTOS.
+ * @{
+ */
+
+/**
+ * @fn void stream_pause_current_scheduler()
+ * @brief Pause the current CMSIS stream graph.
+ */
+
+/**
+ * @fn void stream_resume_scheduler(stream_execution_context_t *context)
+ * @brief Resume the CMSIS stream graph.
+ * @param context Pointer to the stream execution context to resume.
+ */
+
+/**
+ * @fn int stream_init_memory()
+ * @brief Initialize CMSIS-Stream runtime memory and structures.
+ * @return 0 on success, negative error code on failure.
+ */
+
+/**
+ * @fn void stream_start_threads(stream_execution_context_t *context)
+ * @brief Start the CMSIS-Stream runtime threads.
+ * @param context Pointer to the stream execution context to run.
+ */
+
+/**
+ * @fn void stream_wait_for_threads_end()
+ * @brief Wait for the CMSIS-Stream runtime threads to finish.
+ */
+
+/**
+ * @fn void stream_free_memory()
+ * @brief Free CMSIS-Stream runtime memory.
+ */
+
+/**
+ * @fn arm_cmsis_stream::EventQueue *stream_new_event_queue()
+ * @brief Create a new CMSIS-Stream event queue.
+ * @return Pointer to the newly created event queue, or nullptr on failure.
+ */
+
+/** @} */
+
+/**
+ * @defgroup cmsis_stream_generic_data CMSIS-Stream Generic Data Structures
+ * @brief OS-independent data structures from the CMSIS-Stream platform API.
+ * @{
+ */
+
+/** @class arm_cmsis_stream::MemServer */
+/** @class arm_cmsis_stream::Descriptor */
+/** @class arm_cmsis_stream::SharedBuffer */
+/** @class arm_cmsis_stream::UniquePtr */
+/** @class arm_cmsis_stream::ProtectedBuffer */
+/** @struct arm_cmsis_stream::RawBuffer */
+/** @struct arm_cmsis_stream::Tensor */
+/** @struct arm_cmsis_stream::cg_value */
+/** @struct arm_cmsis_stream::ListValue */
+/** @struct arm_cmsis_stream::ValueParse */
+/** @class arm_cmsis_stream::Event */
+/** @class arm_cmsis_stream::IPC */
+/** @class arm_cmsis_stream::StreamNode */
+/** @class arm_cmsis_stream::FIFOBase */
+/** @class arm_cmsis_stream::FIFO */
+/** @class arm_cmsis_stream::NodeBase */
+/** @class arm_cmsis_stream::GenericNode */
+/** @class arm_cmsis_stream::GenericToManyNode */
+/** @class arm_cmsis_stream::GenericFromManyNode */
+/** @class arm_cmsis_stream::GenericManyToManyNode */
+/** @class arm_cmsis_stream::GenericNode12 */
+/** @class arm_cmsis_stream::GenericNode13 */
+/** @class arm_cmsis_stream::GenericNode21 */
+/** @class arm_cmsis_stream::GenericNode31 */
+/** @class arm_cmsis_stream::GenericSource */
+/** @class arm_cmsis_stream::GenericSink */
+/** @struct arm_cmsis_stream::Shared */
+/** @class arm_cmsis_stream::Duplicate */
+/** @struct arm_cmsis_stream::LocalDestination */
+/** @struct arm_cmsis_stream::DistantDestination */
+/** @struct arm_cmsis_stream::Message */
+/** @class arm_cmsis_stream::EventQueue */
+/** @class arm_cmsis_stream::EventOutput */
+/** @class arm_cmsis_stream::Pack */
+/** @class arm_cmsis_stream::Unpack */
+
+/** @} */
+
+/**
+ * @defgroup cmsis_stream_cmsis_rtos_data CMSIS-RTOS Specific Implementation Data Structures
+ * @brief Data structures used by the CMSIS-RTOS implementation of the
+ * CMSIS-Stream runtime.
+ * @{
+ */
+
+/** @class CMSISEventPoolAllocator */
+/** @class CMSISBufPoolAllocator */
+/** @class CMSISMutexPoolAllocator */
+/** @class CMSISMutex */
+/** @class CMSISLock */
+/** @class ContextSwitch */
+/** @class MyQueue */
+/** @struct stream_execution_context_t_ */
+
+/** @} */
+
+/**
+ * @defgroup cmsis_stream_cmsis_rtos_templates CMSIS-RTOS Application Templates
+ * @brief CMSIS-RTOS-specific files copied into the application project and
+ * intended to be customized by the application.
+ * @{
+ */
+
+/** @struct StreamNodeInterface */
+/** @struct ContextSwitchInterface */
+/** @struct CStreamNode */
+
+/**
+ * @fn CStreamNode createStreamNode(T &obj)
+ * @brief Create a C interface handle for an identified C++ stream node.
+ */
+
+/**
+ * @fn void stream_configure_and_start()
+ * @brief Configure the application and start the selected stream graph.
+ */
+
+/**
+ * @fn void stream_free_all()
+ * @brief Stop the stream graph and release application/runtime resources.
+ */
+
+/** @} */

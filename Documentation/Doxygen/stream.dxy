@@ -1,0 +1,214 @@
+# Doxyfile for CMSIS-Stream platform and CMSIS-RTOS runtime documentation.
+
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "CMSIS-Stream"
+PROJECT_NUMBER         = "Version v3.2.0-17-g346a612-dirty"
+PROJECT_BRIEF          = "CMSIS-Stream Platform and CMSIS-RTOS Runtime API"
+PROJECT_LOGO           = ./style_template/cmsis_logo_white_small.png
+OUTPUT_DIRECTORY       = ./
+CREATE_SUBDIRS         = NO
+OUTPUT_LANGUAGE        = English
+BRIEF_MEMBER_DESC      = YES
+REPEAT_BRIEF           = YES
+ALWAYS_DETAILED_SEC    = YES
+INLINE_INHERITED_MEMB  = NO
+FULL_PATH_NAMES        = NO
+SHORT_NAMES            = NO
+JAVADOC_AUTOBRIEF      = NO
+QT_AUTOBRIEF           = NO
+MULTILINE_CPP_IS_BRIEF = YES
+INHERIT_DOCS           = NO
+TAB_SIZE               = 2
+OPTIMIZE_OUTPUT_FOR_C  = NO
+OPTIMIZE_OUTPUT_JAVA   = NO
+MARKDOWN_SUPPORT       = YES
+TOC_INCLUDE_HEADINGS   = 5
+AUTOLINK_SUPPORT       = YES
+BUILTIN_STL_SUPPORT    = YES
+CPP_CLI_SUPPORT        = NO
+SIP_SUPPORT            = NO
+IDL_PROPERTY_SUPPORT   = YES
+DISTRIBUTE_GROUP_DOC   = NO
+GROUP_NESTED_COMPOUNDS = YES
+SUBGROUPING            = YES
+INLINE_GROUPED_CLASSES = YES
+INLINE_SIMPLE_STRUCTS  = NO
+TYPEDEF_HIDES_STRUCT   = NO
+LOOKUP_CACHE_SIZE      = 0
+
+EXTRACT_ALL            = NO
+EXTRACT_PRIVATE        = NO
+EXTRACT_PRIV_VIRTUAL   = NO
+EXTRACT_PACKAGE        = NO
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_METHODS  = NO
+HIDE_UNDOC_MEMBERS     = NO
+HIDE_UNDOC_CLASSES     = NO
+HIDE_FRIEND_COMPOUNDS  = NO
+HIDE_IN_BODY_DOCS      = NO
+INTERNAL_DOCS          = NO
+CASE_SENSE_NAMES       = YES
+HIDE_SCOPE_NAMES       = NO
+HIDE_COMPOUND_REFERENCE= NO
+SHOW_HEADERFILE        = YES
+SHOW_INCLUDE_FILES     = YES
+SHOW_GROUPED_MEMB_INC  = NO
+FORCE_LOCAL_INCLUDES   = NO
+INLINE_INFO            = YES
+SORT_MEMBER_DOCS       = YES
+SORT_BRIEF_DOCS        = NO
+SORT_MEMBERS_CTORS_1ST = NO
+SORT_GROUP_NAMES       = NO
+SORT_BY_SCOPE_NAME     = NO
+STRICT_PROTO_MATCHING  = NO
+GENERATE_TODOLIST      = YES
+GENERATE_TESTLIST      = YES
+GENERATE_BUGLIST       = YES
+GENERATE_DEPRECATEDLIST= YES
+ENABLED_SECTIONS       =
+MAX_INITIALIZER_LINES  = 30
+SHOW_USED_FILES        = YES
+SHOW_FILES             = YES
+SHOW_NAMESPACES        = YES
+FILE_VERSION_FILTER    =
+LAYOUT_FILE            = ./style_template/layout.xml
+
+QUIET                  = NO
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = NO
+WARN_IF_UNDOC_ENUM_VAL = NO
+WARN_AS_ERROR          = NO
+WARN_FORMAT            = "$file:$line: $text"
+WARN_LOGFILE           =
+
+INPUT                  = ./src/mainpage.md \
+                         ./src/files.dox \
+                         ../../platform/cg_enums.h \
+                         ../../platform/cg_pack.hpp \
+                         ../../platform/EventDisplay.hpp \
+                         ../../platform/EventQueue.hpp \
+                         ../../platform/GenericNodes.hpp \
+                         ../../platform/StreamNode.hpp \
+                         ../../platform/cmsis_rtos_runtime
+INPUT_ENCODING         = UTF-8
+FILE_PATTERNS          = *.h \
+                         *.hpp \
+                         *.cpp \
+                         *.dox \
+                         *.md
+RECURSIVE              = YES
+EXCLUDE                =
+EXCLUDE_SYMLINKS       = YES
+EXCLUDE_PATTERNS       =
+EXCLUDE_SYMBOLS        =
+EXAMPLE_PATH           =
+EXAMPLE_PATTERNS       = *
+EXAMPLE_RECURSIVE      = NO
+IMAGE_PATH             =
+INPUT_FILTER           =
+FILTER_PATTERNS        =
+FILTER_SOURCE_FILES    = NO
+FILTER_SOURCE_PATTERNS =
+USE_MDFILE_AS_MAINPAGE = ./src/mainpage.md
+
+SOURCE_BROWSER         = NO
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = YES
+REFERENCED_BY_RELATION = NO
+REFERENCES_RELATION    = NO
+REFERENCES_LINK_SOURCE = YES
+SOURCE_TOOLTIPS        = YES
+USE_HTAGS              = NO
+VERBATIM_HEADERS       = YES
+
+CLANG_ASSISTED_PARSING = NO
+ALPHABETICAL_INDEX     = YES
+IGNORE_PREFIX          =
+
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+HTML_HEADER            = ./style_template/header.html
+HTML_FOOTER            = ./style_template/footer.html
+HTML_STYLESHEET        =
+HTML_EXTRA_STYLESHEET  = ./style_template/extra_stylesheet.css \
+                         ./style_template/extra_tabs.css \
+                         ./style_template/extra_navtree.css \
+                         ./style_template/extra_search.css \
+                         ./style_template/version.css
+HTML_EXTRA_FILES       = ./style_template/tab_b.png \
+                         ./style_template/tab_topnav.png \
+                         ./style_template/dropdown.png \
+                         ./style_template/tabs.js \
+                         ./style_template/darkmode_toggle.js
+HTML_COLORSTYLE        = AUTO_LIGHT
+HTML_TIMESTAMP         = NO
+HTML_DYNAMIC_MENUS     = NO
+HTML_DYNAMIC_SECTIONS  = NO
+HTML_INDEX_NUM_ENTRIES = 100
+GENERATE_DOCSET        = NO
+GENERATE_HTMLHELP      = NO
+GENERATE_CHI           = NO
+GENERATE_QHP           = NO
+GENERATE_ECLIPSEHELP   = NO
+DISABLE_INDEX          = YES
+GENERATE_TREEVIEW      = YES
+FULL_SIDEBAR           = NO
+ENUM_VALUES_PER_LINE   = 4
+TREEVIEW_WIDTH         = 330
+EXT_LINKS_IN_WINDOW    = NO
+OBFUSCATE_EMAILS       = YES
+HTML_FORMULA_FORMAT    = png
+FORMULA_FONTSIZE       = 10
+USE_MATHJAX            = YES
+MATHJAX_FORMAT         = HTML-CSS
+MATHJAX_RELPATH        = https://cdn.jsdelivr.net/npm/mathjax@2
+MATHJAX_EXTENSIONS     = TeX/AMSmath TeX/AMSsymbols
+SEARCHENGINE           = YES
+SERVER_BASED_SEARCH    = NO
+EXTERNAL_SEARCH        = NO
+
+GENERATE_LATEX         = NO
+GENERATE_RTF           = NO
+GENERATE_MAN           = NO
+GENERATE_XML           = NO
+GENERATE_DOCBOOK       = NO
+GENERATE_AUTOGEN_DEF   = NO
+GENERATE_PERLMOD       = NO
+
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = NO
+SEARCH_INCLUDES        = YES
+INCLUDE_PATH           = ../../platform \
+                         ../../platform/cmsis_rtos_runtime \
+                         ../../platform/cmsis_rtos_runtime/config
+INCLUDE_FILE_PATTERNS  =
+PREDEFINED             =
+EXPAND_AS_DEFINED      =
+SKIP_FUNCTION_MACROS   = YES
+
+HIDE_UNDOC_RELATIONS   = YES
+HAVE_DOT               = NO
+UML_LOOK               = NO
+TEMPLATE_RELATIONS     = NO
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+GRAPHICAL_HIERARCHY    = YES
+DIRECTORY_GRAPH        = YES
+DOT_IMAGE_FORMAT       = png
+DOT_PATH               =
+DOTFILE_DIRS           =
+MSCFILE_DIRS           =
+DIAFILE_DIRS           =
+PLANTUML_JAR_PATH      =
+PLANTUML_CFG_FILE      =
+PLANTUML_INCLUDE_PATH  =
+DOT_GRAPH_MAX_NODES    = 50
+MAX_DOT_GRAPH_DEPTH    = 0
+DOT_MULTI_TARGETS      = NO
+GENERATE_LEGEND        = YES
+DOT_CLEANUP            = YES
