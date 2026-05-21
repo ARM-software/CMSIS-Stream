@@ -66,6 +66,118 @@ using namespace arm_cmsis_stream;
 
 std::atomic<stream_execution_context_t *> current_context = nullptr;
 
+static void set_current_context(stream_execution_context_t *context)
+{
+	current_context.store(context);
+}
+
+static void cleanup_started_event_thread()
+{
+	if (tid_event != nullptr)
+	{
+		osThreadTerminate(tid_event);
+		osThreadJoin(tid_event);
+		tid_event = nullptr;
+	}
+	set_current_context(nullptr);
+}
+
+static bool is_runtime_scheduler_error(int error)
+{
+	return ((error != CG_SUCCESS) &&
+		(error != CG_STOP_SCHEDULER) &&
+		(error != CG_PAUSED_SCHEDULER));
+}
+
+static void report_runtime_error(cg_error_origin origin, cg_status status,
+				 int32_t node_id, int32_t info)
+{
+	EventQueue::callSyncHandler(CG_UNIDENTIFIED_NODE,
+				    Event(kError, kHighPriority,
+					  static_cast<int32_t>(origin),
+					  static_cast<int32_t>(status),
+					  node_id,
+					  info));
+}
+
+static void wait_stream_resume(stream_execution_context_t *context)
+{
+	while (true)
+	{
+		uint32_t res = osEventFlagsWait(cg_streamEvent, STREAM_RESUME_EVENT,
+						osFlagsWaitAny, osWaitForever);
+		if ((res & STREAM_RESUME_EVENT) == 0)
+		{
+			continue;
+		}
+
+		// The context may have changed after a resume event
+		context = current_context.load();
+		// Clear FIFOs here. In case of memory overlay between different graphs, the
+		// data in FIFOs could be corrupted when resuming another graph
+		context->reset_fifos(1);
+		if (context->resume_all_nodes)
+			context->resume_all_nodes(context);
+		osEventFlagsSet(cg_streamReplyEvent, STREAM_RESUMED_EVENT);
+
+		CMSISSTREAM_LOG_DBG("Scheduler resumed\n");
+		return;
+	}
+}
+
+static void wait_event_thread_paused()
+{
+	(void)osEventFlagsWait(cg_streamReplyEvent, EVENT_PAUSED_EVENT,
+			       osFlagsWaitAny, osWaitForever);
+}
+
+static void wait_event_resume()
+{
+	while (true)
+	{
+		uint32_t res = osEventFlagsWait(cg_streamEvent, EVENT_RESUME_EVENT,
+						osFlagsWaitAny, osWaitForever);
+		if ((res & EVENT_RESUME_EVENT) == 0)
+		{
+			continue;
+		}
+		osEventFlagsSet(cg_streamReplyEvent, EVENT_RESUMED_EVENT);
+		return;
+	}
+}
+
+static void pause_stream_thread_on_error(stream_execution_context_t *context, cg_status status)
+{
+	CMSISSTREAM_LOG_DBG("Try to pause event queue after stream error\n");
+	context->evtQueue->pause();
+
+	// The test is > 0 because when there are no dataflow nodes, the
+	// pausing is done in the event thread with a corresponding test on == 0.
+	if (context->scheduler_length > 0)
+	{
+		if (context->pause_all_nodes)
+			context->pause_all_nodes(context);
+	}
+
+	wait_event_thread_paused();
+	report_runtime_error(kStreamThread, status, CG_UNIDENTIFIED_NODE, 0);
+	osEventFlagsSet(cg_streamReplyEvent, STREAM_PAUSED_EVENT);
+	wait_stream_resume(context);
+}
+
+static void pause_peer_stream_thread(stream_execution_context_t *context)
+{
+	// The test is > 0 because when there are no dataflow nodes, the
+	// pausing is done in the event thread with a corresponding test on == 0.
+	if (context->scheduler_length > 0)
+	{
+		CMSISSTREAM_LOG_DBG("Try to pause stream scheduler after event error\n");
+		osEventFlagsSet(cg_streamEvent, STREAM_PAUSE_EVENT);
+		(void)osEventFlagsWait(cg_streamReplyEvent, STREAM_PAUSED_EVENT,
+				       osFlagsWaitAny, osWaitForever);
+	}
+}
+
 static void event_thread_function(void *arg)
 {
 
@@ -76,11 +188,6 @@ static void event_thread_function(void *arg)
 	{
 		// Process current queue
 		stream_execution_context_t *context = current_context.load();
-		if (context == nullptr)
-		{
-			CMSISSTREAM_LOG_ERR("No stream execution context defined\n");
-			return;
-		}
 		EventQueue *queue = context->evtQueue;
 		queue->execute();
 		if (queue->mustEnd())
@@ -89,15 +196,30 @@ static void event_thread_function(void *arg)
 		}
 		else // Paused queue
 		{
-			// If no dataflow nodes, the nodes are paused here when the event thread is pausing
+			cg_status event_error;
+			int32_t event_error_node;
+			int32_t event_error_info;
+			bool has_error = queue->consumeError(event_error, event_error_node,
+							     event_error_info);
+			if (has_error)
+			{
+				pause_peer_stream_thread(context);
+			}
+
+			// If no dataflow nodes, the nodes are paused here when the event thread is pausing,
+			// otherwise they are paused in stream thread.
 			if (context->scheduler_length == 0)
 			{
 				if (context->pause_all_nodes)
 					context->pause_all_nodes(context);
 			}
+			if (has_error)
+			{
+				report_runtime_error(kEventThread, event_error,
+						     event_error_node, event_error_info);
+			}
 			osEventFlagsSet(cg_streamReplyEvent, EVENT_PAUSED_EVENT);
-			uint32_t res = osEventFlagsWait(cg_streamEvent, EVENT_RESUME_EVENT, osFlagsWaitAny, osWaitForever );
-			osEventFlagsSet(cg_streamReplyEvent, EVENT_RESUMED_EVENT);
+			wait_event_resume();
 		}
 	}
 }
@@ -113,17 +235,12 @@ static void stream_thread_function(void *)
 	while (!done)
 	{
 		stream_execution_context_t *context = current_context.load();
-		if (context == nullptr)
-		{
-			LOG_ERR("No stream execution context defined\n");
-			return;
-		}
 		nb_iter = context->dataflow_scheduler(&error);
-		if ((error != CG_SUCCESS) &&
-			(error != CG_STOP_SCHEDULER) &&
-			(error != CG_PAUSED_SCHEDULER))
+		if (is_runtime_scheduler_error(error))
 		{
 			CMSISSTREAM_LOG_ERR("Scheduler error %d\n", error);
+			pause_stream_thread_on_error(context, static_cast<cg_status>(error));
+			continue;
 		}
 		// When there is no dataflow node, the data flow graph
 		// is returning immediately with 0 iteration
@@ -146,20 +263,7 @@ static void stream_thread_function(void *)
 			}
 
 			
-			uint32_t res = osEventFlagsWait(cg_streamEvent, STREAM_RESUME_EVENT, osFlagsWaitAny, osWaitForever);
-			if ((res & STREAM_RESUME_EVENT) != 0)
-			{
-				// The context may have changed after a resume event
-				context = current_context.load();
-				// Clear FIFOs here. In case of memory overlay between different graphs, the
-				// data in FIFOs could be corrupted when resuming another graph
-				context->reset_fifos(1);
-				if (context->resume_all_nodes)
-					context->resume_all_nodes(context);
-				osEventFlagsSet(cg_streamReplyEvent, STREAM_RESUMED_EVENT);
-
-				CMSISSTREAM_LOG_DBG("Scheduler resumed\n");
-			}
+			wait_stream_resume(context);
 		}
 		else
 		{
@@ -189,25 +293,50 @@ void stream_pause_current_scheduler()
 	CMSISSTREAM_LOG_DBG("Stream scheduler and event queue paused\n");
 }
 
-void stream_resume_scheduler(stream_execution_context_t *context)
+bool stream_resume_scheduler(stream_execution_context_t *context)
 {
 	CMSISSTREAM_LOG_DBG("Resuming stream scheduler and event queue\n");
-	current_context.store(context);
-	current_context.load()->evtQueue->resume();
-	osEventFlagsSet(cg_streamEvent, STREAM_RESUME_EVENT);
-	uint32_t res = osEventFlagsWait(cg_streamReplyEvent, STREAM_RESUMED_EVENT, osFlagsWaitAny, osWaitForever);
-	if ((res & STREAM_RESUMED_EVENT) != 0)
+	if ((context == nullptr) || (context->evtQueue == nullptr))
 	{
-		// No need to clear the event flag in CMSIS-RTOS2
+		CMSISSTREAM_LOG_ERR("Can't resume stream scheduler with invalid context\n");
+		return false;
+	}
+	set_current_context(context);
+	context->evtQueue->resume();
+	osEventFlagsSet(cg_streamEvent, STREAM_RESUME_EVENT);
+	uint32_t res = osEventFlagsWait(cg_streamReplyEvent,
+					STREAM_RESUMED_EVENT | STREAM_PAUSED_EVENT,
+					osFlagsWaitAny, osWaitForever);
+	if ((res & STREAM_PAUSED_EVENT) != 0)
+	{
+		CMSISSTREAM_LOG_ERR("Stream thread failed to resume\n");
+		context->evtQueue->pause();
+		report_runtime_error(kStreamThread, CG_RESUME_FAILURE,
+				     CG_UNIDENTIFIED_NODE, 0);
+		return false;
 	}
 	CMSISSTREAM_LOG_DBG("Stream thread resumed\n");
 	osEventFlagsSet(cg_streamEvent, EVENT_RESUME_EVENT);
-	res = osEventFlagsWait(cg_streamReplyEvent, EVENT_RESUMED_EVENT, osFlagsWaitAny, osWaitForever);
-	if ((res & EVENT_RESUMED_EVENT) != 0)
+	res = osEventFlagsWait(cg_streamReplyEvent,
+			       EVENT_RESUMED_EVENT | EVENT_PAUSED_EVENT,
+			       osFlagsWaitAny, osWaitForever);
+	if ((res & EVENT_PAUSED_EVENT) != 0)
 	{
-		// No need to clear the event flag in CMSIS-RTOS2
+		CMSISSTREAM_LOG_ERR("Event thread failed to resume\n");
+		context->evtQueue->pause();
+		report_runtime_error(kEventThread, CG_RESUME_FAILURE,
+				     CG_UNIDENTIFIED_NODE, 0);
+		if (context->scheduler_length > 0)
+		{
+			osEventFlagsSet(cg_streamEvent, STREAM_PAUSE_EVENT);
+			(void)osEventFlagsWait(cg_streamReplyEvent, STREAM_PAUSED_EVENT,
+					       osFlagsWaitAny, osWaitForever);
+		}
+		return false;
 	}
+	osEventFlagsClear(cg_streamReplyEvent, STREAM_PAUSED_EVENT | EVENT_PAUSED_EVENT);
 	CMSISSTREAM_LOG_DBG("Stream scheduler and event queue resumed\n");
+	return true;
 }
 
 int stream_init_memory()
@@ -246,31 +375,47 @@ int stream_init_memory()
 	return (0);
 }
 
-void stream_start_threads(stream_execution_context_t *context)
+bool stream_start_threads(stream_execution_context_t *context)
 {
+	if ((context == nullptr) || (context->evtQueue == nullptr))
+	{
+		CMSISSTREAM_LOG_ERR("Can't start stream threads with invalid context\n");
+		return false;
+	}
 
-	current_context.store(context);
+	set_current_context(context);
 
     tid_event = osThreadNew(event_thread_function, NULL, &event_thread_attr);
 	if (tid_event == nullptr)
 	{
 		CMSISSTREAM_LOG_ERR("Failed to start event thread\n");
-		return;
+		set_current_context(nullptr);
+		return false;
 	}
 
 	tid_stream = osThreadNew(stream_thread_function, NULL, &stream_thread_attr);
 	if (tid_stream == nullptr)
 	{
 		CMSISSTREAM_LOG_ERR("Failed to start stream thread\n");
-		return;
+		cleanup_started_event_thread();
+		return false;
 	}
 	CMSISSTREAM_LOG_DBG("Stream runtime threads started\n");
+	return true;
 }
 
 void stream_wait_for_threads_end()
 {
-	osThreadJoin(tid_stream);
-	osThreadJoin(tid_event);
+	if (tid_stream != nullptr)
+	{
+		osThreadJoin(tid_stream);
+		tid_stream = nullptr;
+	}
+	if (tid_event != nullptr)
+	{
+		osThreadJoin(tid_event);
+		tid_event = nullptr;
+	}
 }
 
 void stream_free_memory()

@@ -51,10 +51,17 @@ extern "C"
         CG_BUFFER_ERROR = -6,              /**< Stop execution due to FIFO overflow or underflow (asynchronous mode for pure function) */
         CG_OS_ERROR = -7,                  /**< RTOS API error */
         CG_STOP_SCHEDULER = -8,            /**< Stop scheduling */
-        CG_PAUSED_SCHEDULER = -9           /**< Pause scheduler in callback mode */
+        CG_PAUSED_SCHEDULER = -9,           /**< Pause scheduler in callback mode */
+        CG_EVENT_QUEUE_FULL = -10,          /**< Event queue is full, event can't be pushed */
+        CG_RESUME_FAILURE = -11             /**< Runtime thread could not resume */
     } cg_status;
 
     // genJsonSelectors must be updated in description.py for any new default selector
+    // kError should have following arguments:
+    // 1. Error origin (cg_error_origin)
+    // 2. cg_status
+    // 3. Node ID (negative if information not available)
+    // 4. Additional error specific information (raw buffer to a structure or an int)
     enum cg_standard_event
     {
         kNoEvent = 0,
@@ -82,6 +89,12 @@ extern "C"
         kLowPriority = 0,
         kNormalPriority = 1,
         kHighPriority = 2
+    };
+
+    enum cg_error_origin
+    {
+        kStreamThread = 0,
+        kEventThread = 1,
     };
 
 #ifdef __cplusplus

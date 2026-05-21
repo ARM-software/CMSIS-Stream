@@ -54,8 +54,9 @@ extern void stream_pause_current_scheduler();
  * If the context parameter is different from the current context,
  * it updates the current context before resuming.
  * As consequence it can be used to context switch between different graphs.
+ * @return true when both runtime threads resumed, false otherwise
  */
-extern void stream_resume_scheduler(stream_execution_context_t *context);
+extern bool stream_resume_scheduler(stream_execution_context_t *context);
 
 /**
  * @brief Initialize the CMSIS Stream runtime memory and structures
@@ -70,8 +71,9 @@ extern int stream_init_memory();
  * @brief Start the CMSIS Stream runtime threads
  * This function creates and starts the necessary threads for
  * handling CMSIS Stream events and processing.
+ * @return true when both runtime threads started, false otherwise
  */
-extern void stream_start_threads(stream_execution_context_t *context);
+extern bool stream_start_threads(stream_execution_context_t *context);
 
 /**
  * @brief Wait for the CMSIS Stream threads to finish

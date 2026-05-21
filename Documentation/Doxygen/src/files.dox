@@ -52,9 +52,10 @@
  */
 
 /**
- * @fn void stream_resume_scheduler(stream_execution_context_t *context)
+ * @fn bool stream_resume_scheduler(stream_execution_context_t *context)
  * @brief Resume the CMSIS stream graph.
  * @param context Pointer to the stream execution context to resume.
+ * @return true when both runtime threads resumed, false otherwise.
  */
 
 /**
@@ -64,9 +65,10 @@
  */
 
 /**
- * @fn void stream_start_threads(stream_execution_context_t *context)
+ * @fn bool stream_start_threads(stream_execution_context_t *context)
  * @brief Start the CMSIS-Stream runtime threads.
  * @param context Pointer to the stream execution context to run.
+ * @return true when both runtime threads started, false otherwise.
  */
 
 /**

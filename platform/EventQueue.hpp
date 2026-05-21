@@ -133,6 +133,28 @@ class EventQueue
 	void resume() noexcept
 	{
 		mustPause_.store(false);
+		clearError();
+	};
+
+	void setError(cg_status status, int32_t node_id = CG_UNIDENTIFIED_NODE,
+		      int32_t info = 0) noexcept
+	{
+		errorStatus_.store(static_cast<int32_t>(status));
+		errorNodeId_.store(node_id);
+		errorInfo_.store(info);
+		errorPending_.store(true);
+		pause();
+	};
+
+	bool consumeError(cg_status &status, int32_t &node_id, int32_t &info) noexcept
+	{
+		if (!errorPending_.exchange(false)) {
+			return false;
+		}
+		status = static_cast<cg_status>(errorStatus_.load());
+		node_id = errorNodeId_.load();
+		info = errorInfo_.load();
+		return true;
 	};
 
 	
@@ -186,6 +208,20 @@ class EventQueue
 	std::atomic<bool> mustEnd_ = false;
 	std::atomic<bool> mustPause_ = false;
 	static std::atomic<bool> handlerReady_;
+
+      private:
+	void clearError() noexcept
+	{
+		errorPending_.store(false);
+		errorStatus_.store(static_cast<int32_t>(CG_SUCCESS));
+		errorNodeId_.store(CG_UNIDENTIFIED_NODE);
+		errorInfo_.store(0);
+	}
+
+	std::atomic<bool> errorPending_ = false;
+	std::atomic<int32_t> errorStatus_ = static_cast<int32_t>(CG_SUCCESS);
+	std::atomic<int32_t> errorNodeId_ = CG_UNIDENTIFIED_NODE;
+	std::atomic<int32_t> errorInfo_ = 0;
 };
 
 class EventOutput

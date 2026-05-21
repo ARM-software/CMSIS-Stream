@@ -199,6 +199,11 @@ void CMSISEventQueue::execute()
                     }
                 }
             }
+            else
+            {
+                this->setError(CG_OS_ERROR, CG_UNIDENTIFIED_NODE,
+                               static_cast<int32_t>(error));
+            }
             CG_EXIT_CRITICAL_SECTION(queue_mutex, error);
 
             // Process event with no lock held
@@ -235,7 +240,10 @@ void CMSISEventQueue::execute()
                     else if (std::holds_alternative<DistantDestination>(msg.destination))
                     {
                         DistantDestination &dist = std::get<DistantDestination>(msg.destination);
-                        this->callAsyncHandler(dist.src_node_id, std::move(msg.event));
+                        if (!this->callAsyncHandler(dist.src_node_id, std::move(msg.event)))
+                        {
+                            this->setError(CG_EVENT_QUEUE_FULL, dist.src_node_id);
+                        }
                     }
                     osThreadSetPriority(tid, priorities[nb_priorities - 1]); // Back to highest priority
                 }
