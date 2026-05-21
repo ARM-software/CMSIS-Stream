@@ -22,7 +22,7 @@ public:
         eventCount++;
     }
 
-    void processEvent(int dstPort,Event &&evt) final
+    cg_status processEvent(int dstPort,Event &&evt) final
     {
         if (evt.event_id == selectors[selMessage])
         {
@@ -32,7 +32,7 @@ public:
             }
             
         }
-        
+        return CG_SUCCESS;
         
         
     }

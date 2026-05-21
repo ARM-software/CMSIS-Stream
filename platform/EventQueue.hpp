@@ -259,7 +259,9 @@ class EventOutput
 				}
 			} else {
 				// If not async, we call the processEvent directly
-				destination.dst->processEvent(destination.dstPort, std::move(evt));
+				if (destination.dst->processEvent(destination.dstPort, std::move(evt)) != CG_SUCCESS) {
+					return false;
+				}
 			}
 		} else {
 
@@ -272,7 +274,9 @@ class EventOutput
 					}
 				} else {
 					// If not async, we call the processEvent directly
-					destination.dst->processEvent(destination.dstPort,evt.clone());
+					if (destination.dst->processEvent(destination.dstPort,evt.clone()) != CG_SUCCESS) {
+						return false;
+					}
 				}
 			}
 		}

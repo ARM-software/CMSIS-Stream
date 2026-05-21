@@ -30,6 +30,7 @@
 
 #include <memory>
 #include <cstdint>
+#include "cg_enums.h"
 /* Node ID is -1 when nodes are not identified for the external
 world */
 #define CG_UNIDENTIFIED_NODE (-1)
@@ -373,8 +374,8 @@ public:
 
     StreamNode(){};
 
-    virtual void processEvent(int dstPort, const Event &evt) {};
-    virtual void processEvent(int dstPort, Event &&evt) {};
+    virtual cg_status processEvent(int dstPort, const Event &evt) { return CG_SUCCESS; };
+    virtual cg_status processEvent(int dstPort, Event &&evt) { return CG_SUCCESS; };
 
     /* 
     Nodes are fixed and not made to be copied or moved.

@@ -145,8 +145,8 @@ public:
 
     StreamNode(){};
 
-    virtual void processEvent(int dstPort, const Event &evt) {};
-    virtual void processEvent(int dstPort, Event &&evt) {};
+    virtual cg_status processEvent(int dstPort, const Event &evt) { return CG_SUCCESS; };
+    virtual cg_status processEvent(int dstPort, Event &&evt) { return CG_SUCCESS; };
 
     /* 
     Nodes are fixed and not made to be copied or moved.

@@ -101,13 +101,13 @@ This argument must be used to instantiate the `EventOutput` member variable.
 When an event is received, the function `processEvent` is used. It is defined in the CMSIS-Stream root class `StreamNode` and it must be overriden in your implementation.
 
 ```C++
- void processEvent(int dstPort,const Event &evt) final
+ cg_status processEvent(int dstPort,Event &&evt) final
 ```
 
 Assume you want have an handler in your class:
 
 ```C++
-void myHandler(float a,int32_t b);
+cg_status myHandler(float a,int32_t b);
 ```
 
 You want to use it to process an event.
@@ -117,8 +117,9 @@ The simplest way is to rely on the template functions provided by the `StreamNod
 ```C++
 if (evt.wellFormed<float,int32_t>())
 {
-    evt.apply<float,int32_t>(&MyClass::myHandler, *this);
+    return evt.apply<float,int32_t>(&MyClass::myHandler, *this);
 }
+return CG_SUCCESS;
 ```
 
 Note that an `int32_t` argument in those functions will also take into account `int16_t` and `int8_t` and introduce casts to `int32_t`.

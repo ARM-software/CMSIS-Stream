@@ -102,17 +102,17 @@ public:
         value = v;
     }
 
-    void processEvent(int dstPort,Event &&evt) final
+    cg_status processEvent(int dstPort,Event &&evt) final
     {
         std::cout << evt.event_id << std::endl;
         if (evt.event_id == kStopGraph)
         {
             mustStop = true; // Stop the graph
-            return;
+            return CG_SUCCESS;
         }
         if ((evt.event_id != kValue) && (evt.event_id != kDo))
         {
-            return;
+            return CG_SUCCESS;
         }
         eventCount++;
 
@@ -135,6 +135,7 @@ public:
 
         std::cout << "Sink received direct event on port " << dstPort << ": evt id " 
                << evt.event_id << " val = " << eventCount << "  " << std::endl;
+        return CG_SUCCESS;
  
     }
 
@@ -333,7 +334,7 @@ public:
     // Implementation of this Sink constructor is doing nothing
     EvtSink(EventQueue *queue):StreamNode(),eventCount(0),queue_(queue){};
 
-    void processEvent(int dstPort,Event &&evt) final
+    cg_status processEvent(int dstPort,Event &&evt) final
     {
         eventCount++;
         
@@ -343,6 +344,7 @@ public:
         // Display the event received from another node
         std::cout << "Sink received event on port " << dstPort << ": evt id " 
                   << evt.event_id << " val = " << eventCount << "  " << std::endl;
+        return CG_SUCCESS;
     }
 
 protected:

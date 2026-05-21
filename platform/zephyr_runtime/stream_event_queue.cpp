@@ -235,7 +235,11 @@ void MyQueue::execute()
                     if (std::holds_alternative<LocalDestination>(msg.destination))
                     {
                         LocalDestination &local = std::get<LocalDestination>(msg.destination);
-                        local.dst->processEvent(local.dstPort, std::move(msg.event));
+                        cg_status status = local.dst->processEvent(local.dstPort, std::move(msg.event));
+                        if (status != CG_SUCCESS)
+                        {
+                            this->setError(status, local.dst->nodeID());
+                        }
                     }
                     else if (std::holds_alternative<DistantDestination>(msg.destination))
                     {
