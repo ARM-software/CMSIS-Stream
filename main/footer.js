@@ -1,7 +1,7 @@
 function writeHeader() {
-    document.write('Version v3.2.0-22-g268dd82');
+    document.write('Version v3.2.0-27-g08b5a63');
 };
 
 function writeFooter()  {
-    document.write('Generated on Tue May 19 2026 08:29:39 for CMSIS-Stream v3.2.0-22-g268dd82. Copyright &copy; 2026 Arm Limited (or its affiliates). All rights reserved.');
+    document.write('Generated on Thu May 21 2026 11:33:00 for CMSIS-Stream v3.2.0-27-g08b5a63. Copyright &copy; 2026 Arm Limited (or its affiliates). All rights reserved.');
 };

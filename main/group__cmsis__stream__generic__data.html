@@ -871,10 +871,14 @@ template&lt;typename T &gt; </td></tr>
 template&lt;typename... Args&gt; </td></tr>
 <tr class="memitem:a86d839fb721bc60b68be9d45b0f6f37c"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>wellFormed</b> () const noexcept</td></tr>
 <tr class="separator:a86d839fb721bc60b68be9d45b0f6f37c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81c98475c402daba4f4c935079786861"><td class="memTemplParams" colspan="2"><a id="a81c98475c402daba4f4c935079786861" name="a81c98475c402daba4f4c935079786861"></a>
+<tr class="memitem:a83d72ade93228a2ea5e80cc3d272ebe7"><td class="memTemplParams" colspan="2"><a id="a83d72ade93228a2ea5e80cc3d272ebe7" name="a83d72ade93228a2ea5e80cc3d272ebe7"></a>
 template&lt;typename... Args, typename F , typename O &gt; </td></tr>
-<tr class="memitem:a81c98475c402daba4f4c935079786861"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>apply</b> (F &amp;&amp;f, O &amp;&amp;o)</td></tr>
-<tr class="separator:a81c98475c402daba4f4c935079786861"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83d72ade93228a2ea5e80cc3d272ebe7"><td class="memTemplItemLeft" align="right" valign="top">cg_status&#160;</td><td class="memTemplItemRight" valign="bottom"><b>apply</b> (F &amp;&amp;f, O &amp;&amp;o)</td></tr>
+<tr class="separator:a83d72ade93228a2ea5e80cc3d272ebe7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a342bf84777583d1e8871e7ff87d23fa6"><td class="memTemplParams" colspan="2"><a id="a342bf84777583d1e8871e7ff87d23fa6" name="a342bf84777583d1e8871e7ff87d23fa6"></a>
+template&lt;typename... Args, typename F &gt; </td></tr>
+<tr class="memitem:a342bf84777583d1e8871e7ff87d23fa6"><td class="memTemplItemLeft" align="right" valign="top">cg_status&#160;</td><td class="memTemplItemRight" valign="bottom"><b>apply</b> (F &amp;&amp;f)</td></tr>
+<tr class="separator:a342bf84777583d1e8871e7ff87d23fa6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><h3>Static Public Member Functions</h3></td></tr>
 <tr class="memitem:acf597ded0f59130082ccd21c45db0b8d"><td class="memItemLeft" align="right" valign="top"><a id="acf597ded0f59130082ccd21c45db0b8d" name="acf597ded0f59130082ccd21c45db0b8d"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>list_value_deleter</b> (void *p) noexcept</td></tr>
@@ -909,10 +913,19 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>copyFrom</b> (const <
 template&lt;typename... Args, std::size_t... Is&gt; </td></tr>
 <tr class="memitem:a9b95e0c9a23bfe6cb0fc81c0772bdba6"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>check_array_types</b> (const std::array&lt; <a class="el" href="group__cmsis__stream__generic__data.html#structarm__cmsis__stream_1_1cg__value">cg_value</a>, 8 &gt; &amp;values, std::index_sequence&lt; Is... &gt;) const noexcept</td></tr>
 <tr class="separator:a9b95e0c9a23bfe6cb0fc81c0772bdba6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2190e5cd50929c72e900a3b856711667"><td class="memTemplParams" colspan="2"><a id="a2190e5cd50929c72e900a3b856711667" name="a2190e5cd50929c72e900a3b856711667"></a>
+<tr class="memitem:ac0d9d5654d214e485fa08f1775fe7c3a"><td class="memTemplParams" colspan="2"><a id="ac0d9d5654d214e485fa08f1775fe7c3a" name="ac0d9d5654d214e485fa08f1775fe7c3a"></a>
 template&lt;typename F , typename O , typename... Args, std::size_t... Is&gt; </td></tr>
-<tr class="memitem:a2190e5cd50929c72e900a3b856711667"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>apply_array_types</b> (F &amp;&amp;f, O &amp;&amp;o, std::array&lt; <a class="el" href="group__cmsis__stream__generic__data.html#structarm__cmsis__stream_1_1cg__value">cg_value</a>, 8 &gt; &amp;&amp;values, std::index_sequence&lt; Is... &gt;) const</td></tr>
-<tr class="separator:a2190e5cd50929c72e900a3b856711667"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0d9d5654d214e485fa08f1775fe7c3a"><td class="memTemplItemLeft" align="right" valign="top">cg_status&#160;</td><td class="memTemplItemRight" valign="bottom"><b>apply_array_types</b> (F &amp;&amp;f, O &amp;&amp;o, std::array&lt; <a class="el" href="group__cmsis__stream__generic__data.html#structarm__cmsis__stream_1_1cg__value">cg_value</a>, 8 &gt; &amp;&amp;values, std::index_sequence&lt; Is... &gt;) const</td></tr>
+<tr class="separator:ac0d9d5654d214e485fa08f1775fe7c3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff09d2dbd2c60964615ca6f5d7526926"><td class="memTemplParams" colspan="2"><a id="aff09d2dbd2c60964615ca6f5d7526926" name="aff09d2dbd2c60964615ca6f5d7526926"></a>
+template&lt;typename F , typename... Args, std::size_t... Is&gt; </td></tr>
+<tr class="memitem:aff09d2dbd2c60964615ca6f5d7526926"><td class="memTemplItemLeft" align="right" valign="top">cg_status&#160;</td><td class="memTemplItemRight" valign="bottom"><b>apply_noobj_array_types</b> (F &amp;&amp;f, std::array&lt; <a class="el" href="group__cmsis__stream__generic__data.html#structarm__cmsis__stream_1_1cg__value">cg_value</a>, 8 &gt; &amp;&amp;values, std::index_sequence&lt; Is... &gt;) const</td></tr>
+<tr class="separator:aff09d2dbd2c60964615ca6f5d7526926"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><h3>Static Protected Member Functions</h3></td></tr>
+<tr class="memitem:aa97df6a63ca7647047ff29745318c522"><td class="memTemplParams" colspan="2"><a id="aa97df6a63ca7647047ff29745318c522" name="aa97df6a63ca7647047ff29745318c522"></a>
+template&lt;typename F , typename... Args&gt; </td></tr>
+<tr class="memitem:aa97df6a63ca7647047ff29745318c522"><td class="memTemplItemLeft" align="right" valign="top">static cg_status&#160;</td><td class="memTemplItemRight" valign="bottom"><b>apply_status</b> (F &amp;&amp;f, Args &amp;&amp;...args)</td></tr>
+<tr class="separator:aa97df6a63ca7647047ff29745318c522"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 
 </div>
@@ -978,9 +991,9 @@ Inheritance diagram for arm_cmsis_stream::StreamNode:</div>
 </div></div>
 <table class="memberdecls">
 <tr><td colspan="2"><h3>Public Member Functions</h3></td></tr>
-<tr class="memitem:ac6f6f77332bba83fee0411ee7ba0305c"><td class="memItemLeft" align="right" valign="top"><a id="ac6f6f77332bba83fee0411ee7ba0305c" name="ac6f6f77332bba83fee0411ee7ba0305c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
-<tr class="separator:ac6f6f77332bba83fee0411ee7ba0305c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff6f9135a670602fc7972d108c320c54"><td class="memItemLeft" align="right" valign="top"><a id="aff6f9135a670602fc7972d108c320c54" name="aff6f9135a670602fc7972d108c320c54"></a>
+virtual cg_status&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
+<tr class="separator:aff6f9135a670602fc7972d108c320c54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ead2a2db81915a1131c3532367ee64"><td class="memItemLeft" align="right" valign="top"><a id="ad5ead2a2db81915a1131c3532367ee64" name="ad5ead2a2db81915a1131c3532367ee64"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>needsAsynchronousInit</b> () const</td></tr>
 <tr class="separator:ad5ead2a2db81915a1131c3532367ee64"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1142,9 +1155,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setExecutionStatus</b
 kCBStatus&#160;</td><td class="memItemRight" valign="bottom"><b>executionStatus</b> () const noexcept</td></tr>
 <tr class="separator:ac0b365ded3f570df6098b022fc3700dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_group__cmsis__stream__generic__data"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_group__cmsis__stream__generic__data')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1StreamNode">arm_cmsis_stream::StreamNode</a></td></tr>
-<tr class="memitem:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ac6f6f77332bba83fee0411ee7ba0305c" name="ac6f6f77332bba83fee0411ee7ba0305c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
-<tr class="separator:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="aff6f9135a670602fc7972d108c320c54" name="aff6f9135a670602fc7972d108c320c54"></a>
+virtual cg_status&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
+<tr class="separator:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ad5ead2a2db81915a1131c3532367ee64" name="ad5ead2a2db81915a1131c3532367ee64"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>needsAsynchronousInit</b> () const</td></tr>
 <tr class="separator:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1229,9 +1242,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setExecutionStatus</b
 kCBStatus&#160;</td><td class="memItemRight" valign="bottom"><b>executionStatus</b> () const noexcept</td></tr>
 <tr class="separator:ac0b365ded3f570df6098b022fc3700dc inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_group__cmsis__stream__generic__data"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_group__cmsis__stream__generic__data')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1StreamNode">arm_cmsis_stream::StreamNode</a></td></tr>
-<tr class="memitem:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ac6f6f77332bba83fee0411ee7ba0305c" name="ac6f6f77332bba83fee0411ee7ba0305c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
-<tr class="separator:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="aff6f9135a670602fc7972d108c320c54" name="aff6f9135a670602fc7972d108c320c54"></a>
+virtual cg_status&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
+<tr class="separator:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ad5ead2a2db81915a1131c3532367ee64" name="ad5ead2a2db81915a1131c3532367ee64"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>needsAsynchronousInit</b> () const</td></tr>
 <tr class="separator:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1335,9 +1348,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setExecutionStatus</b
 kCBStatus&#160;</td><td class="memItemRight" valign="bottom"><b>executionStatus</b> () const noexcept</td></tr>
 <tr class="separator:ac0b365ded3f570df6098b022fc3700dc inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_group__cmsis__stream__generic__data"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_group__cmsis__stream__generic__data')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1StreamNode">arm_cmsis_stream::StreamNode</a></td></tr>
-<tr class="memitem:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ac6f6f77332bba83fee0411ee7ba0305c" name="ac6f6f77332bba83fee0411ee7ba0305c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
-<tr class="separator:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="aff6f9135a670602fc7972d108c320c54" name="aff6f9135a670602fc7972d108c320c54"></a>
+virtual cg_status&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
+<tr class="separator:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ad5ead2a2db81915a1131c3532367ee64" name="ad5ead2a2db81915a1131c3532367ee64"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>needsAsynchronousInit</b> () const</td></tr>
 <tr class="separator:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1444,9 +1457,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setExecutionStatus</b
 kCBStatus&#160;</td><td class="memItemRight" valign="bottom"><b>executionStatus</b> () const noexcept</td></tr>
 <tr class="separator:ac0b365ded3f570df6098b022fc3700dc inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_group__cmsis__stream__generic__data"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_group__cmsis__stream__generic__data')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1StreamNode">arm_cmsis_stream::StreamNode</a></td></tr>
-<tr class="memitem:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ac6f6f77332bba83fee0411ee7ba0305c" name="ac6f6f77332bba83fee0411ee7ba0305c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
-<tr class="separator:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="aff6f9135a670602fc7972d108c320c54" name="aff6f9135a670602fc7972d108c320c54"></a>
+virtual cg_status&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
+<tr class="separator:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ad5ead2a2db81915a1131c3532367ee64" name="ad5ead2a2db81915a1131c3532367ee64"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>needsAsynchronousInit</b> () const</td></tr>
 <tr class="separator:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1553,9 +1566,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setExecutionStatus</b
 kCBStatus&#160;</td><td class="memItemRight" valign="bottom"><b>executionStatus</b> () const noexcept</td></tr>
 <tr class="separator:ac0b365ded3f570df6098b022fc3700dc inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_group__cmsis__stream__generic__data"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_group__cmsis__stream__generic__data')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1StreamNode">arm_cmsis_stream::StreamNode</a></td></tr>
-<tr class="memitem:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ac6f6f77332bba83fee0411ee7ba0305c" name="ac6f6f77332bba83fee0411ee7ba0305c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
-<tr class="separator:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="aff6f9135a670602fc7972d108c320c54" name="aff6f9135a670602fc7972d108c320c54"></a>
+virtual cg_status&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
+<tr class="separator:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ad5ead2a2db81915a1131c3532367ee64" name="ad5ead2a2db81915a1131c3532367ee64"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>needsAsynchronousInit</b> () const</td></tr>
 <tr class="separator:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1665,9 +1678,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setExecutionStatus</b
 kCBStatus&#160;</td><td class="memItemRight" valign="bottom"><b>executionStatus</b> () const noexcept</td></tr>
 <tr class="separator:ac0b365ded3f570df6098b022fc3700dc inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_group__cmsis__stream__generic__data"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_group__cmsis__stream__generic__data')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1StreamNode">arm_cmsis_stream::StreamNode</a></td></tr>
-<tr class="memitem:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ac6f6f77332bba83fee0411ee7ba0305c" name="ac6f6f77332bba83fee0411ee7ba0305c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
-<tr class="separator:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="aff6f9135a670602fc7972d108c320c54" name="aff6f9135a670602fc7972d108c320c54"></a>
+virtual cg_status&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
+<tr class="separator:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ad5ead2a2db81915a1131c3532367ee64" name="ad5ead2a2db81915a1131c3532367ee64"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>needsAsynchronousInit</b> () const</td></tr>
 <tr class="separator:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1780,9 +1793,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setExecutionStatus</b
 kCBStatus&#160;</td><td class="memItemRight" valign="bottom"><b>executionStatus</b> () const noexcept</td></tr>
 <tr class="separator:ac0b365ded3f570df6098b022fc3700dc inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_group__cmsis__stream__generic__data"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_group__cmsis__stream__generic__data')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1StreamNode">arm_cmsis_stream::StreamNode</a></td></tr>
-<tr class="memitem:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ac6f6f77332bba83fee0411ee7ba0305c" name="ac6f6f77332bba83fee0411ee7ba0305c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
-<tr class="separator:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="aff6f9135a670602fc7972d108c320c54" name="aff6f9135a670602fc7972d108c320c54"></a>
+virtual cg_status&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
+<tr class="separator:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ad5ead2a2db81915a1131c3532367ee64" name="ad5ead2a2db81915a1131c3532367ee64"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>needsAsynchronousInit</b> () const</td></tr>
 <tr class="separator:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1904,9 +1917,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setExecutionStatus</b
 kCBStatus&#160;</td><td class="memItemRight" valign="bottom"><b>executionStatus</b> () const noexcept</td></tr>
 <tr class="separator:ac0b365ded3f570df6098b022fc3700dc inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_group__cmsis__stream__generic__data"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_group__cmsis__stream__generic__data')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1StreamNode">arm_cmsis_stream::StreamNode</a></td></tr>
-<tr class="memitem:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ac6f6f77332bba83fee0411ee7ba0305c" name="ac6f6f77332bba83fee0411ee7ba0305c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
-<tr class="separator:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="aff6f9135a670602fc7972d108c320c54" name="aff6f9135a670602fc7972d108c320c54"></a>
+virtual cg_status&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
+<tr class="separator:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ad5ead2a2db81915a1131c3532367ee64" name="ad5ead2a2db81915a1131c3532367ee64"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>needsAsynchronousInit</b> () const</td></tr>
 <tr class="separator:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2019,9 +2032,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setExecutionStatus</b
 kCBStatus&#160;</td><td class="memItemRight" valign="bottom"><b>executionStatus</b> () const noexcept</td></tr>
 <tr class="separator:ac0b365ded3f570df6098b022fc3700dc inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_group__cmsis__stream__generic__data"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_group__cmsis__stream__generic__data')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1StreamNode">arm_cmsis_stream::StreamNode</a></td></tr>
-<tr class="memitem:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ac6f6f77332bba83fee0411ee7ba0305c" name="ac6f6f77332bba83fee0411ee7ba0305c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
-<tr class="separator:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="aff6f9135a670602fc7972d108c320c54" name="aff6f9135a670602fc7972d108c320c54"></a>
+virtual cg_status&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
+<tr class="separator:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ad5ead2a2db81915a1131c3532367ee64" name="ad5ead2a2db81915a1131c3532367ee64"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>needsAsynchronousInit</b> () const</td></tr>
 <tr class="separator:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2143,9 +2156,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setExecutionStatus</b
 kCBStatus&#160;</td><td class="memItemRight" valign="bottom"><b>executionStatus</b> () const noexcept</td></tr>
 <tr class="separator:ac0b365ded3f570df6098b022fc3700dc inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_group__cmsis__stream__generic__data"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_group__cmsis__stream__generic__data')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1StreamNode">arm_cmsis_stream::StreamNode</a></td></tr>
-<tr class="memitem:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ac6f6f77332bba83fee0411ee7ba0305c" name="ac6f6f77332bba83fee0411ee7ba0305c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
-<tr class="separator:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="aff6f9135a670602fc7972d108c320c54" name="aff6f9135a670602fc7972d108c320c54"></a>
+virtual cg_status&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
+<tr class="separator:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ad5ead2a2db81915a1131c3532367ee64" name="ad5ead2a2db81915a1131c3532367ee64"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>needsAsynchronousInit</b> () const</td></tr>
 <tr class="separator:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2240,9 +2253,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setExecutionStatus</b
 kCBStatus&#160;</td><td class="memItemRight" valign="bottom"><b>executionStatus</b> () const noexcept</td></tr>
 <tr class="separator:ac0b365ded3f570df6098b022fc3700dc inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_group__cmsis__stream__generic__data"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_group__cmsis__stream__generic__data')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1StreamNode">arm_cmsis_stream::StreamNode</a></td></tr>
-<tr class="memitem:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ac6f6f77332bba83fee0411ee7ba0305c" name="ac6f6f77332bba83fee0411ee7ba0305c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
-<tr class="separator:ac6f6f77332bba83fee0411ee7ba0305c inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="aff6f9135a670602fc7972d108c320c54" name="aff6f9135a670602fc7972d108c320c54"></a>
+virtual cg_status&#160;</td><td class="memItemRight" valign="bottom"><b>processEvent</b> (int, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">Event</a> &amp;&amp;)</td></tr>
+<tr class="separator:aff6f9135a670602fc7972d108c320c54 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memItemLeft" align="right" valign="top"><a id="ad5ead2a2db81915a1131c3532367ee64" name="ad5ead2a2db81915a1131c3532367ee64"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>needsAsynchronousInit</b> () const</td></tr>
 <tr class="separator:ad5ead2a2db81915a1131c3532367ee64 inherit pub_methods_group__cmsis__stream__generic__data"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2454,6 +2467,12 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>pause</b> () 
 <tr class="memitem:af3cffad04ce8d9f4c8b86bd0476c3efd"><td class="memItemLeft" align="right" valign="top"><a id="af3cffad04ce8d9f4c8b86bd0476c3efd" name="af3cffad04ce8d9f4c8b86bd0476c3efd"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>resume</b> () noexcept</td></tr>
 <tr class="separator:af3cffad04ce8d9f4c8b86bd0476c3efd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92166bc21f165b4381d446ca4578991f"><td class="memItemLeft" align="right" valign="top"><a id="a92166bc21f165b4381d446ca4578991f" name="a92166bc21f165b4381d446ca4578991f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setError</b> (cg_status status, int32_t node_id=(-1), int32_t info=0) noexcept</td></tr>
+<tr class="separator:a92166bc21f165b4381d446ca4578991f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefba31182213fe9234a2dea815338863"><td class="memItemLeft" align="right" valign="top"><a id="aefba31182213fe9234a2dea815338863" name="aefba31182213fe9234a2dea815338863"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>consumeError</b> (cg_status &amp;status, int32_t &amp;node_id, int32_t &amp;info) noexcept</td></tr>
+<tr class="separator:aefba31182213fe9234a2dea815338863"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a56003e761e8bf5a5b685ea3fd150ae84"><td class="memItemLeft" align="right" valign="top"><a id="a56003e761e8bf5a5b685ea3fd150ae84" name="a56003e761e8bf5a5b685ea3fd150ae84"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>callAsyncHandler</b> (int node_id, <a class="el" href="group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1Event">arm_cmsis_stream::Event</a> &amp;&amp;evt)</td></tr>
 <tr class="separator:a56003e761e8bf5a5b685ea3fd150ae84"><td class="memSeparator" colspan="2">&#160;</td></tr>
