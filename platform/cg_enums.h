@@ -60,8 +60,7 @@ extern "C"
     // kError should have following arguments:
     // 1. Error origin (cg_error_origin)
     // 2. cg_status
-    // 3. Node ID (negative if information not available)
-    // 4. Additional error specific information (raw buffer to a structure or an int)
+    // 3. Additional error specific information (raw buffer to a structure or an int)
     enum cg_standard_event
     {
         kNoEvent = 0,

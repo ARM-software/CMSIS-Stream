@@ -81,13 +81,12 @@ static bool is_runtime_scheduler_error(int error)
 }
 
 static void report_runtime_error(cg_error_origin origin, cg_status status,
-				 int32_t node_id, int32_t info)
+				 int32_t src_node_id, int32_t info)
 {
-	EventQueue::callSyncHandler(CG_UNIDENTIFIED_NODE,
+	EventQueue::callSyncHandler(src_node_id,
 				    Event(kError, kHighPriority,
 					  static_cast<int32_t>(origin),
 					  static_cast<int32_t>(status),
-					  node_id,
 					  info));
 }
 
