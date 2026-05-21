@@ -127,6 +127,13 @@ static void timer_callback(void *argument)
     CMSISSTREAM_LOG_DBG("Timer callback\n");
 }
 
+static void handle_error(int32_t origin, int32_t error_code, int32_t node_id, int32_t info)
+{
+    CMSISSTREAM_LOG_ERR("Error from origin %d, node %d with code %d\n", origin, node_id, error_code);
+    stream_free_all();
+    // To quit FVP
+    printf("\x04");
+}
 
 /**
  * @brief Application-specific event handler.
@@ -146,6 +153,18 @@ static bool application_handler(int src_node_id, void *data, Event &&evt)
     {
         int32_t msg = evt.get<int32_t>();
         CMSISSTREAM_LOG_DBG("Application handler received event from node %d in network %d with value: %d\n", src_node_id, network_id, msg);
+    }
+    else if (evt.event_id == kError)
+    {
+        if (evt.wellFormed<int32_t,int32_t,int32_t,int32_t>())
+        {
+            evt.apply<int32_t,int32_t,int32_t,int32_t>(&handle_error);
+        }
+        
+    } 
+    else if (evt.event_id == kStopGraph)
+    {
+        CMSISSTREAM_LOG_DBG("Application handler received stop graph event for network\n");
     }
     else 
     {

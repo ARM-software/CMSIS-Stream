@@ -1574,6 +1574,14 @@ void PrintType(void)
                    typename std::tuple_element<Is, std::tuple<Args...>>::type>::getValue(std::move(values[Is]))...);
         };
 
+        template <typename F, typename... Args, std::size_t... Is>
+        void apply_noobj_array_types(F &&f, std::array<cg_value, CG_MAX_VALUES> &&values,
+                                     std::index_sequence<Is...>) const
+        {
+            f(ValueParse<
+                   typename std::tuple_element<Is, std::tuple<Args...>>::type>::getValue(std::move(values[Is]))...);
+        };
+
     public:
         uint32_t event_id;
         uint32_t priority;
@@ -1792,6 +1800,61 @@ void PrintType(void)
                         {
                             apply_array_types<F, O, Args...>(std::forward<F>(f), std::forward<O>(o), std::move(cbv->values),
                                                              std::make_index_sequence<sizeof...(Args)>{});
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        return false; // Data is not a combined value
+                    }
+                }
+                else
+                {
+
+                    return false; // Data is not a combined value
+                }
+            }
+            return false;
+        };
+
+        template <typename... Args, typename F>
+        bool apply(F &&f)
+        {
+            if constexpr (sizeof...(Args) == 0)
+            {
+                return false; // No arguments provided
+            }
+            if constexpr (sizeof...(Args) == 1)
+            {
+                if (std::holds_alternative<cg_value>(data))
+                {
+                    f(ValueParse<Args...>::getValue(std::get<cg_value>(std::move(data)))); // Check if the single argument matches
+                    return true;
+                }
+                else
+                {
+
+                    return false;
+                }
+            }
+            else if constexpr (sizeof...(Args) > 1)
+            {
+
+                if (std::holds_alternative<UniquePtr<ListValue>>(data))
+                {
+
+                    UniquePtr<ListValue> cbv = std::get<UniquePtr<ListValue>>(std::move(data));
+                    if (cbv && cbv->nb_values > 0)
+                    {
+                        if (sizeof...(Args) != cbv->nb_values)
+                        {
+
+                            return false; // Number of arguments does not match
+                        }
+                        else
+                        {
+                            apply_noobj_array_types<F, Args...>(std::forward<F>(f), std::move(cbv->values),
+                                                                std::make_index_sequence<sizeof...(Args)>{});
                             return true;
                         }
                     }

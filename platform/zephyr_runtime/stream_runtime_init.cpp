@@ -91,6 +91,12 @@ static void report_runtime_error(cg_error_origin origin, cg_status status,
 					  info));
 }
 
+static void report_stop_graph()
+{
+	EventQueue::callSyncHandler(CG_UNIDENTIFIED_NODE,
+				    Event(kStopGraph, kHighPriority));
+}
+
 static void wait_stream_resume(stream_execution_context_t *context)
 {
 	while (true)
@@ -158,6 +164,20 @@ static void pause_stream_thread_on_error(stream_execution_context_t *context, cg
 
 	wait_event_thread_paused();
 	report_runtime_error(kStreamThread, status, CG_UNIDENTIFIED_NODE, 0);
+	k_event_post(&cg_streamReplyEvent, STREAM_PAUSED_EVENT);
+	wait_stream_resume(context);
+}
+
+static void pause_stream_thread_on_stop_graph(stream_execution_context_t *context)
+{
+	LOG_DBG("Try to pause event queue after stop graph\n");
+	context->evtQueue->pause();
+
+	if (context->pause_all_nodes)
+		context->pause_all_nodes(context);
+
+	wait_event_thread_paused();
+	report_stop_graph();
 	k_event_post(&cg_streamReplyEvent, STREAM_PAUSED_EVENT);
 	wait_stream_resume(context);
 }
@@ -243,11 +263,16 @@ static void stream_thread_function(void *, void *, void *)
 			pause_stream_thread_on_error(context, static_cast<cg_status>(error));
 			continue;
 		}
-		// When there is no dataflow node, the data flow graph
-		// is returning immediately with 0 iteration
-		// This should be interpreted as a pause
+		if ((context->scheduler_length > 0) && (error == CG_STOP_SCHEDULER))
+		{
+			LOG_DBG("Scheduler requested stop graph\n");
+			pause_stream_thread_on_stop_graph(context);
+			continue;
+		}
+		// When there is no dataflow node, the data flow graph returns
+		// CG_STOP_SCHEDULER immediately. This should be interpreted as a pause.
 		if ((error == CG_PAUSED_SCHEDULER) ||
-			((nb_iter == 0) && (error == CG_STOP_SCHEDULER)))
+			((context->scheduler_length == 0) && (error == CG_STOP_SCHEDULER)))
 		{
 
 			// If there are data flow nodes, we prefer pausing the nodes
