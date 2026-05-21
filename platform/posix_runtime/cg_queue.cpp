@@ -90,7 +90,13 @@ bool MyQueue::push(arm_cmsis_stream::Message &&event)
         else
         {
             LOG_ERR("Event queue overflow for priority %d\n", p);
+            this->setError(CG_EVENT_QUEUE_FULL);
         }
+    }
+    else
+    {
+        this->setError(CG_OS_ERROR, CG_UNIDENTIFIED_NODE,
+                       static_cast<int32_t>(error));
     }
     CG_EXIT_CRITICAL_SECTION(queue_mutex, error);
     
@@ -156,9 +162,9 @@ void MyQueue::end() noexcept
 void MyQueue::execute()
 {
     CG_MUTEX_ERROR_TYPE error;
-    while (!this->mustEnd())
+    while ((!this->mustEnd()) && (!this->mustPause()))
     {
-        while ((!this->mustEnd()) && (!isEmpty()))
+        while ((!this->mustEnd()) && (!this->mustPause()) && (!isEmpty()))
         {
             Message msg;
             bool messageWasReceived = false;
@@ -181,6 +187,11 @@ void MyQueue::execute()
                         break;
                     }
                 }
+            }
+            else
+            {
+                this->setError(CG_OS_ERROR, CG_UNIDENTIFIED_NODE,
+                               static_cast<int32_t>(error));
             }
             CG_EXIT_CRITICAL_SECTION(queue_mutex, error);
 
@@ -226,18 +237,25 @@ void MyQueue::execute()
                     if (std::holds_alternative<LocalDestination>(msg.destination))
                     {
                         LocalDestination &local = std::get<LocalDestination>(msg.destination);
-                        local.dst->processEvent(local.dstPort, std::move(msg.event));
+                        cg_status status = local.dst->processEvent(local.dstPort, std::move(msg.event));
+                        if (status != CG_SUCCESS)
+                        {
+                            this->setError(status, local.dst->nodeID());
+                        }
                     }
                     else if (std::holds_alternative<DistantDestination>(msg.destination))
                     {
                         DistantDestination &dist = std::get<DistantDestination>(msg.destination);
-                        this->callAsyncHandler(dist.src_node_id, std::move(msg.event));
+                        if (!this->callAsyncHandler(dist.src_node_id, std::move(msg.event)))
+                        {
+                            this->setError(CG_EVENT_QUEUE_FULL, dist.src_node_id);
+                        }
                     }
                     cg_eventThread_->setPriority(ThreadPriority::High); // Back to highest priority
                 }
             }
         }
-        if (this->mustEnd())
+        if (this->mustEnd() || this->mustPause())
         {
             return;
         }
