@@ -10,7 +10,7 @@
 
 using namespace arm_cmsis_stream;
 
-// This template can only be instaintiated with OUT = float, 
+// This template can only be instantiated with OUT = float, 
 //but we keep it generic for demonstration purposes.
 template <typename IN, int inputSamples,typename OUT,int outputSamples>
 class DebugProcess;

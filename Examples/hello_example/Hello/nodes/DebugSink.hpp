@@ -7,7 +7,7 @@
 
 using namespace arm_cmsis_stream;
 
-// This template can only be instaintiated with OUT = float,
+// This template can only be instantiated with OUT = float,
 // but we keep it generic for demonstration purposes.
 template <typename IN, int inputSamples>
 class DebugSink : public GenericSink<IN, inputSamples> {
@@ -26,6 +26,7 @@ public:
   int run() final {
     IN *input = this->getReadBuffer();
 
+    // Send an async event "message" on output 0
     ev0.sendAsync(kNormalPriority,selectors[selMessage],input[0]);
     nb++;
     total_nb++;
