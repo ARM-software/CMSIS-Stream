@@ -1,0 +1,22 @@
+{
+  "DebugProcess<float,10,float,1>": {
+    "isTemplate": true,
+    "selectors": []
+  },
+  "DebugSink<float,1>": {
+    "isTemplate": true,
+    "selectors": [
+      "SEL_MESSAGE_ID"
+    ]
+  },
+  "DebugSource<float,10>": {
+    "isTemplate": true,
+    "selectors": []
+  },
+  "DebugEvtSink": {
+    "isTemplate": false,
+    "selectors": [
+      "SEL_MESSAGE_ID"
+    ]
+  }
+}

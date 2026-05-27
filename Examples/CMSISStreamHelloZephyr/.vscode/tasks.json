@@ -3,11 +3,10 @@
     "tasks": [
         {
             "label": "CMSIS Load+Run",
-            "problemMatcher": [],
             "type": "shell",
             "command": "FVP_Corstone_SSE-300_Ethos-U55",
             "options": {
-                "cwd": "${workspaceFolder}/Examples/CMSISStreamHelloZephyr",
+                "cwd": "${workspaceFolder}/",
                 "shell": {
                     "executable": "cmd.exe",
                     "args": [
@@ -22,7 +21,8 @@
                 "-a",
                 "out/CMSISStreamHello/AVH-SSE-300/Debug/zephyr/zephyr.elf",
                 ""
-            ]
+            ],
+            "problemMatcher": []
         }
     ]
 }

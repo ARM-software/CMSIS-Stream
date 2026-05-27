@@ -1,0 +1,43 @@
+# CMSIS-Stream Zephyr hello example for Arm Corstone-300 FVP.
+solution:
+  created-for: CMSIS-Toolbox@2.13.0
+
+  packs:
+    - pack: ARM::V2M_MPS3_SSE_300_BSP@1.5.0
+
+  target-types:
+    - type: AVH-SSE-300
+      board: V2M-MPS3-SSE-300-FVP
+      device: SSE-300-MPS3
+      variables:
+        - west-board: mps3/corstone300/fvp
+      target-set:
+        - set:
+          images:
+            - project-context: CMSISStreamHello.Debug
+          debugger:
+            name: Arm-FVP
+            model: FVP_Corstone_SSE-300_Ethos-U55
+            config-file: boards/fvp_config.txt
+
+  build-types:
+    - type: Debug
+      debug: on
+      optimize: debug
+      west-defs:
+        - CONFIG_DEBUG: y
+        - CONFIG_DEBUG_THREAD_INFO: y
+        - CONFIG_DEBUG_OPTIMIZATIONS: y
+
+    - type: Release
+      optimize: speed
+      west-defs:
+        - CONFIG_SIZE_OPTIMIZATIONS: y
+
+  projects:
+    - west:
+        project-id: CMSISStreamHello
+        app-path: ./
+        board: $west-board$
+
+  compiler: GCC

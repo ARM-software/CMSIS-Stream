@@ -1,0 +1,22 @@
+{
+  "debug.hideSlowPreLaunchWarning": true,
+  "debug.showInStatusBar": "never",
+  "cmake.ignoreCMakeListsMissing": true,
+  "files.associations": {
+    "stdio.h": "c",
+    "vector": "cpp",
+    "type_traits": "cpp",
+    "variant": "cpp",
+    "stream.h": "c",
+    "xtr1common": "cpp",
+    "kconfig": "cpp",
+    "utility": "cpp",
+    "xiosbase": "cpp"
+  },
+  "cmsis-csolution.autoDebugLaunch": false,
+  "cmsis-csolution.environmentVariables": {
+    "ZEPHYR_BASE": "$HOME/benchresults/sdk-alif/zephyr",
+    "VIRTUAL_ENV": "$HOME/benchresults/PythonWrapperTests/devenv",
+    "PATH": "$HOME/benchresults/PythonWrapperTests/devenv/Scripts"
+  }
+}

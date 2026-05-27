@@ -107,5 +107,11 @@
         "shared_mutex": "cpp"
     },
     "debug.hideSlowPreLaunchWarning": true,
-    "debug.showInStatusBar": "never"
+    "debug.showInStatusBar": "never",
+     "cmsis-csolution.environmentVariables": {    
+        "ZEPHYR_BASE": "$HOME/benchresults/sdk-alif/zephyr",
+        "VIRTUAL_ENV": "$HOME/benchresults/PythonWrapperTests/devenv",
+        "PATH":"$HOME/benchresults/PythonWrapperTests/devenv/Scripts"
+    },
+    "cmsis-csolution.autoDebugLaunch": true
 }
