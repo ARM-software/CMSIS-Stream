@@ -27,6 +27,11 @@
 #ifndef CUSTOM_H_
 #define CUSTOM_H_
 
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
+
+LOG_MODULE_DECLARE(cmsisstream, CONFIG_CMSISSTREAM_LOG_LEVEL);
+
 
 
 class ZephyrMutex
@@ -127,5 +132,30 @@ class ZephyrLock
 #define CG_TIME_STAMP_TYPE uint32_t
 
 #define CG_GET_TIME_STAMP()  k_cycle_get_32()  
+
+class ContextSwitch
+{
+  public:
+    virtual ~ContextSwitch()
+    {
+    }
+    /*
+
+    Event queue running but posting event disabled.
+    Run from data flow thread except for pure event graphs.
+    In that case, it is run from event thread.
+
+    */
+    virtual int pause() = 0;
+
+    /*
+
+    Run from data flow thread.
+    Posting events is possible but event thread is not yet
+    restarted.
+
+    */
+    virtual int resume() = 0;
+};
 
 #endif

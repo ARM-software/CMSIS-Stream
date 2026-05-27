@@ -47,3 +47,4 @@ Examples/events/simple
 Examples/build/build.sh
 Examples/build/
 output/
+.codex_tmp/
