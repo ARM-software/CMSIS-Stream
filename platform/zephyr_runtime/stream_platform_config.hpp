@@ -30,8 +30,6 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_DECLARE(cmsisstream, CONFIG_CMSISSTREAM_LOG_LEVEL);
-
 
 
 class ZephyrMutex
