@@ -25,10 +25,6 @@ extern "C"
 
 #include "cmsis_os2.h" /* CMSIS-RTOS2 API */
 
-// Parameter datatype for the graph
-// An application needs to customize it to adapt to the graph's needs.
-// This is not provided by the CMSIS-Stream pack and must come from the user 
-// application.
 #include "hello_params.h"
 
 }

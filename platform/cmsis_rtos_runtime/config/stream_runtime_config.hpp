@@ -135,5 +135,5 @@
 // Override default logging macros to route CMSIS-Stream logs through the application logging backend.
 // Note that this can't be defined in the application configuration header that is only included
 // by the graphs. But the runtime can also generate logs.
-//#define CMSISSTREAM_LOG_ERR(fmt,...) printf("[ERR] " fmt, ##__VA_ARGS__)
-//#define CMSISSTREAM_LOG_DBG(fmt,...) printf("[DBG] " fmt, ##__VA_ARGS__)
+#define CMSISSTREAM_LOG_ERR(fmt,...) printf("[ERR] " fmt, ##__VA_ARGS__)
+#define CMSISSTREAM_LOG_DBG(fmt,...) printf("[DBG] " fmt, ##__VA_ARGS__)

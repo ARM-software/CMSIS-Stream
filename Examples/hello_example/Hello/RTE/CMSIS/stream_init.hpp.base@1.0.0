@@ -49,5 +49,10 @@ void stream_configure_and_start();
  *
  * The function waits for runtime threads to finish, frees generated scheduler
  * resources, destroys event queues, and releases CMSIS-Stream runtime memory.
+ * 
+ * The optional argument mustWait controls whether the function waits for 
+ * runtime threads to finish before releasing resources.
+ * Set it to false to skip waiting and force resource release, 
+ * which may be necessary in certain error handling scenarios.
  */
-void stream_free_all();
+void stream_free_all(bool mustWait = true);

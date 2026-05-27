@@ -130,9 +130,12 @@ static void timer_callback(void *argument)
 static void handle_error(int32_t origin, int32_t error_code, int32_t info)
 {
     CMSISSTREAM_LOG_ERR("Error from origin %d with code %d\n", origin, error_code);
-    stream_free_all();
+    // In case of errors, the threads are already stopped
+    // so we do not need to wait for them to end before freeing resources.
+    stream_free_all(false);
+    CMSISSTREAM_LOG_DBG("Exiting application\n");
     // To quit FVP
-    printf("\x04");
+    exit(1);
 }
 
 /**
@@ -279,10 +282,13 @@ error:
 /**
  * @brief Stop all stream threads and release scheduler/runtime resources.
  */
-void stream_free_all()
+void stream_free_all(bool mustWait)
 {
     // Wait for the runtime to stop before freeing graph-owned resources.
-    stream_wait_for_threads_end();
+    if (mustWait)
+    {
+        stream_wait_for_threads_end();
+    }
 
     // Release resources allocated by the generated schedulers.
     free_scheduler_hello();

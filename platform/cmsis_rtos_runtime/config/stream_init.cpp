@@ -13,12 +13,19 @@
 // stream_runtime_config.hpp and are picked up through stream_platform_config.hpp.
 #include "app_config.hpp"
 
+// Application parameter block for graph hello. 
+// Define the data types required by your application to
+// communicate settings to the nodes of the graph
+extern "C"
+{
+#include "hello_params.h"
+}
 
-// Generated scheduler header for hello graph. The name is selected by the Python
+// Generated scheduler header for graph hello. The name is selected by the Python
 // graph description. Include one generated scheduler header per graph when the
 // application switches between several graphs at runtime.
 // The name of the generated scheduler may be different from the
-// name used below if you use a different name in the Python description.
+// name used below.
 #include "scheduler_hello.h"
 
 // CMSIS-Stream standard headers.
@@ -120,6 +127,55 @@ static void timer_callback(void *argument)
     CMSISSTREAM_LOG_DBG("Timer callback\n");
 }
 
+static void handle_error(int32_t origin, int32_t error_code, int32_t info)
+{
+    CMSISSTREAM_LOG_ERR("Error from origin %d with code %d\n", origin, error_code);
+    // In case of errors, the threads are already stopped
+    // so we do not need to wait for them to end before freeing resources.
+    stream_free_all(false);
+    CMSISSTREAM_LOG_DBG("Exiting application\n");
+    // To quit FVP
+    exit(1);
+}
+
+/**
+ * @brief Application-specific event handler.
+ *
+ * This function can be called from the graph in a synchronous or asynchronous way.
+ * It is a global application handler that can be used by all graphs.
+ *
+ * @param src_node_id ID of the source node that is calling the application handler.
+ * @param data Pointer to any associated data that was passed when the handler was installed.
+ * @param evt The event object containing event details.
+ * @return true if the event was handled successfully, false otherwise.
+ */
+static bool application_handler(int src_node_id, void *data, Event &&evt)
+{
+    int network_id = reinterpret_cast<int>(data);
+    if (evt.event_id == kValue)
+    {
+        int32_t msg = evt.get<int32_t>();
+        CMSISSTREAM_LOG_DBG("Application handler received event from node %d in network %d with value: %d\n", src_node_id, network_id, msg);
+    }
+    else if (evt.event_id == kError)
+    {
+        if (evt.wellFormed<int32_t,int32_t,int32_t>())
+        {
+            evt.apply<int32_t,int32_t,int32_t>(&handle_error);
+        }
+        
+    } 
+    else if (evt.event_id == kStopGraph)
+    {
+        CMSISSTREAM_LOG_DBG("Application handler received stop graph event for network\n");
+    }
+    else 
+    {
+        CMSISSTREAM_LOG_DBG("Application handler received unknown event ID %d from node %d in network %d\n", evt.event_id, src_node_id, network_id);
+    }
+    return true;
+}
+
 /**
  * @brief Configure resources and start the currently selected stream graph.
  *
@@ -151,13 +207,15 @@ void stream_configure_and_start()
     // Here it is assumed that there is a global variable used to define all
     // parameters for the hello graph.
     // This global is a struct defined in hello_params.h and allocated in hello_params.cpp.
-    // Each node which needs to access to hardware parameters has a sub-structure named hw_ and of
-    // the same type.
+    // All nodes requiring hardware parameters are using
+    // the helloParams.src.hw_ struct, so the timer_id is set in that struct.
+    // _ is used in name to prevent conflicts with name coming from
+    // Python.
     // With this organization, it is easy in the Python to generate the right
     // arguments for the C++ constructor to access to the parameters for a node.
     
-    // helloParams.src.hw_.timer_id = timer_id;
-    // helloParams.src.val = 1.5f;
+    helloParams.src.hw_.timer_id = timer_id;
+    helloParams.src.val = 1.5f;
 
 
     // Step 3: initialize common CMSIS-Stream runtime memory.
@@ -178,6 +236,8 @@ void stream_configure_and_start()
             CMSISSTREAM_LOG_ERR("Can't create CMSIS Stream Event Queue for network %d\n", network);
             goto error;
         }
+        // Set an application handler for the graph
+        queue_app[network]->setHandler((void*)network, application_handler);
     }
 
     // Step 5: initialize generated schedulers and graph nodes. Scheduler init
@@ -232,10 +292,13 @@ error:
 /**
  * @brief Stop all stream threads and release scheduler/runtime resources.
  */
-void stream_free_all()
+void stream_free_all(bool mustWait)
 {
     // Wait for the runtime to stop before freeing graph-owned resources.
-    stream_wait_for_threads_end();
+    if (mustWait)
+    {
+        stream_wait_for_threads_end();
+    }
 
     // Release resources allocated by the generated schedulers.
     free_scheduler_hello();
