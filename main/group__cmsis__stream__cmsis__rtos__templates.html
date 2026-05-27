@@ -180,9 +180,6 @@ Functions</h2></td></tr>
 <tr class="memitem:ga8601d35319fdf1bf1b9486eecb9b02dc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cmsis__stream__cmsis__rtos__templates.html#ga8601d35319fdf1bf1b9486eecb9b02dc">stream_configure_and_start</a> ()</td></tr>
 <tr class="memdesc:ga8601d35319fdf1bf1b9486eecb9b02dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure resources and start the currently selected stream graph.  <br /></td></tr>
 <tr class="separator:ga8601d35319fdf1bf1b9486eecb9b02dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gacc78462afffe15dc8142fefdf407a00b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cmsis__stream__cmsis__rtos__templates.html#gacc78462afffe15dc8142fefdf407a00b">stream_free_all</a> ()</td></tr>
-<tr class="memdesc:gacc78462afffe15dc8142fefdf407a00b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop all stream threads and release scheduler/runtime resources.  <br /></td></tr>
-<tr class="separator:gacc78462afffe15dc8142fefdf407a00b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Description</h2>
 <p>CMSIS-RTOS-specific files copied into the application project and intended to be customized by the application. </p>
@@ -318,27 +315,6 @@ template&lt;typename T &gt; </div>
 <p>Configure hardware, initialize stream graphs, and start the selected graph.</p>
 <p>Configure the application and start the selected stream graph.</p>
 <p>The startup sequence initializes optional hardware sources, fills the hardware parameter block for each generated graph, allocates runtime memory and event queues, initializes each scheduler, builds execution contexts, then resumes and starts the graph selected by <a class="el" href="stream__init_8cpp.html#af6d569c5b2d39862b2ce9f4a9d07514b">currentNetwork</a>. </p>
-
-</div>
-</div>
-<a id="gacc78462afffe15dc8142fefdf407a00b" name="gacc78462afffe15dc8142fefdf407a00b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gacc78462afffe15dc8142fefdf407a00b">&#9670;&#160;</a></span>stream_free_all()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void stream_free_all </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Stop all stream threads and release scheduler/runtime resources. </p>
-<p>Stop stream execution and release all stream resources.</p>
-<p>Stop the stream graph and release application/runtime resources. </p>
 
 </div>
 </div>

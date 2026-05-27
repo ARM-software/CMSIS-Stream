@@ -37,7 +37,6 @@ var NAVTREEINDEX0 =
 "group__cmsis__stream__cmsis__rtos__templates.html":[4,3],
 "group__cmsis__stream__cmsis__rtos__templates.html#ga8601d35319fdf1bf1b9486eecb9b02dc":[4,3,10],
 "group__cmsis__stream__cmsis__rtos__templates.html#gab61ece8cb9b7704a4275f088982abfa7":[4,3,9],
-"group__cmsis__stream__cmsis__rtos__templates.html#gacc78462afffe15dc8142fefdf407a00b":[4,3,11],
 "group__cmsis__stream__cmsis__rtos__templates.html#structCStreamNode":[4,3,8],
 "group__cmsis__stream__cmsis__rtos__templates.html#structContextSwitchInterface":[4,3,7],
 "group__cmsis__stream__cmsis__rtos__templates.html#structStreamNodeInterface":[4,3,6],

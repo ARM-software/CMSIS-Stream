@@ -10,6 +10,5 @@ var group__cmsis__stream__cmsis__rtos__templates =
     [ "ContextSwitchInterface", "group__cmsis__stream__cmsis__rtos__templates.html#structContextSwitchInterface", null ],
     [ "CStreamNode", "group__cmsis__stream__cmsis__rtos__templates.html#structCStreamNode", null ],
     [ "createStreamNode", "group__cmsis__stream__cmsis__rtos__templates.html#gab61ece8cb9b7704a4275f088982abfa7", null ],
-    [ "stream_configure_and_start", "group__cmsis__stream__cmsis__rtos__templates.html#ga8601d35319fdf1bf1b9486eecb9b02dc", null ],
-    [ "stream_free_all", "group__cmsis__stream__cmsis__rtos__templates.html#gacc78462afffe15dc8142fefdf407a00b", null ]
+    [ "stream_configure_and_start", "group__cmsis__stream__cmsis__rtos__templates.html#ga8601d35319fdf1bf1b9486eecb9b02dc", null ]
 ];
