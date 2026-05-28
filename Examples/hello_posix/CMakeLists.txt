@@ -9,12 +9,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 get_filename_component(CMSIS_STREAM_ROOT "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
 
 if(NOT TARGET posix_runtime)
+    set(POSIX_RUNTIME_CONFIG_DIR "${CMAKE_CURRENT_LIST_DIR}/config" CACHE PATH "" FORCE)
     add_subdirectory("${CMSIS_STREAM_ROOT}/platform/posix_runtime" "${CMAKE_CURRENT_BINARY_DIR}/posix_runtime")
 endif()
-
-target_include_directories(posix_runtime PRIVATE
-    "${CMAKE_CURRENT_LIST_DIR}/config"
-)
 
 add_executable(hello_posix
     main.cpp

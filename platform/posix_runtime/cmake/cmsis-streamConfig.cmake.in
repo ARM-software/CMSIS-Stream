@@ -1,0 +1,15 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+if(UNIX AND NOT APPLE)
+    find_dependency(Threads)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/posix_runtimeTargets.cmake")
+
+set(CMSIS_STREAM_POSIX_RUNTIME_CONFIG_TEMPLATE_DIR
+    "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_DATADIR@/CMSIS-Stream/posix_runtime/config"
+)
+
+check_required_components(cmsis-stream)
