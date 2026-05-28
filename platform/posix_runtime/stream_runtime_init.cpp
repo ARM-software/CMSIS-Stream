@@ -26,6 +26,7 @@ static std::thread *stream_thread = nullptr;
 static std::thread *event_thread = nullptr;
 static std::atomic<bool> stream_thread_started = false;
 static std::atomic<bool> event_thread_started = false;
+static std::atomic<bool> runtime_stop_requested = false;
 
 std::atomic<stream_execution_context_t *> current_context = nullptr;
 
@@ -103,6 +104,10 @@ static void wait_stream_resume(stream_execution_context_t *context)
             continue;
         }
 
+        if (runtime_stop_requested.load()) {
+            return;
+        }
+
         context = current_context.load();
         context->reset_fifos(1);
         if (context->resume_all_nodes) {
@@ -145,6 +150,9 @@ static void pause_stream_thread_on_error(stream_execution_context_t *context, cg
 
     wait_event_thread_paused();
     report_runtime_error(kStreamThread, status, CG_UNIDENTIFIED_NODE, 0);
+    if (runtime_stop_requested.load()) {
+        return;
+    }
     cg_streamReplyEvent.post(STREAM_PAUSED_EVENT);
     wait_stream_resume(context);
 }
@@ -160,6 +168,9 @@ static void pause_stream_thread_on_stop_graph(stream_execution_context_t *contex
 
     wait_event_thread_paused();
     report_stop_graph();
+    if (runtime_stop_requested.load()) {
+        return;
+    }
     cg_streamReplyEvent.post(STREAM_PAUSED_EVENT);
     wait_stream_resume(context);
 }
@@ -204,6 +215,9 @@ static void event_thread_function()
                 report_runtime_error(kEventThread, event_error,
                                      event_error_node, event_error_info);
             }
+            if (runtime_stop_requested.load()) {
+                return;
+            }
             cg_streamReplyEvent.post(EVENT_PAUSED_EVENT);
             wait_event_resume();
         }
@@ -225,11 +239,17 @@ static void stream_thread_function()
         if (is_runtime_scheduler_error(error)) {
             CMSISSTREAM_LOG_ERR("Scheduler error %d\n", error);
             pause_stream_thread_on_error(context, static_cast<cg_status>(error));
+            if (runtime_stop_requested.load()) {
+                break;
+            }
             continue;
         }
         if ((context->scheduler_length > 0) && (error == CG_STOP_SCHEDULER)) {
             CMSISSTREAM_LOG_DBG("Scheduler requested stop graph\n");
             pause_stream_thread_on_stop_graph(context);
+            if (runtime_stop_requested.load()) {
+                break;
+            }
             continue;
         }
         if ((error == CG_PAUSED_SCHEDULER) ||
@@ -242,6 +262,9 @@ static void stream_thread_function()
             }
 
             wait_stream_resume(context);
+            if (runtime_stop_requested.load()) {
+                break;
+            }
         } else {
             done = true;
         }
@@ -316,6 +339,7 @@ bool stream_start_threads(stream_execution_context_t *context)
     }
 
     set_current_context(context);
+    runtime_stop_requested.store(false);
 
     try {
         event_thread = new std::thread(event_thread_function);
@@ -342,20 +366,71 @@ bool stream_start_threads(stream_execution_context_t *context)
     return true;
 }
 
+static void stop_thread(std::thread *&thread, std::atomic<bool> &started,
+                        bool callerIsRuntimeThread)
+{
+    if (!started.load() || (thread == nullptr)) {
+        return;
+    }
+
+    if (thread->joinable()) {
+        if (thread->get_id() == std::this_thread::get_id()) {
+            (void)callerIsRuntimeThread;
+            thread->detach();
+        } else {
+            // Always wait for peer runtime threads. Freeing graph resources
+            // while a peer thread may still execute them is not safe.
+            thread->join();
+        }
+    }
+
+    started.store(false);
+    delete thread;
+    thread = nullptr;
+}
+
+static void wait_thread(std::thread *&thread, std::atomic<bool> &started)
+{
+    if (!started.load() || (thread == nullptr)) {
+        return;
+    }
+
+    if (thread->joinable()) {
+        if (thread->get_id() == std::this_thread::get_id()) {
+            thread->detach();
+        } else {
+            thread->join();
+        }
+    }
+
+    started.store(false);
+    delete thread;
+    thread = nullptr;
+}
+
+void stream_stop_threads(bool callerIsRuntimeThread)
+{
+    runtime_stop_requested.store(true);
+
+    stream_execution_context_t *context = current_context.load();
+    if ((context != nullptr) && (context->evtQueue != nullptr)) {
+        context->evtQueue->end();
+    }
+
+    cg_streamEvent.post(STREAM_DONE_EVENT | STREAM_RESUME_EVENT | EVENT_RESUME_EVENT);
+    cg_streamReplyEvent.post(STREAM_PAUSED_EVENT | STREAM_RESUMED_EVENT |
+                             EVENT_PAUSED_EVENT | EVENT_RESUMED_EVENT);
+
+    stop_thread(event_thread, event_thread_started, callerIsRuntimeThread);
+    stop_thread(stream_thread, stream_thread_started, callerIsRuntimeThread);
+    set_current_context(nullptr);
+}
+
 void stream_wait_for_threads_end()
 {
-    if (stream_thread_started.load() && (stream_thread != nullptr) && stream_thread->joinable()) {
-        stream_thread->join();
-        stream_thread_started.store(false);
-        delete stream_thread;
-        stream_thread = nullptr;
-    }
-    if (event_thread_started.load() && (event_thread != nullptr) && event_thread->joinable()) {
-        event_thread->join();
-        event_thread_started.store(false);
-        delete event_thread;
-        event_thread = nullptr;
-    }
+    wait_thread(stream_thread, stream_thread_started);
+    wait_thread(event_thread, event_thread_started);
+    set_current_context(nullptr);
 }
 
 void stream_free_memory()

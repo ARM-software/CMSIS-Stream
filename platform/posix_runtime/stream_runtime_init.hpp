@@ -47,6 +47,19 @@ extern void stream_pause_current_scheduler();
 extern bool stream_resume_scheduler(stream_execution_context_t *context);
 extern int stream_init_memory();
 extern bool stream_start_threads(stream_execution_context_t *context);
+/*
+ * Request runtime threads to stop.
+ *
+ * The function always wakes paused/runtime waits and joins peer runtime threads
+ * before returning.
+ *
+ * @param callerIsRuntimeThread Set to true when this function is called from a
+ * runtime callback or graph node that is running on one of the runtime threads.
+ * Peer runtime threads are always joined before this function returns. When the
+ * caller is itself a runtime thread, that current thread is detached because a
+ * thread cannot join itself.
+ */
+extern void stream_stop_threads(bool callerIsRuntimeThread = false);
 extern void stream_wait_for_threads_end();
 extern void stream_free_memory();
 extern arm_cmsis_stream::EventQueue *stream_new_event_queue();

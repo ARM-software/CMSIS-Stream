@@ -64,7 +64,17 @@ static void handle_error(int32_t origin, int32_t error_code, int32_t info)
 {
     (void)info;
     CMSISSTREAM_LOG_ERR("Error from origin %d with code %d\n", origin, error_code);
-    stream_free_all(false);
+    /*
+     * This handler can be called from a runtime thread or from a graph node.
+     * stream_free_all(true) may delete nodes, FIFOs, queues, and scheduler
+     * resources that are still present on the current call stack. It is safe
+     * here because the example exits immediately after freeing resources.
+     *
+     * If an application wants to recover and restart a graph, do not return
+     * from this handler after freeing resources. Instead, signal a supervisor
+     * thread and let that thread stop/free/recreate/start the graph.
+     */
+    stream_free_all(true);
     std::exit(1);
 }
 
@@ -139,11 +149,9 @@ error:
     CMSISSTREAM_LOG_ERR("Fatal error in main, stopping execution\n");
 }
 
-void stream_free_all(bool mustWait)
+void stream_free_all(bool callerIsRuntimeThread)
 {
-    if (mustWait) {
-        stream_wait_for_threads_end();
-    }
+    stream_stop_threads(callerIsRuntimeThread);
 
     free_scheduler_hello();
 
