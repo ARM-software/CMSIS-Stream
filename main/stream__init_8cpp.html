@@ -167,9 +167,9 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>handle_error</
 <tr class="memitem:ga8601d35319fdf1bf1b9486eecb9b02dc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cmsis__stream__cmsis__rtos__templates.html#ga8601d35319fdf1bf1b9486eecb9b02dc">stream_configure_and_start</a> ()</td></tr>
 <tr class="memdesc:ga8601d35319fdf1bf1b9486eecb9b02dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure resources and start the currently selected stream graph.  <br /></td></tr>
 <tr class="separator:ga8601d35319fdf1bf1b9486eecb9b02dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa329f38cc330d1b217477216581b1133"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream__init_8cpp.html#aa329f38cc330d1b217477216581b1133">stream_free_all</a> (bool mustWait)</td></tr>
-<tr class="memdesc:aa329f38cc330d1b217477216581b1133"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop all stream threads and release scheduler/runtime resources.  <br /></td></tr>
-<tr class="separator:aa329f38cc330d1b217477216581b1133"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab7c958e1b8d2ee99631076f5c8a4c08"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream__init_8cpp.html#aab7c958e1b8d2ee99631076f5c8a4c08">stream_free_all</a> (bool callerIsRuntimeThread)</td></tr>
+<tr class="memdesc:aab7c958e1b8d2ee99631076f5c8a4c08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop all stream threads and release scheduler/runtime resources.  <br /></td></tr>
+<tr class="separator:aab7c958e1b8d2ee99631076f5c8a4c08"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -245,8 +245,8 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>exec1</b></td></t
 
 </div>
 </div>
-<a id="aa329f38cc330d1b217477216581b1133" name="aa329f38cc330d1b217477216581b1133"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa329f38cc330d1b217477216581b1133">&#9670;&#160;</a></span>stream_free_all()</h2>
+<a id="aab7c958e1b8d2ee99631076f5c8a4c08" name="aab7c958e1b8d2ee99631076f5c8a4c08"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab7c958e1b8d2ee99631076f5c8a4c08">&#9670;&#160;</a></span>stream_free_all()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -255,7 +255,7 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>exec1</b></td></t
           <td class="memname">void stream_free_all </td>
           <td>(</td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>mustWait</em></td><td>)</td>
+          <td class="paramname"><em>callerIsRuntimeThread</em></td><td>)</td>
           <td></td>
         </tr>
       </table>

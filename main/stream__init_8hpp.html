@@ -154,9 +154,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga8601d35319fdf1bf1b9486eecb9b02dc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cmsis__stream__cmsis__rtos__templates.html#ga8601d35319fdf1bf1b9486eecb9b02dc">stream_configure_and_start</a> ()</td></tr>
 <tr class="memdesc:ga8601d35319fdf1bf1b9486eecb9b02dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure hardware, initialize stream graphs, and start the selected graph.  <br /></td></tr>
 <tr class="separator:ga8601d35319fdf1bf1b9486eecb9b02dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0dbb0318e4cd76e3654f588841c6ac02"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream__init_8hpp.html#a0dbb0318e4cd76e3654f588841c6ac02">stream_free_all</a> (bool mustWait=true)</td></tr>
-<tr class="memdesc:a0dbb0318e4cd76e3654f588841c6ac02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop stream execution and release all stream resources.  <br /></td></tr>
-<tr class="separator:a0dbb0318e4cd76e3654f588841c6ac02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9adde2a9ef9c9bfbc3fdbb9f84fa7a0b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream__init_8hpp.html#a9adde2a9ef9c9bfbc3fdbb9f84fa7a0b">stream_free_all</a> (bool callerIsRuntimeThread=false)</td></tr>
+<tr class="memdesc:a9adde2a9ef9c9bfbc3fdbb9f84fa7a0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop stream execution and release all stream resources.  <br /></td></tr>
+<tr class="separator:a9adde2a9ef9c9bfbc3fdbb9f84fa7a0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -189,8 +189,8 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a0dbb0318e4cd76e3654f588841c6ac02" name="a0dbb0318e4cd76e3654f588841c6ac02"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0dbb0318e4cd76e3654f588841c6ac02">&#9670;&#160;</a></span>stream_free_all()</h2>
+<a id="a9adde2a9ef9c9bfbc3fdbb9f84fa7a0b" name="a9adde2a9ef9c9bfbc3fdbb9f84fa7a0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9adde2a9ef9c9bfbc3fdbb9f84fa7a0b">&#9670;&#160;</a></span>stream_free_all()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -199,15 +199,19 @@ Variables</h2></td></tr>
           <td class="memname">void stream_free_all </td>
           <td>(</td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>mustWait</em></td><td>)</td>
+          <td class="paramname"><em>callerIsRuntimeThread</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Stop stream execution and release all stream resources. </p>
-<p>The function waits for runtime threads to finish, frees generated scheduler resources, destroys event queues, and releases CMSIS-Stream runtime memory.</p>
-<p>The optional argument mustWait controls whether the function waits for runtime threads to finish before releasing resources. Set it to false to skip waiting and force resource release, which may be necessary in certain error handling scenarios.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">callerIsRuntimeThread</td><td>Use false when called from a normal control thread after stream execution has ended. Use true when called from an application handler or graph node running on a runtime thread. Peer runtime threads are still stopped before graph resources are freed.</td></tr>
+  </table>
+  </dd>
+</dl>
 <p>Stop stream execution and release all stream resources. </p>
 
 </div>

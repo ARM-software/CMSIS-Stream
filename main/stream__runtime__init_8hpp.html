@@ -187,6 +187,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga8b76ea5851ef8a51cc3b40366f21979a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cmsis__stream__runtime__api.html#ga8b76ea5851ef8a51cc3b40366f21979a">stream_start_threads</a> (<a class="el" href="stream__runtime__init_8hpp.html#ab3e6cea31f75c82e2735c66423455aa3">stream_execution_context_t</a> *context)</td></tr>
 <tr class="memdesc:ga8b76ea5851ef8a51cc3b40366f21979a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start the CMSIS Stream runtime threads This function creates and starts the necessary threads for handling CMSIS Stream events and processing.  <br /></td></tr>
 <tr class="separator:ga8b76ea5851ef8a51cc3b40366f21979a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad55cd2e3a5a5406d0b56b69a5a2ccf99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream__runtime__init_8hpp.html#ad55cd2e3a5a5406d0b56b69a5a2ccf99">stream_stop_threads</a> (bool callerIsRuntimeThread=false)</td></tr>
+<tr class="memdesc:ad55cd2e3a5a5406d0b56b69a5a2ccf99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Request CMSIS Stream runtime threads to stop.  <br /></td></tr>
+<tr class="separator:ad55cd2e3a5a5406d0b56b69a5a2ccf99"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1deb2590a04c64165627bbb7ae3bb685"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cmsis__stream__runtime__api.html#ga1deb2590a04c64165627bbb7ae3bb685">stream_wait_for_threads_end</a> ()</td></tr>
 <tr class="memdesc:ga1deb2590a04c64165627bbb7ae3bb685"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for the CMSIS Stream threads to finish This function blocks until the stream and event threads have completed their execution.  <br /></td></tr>
 <tr class="separator:ga1deb2590a04c64165627bbb7ae3bb685"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -222,6 +225,33 @@ osEventFlagsId_t&#160;</td><td class="memItemRight" valign="bottom"><b>cg_stream
 </div><div class="memdoc">
 
 <p>Structure to hold the stream execution context This structure encapsulates the scheduler function, its parameters, and the event queue used by the CMSIS Stream runtime. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="ad55cd2e3a5a5406d0b56b69a5a2ccf99" name="ad55cd2e3a5a5406d0b56b69a5a2ccf99"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad55cd2e3a5a5406d0b56b69a5a2ccf99">&#9670;&#160;</a></span>stream_stop_threads()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void stream_stop_threads </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>callerIsRuntimeThread</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Request CMSIS Stream runtime threads to stop. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">callerIsRuntimeThread</td><td>Set to true when this function is called from a runtime callback or graph node that is running on one of the runtime threads. Peer runtime threads are joined before this function returns. When the caller is itself a runtime thread, that current thread is not joined because a thread cannot join itself. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

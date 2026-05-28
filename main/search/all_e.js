@@ -6,7 +6,7 @@ var searchData=
   ['stream_5fconfigure_5fand_5fstart_3',['stream_configure_and_start',['../group__cmsis__stream__cmsis__rtos__templates.html#ga8601d35319fdf1bf1b9486eecb9b02dc',1,'stream_configure_and_start():&#160;stream_init.cpp'],['../group__cmsis__stream__cmsis__rtos__templates.html#ga8601d35319fdf1bf1b9486eecb9b02dc',1,'stream_configure_and_start():&#160;stream_init.cpp']]],
   ['stream_5fexecution_5fcontext_5ft_4',['stream_execution_context_t',['../stream__runtime__init_8hpp.html#ab3e6cea31f75c82e2735c66423455aa3',1,'stream_runtime_init.hpp']]],
   ['stream_5fexecution_5fcontext_5ft_5f_5',['stream_execution_context_t_',['../group__cmsis__stream__cmsis__rtos__data.html#structstream__execution__context__t__',1,'']]],
-  ['stream_5ffree_5fall_6',['stream_free_all',['../stream__init_8hpp.html#a0dbb0318e4cd76e3654f588841c6ac02',1,'stream_free_all(bool mustWait=true):&#160;stream_init.cpp'],['../stream__init_8cpp.html#aa329f38cc330d1b217477216581b1133',1,'stream_free_all(bool mustWait):&#160;stream_init.cpp']]],
+  ['stream_5ffree_5fall_6',['stream_free_all',['../stream__init_8hpp.html#a9adde2a9ef9c9bfbc3fdbb9f84fa7a0b',1,'stream_free_all(bool callerIsRuntimeThread=false):&#160;stream_init.cpp'],['../stream__init_8cpp.html#aab7c958e1b8d2ee99631076f5c8a4c08',1,'stream_free_all(bool callerIsRuntimeThread):&#160;stream_init.cpp']]],
   ['stream_5ffree_5fmemory_7',['stream_free_memory',['../group__cmsis__stream__runtime__api.html#ga9fca5b9c62e257e5fcbe53f6b60221a7',1,'stream_free_memory():&#160;stream_runtime_init.cpp'],['../group__cmsis__stream__runtime__api.html#ga9fca5b9c62e257e5fcbe53f6b60221a7',1,'stream_free_memory():&#160;stream_runtime_init.cpp']]],
   ['stream_5finit_2ecpp_8',['stream_init.cpp',['../stream__init_8cpp.html',1,'']]],
   ['stream_5finit_2ehpp_9',['stream_init.hpp',['../stream__init_8hpp.html',1,'']]],
@@ -17,7 +17,8 @@ var searchData=
   ['stream_5fruntime_5fconfig_2ehpp_14',['stream_runtime_config.hpp',['../stream__runtime__config_8hpp.html',1,'']]],
   ['stream_5fruntime_5finit_2ehpp_15',['stream_runtime_init.hpp',['../stream__runtime__init_8hpp.html',1,'']]],
   ['stream_5fstart_5fthreads_16',['stream_start_threads',['../group__cmsis__stream__runtime__api.html#ga8b76ea5851ef8a51cc3b40366f21979a',1,'stream_start_threads(stream_execution_context_t *context):&#160;stream_runtime_init.cpp'],['../group__cmsis__stream__runtime__api.html#ga8b76ea5851ef8a51cc3b40366f21979a',1,'stream_start_threads(stream_execution_context_t *context):&#160;stream_runtime_init.cpp']]],
-  ['stream_5fwait_5ffor_5fthreads_5fend_17',['stream_wait_for_threads_end',['../group__cmsis__stream__runtime__api.html#ga1deb2590a04c64165627bbb7ae3bb685',1,'stream_wait_for_threads_end():&#160;stream_runtime_init.cpp'],['../group__cmsis__stream__runtime__api.html#ga1deb2590a04c64165627bbb7ae3bb685',1,'stream_wait_for_threads_end():&#160;stream_runtime_init.cpp']]],
-  ['streamnode_18',['StreamNode',['../group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1StreamNode',1,'arm_cmsis_stream']]],
-  ['streamnodeinterface_19',['StreamNodeInterface',['../group__cmsis__stream__cmsis__rtos__templates.html#structStreamNodeInterface',1,'']]]
+  ['stream_5fstop_5fthreads_17',['stream_stop_threads',['../stream__runtime__init_8hpp.html#ad55cd2e3a5a5406d0b56b69a5a2ccf99',1,'stream_runtime_init.cpp']]],
+  ['stream_5fwait_5ffor_5fthreads_5fend_18',['stream_wait_for_threads_end',['../group__cmsis__stream__runtime__api.html#ga1deb2590a04c64165627bbb7ae3bb685',1,'stream_wait_for_threads_end():&#160;stream_runtime_init.cpp'],['../group__cmsis__stream__runtime__api.html#ga1deb2590a04c64165627bbb7ae3bb685',1,'stream_wait_for_threads_end():&#160;stream_runtime_init.cpp']]],
+  ['streamnode_19',['StreamNode',['../group__cmsis__stream__generic__data.html#classarm__cmsis__stream_1_1StreamNode',1,'arm_cmsis_stream']]],
+  ['streamnodeinterface_20',['StreamNodeInterface',['../group__cmsis__stream__cmsis__rtos__templates.html#structStreamNodeInterface',1,'']]]
 ];
