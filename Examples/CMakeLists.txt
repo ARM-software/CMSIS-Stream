@@ -103,6 +103,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../platform/posix_runtime bin_runti
 add_subdirectory(nodes/cpp)
 
 add_subdirectory(events)
+add_subdirectory(hello_posix)
 
 add_subdirectory(example1)
 add_subdirectory(example2)

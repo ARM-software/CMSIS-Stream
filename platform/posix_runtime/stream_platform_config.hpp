@@ -26,10 +26,54 @@
  */
 #pragma once
 
+#include "stream_runtime_config.hpp"
 
-// Needed for pure event graphs to avoid having
-// an infinite loop generated to process dataflow when
-// there is no dataflow nodes.
+enum class ThreadPriority
+{
+    Low,
+    Normal,
+    High,
+    RealTime
+};
+
+#ifndef CMSISSTREAM_EVENT_QUEUE_LENGTH
+#define CMSISSTREAM_EVENT_QUEUE_LENGTH 20
+#endif
+
+#ifndef CMSISSTREAM_EVT_HIGH_PRIORITY
+#define CMSISSTREAM_EVT_HIGH_PRIORITY ThreadPriority::High
+#endif
+
+#ifndef CMSISSTREAM_STREAM_THREAD_PRIORITY
+#define CMSISSTREAM_STREAM_THREAD_PRIORITY ThreadPriority::RealTime
+#endif
+
+#ifndef CMSISSTREAM_EVT_NORMAL_PRIORITY
+#define CMSISSTREAM_EVT_NORMAL_PRIORITY ThreadPriority::Normal
+#endif
+
+#ifndef CMSISSTREAM_EVT_LOW_PRIORITY
+#define CMSISSTREAM_EVT_LOW_PRIORITY ThreadPriority::Low
+#endif
+
+#ifndef CMSISSTREAM_MAX_NUMBER_EVENT_ARGUMENTS
+#define CMSISSTREAM_MAX_NUMBER_EVENT_ARGUMENTS 8
+#endif
+
+#ifndef CMSISSTREAM_TENSOR_MAX_DIMENSIONS
+#define CMSISSTREAM_TENSOR_MAX_DIMENSIONS 3
+#endif
+
+#ifndef CMSISSTREAM_LOG_DBG
+#define CMSISSTREAM_LOG_DBG(fmt, ...)
+#endif
+
+#ifndef CMSISSTREAM_LOG_ERR
+#define CMSISSTREAM_LOG_ERR(fmt, ...)
+#endif
+
+// Needed for pure event graphs to avoid having an infinite loop generated to
+// process dataflow when there is no dataflow node.
 #define CG_EVENTS_MULTI_THREAD
 
 #define CG_MUTEX std::shared_mutex
@@ -93,9 +137,20 @@ static inline uint32_t monotonic_ms_u32(void)
 
 #define CG_GET_TIME_STAMP()  monotonic_ms_u32()  
 
-#define LOG_ERR(...) fprintf(stderr, __VA_ARGS__);
-#define LOG_DBG(...) fprintf(stderr, __VA_ARGS__);
+#define LOG_ERR(...) CMSISSTREAM_LOG_ERR(__VA_ARGS__);
+#define LOG_DBG(...) CMSISSTREAM_LOG_DBG(__VA_ARGS__);
 
-#define CG_TENSOR_NB_DIMS 2
+#define CG_TENSOR_NB_DIMS CMSISSTREAM_TENSOR_MAX_DIMENSIONS
 
-#define CG_MAX_VALUES 4
+#define CG_MAX_VALUES CMSISSTREAM_MAX_NUMBER_EVENT_ARGUMENTS
+
+class ContextSwitch
+{
+  public:
+    virtual ~ContextSwitch()
+    {
+    }
+
+    virtual int pause() = 0;
+    virtual int resume() = 0;
+};
