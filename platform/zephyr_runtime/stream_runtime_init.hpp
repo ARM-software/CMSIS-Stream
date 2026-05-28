@@ -70,6 +70,17 @@ extern int stream_init_memory();
 extern bool stream_start_threads(stream_execution_context_t *context);
 
 /**
+ * @brief Request CMSIS Stream runtime threads to stop.
+ *
+ * @param callerIsRuntimeThread Set to true when this function is called from a
+ * runtime callback or graph node that is running on one of the runtime threads.
+ * Peer runtime threads are joined before this function returns. When the caller
+ * is itself a runtime thread, that current thread is not joined because a
+ * thread cannot join itself.
+ */
+extern void stream_stop_threads(bool callerIsRuntimeThread = false);
+
+/**
  * @brief Wait for the CMSIS Stream threads to finish
  * This function blocks until the stream and event threads
  * have completed their execution.

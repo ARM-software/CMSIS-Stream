@@ -130,9 +130,17 @@ static void timer_callback(void *argument)
 static void handle_error(int32_t origin, int32_t error_code, int32_t info)
 {
     CMSISSTREAM_LOG_ERR("Error from origin %d with code %d\n", origin, error_code);
-    // In case of errors, the threads are already stopped
-    // so we do not need to wait for them to end before freeing resources.
-    stream_free_all(false);
+    /*
+     * This handler can be called from a runtime thread or from a graph node.
+     * stream_free_all(true) may delete nodes, FIFOs, queues, and scheduler
+     * resources that are still present on the current call stack. It is safe
+     * here because the example exits immediately after freeing resources.
+     *
+     * If an application wants to recover and restart a graph, do not return
+     * from this handler after freeing resources. Instead, signal a supervisor
+     * thread and let that thread stop/free/recreate/start the graph.
+     */
+    stream_free_all(true);
     CMSISSTREAM_LOG_DBG("Exiting application\n");
     // To quit FVP
     exit(1);
@@ -282,13 +290,9 @@ error:
 /**
  * @brief Stop all stream threads and release scheduler/runtime resources.
  */
-void stream_free_all(bool mustWait)
+void stream_free_all(bool callerIsRuntimeThread)
 {
-    // Wait for the runtime to stop before freeing graph-owned resources.
-    if (mustWait)
-    {
-        stream_wait_for_threads_end();
-    }
+    stream_stop_threads(callerIsRuntimeThread);
 
     // Release resources allocated by the generated schedulers.
     free_scheduler_hello();

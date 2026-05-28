@@ -49,6 +49,8 @@ osMemoryPoolId_t cg_mutexPool;
 static osThreadId_t tid_stream = nullptr;
 static osThreadId_t tid_event = nullptr;
 
+// CMSIS-RTOS threads must be created with osThreadJoinable when the runtime
+// later waits for them with osThreadJoin().
 static const osThreadAttr_t stream_thread_attr = {
 	    .attr_bits = osThreadJoinable,
         .stack_size = CMSISSTREAM_STREAM_THREAD_STACK_SIZE,
@@ -65,6 +67,7 @@ static const osThreadAttr_t event_thread_attr = {
 using namespace arm_cmsis_stream;
 
 std::atomic<stream_execution_context_t *> current_context = nullptr;
+static std::atomic<bool> runtime_stop_requested = false;
 
 static void set_current_context(stream_execution_context_t *context)
 {
@@ -114,6 +117,11 @@ static void wait_stream_resume(stream_execution_context_t *context)
 		if ((res & STREAM_RESUME_EVENT) == 0)
 		{
 			continue;
+		}
+
+		if (runtime_stop_requested.load())
+		{
+			return;
 		}
 
 		// The context may have changed after a resume event
@@ -166,6 +174,10 @@ static void pause_stream_thread_on_error(stream_execution_context_t *context, cg
 
 	wait_event_thread_paused();
 	report_runtime_error(kStreamThread, status, CG_UNIDENTIFIED_NODE, 0);
+	if (runtime_stop_requested.load())
+	{
+		return;
+	}
 	osEventFlagsSet(cg_streamReplyEvent, STREAM_PAUSED_EVENT);
 	wait_stream_resume(context);
 }
@@ -180,6 +192,10 @@ static void pause_stream_thread_on_stop_graph(stream_execution_context_t *contex
 
 	wait_event_thread_paused();
 	report_stop_graph();
+	if (runtime_stop_requested.load())
+	{
+		return;
+	}
 	osEventFlagsSet(cg_streamReplyEvent, STREAM_PAUSED_EVENT);
 	wait_stream_resume(context);
 }
@@ -237,6 +253,10 @@ static void event_thread_function(void *arg)
 				report_runtime_error(kEventThread, event_error,
 						     event_error_node, event_error_info);
 			}
+			if (runtime_stop_requested.load())
+			{
+				return;
+			}
 			osEventFlagsSet(cg_streamReplyEvent, EVENT_PAUSED_EVENT);
 			wait_event_resume();
 		}
@@ -259,12 +279,20 @@ static void stream_thread_function(void *)
 		{
 			CMSISSTREAM_LOG_ERR("Scheduler error %d\n", error);
 			pause_stream_thread_on_error(context, static_cast<cg_status>(error));
+			if (runtime_stop_requested.load())
+			{
+				break;
+			}
 			continue;
 		}
 		if ((context->scheduler_length > 0) && (error == CG_STOP_SCHEDULER))
 		{
 			CMSISSTREAM_LOG_DBG("Scheduler requested stop graph\n");
 			pause_stream_thread_on_stop_graph(context);
+			if (runtime_stop_requested.load())
+			{
+				break;
+			}
 			continue;
 		}
 		// When there is no dataflow node, the data flow graph returns
@@ -288,6 +316,10 @@ static void stream_thread_function(void *)
 
 			
 			wait_stream_resume(context);
+			if (runtime_stop_requested.load())
+			{
+				break;
+			}
 		}
 		else
 		{
@@ -408,6 +440,7 @@ bool stream_start_threads(stream_execution_context_t *context)
 	}
 
 	set_current_context(context);
+	runtime_stop_requested.store(false);
 
     tid_event = osThreadNew(event_thread_function, NULL, &event_thread_attr);
 	if (tid_event == nullptr)
@@ -426,6 +459,51 @@ bool stream_start_threads(stream_execution_context_t *context)
 	}
 	CMSISSTREAM_LOG_DBG("Stream runtime threads started\n");
 	return true;
+}
+
+static void stop_thread(osThreadId_t &tid, bool callerIsRuntimeThread)
+{
+	if (tid == nullptr)
+	{
+		return;
+	}
+
+	osThreadId_t current = osThreadGetId();
+	if ((current != nullptr) && (current == tid))
+	{
+		(void)callerIsRuntimeThread;
+		tid = nullptr;
+		return;
+	}
+
+	(void)osThreadJoin(tid);
+	tid = nullptr;
+}
+
+void stream_stop_threads(bool callerIsRuntimeThread)
+{
+	runtime_stop_requested.store(true);
+
+	stream_execution_context_t *context = current_context.load();
+	if ((context != nullptr) && (context->evtQueue != nullptr))
+	{
+		context->evtQueue->end();
+	}
+
+	if (cg_streamEvent != nullptr)
+	{
+		osEventFlagsSet(cg_streamEvent, STREAM_DONE_EVENT | STREAM_RESUME_EVENT | EVENT_RESUME_EVENT);
+	}
+	if (cg_streamReplyEvent != nullptr)
+	{
+		osEventFlagsSet(cg_streamReplyEvent,
+				STREAM_PAUSED_EVENT | STREAM_RESUMED_EVENT |
+				EVENT_PAUSED_EVENT | EVENT_RESUMED_EVENT);
+	}
+
+	stop_thread(tid_event, callerIsRuntimeThread);
+	stop_thread(tid_stream, callerIsRuntimeThread);
+	set_current_context(nullptr);
 }
 
 void stream_wait_for_threads_end()

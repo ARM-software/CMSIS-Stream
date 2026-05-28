@@ -38,7 +38,9 @@ void stream_configure_and_start();
 /**
  * @brief Stop stream execution and release all stream resources.
  *
- * The optional argument controls whether the function waits for runtime threads
- * to finish before releasing resources.
+ * @param callerIsRuntimeThread Use false when called from a normal control
+ * thread after stream execution has ended. Use true when called from an
+ * application handler or graph node running on a runtime thread. Peer runtime
+ * threads are still stopped before graph resources are freed.
  */
-void stream_free_all(bool mustWait = true);
+void stream_free_all(bool callerIsRuntimeThread = false);

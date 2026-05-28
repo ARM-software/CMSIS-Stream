@@ -47,6 +47,8 @@ struct k_mem_slab cg_mutexPool;
 static k_tid_t tid_stream = nullptr;
 static k_tid_t tid_event = nullptr;
 
+// Zephyr does not use a joinable creation flag. k_thread_join() waits on the
+// persistent struct k_thread object as long as it remains valid.
 static struct k_thread stream_thread;
 static struct k_thread event_thread;
 
@@ -56,6 +58,7 @@ static K_THREAD_STACK_DEFINE(stream_thread_stack, CONFIG_CMSISSTREAM_STREAM_THRE
 using namespace arm_cmsis_stream;
 
 std::atomic<stream_execution_context_t *> current_context = nullptr;
+static std::atomic<bool> runtime_stop_requested = false;
 
 static void set_current_context(stream_execution_context_t *context)
 {
@@ -105,6 +108,11 @@ static void wait_stream_resume(stream_execution_context_t *context)
 		if ((res & STREAM_RESUME_EVENT) == 0)
 		{
 			continue;
+		}
+
+		if (runtime_stop_requested.load())
+		{
+			return;
 		}
 
 		// The context may have changed after a resume event
@@ -163,6 +171,10 @@ static void pause_stream_thread_on_error(stream_execution_context_t *context, cg
 
 	wait_event_thread_paused();
 	report_runtime_error(kStreamThread, status, CG_UNIDENTIFIED_NODE, 0);
+	if (runtime_stop_requested.load())
+	{
+		return;
+	}
 	k_event_post(&cg_streamReplyEvent, STREAM_PAUSED_EVENT);
 	wait_stream_resume(context);
 }
@@ -177,6 +189,10 @@ static void pause_stream_thread_on_stop_graph(stream_execution_context_t *contex
 
 	wait_event_thread_paused();
 	report_stop_graph();
+	if (runtime_stop_requested.load())
+	{
+		return;
+	}
 	k_event_post(&cg_streamReplyEvent, STREAM_PAUSED_EVENT);
 	wait_stream_resume(context);
 }
@@ -238,6 +254,10 @@ static void event_thread_function(void *, void *, void *)
 				report_runtime_error(kEventThread, event_error,
 						     event_error_node, event_error_info);
 			}
+			if (runtime_stop_requested.load())
+			{
+				return;
+			}
 			k_event_post(&cg_streamReplyEvent, EVENT_PAUSED_EVENT);
 			wait_event_resume();
 		}
@@ -260,12 +280,20 @@ static void stream_thread_function(void *, void *, void *)
 		{
 			LOG_ERR("Scheduler error %d\n", error);
 			pause_stream_thread_on_error(context, static_cast<cg_status>(error));
+			if (runtime_stop_requested.load())
+			{
+				break;
+			}
 			continue;
 		}
 		if ((context->scheduler_length > 0) && (error == CG_STOP_SCHEDULER))
 		{
 			LOG_DBG("Scheduler requested stop graph\n");
 			pause_stream_thread_on_stop_graph(context);
+			if (runtime_stop_requested.load())
+			{
+				break;
+			}
 			continue;
 		}
 		// When there is no dataflow node, the data flow graph returns
@@ -289,6 +317,10 @@ static void stream_thread_function(void *, void *, void *)
 
 			
 			wait_stream_resume(context);
+			if (runtime_stop_requested.load())
+			{
+				break;
+			}
 		}
 		else
 		{
@@ -432,6 +464,7 @@ bool stream_start_threads(stream_execution_context_t *context)
 	}
 
 	set_current_context(context);
+	runtime_stop_requested.store(false);
 
 	tid_event = k_thread_create(
 		&event_thread, event_thread_stack, K_THREAD_STACK_SIZEOF(event_thread_stack),
@@ -460,6 +493,44 @@ bool stream_start_threads(stream_execution_context_t *context)
 
 	LOG_DBG("Stream runtime threads started\n");
 	return true;
+}
+
+static void stop_thread(k_tid_t &tid, struct k_thread *thread, bool callerIsRuntimeThread)
+{
+	if (tid == nullptr)
+	{
+		return;
+	}
+
+	if (k_current_get() == tid)
+	{
+		(void)callerIsRuntimeThread;
+		tid = nullptr;
+		return;
+	}
+
+	k_thread_join(thread, K_FOREVER);
+	tid = nullptr;
+}
+
+void stream_stop_threads(bool callerIsRuntimeThread)
+{
+	runtime_stop_requested.store(true);
+
+	stream_execution_context_t *context = current_context.load();
+	if ((context != nullptr) && (context->evtQueue != nullptr))
+	{
+		context->evtQueue->end();
+	}
+
+	k_event_post(&cg_streamEvent, STREAM_DONE_EVENT | STREAM_RESUME_EVENT | EVENT_RESUME_EVENT);
+	k_event_post(&cg_streamReplyEvent,
+		     STREAM_PAUSED_EVENT | STREAM_RESUMED_EVENT |
+		     EVENT_PAUSED_EVENT | EVENT_RESUMED_EVENT);
+
+	stop_thread(tid_event, &event_thread, callerIsRuntimeThread);
+	stop_thread(tid_stream, &stream_thread, callerIsRuntimeThread);
+	set_current_context(nullptr);
 }
 
 void stream_wait_for_threads_end()
