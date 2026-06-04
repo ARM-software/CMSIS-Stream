@@ -1,6 +1,6 @@
 //--- list of versions ---
 const versions = {
-    "main": "v3.2.0-38-gd18495a0"
+    "main": "v3.2.0-39-gefdc521"
 }
 //--- list of versions ---
 
