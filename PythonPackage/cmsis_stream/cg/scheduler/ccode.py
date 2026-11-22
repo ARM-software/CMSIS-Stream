@@ -55,9 +55,9 @@ def mk_selector_inits(sched):
       if r["selectors"]:
          selString = ", ".join([str(x) for x in r["selectors"]])
          if r["isTemplate"]:
-            l.append(f"template<>\nstd::array<uint16_t,{len(r["selectors"])}> {s}::selectors = {{{selString}}};")
+            l.append(f"template<>\nstd::array<uint16_t,{len(r['selectors'])}> {s}::selectors = {{{selString}}};")
          else:
-            l.append(f"std::array<uint16_t,{len(r["selectors"])}> {s}::selectors = {{{selString}}};")
+            l.append(f"std::array<uint16_t,{len(r['selectors'])}> {s}::selectors = {{{selString}}};")
    return "\n".join(l)
    #print(sels)
 
